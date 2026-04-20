@@ -1,0 +1,257 @@
+{% comment %} Home — Brand Story {% endcomment %}
+
+<section class="ame-story">
+  <div class="ame-story__inner">
+
+    <!-- Text column -->
+    <div class="ame-story__text ame-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      <h2 class="ame-story__title">{{ section.settings.title }}</h2>
+
+      {%- if section.settings.body != blank -%}
+        <div class="ame-story__body">{{ section.settings.body }}</div>
+      {%- endif -%}
+
+      <!-- Stats grid -->
+      {%- if section.blocks.size > 0 -%}
+        <div class="ame-story__stats">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'stat' -%}
+              <div class="ame-story__stat" {{ block.shopify_attributes }}>
+                <p class="ame-story__stat-value">{{ block.settings.value }}</p>
+                <p class="ame-story__stat-label">{{ block.settings.label }}</p>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <!-- Image column -->
+    <div class="ame-story__image-col ame-reveal">
+      <div class="ame-story__image-wrap">
+        {%- if section.settings.image != blank -%}
+          {{
+            section.settings.image
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              class: 'ame-story__image',
+              alt: section.settings.image.alt | escape
+          }}
+        {%- else -%}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
+        {%- endif -%}
+      </div>
+
+      <!-- Floating satisfaction chip -->
+      {%- if section.settings.floating_label != blank -%}
+        <div class="ame-story__float-chip">
+          <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
+          <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
+          {%- if section.settings.floating_sublabel != blank -%}
+            <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-story {
+    padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+
+  .ame-story__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  @media (min-width: 768px) {
+    .ame-story__inner { grid-template-columns: 1fr 1fr; gap: 5rem; }
+  }
+
+  .ame-story__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--color-on-background, #201b14);
+    margin-bottom: 2rem;
+  }
+  .ame-story__title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-primary, #5a4742);
+  }
+
+  .ame-story__body {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem;
+    line-height: 1.9;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin-bottom: 3rem;
+  }
+  .ame-story__body p + p { margin-top: 1rem; }
+
+  .ame-story__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.2);
+  }
+
+  .ame-story__stat-value {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-story__stat-label {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    margin-top: 0.25rem;
+  }
+
+  /* Image */
+  .ame-story__image-col { position: relative; }
+
+  .ame-story__image-wrap {
+    border-radius: var(--radius-lg, 0.5rem);
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--color-surface-container-highest, #ece1d5);
+    box-shadow: var(--shadow-float, 0 32px 64px rgba(32,27,20,0.06));
+  }
+
+  .ame-story__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.9;
+  }
+  .ame-story__image--placeholder { opacity: 0.3; }
+
+  /* Floating chip */
+  .ame-story__float-chip {
+    position: absolute;
+    bottom: -1.5rem;
+    left: -1.5rem;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg, 0.5rem);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-ambient, 0 16px 32px rgba(32,27,20,0.06));
+  }
+
+  .ame-story__float-label {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    margin-bottom: 0.25rem;
+  }
+  .ame-story__float-value {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-story__float-sub {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    color: rgba(90, 71, 66, 0.5);
+    margin-top: 0.25rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "História da Marca",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título",
+      "default": "Nossa Filosofia"
+    },
+    {
+      "type": "richtext",
+      "id": "title",
+      "label": "Título",
+      "default": "<p>Elegância<br><em>Aerodinámica.</em></p>"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Texto",
+      "default": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagem"
+    },
+    {
+      "type": "header",
+      "content": "Chip flutuante"
+    },
+    {
+      "type": "text",
+      "id": "floating_eyebrow",
+      "label": "Rótulo",
+      "default": "Satisfação"
+    },
+    {
+      "type": "text",
+      "id": "floating_label",
+      "label": "Valor",
+      "default": "98.7%"
+    },
+    {
+      "type": "text",
+      "id": "floating_sublabel",
+      "label": "Sublabel",
+      "default": "de clientes satisfeitos"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Estatística",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Valor", "default": "7+" },
+        { "type": "text", "id": "label", "label": "Rótulo", "default": "Anos de Craft" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "História da Marca",
+      "blocks": [
+        { "type": "stat", "settings": { "value": "7+", "label": "Anos de Craft" } },
+        { "type": "stat", "settings": { "value": "3", "label": "Curtumes" } },
+        { "type": "stat", "settings": { "value": "∞", "label": "Durabilidade" } }
+      ]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

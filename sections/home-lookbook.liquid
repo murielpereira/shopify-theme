@@ -1,0 +1,155 @@
+{% comment %} Home — Lookbook masonry offset {% endcomment %}
+
+<section class="ame-lookbook" style="background: var(--color-surface-container, #f8ece0);">
+  <div class="ame-lookbook__inner">
+
+    <div class="ame-lookbook__header ame-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="ame-lookbook__title">{{ section.settings.title }}</h2>
+    </div>
+
+    <div class="ame-lookbook__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'image' -%}
+          <div
+            class="ame-lookbook__item ame-reveal{% if forloop.index == 2 %} ame-lookbook__item--offset{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 800
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'ame-lookbook__img',
+                  alt: block.settings.image.alt | escape
+              }}
+            {%- else -%}
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'ame-lookbook__img ame-lookbook__img--placeholder' }}
+            {%- endif -%}
+            {%- if block.settings.caption != blank -%}
+              <p class="ame-lookbook__caption">{{ block.settings.caption }}</p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-lookbook { padding: var(--section-gap, 7.5rem) 0; }
+
+  .ame-lookbook__inner {
+    padding: 0 var(--page-margin, 2rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+
+  .ame-lookbook__header { margin-bottom: 5rem; }
+
+  .ame-lookbook__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-on-background, #201b14);
+  }
+
+  .ame-lookbook__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  @media (min-width: 768px) {
+    .ame-lookbook__grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .ame-lookbook__item {
+    border-radius: var(--radius-lg, 0.5rem);
+    overflow: hidden;
+    background: var(--color-surface-container-highest, #ece1d5);
+    aspect-ratio: 3 / 4;
+    position: relative;
+    transition: transform 0.6s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+  }
+  .ame-lookbook__item:hover { transform: translateY(-8px); }
+  @media (min-width: 768px) {
+    .ame-lookbook__item--offset { margin-top: 6rem; }
+  }
+
+  .ame-lookbook__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.9;
+    transition: transform 1.1s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+  }
+  .ame-lookbook__img--placeholder { opacity: 0.3; }
+  .ame-lookbook__item:hover .ame-lookbook__img { transform: scale(1.04); }
+
+  .ame-lookbook__caption {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.05em;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Lookbook",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título",
+      "default": "Lookbook 2024"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "O Atelier em Cena."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Foto",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem"
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Legenda"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Lookbook",
+      "blocks": [
+        { "type": "image" },
+        { "type": "image" },
+        { "type": "image" }
+      ]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

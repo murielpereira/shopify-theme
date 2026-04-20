@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Âme Acessórios Pet — Elegância Aerodinámica</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-tertiary-fixed": "#1d1b19",
+        "surface-container-highest": "#ece1d5",
+        "on-primary-fixed": "#271814",
+        "inverse-primary": "#dcc1ba",
+        "primary-container": "#735e59",
+        "on-background": "#201b14",
+        "tertiary": "#4d4a48",
+        "inverse-surface": "#362f27",
+        "background": "#fff8f3",
+        "outline-variant": "#d2c3c0",
+        "error-container": "#ffdad6",
+        "on-surface-variant": "#4f4442",
+        "surface-bright": "#fff8f3",
+        "tertiary-fixed": "#e7e2de",
+        "on-error-container": "#93000a",
+        "outline": "#817471",
+        "on-surface": "#201b14",
+        "on-primary-container": "#f5d9d3",
+        "on-primary": "#ffffff",
+        "on-error": "#ffffff",
+        "on-secondary-container": "#696158",
+        "surface-container-lowest": "#ffffff",
+        "surface-container": "#f8ece0",
+        "primary": "#5a4742",
+        "secondary-container": "#e9ded2",
+        "tertiary-fixed-dim": "#cac6c2",
+        "surface-variant": "#ece1d5",
+        "inverse-on-surface": "#fbefe3",
+        "on-primary-fixed-variant": "#55423e",
+        "on-secondary": "#ffffff",
+        "on-secondary-fixed": "#201b14",
+        "surface": "#fff8f3",
+        "secondary": "#655d54",
+        "on-tertiary": "#ffffff",
+        "tertiary-container": "#65625f",
+        "on-secondary-fixed-variant": "#4d463d",
+        "primary-fixed-dim": "#dcc1ba",
+        "surface-container-high": "#f2e6da",
+        "surface-tint": "#6e5a55",
+        "primary-fixed": "#f9dcd6",
+        "on-tertiary-container": "#e3deda",
+        "surface-container-low": "#fef2e5",
+        "error": "#ba1a1a",
+        "surface-dim": "#e3d8cc",
+        "secondary-fixed-dim": "#cfc5b9",
+        "on-tertiary-fixed-variant": "#494644",
+        "secondary-fixed": "#ece1d5"
+      },
+      borderRadius: {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      fontFamily: {
+        "headline": ["Lexend"],
+        "body": ["Lexend"],
+        "label": ["Lexend"]
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { font-family: 'Lexend', sans-serif; }
+
+  /* Page load stagger */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.25s; }
+  .delay-3 { animation-delay: 0.4s; }
+  .delay-4 { animation-delay: 0.55s; }
+  .delay-5 { animation-delay: 0.7s; }
+
+  /* Marquee */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .marquee-inner { animation: marquee 28s linear infinite; }
+
+  /* Grain overlay */
+  .grain::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px;
+  }
+
+  .glass-nav {
+    background: rgba(255,248,243,0.72);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+  }
+
+  /* Hero overflow clip */
+  .hero-clip { clip-path: inset(0); }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Product card hover */
+  .product-card img { transition: transform 1.1s cubic-bezier(0.22,1,0.36,1); }
+  .product-card:hover img { transform: scale(1.06); }
+
+  /* Lookbook item hover */
+  .lookbook-item { transition: transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+  .lookbook-item:hover { transform: translateY(-8px); }
+
+  /* CTA hover shimmer */
+  .cta-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+  .cta-shimmer:hover::after { transform: translateX(100%); }
+
+  /* Section divider dot */
+  .section-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: #d2c3c0;
+    display: inline-block;
+  }
+
+  /* No scrollbar */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-background text-on-background antialiased grain selection:bg-primary selection:text-on-primary">
+
+<!-- ─── BACKGROUND BLOBS ─── -->
+<div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+  <div class="absolute top-[-15%] right-[-8%] w-[55%] h-[55%] rounded-full bg-primary-fixed/25 blur-[120px]"></div>
+  <div class="absolute bottom-[10%] left-[-12%] w-[45%] h-[45%] rounded-full bg-surface-container/60 blur-[100px]"></div>
+</div>
+
+<!-- ─── NAV ─── -->
+<nav class="fixed top-0 z-50 w-full h-20 flex justify-between items-center px-8 md:px-16 glass-nav">
+  <a href="home.html" class="text-xl font-bold tracking-tighter text-primary fade-up">Âme Acessórios Pet</a>
+  <div class="hidden md:flex gap-10 items-center">
+    <a href="home.html"      class="font-label tracking-[0.12em] uppercase text-[11px] text-primary border-b border-primary/30 pb-0.5 transition-all hover:tracking-[0.18em] duration-300">Início</a>
+    <a href="categories.html" class="font-label tracking-[0.12em] uppercase text-[11px] text-primary/50 hover:text-primary transition-all hover:tracking-[0.18em] duration-300">Coleções</a>
+    <a href="product.html"   class="font-label tracking-[0.12em] uppercase text-[11px] text-primary/50 hover:text-primary transition-all hover:tracking-[0.18em] duration-300">Bespoke</a>
+    <a href="#journal"       class="font-label tracking-[0.12em] uppercase text-[11px] text-primary/50 hover:text-primary transition-all hover:tracking-[0.18em] duration-300">Journal</a>
+  </div>
+  <div class="flex items-center gap-5 text-primary">
+    <button class="hover:scale-110 transition-transform duration-300"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 250;">search</span></button>
+    <button class="hover:scale-110 transition-transform duration-300"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 250;">person</span></button>
+    <button class="hover:scale-110 transition-transform duration-300 relative">
+      <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 250;">shopping_bag</span>
+      <span class="absolute -top-1 -right-1 w-4 h-4 bg-primary text-on-primary text-[9px] rounded-full flex items-center justify-center font-bold">2</span>
+    </button>
+    <button class="md:hidden hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 250;">menu</span></button>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="relative min-h-screen pt-20 flex flex-col overflow-hidden">
+  <!-- Asymmetric image block -->
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute top-0 right-0 w-[58%] h-full bg-tertiary-fixed">
+      <img
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk4HkuaTnzbWGxVTRm-00dN64BrSVLt0bSBPSKoNucS_ey-6p4oVZ9n9tN7BOVHfklTnKa9Sh0AloU22tQOvj6dxIEH_xeMdyVLbwzwOEk6ZApCNS3-GL4DmDIaAYqsYHFhbCJStGCoIXZCBXaoRZ3QExem6Kqj-fty2ffdy4ZQxdr0ed81Bc7VkMG1CluofkIZ9ZHfoloBoT4k9aTV431y63HFcRwUJONNb4L1-AFCfaDcmQp_UnDvgbknLPR6Eu32bAOJ7yaqb0"
+        class="w-full h-full object-cover opacity-70 mix-blend-multiply"
+        alt="Luxury leather pet accessories"
+      />
+      <!-- Gradient overlay left edge -->
+      <div class="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-background to-transparent"></div>
+    </div>
+  </div>
+
+  <!-- Hero content -->
+  <div class="relative z-10 flex flex-col justify-center min-h-screen px-8 md:px-16 max-w-[1920px] mx-auto w-full">
+    <div class="max-w-2xl pt-16">
+      <p class="fade-up delay-1 font-label text-[10px] uppercase tracking-[0.22em] text-primary/60 mb-8">Heritage Series — 2024</p>
+      <h1 class="fade-up delay-2 font-headline font-extrabold text-[clamp(3rem,7vw,6.5rem)] leading-[0.92] tracking-[-0.025em] text-on-background mb-10">
+        Crafted<br/>
+        <span class="text-primary italic font-light">for the</span><br/>
+        Avenue.
+      </h1>
+      <p class="fade-up delay-3 font-body text-base text-on-surface-variant leading-[1.8] max-w-sm mb-14">
+        Hand-stitched Tuscan leather accessories for dogs who move with purpose. Precision engineering meets atelier craftsmanship.
+      </p>
+      <div class="fade-up delay-4 flex items-center gap-6">
+        <a href="categories.html" class="cta-shimmer inline-flex items-center gap-3 bg-gradient-to-br from-primary to-primary-container text-on-primary px-10 py-4 rounded-lg font-label uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-transform duration-300 shadow-[0_16px_32px_rgba(32,27,20,0.1)]">
+          Explorar Coleções
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+        </a>
+        <a href="#story" class="font-label text-[11px] uppercase tracking-widest text-primary/70 hover:text-primary transition-colors flex items-center gap-2 group">
+          Nossa História
+          <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="fade-up delay-5 absolute bottom-12 left-8 md:left-16 flex items-center gap-3 text-primary/40">
+      <div class="w-px h-16 bg-gradient-to-b from-transparent to-primary/30"></div>
+      <span class="font-label text-[10px] uppercase tracking-[0.2em] rotate-0">Scroll</span>
+    </div>
+
+    <!-- Hero stats -->
+    <div class="fade-up delay-5 absolute bottom-12 right-8 md:right-16 flex gap-10">
+      <div class="text-right">
+        <p class="font-headline text-3xl font-bold text-on-background">100%</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mt-1">Couro Natural</p>
+      </div>
+      <div class="w-px bg-outline-variant/20"></div>
+      <div class="text-right">
+        <p class="font-headline text-3xl font-bold text-on-background">Artesanal</p>
+        <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mt-1">Feito à Mão</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MARQUEE BAND ─── -->
+<div class="w-full bg-primary overflow-hidden py-4 my-0 flex">
+  <div class="marquee-inner flex gap-0 whitespace-nowrap flex-shrink-0">
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Couro Toscano Full-Grain</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Hardware em Latão Sólido</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Costuras à Mão</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Envio Complimentar</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Edição Limitada</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Couro Toscano Full-Grain</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Hardware em Latão Sólido</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Costuras à Mão</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Envio Complimentar</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+    <span class="font-label text-[11px] uppercase tracking-[0.2em] text-on-primary/60 px-8">Edição Limitada</span>
+    <span class="section-dot mx-2 bg-on-primary/20 self-center"></span>
+  </div>
+</div>
+
+<!-- ─── FEATURED COLLECTIONS ─── -->
+<section class="px-8 md:px-16 max-w-[1920px] mx-auto w-full" style="padding-top: 120px; padding-bottom: 120px;">
+  <div class="reveal flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+    <div>
+      <p class="font-label text-[10px] uppercase tracking-[0.22em] text-primary/50 mb-3">Coleções em Destaque</p>
+      <h2 class="font-headline font-bold text-[clamp(2rem,4vw,3.5rem)] tracking-tight text-on-background leading-tight">
+        Curado para<br/>Cada Silhueta.
+      </h2>
+    </div>
+    <a href="categories.html" class="font-label text-[11px] uppercase tracking-widest text-primary hover:opacity-60 transition-opacity flex items-center gap-2 group flex-shrink-0">
+      Ver Todas
+      <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+    </a>
+  </div>
+
+  <!-- Asymmetric 3-col grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+    <!-- Large feature card -->
+    <div class="md:col-span-7 product-card relative rounded-xl overflow-hidden bg-surface-container aspect-[4/5] md:aspect-auto md:h-[680px] cursor-pointer group" onclick="location.href='product.html'">
+      <img
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk4HkuaTnzbWGxVTRm-00dN64BrSVLt0bSBPSKoNucS_ey-6p4oVZ9n9tN7BOVHfklTnKa9Sh0AloU22tQOvj6dxIEH_xeMdyVLbwzwOEk6ZApCNS3-GL4DmDIaAYqsYHFhbCJStGCoIXZCBXaoRZ3QExem6Kqj-fty2ffdy4ZQxdr0ed81Bc7VkMG1CluofkIZ9ZHfoloBoT4k9aTV431y63HFcRwUJONNb4L1-AFCfaDcmQp_UnDvgbknLPR6Eu32bAOJ7yaqb0"
+        class="w-full h-full object-cover mix-blend-multiply opacity-90"
+        alt="The Veloce Harness"
+      />
+      <!-- Glassmorphic caption overlay -->
+      <div class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-on-background/40 to-transparent">
+        <span class="font-label text-[10px] uppercase tracking-[0.2em] text-on-primary/60 mb-2 block">Heritage Series</span>
+        <h3 class="font-headline font-semibold text-3xl text-on-primary tracking-tight mb-2">The Veloce<br/>Harness</h3>
+        <div class="flex items-center justify-between">
+          <p class="font-headline text-xl text-on-primary/90">R$ 1.950</p>
+          <span class="font-label text-[10px] uppercase tracking-widest text-on-primary/60 flex items-center gap-1">
+            Ver Produto <span class="material-symbols-outlined text-sm">arrow_forward</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column: 2 stacked cards -->
+    <div class="md:col-span-5 flex flex-col gap-6">
+
+      <div class="product-card relative rounded-xl overflow-hidden bg-surface-container-high h-[320px] cursor-pointer group" onclick="location.href='product.html'">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMqOY1JRNJX6HyBti7wn4K1B97VPaUBwKADncicjML5-L0YJzsnvH_RClAC5DI-zdRmKAds0HZMsMMqp-DdrbIgOWhE2dxO8ZHuu0xwAwsXsO0SsDNZbCpLi8zeg9zf8seDzT_oz5Y5-EXp8FXT7BqfQheGqxhKqMy9j4-NXBAVdsmDINVzY4orb-Fde4WiC2UB8bejYYsCKk3JVGuXPVRIfaupb3YTyyceKTxbTcKm_22Fa1Y97TCPURDgQMx3SFRP_4OCj_W0EY"
+          class="w-full h-full object-cover mix-blend-multiply opacity-85"
+          alt="The Monaco Collar"
+        />
+        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-on-background/35 to-transparent">
+          <h3 class="font-headline font-semibold text-xl text-on-primary tracking-tight">The Monaco Collar</h3>
+          <p class="font-headline text-base text-on-primary/80 mt-1">R$ 620</p>
+        </div>
+      </div>
+
+      <div class="product-card relative rounded-xl overflow-hidden bg-surface-container h-[320px] cursor-pointer group" onclick="location.href='product.html'">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNv5PsAXY2gm8xu8TAVEwJfjKOaxJ3SWcDMXv6TYH7CkgT5McD3j3Vl4guQhUzj0c_EcXZw4sJuU-HFpZr1xfajAmDSKKC76XdD-kbLgcMevNS1dFixntFNvcuuawbLvZyC3i0hB0bvEF1ZQz1lfTbtFN_mtkFYPka3DjwsqD7fuPdNJa26KJADYRUhdHQt27nebEjvHbYAi4e4rmR1OFWSAEdjLrBCc25FV_OxvNFgdRv7jizyM8c0PwIf3a8tIOF2KIsB15Q"
+          class="w-full h-full object-cover mix-blend-multiply opacity-85"
+          alt="The Monaco Leash"
+        />
+        <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-on-background/35 to-transparent">
+          <h3 class="font-headline font-semibold text-xl text-on-primary tracking-tight">The Monaco Leash</h3>
+          <p class="font-headline text-base text-on-primary/80 mt-1">R$ 730</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── EDITORIAL LOOKBOOK ─── -->
+<section id="lookbook" class="bg-surface-container" style="padding-top: 120px; padding-bottom: 120px;">
+  <div class="px-8 md:px-16 max-w-[1920px] mx-auto w-full">
+    <div class="reveal mb-20">
+      <p class="font-label text-[10px] uppercase tracking-[0.22em] text-primary/50 mb-3">Lookbook 2024</p>
+      <h2 class="font-headline font-bold text-[clamp(2rem,4vw,3.5rem)] tracking-tight text-on-background">
+        O Atelier em Cena.
+      </h2>
+    </div>
+
+    <!-- Offset masonry grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <div class="lookbook-item reveal rounded-xl overflow-hidden aspect-[3/4] bg-tertiary-fixed">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqau-Dwr36HXpA25dUysfQtJ-FBki7A2Zop4ZZTF22dHsX9DTFklDjfONsRMWSEPNm17iRzLdeXdQ4hNkU9_MEZAale76cQJ9kh8hzprryYb7QLyKbDxqug1ntZWJCOfsffbLvtWSrw4siep__X-7V-MH5XHbSovsaQCtoY1Fxn9OyDxBe4cPI7mEGRIjRHWFO2C4Hu2yLudGxntbMDmo0u6nhLRaTBq-44wTIcxOVQ3ea8JOW3Y9sYUWDb1BsvFXr3E6TfpAX_NE"
+          class="w-full h-full object-cover mix-blend-multiply opacity-90 hover:scale-105 transition-transform duration-[1100ms]"
+          style="transition-timing-function: cubic-bezier(0.22,1,0.36,1);"
+          alt="Lookbook 1"
+        />
+      </div>
+      <div class="lookbook-item reveal md:mt-24 rounded-xl overflow-hidden aspect-[3/4] bg-surface-container-highest">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk4HkuaTnzbWGxVTRm-00dN64BrSVLt0bSBPSKoNucS_ey-6p4oVZ9n9tN7BOVHfklTnKa9Sh0AloU22tQOvj6dxIEH_xeMdyVLbwzwOEk6ZApCNS3-GL4DmDIaAYqsYHFhbCJStGCoIXZCBXaoRZ3QExem6Kqj-fty2ffdy4ZQxdr0ed81Bc7VkMG1CluofkIZ9ZHfoloBoT4k9aTV431y63HFcRwUJONNb4L1-AFCfaDcmQp_UnDvgbknLPR6Eu32bAOJ7yaqb0"
+          class="w-full h-full object-cover mix-blend-multiply opacity-90 hover:scale-105 transition-transform duration-[1100ms]"
+          style="transition-timing-function: cubic-bezier(0.22,1,0.36,1);"
+          alt="Lookbook 2"
+        />
+      </div>
+      <div class="lookbook-item reveal rounded-xl overflow-hidden aspect-[3/4] bg-surface-variant">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMqOY1JRNJX6HyBti7wn4K1B97VPaUBwKADncicjML5-L0YJzsnvH_RClAC5DI-zdRmKAds0HZMsMMqp-DdrbIgOWhE2dxO8ZHuu0xwAwsXsO0SsDNZbCpLi8zeg9zf8seDzT_oz5Y5-EXp8FXT7BqfQheGqxhKqMy9j4-NXBAVdsmDINVzY4orb-Fde4WiC2UB8bejYYsCKk3JVGuXPVRIfaupb3YTyyceKTxbTcKm_22Fa1Y97TCPURDgQMx3SFRP_4OCj_W0EY"
+          class="w-full h-full object-cover mix-blend-multiply opacity-90 hover:scale-105 transition-transform duration-[1100ms]"
+          style="transition-timing-function: cubic-bezier(0.22,1,0.36,1);"
+          alt="Lookbook 3"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── BRAND STORY ─── -->
+<section id="story" class="px-8 md:px-16 max-w-[1920px] mx-auto w-full" style="padding-top: 120px; padding-bottom: 120px;">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <div class="reveal">
+      <p class="font-label text-[10px] uppercase tracking-[0.22em] text-primary/50 mb-6">Nossa Filosofia</p>
+      <h2 class="font-headline font-bold text-[clamp(2rem,4vw,3rem)] tracking-tight text-on-background leading-tight mb-8">
+        Elegância<br/>
+        <span class="text-primary italic font-light">Aerodinámica.</span>
+      </h2>
+      <p class="font-body text-base text-on-surface-variant leading-[1.9] mb-6">
+        Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos. Usamos apenas couro full-grain proveniente de curtumes toscanos certificados.
+      </p>
+      <p class="font-body text-base text-on-surface-variant leading-[1.9] mb-12">
+        O hardware em latão sólido é torneado à mão e envelhecido naturalmente. Cada costura é executada com linha de seda por artesãos que dedicam décadas ao ofício.
+      </p>
+      <div class="grid grid-cols-3 gap-6 pt-8 border-t border-outline-variant/20">
+        <div>
+          <p class="font-headline text-3xl font-bold text-on-background">7+</p>
+          <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mt-1">Anos de Craft</p>
+        </div>
+        <div>
+          <p class="font-headline text-3xl font-bold text-on-background">3</p>
+          <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mt-1">Curtumes Selecionados</p>
+        </div>
+        <div>
+          <p class="font-headline text-3xl font-bold text-on-background">∞</p>
+          <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mt-1">Durabilidade</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal relative">
+      <div class="rounded-xl overflow-hidden aspect-[4/5] bg-surface-container-highest shadow-[0_32px_64px_rgba(32,27,20,0.06)]">
+        <img
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNv5PsAXY2gm8xu8TAVEwJfjKOaxJ3SWcDMXv6TYH7CkgT5McD3j3Vl4guQhUzj0c_EcXZw4sJuU-HFpZr1xfajAmDSKKC76XdD-kbLgcMevNS1dFixntFNvcuuawbLvZyC3i0hB0bvEF1ZQz1lfTbtFN_mtkFYPka3DjwsqD7fuPdNJa26KJADYRUhdHQt27nebEjvHbYAi4e4rmR1OFWSAEdjLrBCc25FV_OxvNFgdRv7jizyM8c0PwIf3a8tIOF2KIsB15Q"
+          class="w-full h-full object-cover mix-blend-multiply opacity-90"
+          alt="Brand story"
+        />
+      </div>
+      <!-- Floating stat chip -->
+      <div class="absolute -bottom-6 -left-6 bg-white/80 backdrop-blur-xl rounded-xl p-6 shadow-[0_16px_32px_rgba(32,27,20,0.08)]">
+        <p class="font-label text-[10px] uppercase tracking-widest text-primary/50 mb-1">Satisfação</p>
+        <p class="font-headline text-2xl font-bold text-on-background">98.7%</p>
+        <p class="font-label text-[10px] text-on-surface-variant/60 mt-1">de clientes satisfeitos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEWSLETTER ─── -->
+<section class="px-8 md:px-16 max-w-[1920px] mx-auto w-full" style="padding-bottom: 120px;">
+  <div class="reveal bg-primary rounded-xl p-12 md:p-20 flex flex-col md:flex-row justify-between items-center gap-10 relative overflow-hidden">
+    <!-- Background texture -->
+    <div class="absolute inset-0 opacity-5 bg-gradient-to-br from-on-primary to-transparent"></div>
+    <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-primary-container/30 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <p class="font-label text-[10px] uppercase tracking-[0.22em] text-on-primary/50 mb-4">Atelier Exclusivo</p>
+      <h2 class="font-headline font-bold text-[clamp(1.75rem,3vw,2.5rem)] tracking-tight text-on-primary leading-tight">
+        Acesso Antecipado<br/>às Novas Peças.
+      </h2>
+    </div>
+    <form class="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:max-w-md" onsubmit="return false;">
+      <input
+        type="email"
+        placeholder="Seu melhor e-mail"
+        class="flex-1 bg-white/10 border-0 border-b border-on-primary/30 text-on-primary placeholder-on-primary/40 px-0 py-3 text-sm focus:ring-0 focus:border-on-primary/70 transition-colors backdrop-blur-sm"
+      />
+      <button class="cta-shimmer bg-on-primary text-primary px-8 py-3 rounded-lg font-label uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-transform duration-300 flex-shrink-0">
+        Entrar
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="w-full bg-surface-container px-8 md:px-16 py-20 max-w-[1920px] mx-auto">
+  <div class="flex flex-col md:flex-row justify-between items-start gap-12">
+    <div class="flex flex-col gap-6">
+      <div class="text-lg font-black tracking-[-0.02em] uppercase text-primary">Âme Acessórios Pet</div>
+      <p class="font-body text-sm leading-[1.6] tracking-wide text-primary/60 max-w-xs">
+        Crafted for Aerodynamic Elegance.
+      </p>
+    </div>
+    <div class="flex flex-col md:flex-row gap-12 md:gap-24">
+      <div class="flex flex-col gap-4">
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="#">O Atelier</a>
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="#">Guia de Cuidados</a>
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="#">Envio & Devoluções</a>
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="#">Política de Privacidade</a>
+      </div>
+      <div class="flex flex-col gap-4">
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="home.html">Início</a>
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="categories.html">Coleções</a>
+        <a class="font-body text-sm text-primary/60 hover:opacity-70 transition-opacity" href="product.html">Produto</a>
+      </div>
+    </div>
+    <div class="pt-8 md:pt-0 flex items-end">
+      <p class="font-body text-xs text-primary/40">© 2024 Âme Acessórios Pet. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

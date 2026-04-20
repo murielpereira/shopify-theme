@@ -1,20 +1,96 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "main": {
-      "type": "hello-world",
-      "settings": {}
+    "hero": {
+      "type": "home-hero",
+      "blocks": {
+        "stat-1": { "type": "stat", "settings": { "value": "100%", "label": "Couro Natural" } },
+        "stat-2": { "type": "stat", "settings": { "value": "Artesanal", "label": "Feito à Mão" } }
+      },
+      "block_order": ["stat-1", "stat-2"],
+      "settings": {
+        "eyebrow": "Heritage Series — 2024",
+        "cta_primary_label": "Explorar Coleções",
+        "cta_secondary_label": "Nossa História"
+      }
+    },
+    "featured-collections": {
+      "type": "home-featured-collections",
+      "blocks": {
+        "card-1": {
+          "type": "card",
+          "settings": {
+            "is_large": true,
+            "badge": "Heritage Series",
+            "label": "The Veloce Harness",
+            "price": "R$ 1.950"
+          }
+        },
+        "card-2": {
+          "type": "card",
+          "settings": {
+            "is_large": false,
+            "label": "The Monaco Collar",
+            "price": "R$ 620"
+          }
+        },
+        "card-3": {
+          "type": "card",
+          "settings": {
+            "is_large": false,
+            "label": "The Monaco Leash",
+            "price": "R$ 730"
+          }
+        }
+      },
+      "block_order": ["card-1", "card-2", "card-3"],
+      "settings": {
+        "eyebrow": "Coleções em Destaque",
+        "title": "Curado para Cada Silhueta.",
+        "cta_label": "Ver Todas"
+      }
+    },
+    "lookbook": {
+      "type": "home-lookbook",
+      "blocks": {
+        "img-1": { "type": "image", "settings": {} },
+        "img-2": { "type": "image", "settings": {} },
+        "img-3": { "type": "image", "settings": {} }
+      },
+      "block_order": ["img-1", "img-2", "img-3"],
+      "settings": {
+        "eyebrow": "Lookbook 2024",
+        "title": "O Atelier em Cena."
+      }
+    },
+    "brand-story": {
+      "type": "home-brand-story",
+      "blocks": {
+        "stat-1": { "type": "stat", "settings": { "value": "7+", "label": "Anos de Craft" } },
+        "stat-2": { "type": "stat", "settings": { "value": "3", "label": "Curtumes" } },
+        "stat-3": { "type": "stat", "settings": { "value": "∞", "label": "Durabilidade" } }
+      },
+      "block_order": ["stat-1", "stat-2", "stat-3"],
+      "settings": {
+        "eyebrow": "Nossa Filosofia",
+        "floating_eyebrow": "Satisfação",
+        "floating_label": "98.7%",
+        "floating_sublabel": "de clientes satisfeitos"
+      }
+    },
+    "newsletter": {
+      "type": "home-newsletter",
+      "settings": {
+        "eyebrow": "Atelier Exclusivo",
+        "title": "Acesso Antecipado às Novas Peças.",
+        "button_label": "Entrar"
+      }
     }
   },
   "order": [
-    "main"
+    "hero",
+    "featured-collections",
+    "lookbook",
+    "brand-story",
+    "newsletter"
   ]
 }

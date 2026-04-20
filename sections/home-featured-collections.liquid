@@ -1,0 +1,280 @@
+{% comment %} Home — Featured Collections grid {% endcomment %}
+
+<section class="ame-feat-col">
+  <div class="ame-feat-col__header ame-reveal">
+    <div>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="ame-feat-col__title">{{ section.settings.title }}</h2>
+    </div>
+    {%- if section.settings.cta_label != blank -%}
+      <a href="{{ section.settings.cta_url }}" class="ame-btn-secondary">
+        {{ section.settings.cta_label }}
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </a>
+    {%- endif -%}
+  </div>
+
+  <div class="ame-feat-col__grid">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign col = block.settings.collection
+        assign img = block.settings.image
+        if img == blank and col != blank
+          assign img = col.featured_image
+        endif
+        if block.settings.is_large
+          assign card_class = 'ame-feat-col__card ame-feat-col__card--large ame-reveal'
+        else
+          assign card_class = 'ame-feat-col__card ame-reveal'
+        endif
+      -%}
+
+      <a
+        href="{% if col != blank %}{{ col.url }}{% else %}{{ block.settings.url }}{% endif %}"
+        class="{{ card_class }}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="ame-feat-col__card-img-wrap">
+          {%- if img != blank -%}
+            {{
+              img
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                class: 'ame-feat-col__card-img',
+                alt: img.alt | escape
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'ame-feat-col__card-img ame-feat-col__card-img--placeholder' }}
+          {%- endif -%}
+        </div>
+
+        <div class="ame-feat-col__card-caption">
+          {%- if block.settings.badge != blank -%}
+            <span class="ame-label-sm ame-feat-col__badge">{{ block.settings.badge }}</span>
+          {%- endif -%}
+          <h3 class="ame-feat-col__card-name">
+            {% if block.settings.label != blank %}
+              {{ block.settings.label }}
+            {% elsif col != blank %}
+              {{ col.title }}
+            {% endif %}
+          </h3>
+          {%- if block.settings.price != blank -%}
+            <p class="ame-feat-col__card-price">{{ block.settings.price }}</p>
+          {%- elsif col != blank and col.products_count > 0 -%}
+            <p class="ame-feat-col__card-price">A partir de {{ col.products.first.price | money }}</p>
+          {%- endif -%}
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-feat-col {
+    padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+
+  .ame-feat-col__header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 4rem;
+  }
+  @media (min-width: 768px) {
+    .ame-feat-col__header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  .ame-feat-col__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--color-on-background, #201b14);
+  }
+
+  /* Asymmetric 12-col grid */
+  .ame-feat-col__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .ame-feat-col__grid {
+      grid-template-columns: repeat(12, 1fr);
+    }
+    .ame-feat-col__card { grid-column: span 5; }
+    .ame-feat-col__card--large { grid-column: span 7; }
+  }
+
+  .ame-feat-col__card {
+    display: block;
+    text-decoration: none;
+    position: relative;
+    border-radius: var(--radius-lg, 0.5rem);
+    overflow: hidden;
+    background: var(--color-surface-container, #f8ece0);
+  }
+
+  .ame-feat-col__card-img-wrap {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+  .ame-feat-col__card--large .ame-feat-col__card-img-wrap {
+    aspect-ratio: 4 / 5;
+  }
+  @media (min-width: 768px) {
+    .ame-feat-col__card--large .ame-feat-col__card-img-wrap { height: 680px; aspect-ratio: unset; }
+    .ame-feat-col__card:not(.ame-feat-col__card--large) .ame-feat-col__card-img-wrap { height: 320px; aspect-ratio: unset; }
+  }
+
+  .ame-feat-col__card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.9;
+    transition: transform 1.1s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+  }
+  .ame-feat-col__card-img--placeholder { opacity: 0.3; }
+  .ame-feat-col__card:hover .ame-feat-col__card-img { transform: scale(1.05); }
+
+  .ame-feat-col__card-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(32,27,20,0.42), transparent);
+  }
+
+  .ame-feat-col__badge {
+    color: rgba(255,255,255,0.6);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .ame-feat-col__card-name {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .ame-feat-col__card--large .ame-feat-col__card-name { font-size: 1.875rem; }
+
+  .ame-feat-col__card-price {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1.125rem;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .ame-label-sm {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Coleções em destaque",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título",
+      "default": "Coleções em Destaque"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Curado para Cada Silhueta."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Texto do link",
+      "default": "Ver Todas"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card de coleção",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Coleção"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem (opcional, sobrepõe a da coleção)"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Nome exibido (opcional)"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Preço exibido (opcional)"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge (ex: Heritage Series)"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link manual (se não houver coleção)"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_large",
+          "label": "Card grande (7 colunas)",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Coleções em destaque",
+      "blocks": [
+        { "type": "card", "settings": { "is_large": true, "badge": "Heritage Series", "label": "The Veloce Harness" } },
+        { "type": "card", "settings": { "is_large": false, "label": "The Monaco Collar" } },
+        { "type": "card", "settings": { "is_large": false, "label": "The Monaco Leash" } }
+      ]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

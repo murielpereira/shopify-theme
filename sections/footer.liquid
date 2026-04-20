@@ -1,55 +1,270 @@
-<footer>
-  <div class="footer__copyright">
-    &copy;
-    {{ 'now' | date: '%Y' }}
-    {{ shop.name | link_to: routes.root_url }}, {{ powered_by_link }}
-  </div>
+<footer class="ame-footer">
+  <div class="ame-footer__inner">
 
-  <div class="footer__links">
-    {% for link in section.settings.menu.links %}
-      {{ link.title | link_to: link.url }}
-    {% endfor %}
-  </div>
+    <!-- Brand column -->
+    <div class="ame-footer__brand">
+      <a href="{{ routes.root_url }}" class="ame-footer__logo">{{ shop.name }}</a>
+      {% if section.settings.tagline != blank %}
+        <p class="ame-footer__tagline">{{ section.settings.tagline }}</p>
+      {% endif %}
 
-  <div class="footer__payment">
-    {% if section.settings.show_payment_icons %}
-      {% for type in shop.enabled_payment_types %}
-        {{ type | payment_type_svg_tag }}
-      {% endfor %}
+      {% if section.settings.social_instagram != blank
+          or section.settings.social_facebook != blank
+          or section.settings.social_whatsapp != blank %}
+        <div class="ame-footer__social">
+          {% if section.settings.social_instagram != blank %}
+            <a href="{{ section.settings.social_instagram }}" target="_blank" rel="noopener" aria-label="Instagram" class="ame-footer__social-link">
+              <span class="material-symbols-outlined">photo_camera</span>
+            </a>
+          {% endif %}
+          {% if section.settings.social_facebook != blank %}
+            <a href="{{ section.settings.social_facebook }}" target="_blank" rel="noopener" aria-label="Facebook" class="ame-footer__social-link">
+              <span class="material-symbols-outlined">thumb_up</span>
+            </a>
+          {% endif %}
+          {% if section.settings.social_whatsapp != blank %}
+            <a href="{{ section.settings.social_whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp" class="ame-footer__social-link">
+              <span class="material-symbols-outlined">chat</span>
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Nav columns -->
+    {% if section.settings.menu_1 != blank %}
+      <div class="ame-footer__nav">
+        {% if section.settings.menu_1_title != blank %}
+          <p class="ame-footer__nav-title">{{ section.settings.menu_1_title }}</p>
+        {% endif %}
+        {% for link in section.settings.menu_1.links %}
+          <a href="{{ link.url }}" class="ame-footer__nav-link">{{ link.title }}</a>
+        {% endfor %}
+      </div>
     {% endif %}
+
+    {% if section.settings.menu_2 != blank %}
+      <div class="ame-footer__nav">
+        {% if section.settings.menu_2_title != blank %}
+          <p class="ame-footer__nav-title">{{ section.settings.menu_2_title }}</p>
+        {% endif %}
+        {% for link in section.settings.menu_2.links %}
+          <a href="{{ link.url }}" class="ame-footer__nav-link">{{ link.title }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Copyright + payment -->
+    <div class="ame-footer__bottom">
+      <p class="ame-footer__copyright">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. Todos os direitos reservados.
+      </p>
+      {% if section.settings.show_payment_icons %}
+        <div class="ame-footer__payment">
+          {% for type in shop.enabled_payment_types %}
+            {{ type | payment_type_svg_tag: class: 'ame-footer__payment-icon' }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
   </div>
 </footer>
 
 {% stylesheet %}
-  footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
+  .ame-footer {
+    background: var(--color-surface-container, #f8ece0);
+    padding: 5rem var(--page-margin, 2rem);
+    margin-top: 0;
   }
-  footer a {
+
+  .ame-footer__inner {
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  @media (min-width: 768px) {
+    .ame-footer__inner {
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 3rem 5rem;
+      align-items: start;
+    }
+  }
+
+  .ame-footer__logo {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
     text-decoration: none;
-    color: var(--color-foreground);
+    display: block;
+    margin-bottom: 1rem;
   }
-  footer .footer__links,
-  footer .footer__payment {
+
+  .ame-footer__tagline {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(90, 71, 66, 0.6);
+    max-width: 22rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ame-footer__social {
     display: flex;
     gap: 1rem;
   }
+
+  .ame-footer__social-link {
+    color: rgba(90, 71, 66, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.25s ease, transform 0.25s ease;
+  }
+  .ame-footer__social-link:hover {
+    color: var(--color-primary, #5a4742);
+    transform: scale(1.1);
+  }
+  .ame-footer__social-link .material-symbols-outlined {
+    font-size: 1.25rem;
+    font-variation-settings: 'wght' 250;
+  }
+
+  .ame-footer__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .ame-footer__nav-title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.4);
+    margin-bottom: 0.25rem;
+  }
+
+  .ame-footer__nav-link {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    color: rgba(90, 71, 66, 0.6);
+    text-decoration: none;
+    transition: opacity 0.25s ease;
+  }
+  .ame-footer__nav-link:hover { opacity: 0.7; }
+
+  /* Bottom row — spans all columns */
+  .ame-footer__bottom {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.2);
+  }
+  @media (min-width: 768px) {
+    .ame-footer__bottom {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .ame-footer__copyright {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    color: rgba(90, 71, 66, 0.4);
+  }
+  .ame-footer__copyright a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ame-footer__payment {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ame-footer__payment-icon {
+    height: 1.5rem;
+    width: auto;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+  }
+  .ame-footer__payment-icon:hover { opacity: 0.7; }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.footer",
+  "name": "Rodapé",
   "settings": [
     {
+      "type": "text",
+      "id": "tagline",
+      "label": "Slogan",
+      "default": "Crafted for Aerodynamic Elegance."
+    },
+    {
+      "type": "header",
+      "content": "Menus"
+    },
+    {
+      "type": "text",
+      "id": "menu_1_title",
+      "label": "Título coluna 1",
+      "default": "Empresa"
+    },
+    {
       "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu"
+      "id": "menu_1",
+      "label": "Menu coluna 1",
+      "default": "footer"
+    },
+    {
+      "type": "text",
+      "id": "menu_2_title",
+      "label": "Título coluna 2",
+      "default": "Loja"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_2",
+      "label": "Menu coluna 2"
+    },
+    {
+      "type": "header",
+      "content": "Redes sociais"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook"
+    },
+    {
+      "type": "url",
+      "id": "social_whatsapp",
+      "label": "WhatsApp"
+    },
+    {
+      "type": "header",
+      "content": "Pagamento"
     },
     {
       "type": "checkbox",
       "id": "show_payment_icons",
-      "label": "t:labels.show_payment_icons",
+      "label": "Exibir ícones de pagamento",
       "default": true
     }
   ]

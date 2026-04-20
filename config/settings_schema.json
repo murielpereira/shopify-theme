@@ -1,82 +1,167 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Skeleton",
-    "theme_version": "0.1.0",
-    "theme_author": "Shopify",
+    "theme_name": "Âme Acessórios Pet",
+    "theme_version": "1.0.0",
+    "theme_author": "Âme",
     "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
     "theme_support_url": "https://support.shopify.com/"
   },
   {
-    "name": "t:general.typography",
+    "name": "Tipografia",
     "settings": [
-      {
-        "type": "header",
-        "content": "t:general.fonts"
-      },
       {
         "type": "font_picker",
         "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
+        "default": "lexend_n4",
+        "label": "Fonte principal"
       }
     ]
   },
   {
-    "name": "t:general.layout",
+    "name": "Layout",
     "settings": [
       {
         "type": "select",
         "id": "max_page_width",
-        "label": "t:labels.page_width",
+        "label": "Largura máxima da página",
         "options": [
-          {
-            "value": "90rem",
-            "label": "t:options.page_width.narrow"
-          },
-          {
-            "value": "110rem",
-            "label": "t:options.page_width.wide"
-          }
+          { "value": "90rem",  "label": "Estreito (90rem)" },
+          { "value": "110rem", "label": "Largo (110rem)" },
+          { "value": "120rem", "label": "Full (120rem)" }
         ],
-        "default": "90rem"
+        "default": "120rem"
       },
       {
         "type": "range",
         "id": "min_page_margin",
-        "min": 10,
-        "max": 100,
-        "step": 1,
+        "min": 16,
+        "max": 120,
+        "step": 8,
         "unit": "px",
-        "label": "t:labels.page_margin",
-        "default": 20
+        "label": "Margem lateral",
+        "default": 64
+      },
+      {
+        "type": "range",
+        "id": "section_gap",
+        "min": 60,
+        "max": 160,
+        "step": 10,
+        "unit": "px",
+        "label": "Espaçamento entre seções",
+        "default": 120
       }
     ]
   },
   {
-    "name": "t:general.colors",
+    "name": "Cores",
     "settings": [
       {
-        "type": "color",
-        "id": "background_color",
-        "default": "#FFFFFF",
-        "label": "t:labels.background"
+        "type": "header",
+        "content": "Paleta principal"
       },
       {
         "type": "color",
-        "id": "foreground_color",
-        "default": "#333333",
-        "label": "t:labels.foreground"
+        "id": "color_primary",
+        "default": "#5a4742",
+        "label": "Cor primária"
       },
       {
-        "type": "range",
-        "id": "input_corner_radius",
-        "min": 0,
-        "max": 10,
-        "step": 1,
-        "unit": "px",
-        "label": "t:labels.input_corner_radius",
-        "default": 4
+        "type": "color",
+        "id": "color_primary_container",
+        "default": "#735e59",
+        "label": "Container primário"
+      },
+      {
+        "type": "color",
+        "id": "color_on_primary",
+        "default": "#ffffff",
+        "label": "Texto sobre primário"
+      },
+      {
+        "type": "header",
+        "content": "Superfícies"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "default": "#fff8f3",
+        "label": "Fundo da página"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_container",
+        "default": "#f8ece0",
+        "label": "Container de superfície"
+      },
+      {
+        "type": "header",
+        "content": "Texto"
+      },
+      {
+        "type": "color",
+        "id": "color_on_background",
+        "default": "#201b14",
+        "label": "Texto principal"
+      },
+      {
+        "type": "color",
+        "id": "color_on_surface_variant",
+        "default": "#4f4442",
+        "label": "Texto secundário"
+      }
+    ]
+  },
+  {
+    "name": "Cabeçalho",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "header_sticky",
+        "label": "Cabeçalho fixo ao rolar",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "header_transparent",
+        "label": "Transparente sobre o hero",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Carrinho",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Tipo de carrinho",
+        "options": [
+          { "value": "page",    "label": "Página de carrinho" },
+          { "value": "drawer",  "label": "Gaveta lateral" }
+        ],
+        "default": "drawer"
+      }
+    ]
+  },
+  {
+    "name": "Redes Sociais",
+    "settings": [
+      {
+        "type": "url",
+        "id": "social_instagram",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook",
+        "label": "Facebook"
+      },
+      {
+        "type": "url",
+        "id": "social_whatsapp",
+        "label": "WhatsApp"
       }
     ]
   }

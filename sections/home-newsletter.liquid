@@ -1,0 +1,191 @@
+{% comment %} Home — Newsletter CTA {% endcomment %}
+
+<section class="ame-newsletter-wrap">
+  <div class="ame-newsletter ame-reveal">
+    <div class="ame-newsletter__bg-circle" aria-hidden="true"></div>
+
+    <div class="ame-newsletter__text">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-newsletter__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="ame-newsletter__title">{{ section.settings.title }}</h2>
+    </div>
+
+    {%- form 'customer', id: 'newsletter-form' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      <div class="ame-newsletter__form">
+        <div class="ame-newsletter__input-wrap">
+          <input
+            id="newsletter-email"
+            type="email"
+            name="contact[email]"
+            class="ame-newsletter__input"
+            placeholder="Seu melhor e-mail"
+            required
+            autocomplete="email"
+            aria-label="E-mail"
+          >
+        </div>
+        <button type="submit" class="ame-newsletter__btn">
+          {{ section.settings.button_label | default: 'Entrar' }}
+        </button>
+      </div>
+      {%- if form.posted_successfully? -%}
+        <p class="ame-newsletter__success">Obrigada! Você receberá acesso antecipado às novas peças.</p>
+      {%- endif -%}
+      {%- if form.errors -%}
+        <p class="ame-newsletter__error">{{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}</p>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-newsletter-wrap {
+    padding: 0 var(--page-margin, 2rem) var(--section-gap, 7.5rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+
+  .ame-newsletter {
+    background: var(--color-primary, #5a4742);
+    border-radius: var(--radius-lg, 0.5rem);
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .ame-newsletter {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5rem 5rem;
+    }
+  }
+
+  /* Decorative bg circle */
+  .ame-newsletter__bg-circle {
+    position: absolute;
+    top: -6rem;
+    right: -6rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 50%;
+    background: rgba(115, 94, 89, 0.3);
+    filter: blur(48px);
+    pointer-events: none;
+  }
+
+  .ame-newsletter__text { position: relative; z-index: 1; }
+
+  .ame-newsletter__eyebrow {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 1rem;
+  }
+
+  .ame-newsletter__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: #ffffff;
+  }
+
+  .ame-newsletter__form {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  @media (min-width: 480px) {
+    .ame-newsletter__form { flex-direction: row; max-width: 28rem; }
+  }
+
+  .ame-newsletter__input-wrap { flex: 1; }
+
+  .ame-newsletter__input {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    border-radius: 0;
+    color: #ffffff;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    padding: 0.75rem 0;
+    outline: none;
+    transition: border-color 0.25s ease;
+  }
+  .ame-newsletter__input::placeholder { color: rgba(255,255,255,0.4); }
+  .ame-newsletter__input:focus { border-bottom-color: rgba(255,255,255,0.7); }
+
+  .ame-newsletter__btn {
+    background: #ffffff;
+    color: var(--color-primary, #5a4742);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius-lg, 0.5rem);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .ame-newsletter__btn:hover { transform: scale(1.02); opacity: 0.9; }
+
+  .ame-newsletter__success {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 0.75rem;
+  }
+  .ame-newsletter__error {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    color: #fca5a5;
+    margin-top: 0.75rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título",
+      "default": "Atelier Exclusivo"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Acesso Antecipado às Novas Peças."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "Entrar"
+    }
+  ],
+  "presets": [{ "name": "Newsletter" }],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

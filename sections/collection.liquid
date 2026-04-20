@@ -1,47 +1,263 @@
-{% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
+{% comment %} Âme — Coleção: header editorial + sidebar + grid {% endcomment %}
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
-{% endcomment %}
+<header class="ame-col-header full-width">
+  <div class="ame-col-header__inner">
+    <div class="ame-fade-up ame-delay-1">
+      <p class="ame-label-sm">Coleções</p>
+      <h1 class="ame-col-header__title">
+        {{ collection.title }}<br>
+        <em>Curado.</em>
+      </h1>
+    </div>
+    {%- if collection.description != blank -%}
+      <p class="ame-col-header__desc ame-fade-up ame-delay-2">{{ collection.description }}</p>
+    {%- endif -%}
+  </div>
 
-<h1>{{ collection.title }}</h1>
+  <div class="ame-col-header__tabs ame-fade-up ame-delay-3">
+    <a href="{{ collection.url }}" class="ame-col-tab{% unless current_tags %} ame-col-tab--active{% endunless %}">Tudo</a>
+    {%- for tag in collection.all_tags -%}
+      <a
+        href="{{ collection.url }}/{{ tag | handle }}"
+        class="ame-col-tab{% if current_tags contains tag %} ame-col-tab--active{% endif %}"
+      >{{ tag }}</a>
+    {%- endfor -%}
+  </div>
 
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      <div class="collection-product">
-        {% if product.featured_image %}
-          {% render 'image',
-            class: 'collection-product__image',
-            image: product.featured_image,
-            url: product.url,
-            width: 400,
-            height: 400,
-            crop: 'center'
-          %}
-        {% endif %}
-        <div class="collection-product__content">
-          <p>{{ product.title | escape | link_to: product.url }}</p>
-          <p>{{ product.price | money }}</p>
+  <div class="ame-col-header__divider"></div>
+</header>
+
+<div class="ame-col-layout full-width">
+
+  <aside class="ame-col-sidebar">
+    <div class="ame-col-filter-group">
+      <p class="ame-col-filter-title">Ordenar</p>
+      <div class="ame-col-select-wrap">
+        <select class="ame-col-select" onchange="window.location.href=this.value" aria-label="Ordenar por">
+          <option value="{{ collection.url }}?sort_by=manual"             {% if collection.sort_by == 'manual' %}selected{% endif %}>Em Destaque</option>
+          <option value="{{ collection.url }}?sort_by=created-descending" {% if collection.sort_by == 'created-descending' %}selected{% endif %}>Mais Recentes</option>
+          <option value="{{ collection.url }}?sort_by=price-ascending"    {% if collection.sort_by == 'price-ascending' %}selected{% endif %}>Preço ↑</option>
+          <option value="{{ collection.url }}?sort_by=price-descending"   {% if collection.sort_by == 'price-descending' %}selected{% endif %}>Preço ↓</option>
+          <option value="{{ collection.url }}?sort_by=best-selling"       {% if collection.sort_by == 'best-selling' %}selected{% endif %}>Mais Vendidos</option>
+        </select>
+        <span class="material-symbols-outlined ame-col-select-icon">expand_more</span>
+      </div>
+    </div>
+
+    {%- if collection.all_tags.size > 0 -%}
+      <div class="ame-col-filter-group">
+        <p class="ame-col-filter-title">Categoria</p>
+        <div class="ame-col-filter-list">
+          {%- for tag in collection.all_tags -%}
+            <a
+              href="{% if current_tags contains tag %}{{ collection.url }}{% else %}{{ collection.url }}/{{ tag | handle }}{% endif %}"
+              class="ame-col-filter-check{% if current_tags contains tag %} ame-col-filter-check--active{% endif %}"
+            >
+              <span class="ame-col-filter-box" aria-hidden="true"></span>
+              {{ tag }}
+            </a>
+          {%- endfor -%}
         </div>
       </div>
-    {% endfor %}
+    {%- endif -%}
+  </aside>
 
-    {{ paginate | default_pagination }}
-  {% endpaginate %}
+  <div class="ame-col-main">
+    <div class="ame-col-bar">
+      <p class="ame-col-count">{{ collection.products_count }} {% if collection.products_count == 1 %}peça{% else %}peças{% endif %}</p>
+    </div>
+
+    {%- paginate collection.products by section.settings.products_per_page -%}
+      {%- if collection.products.size == 0 -%}
+        <p class="ame-col-empty">Nenhum produto encontrado nesta coleção.</p>
+      {%- else -%}
+        <div class="ame-col-grid">
+          {%- for product in collection.products -%}
+            {%- render 'product-card', card_product: product -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <div class="ame-col-pagination">{{ paginate | default_pagination: anchor: '' }}</div>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
 </div>
 
 {% stylesheet %}
-  .collection-products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  .ame-col-header {
+    padding: 2rem var(--page-margin, 2rem) 0;
+  }
+  .ame-col-header__inner {
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  @media (min-width: 768px) {
+    .ame-col-header__inner { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+  }
+  .ame-col-header__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 0.92;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-col-header__title em { font-style: italic; font-weight: 300; color: var(--color-primary, #5a4742); }
+  .ame-col-header__desc {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem; line-height: 1.7;
+    color: var(--color-on-surface-variant, #4f4442);
+    max-width: 22rem; align-self: flex-end;
+  }
+
+  .ame-col-header__tabs {
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+    display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem;
+    scrollbar-width: none;
+  }
+  .ame-col-header__tabs::-webkit-scrollbar { display: none; }
+  .ame-col-tab {
+    flex-shrink: 0;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-full, 0.75rem);
+    background: var(--color-surface-container, #f8ece0);
+    color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  .ame-col-tab:hover { background: var(--color-surface-container-high, #f2e6da); }
+  .ame-col-tab--active { background: var(--color-primary, #5a4742); color: #ffffff; }
+
+  .ame-col-header__divider {
+    max-width: var(--page-width, 120rem);
+    margin: 1.5rem auto 0;
+    height: 1px;
+    background: rgba(210,195,192,0.2);
+  }
+
+  /* Layout */
+  .ame-col-layout {
+    display: flex; flex-direction: column; gap: 3rem;
+    padding: 3rem var(--page-margin, 2rem) var(--section-gap, 7.5rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+  @media (min-width: 1024px) { .ame-col-layout { flex-direction: row; } }
+
+  /* Sidebar */
+  .ame-col-sidebar {
+    flex-shrink: 0; width: 100%;
+    display: flex; flex-wrap: wrap; gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .ame-col-sidebar {
+      width: 15rem; flex-direction: column; flex-wrap: nowrap;
+      position: sticky; top: 6.5rem; align-self: flex-start;
+    }
+  }
+  .ame-col-filter-title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(90,71,66,0.5); margin-bottom: 0.875rem;
+  }
+  .ame-col-select-wrap { position: relative; }
+  .ame-col-select {
+    width: 100%; background: transparent; border: none;
+    border-bottom: 1px solid rgba(210,195,192,0.3); border-radius: 0;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem; color: var(--color-on-background, #201b14);
+    padding: 0.5rem 1.5rem 0.5rem 0;
+    cursor: pointer; appearance: none; outline: none;
+    transition: border-color 0.25s ease;
+  }
+  .ame-col-select:focus { border-bottom-color: var(--color-primary, #5a4742); }
+  .ame-col-select-icon {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    color: var(--color-on-surface-variant, #4f4442); pointer-events: none; font-size: 1.125rem;
+  }
+  .ame-col-filter-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ame-col-filter-check {
+    display: flex; align-items: center; gap: 0.75rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem; color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none; cursor: pointer; transition: color 0.2s ease;
+  }
+  .ame-col-filter-check:hover { color: var(--color-on-background, #201b14); }
+  .ame-col-filter-box {
+    width: 1rem; height: 1rem; border-radius: var(--radius-sm, 0.125rem);
+    border: 1px solid rgba(210,195,192,0.4); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .ame-col-filter-check--active .ame-col-filter-box {
+    background: var(--color-primary, #5a4742);
+    border-color: var(--color-primary, #5a4742);
+  }
+  .ame-col-filter-check--active .ame-col-filter-box::after {
+    content: ''; width: 6px; height: 6px; background: #fff;
+    border-radius: 1px;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  /* Grid */
+  .ame-col-main { flex: 1; }
+  .ame-col-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .ame-col-count {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-col-grid {
+    display: grid; grid-template-columns: 1fr; gap: 2rem 1.5rem;
+  }
+  @media (min-width: 480px) { .ame-col-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1280px) { .ame-col-grid { grid-template-columns: repeat(3, 1fr); } }
+  .ame-col-empty {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem; color: var(--color-on-surface-variant, #4f4442);
+    padding: 4rem 0; text-align: center;
+  }
+  .ame-col-pagination {
+    display: flex; justify-content: center; gap: 0.5rem; margin-top: 4rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.875rem;
+  }
+  .ame-col-pagination a, .ame-col-pagination span {
+    padding: 0.5rem 1rem; border-radius: var(--radius-md, 0.25rem);
+    color: var(--color-on-surface-variant, #4f4442); text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .ame-col-pagination a:hover { background: var(--color-surface-container, #f8ece0); }
+  .ame-col-pagination .current {
+    background: var(--color-primary, #5a4742); color: #ffffff;
+  }
+
+  .ame-label-sm {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(90,71,66,0.5); display: block; margin-bottom: 0.75rem;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.collection",
-  "settings": []
+  "name": "Coleção",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8, "max": 48, "step": 4,
+      "label": "Produtos por página",
+      "default": 12
+    }
+  ]
 }
 {% endschema %}

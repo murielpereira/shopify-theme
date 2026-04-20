@@ -1,18 +1,67 @@
+{% comment %} Âme — Design Tokens + Font preloads {% endcomment %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
 {% style %}
-  {% # Loads all font variantions with display: swap %}
   {{ settings.type_primary_font | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
 
   :root {
-    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --font-primary--style: {{ settings.type_primary_font.style }};
-    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
     --page-width: {{ settings.max_page_width }};
-    --page-margin: {{ settings.min_page_margin }}px;
-    --color-background: {{ settings.background_color }};
-    --color-foreground: {{ settings.foreground_color }};
-    --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+    /* Margem responsive: mobile fixo 20px, desktop usa o valor do painel */
+    --page-margin: 20px;
+
+    /* Brand Palette — editável via Painel > Configurações do Tema > Cores */
+    --color-background:                {{ settings.color_background }};
+    --color-surface:                   {{ settings.color_background }};
+    --color-surface-container-lowest:  #ffffff;
+    --color-surface-container-low:     #fef2e5;
+    --color-surface-container:         {{ settings.color_surface_container }};
+    --color-surface-container-high:    #f2e6da;
+    --color-surface-container-highest: #ece1d5;
+    --color-surface-variant:           #ece1d5;
+    --color-surface-dim:               #e3d8cc;
+    --color-tertiary-fixed:            #e7e2de;
+    --color-primary:                   {{ settings.color_primary }};
+    --color-primary-container:         {{ settings.color_primary_container }};
+    --color-primary-fixed:             #f9dcd6;
+    --color-primary-fixed-dim:         #dcc1ba;
+    --color-on-primary:                {{ settings.color_on_primary }};
+    --color-on-background:             {{ settings.color_on_background }};
+    --color-on-surface:                {{ settings.color_on_background }};
+    --color-on-surface-variant:        {{ settings.color_on_surface_variant }};
+    --color-outline:                   #817471;
+    --color-outline-variant:           #d2c3c0;
+    --color-secondary:                 #655d54;
+    --color-secondary-container:       #e9ded2;
+
+    /* Radius */
+    --radius-sm:   0.125rem;
+    --radius-md:   0.25rem;
+    --radius-lg:   0.5rem;
+    --radius-full: 0.75rem;
+
+    /* Shadows */
+    --shadow-ambient: 0 16px 32px rgba(32,27,20,0.06);
+    --shadow-float:   0 32px 64px rgba(32,27,20,0.08);
+
+    /* Easing */
+    --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
+    /* section-gap mobile sobrescrito via media query abaixo */
+    --section-gap: 3rem;
+  }
+{% endstyle %}
+
+{% style %}
+  @media (min-width: 768px) {
+    :root {
+      --page-margin: {{ settings.min_page_margin }}px;
+      --section-gap: {{ settings.section_gap }}px;
+    }
   }
 {% endstyle %}
