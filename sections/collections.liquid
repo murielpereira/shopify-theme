@@ -14,13 +14,9 @@
   {% for collection in collections %}
     <a class="collection-card" href="{{ collection.url }}">
       {% if collection.featured_image %}
-        {% render 'image',
-          class: 'collection-card__image',
-          image: collection.featured_image,
-          width: 600,
-          height: 600,
-          crop: 'center'
-        %}
+        <div class="image collection-card__image">
+          {{ collection.featured_image | image_url: width: 600, height: 600, crop: 'center' | image_tag: loading: 'lazy' }}
+        </div>
       {% endif %}
 
       <div class="collection-card__content">
