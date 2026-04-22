@@ -1,139 +1,44 @@
 {% comment %} Âme — Barra de anúncios rotativa (fluxo normal — some ao rolar) {% endcomment %}
 
 {%- if section.blocks.size > 0 -%}
-<div class="ame-announce" role="region" aria-label="Anúncios" data-announce style="top: 0">
-  <div class="ame-announce__track" data-announce-track>
-    {%- for block in section.blocks -%}
-      <div
-        class="ame-announce__slide{% if forloop.first %} ame-announce__slide--active{% endif %}"
-        {{ block.shopify_attributes }}
-      >
-        {%- if block.settings.link != blank -%}
-          <a href="{{ block.settings.link }}" class="ame-announce__link">
-        {%- endif -%}
-
-        {%- if block.settings.icon != blank -%}
-          <span class="ame-announce__icon material-symbols-outlined" aria-hidden="true">{{ block.settings.icon }}</span>
-        {%- endif -%}
-
-        <span class="ame-announce__text">{{ block.settings.text }}</span>
-
-        {%- if block.settings.link != blank -%}
-          </a>
-        {%- endif -%}
-      </div>
-    {%- endfor -%}
-  </div>
-
-  {%- if section.blocks.size > 1 -%}
-    <div class="ame-announce__dots" aria-hidden="true">
+  <div class="ame-announce" role="region" aria-label="Anúncios" data-announce style="top: 0">
+    <div class="ame-announce__track" data-announce-track>
       {%- for block in section.blocks -%}
-        <span class="ame-announce__dot{% if forloop.first %} ame-announce__dot--active{% endif %}" data-announce-dot="{{ forloop.index0 }}"></span>
+        <div
+          class="ame-announce__slide{% if forloop.first %} ame-announce__slide--active{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}" class="ame-announce__link">
+          {%- endif -%}
+
+          {%- if block.settings.icon != blank -%}
+            <span class="ame-announce__icon material-symbols-outlined" aria-hidden="true">
+              {{- block.settings.icon -}}
+            </span>
+          {%- endif -%}
+
+          <span class="ame-announce__text">{{ block.settings.text }}</span>
+
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- endif -%}
+        </div>
       {%- endfor -%}
     </div>
-  {%- endif -%}
-</div>
+
+    {%- if section.blocks.size > 1 -%}
+      <div class="ame-announce__dots" aria-hidden="true">
+        {%- for block in section.blocks -%}
+          <span
+            class="ame-announce__dot{% if forloop.first %} ame-announce__dot--active{% endif %}"
+            data-announce-dot="{{ forloop.index0 }}"
+          ></span>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
 {%- endif -%}
-
-{% stylesheet %}
-  /* Announce: fixed, posicionada pelo JS abaixo da countdown.
-     Some ao rolar via translateY(-100%) adicionado pelo header.js */
-  .ame-announce {
-    position: fixed;
-    top: 0;   /* sobrescrito pelo JS */
-    left: 0;
-    right: 0;
-    z-index: 200;
-    width: 100%;
-    background: var(--color-announce-bg, var(--color-primary, #5a4742));
-    overflow: hidden;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                top 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
-  }
-  .ame-announce.is-hidden {
-    transform: translateY(-100%);
-    pointer-events: none;
-  }
-
-  .ame-announce__track {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-
-  .ame-announce__slide {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    opacity: 0;
-    transform: translateY(100%);
-    transition: opacity 0.5s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1)),
-                transform 0.5s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
-    pointer-events: none;
-  }
-  .ame-announce__slide--active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-  .ame-announce__slide--exit {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-
-  .ame-announce__link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-  }
-
-  .ame-announce__icon {
-    font-size: 0.875rem;
-    font-variation-settings: 'wght' 300;
-    color: var(--color-announce-text, var(--color-on-primary, #ffffff));
-    opacity: 0.75;
-  }
-
-  .ame-announce__text {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.625rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-announce-text, var(--color-on-primary, #ffffff));
-    white-space: nowrap;
-  }
-
-  .ame-announce__dots {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 0.375rem;
-  }
-
-  .ame-announce__dot {
-    width: 0.25rem;
-    height: 0.25rem;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.3);
-    transition: background 0.3s ease, transform 0.3s ease;
-    cursor: default;
-  }
-  .ame-announce__dot--active {
-    background: rgba(255,255,255,0.9);
-    transform: scale(1.4);
-  }
-{% endstylesheet %}
 
 <script>
   (() => {
@@ -208,7 +113,10 @@
       "blocks": [
         { "type": "announcement", "settings": { "text": "Frete grátis acima de R$299", "icon": "local_shipping" } },
         { "type": "announcement", "settings": { "text": "Parcelamento em até 6x sem juros", "icon": "sell" } },
-        { "type": "announcement", "settings": { "text": "10% off na primeira compra · use o cupom BEMVINDO", "icon": "favorite" } }
+        {
+          "type": "announcement",
+          "settings": { "text": "10% off na primeira compra · use o cupom BEMVINDO", "icon": "favorite" }
+        }
       ]
     }
   ],

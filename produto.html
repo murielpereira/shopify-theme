@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/critical.css">
+</head>
+
+<body>
+
+    <div class="ame-announce">Barra de Anúncios</div>
+    <div class="ame-header-group" style="top: 40px;">
+        <div class="ame-header ame-header--sticky">Header</div>
+        <div class="ame-header__nav-bar">Nav Bar</div>
+    </div>
+
+    <div class="pdp">
+
+        <div class="ame-pdp__title ame-fade-up ame-delay-2">%Nome do Produto</div>
+        <div class="breadcrumb-pdp">
+            <a href="{{ routes.root_url }}">Início</a>
+            <span aria-hidden="true">/</span>
+            {%- if collection -%}
+            <a href="{{ collection.url }}">{{ collection.title }}</a>
+            <span aria-hidden="true">/</span>
+            {%- endif -%}
+            <span aria-current="page">{{ product.title }}</span>
+        </div>
+
+        <!-- Rating placeholder (substituir por app de avaliações) -->
+        <div class="ame-pdp__rating ame-fade-up ame-delay-2" aria-label="4.8 de 5 estrelas">
+            <div class="ame-pdp__stars" aria-hidden="true">
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings:'FILL' 1; font-size:1rem; color:var(--color-primary);">
+                    star
+                </span>
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings:'FILL' 1; font-size:1rem; color:var(--color-primary);">star</span>
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings:'FILL' 1; font-size:1rem; color:var(--color-primary);">star</span>
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings:'FILL' 1; font-size:1rem; color:var(--color-primary);">star</span>
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings:'FILL' 0; font-size:1rem; color:var(--color-outline-variant);">star</span>
+            </div>
+            <span class="ame-pdp__rating-count">4.8 · 32 avaliações</span>
+        </div>
+
+        <div class="container-img-pdp">
+            <div class="img-pdp">
+                <img src="/assets/images/allure-off-prata-circulo.webp" alt="Coleira Atena Allure">
+            </div>
+            <div class="carrossel-pdp">
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/marinho-allure-grafite-circulo.webp" alt="Coleira Atena Marinho">
+                </div>
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
+                </div>
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
+                </div>
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
+                </div>
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
+                </div>
+                <div class="img-pdp-carrossel">
+                    <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
+                </div>
+            </div>
+        </div>
+
+        <div class="ame-pdp__desc ame-fade-up ame-delay-3">
+
+            <div>
+                <p>A Bolsa de Transporte Ollie é a peça mais completa da Âme: criada para quem
+                    viaja, se desloca e vive
+                    a rotina ao lado do pet — com conforto absoluto, segurança real e estética impecável.
+                </p>
+            </div>
+
+            <div class="beneficios_rapidos">
+                <div class="beneficio"><span class="icone">🤎</span>Couro leg&iacute;timo</div>
+                <div class="beneficio"><span class="icone">✈️</span>Aprovada para transporte</div>
+                <div class="beneficio"><span class="icone">🛡️</span>Alta seguran&ccedil;a</div>
+                <div class="beneficio"><span class="icone">💨</span>Ventila&ccedil;&atilde;o total</div>
+            </div>
+
+            <div class="container-confianca">
+                <h3>Você não precisa acertar tudo agora.</h3>
+                <p>Cada pedido é analisado com atenção antes da produção. Se identificarmos qualquer dúvida sobre
+                    tamanho ou ajuste, entramos em contato para te orientar.</p>
+            </div>
+
+        </div>
+
+        <div class="container-preco">
+            <div class="preco">
+                <span class="preco-de">de: <span style="text-decoration: line-through;">$ 1.290,00</span><span>10%
+                        off</span></span>
+                <span class="preco-por">a partir de: <span style="font-weight: bold;">R$ 1.190,00</span> no
+                    cartão</span>
+                <span>ou<span> R$ 1000 ,00</span> no pix</span>
+                <span>até<span> 10x de R$ 119,00</span> sem juros</span>
+            </div>
+            <div class="cashback">
+                <p>Ganhe<span> R$ 100</span> de cashback</p>
+            </div>
+        </div>
+
+        <div class="container-variacoes">
+            <div class="cor">
+                <div class="container-cor-title">
+                    <p>Cor</p>
+                    <p>Off-White</p>
+                </div>
+                <div class="container-cor">
+                    <div class="cor-item">
+                        <img src="/assets/images/allure-off-prata-circulo.webp" alt="Coleira Atena Allure">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/marinho-allure-grafite-circulo.webp" alt="Coleira Atena Marinho">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
+                    </div>
+                    <div class="cor-item">
+                        <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+<style>
+    .pdp {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+
+        .ame-pdp__title {
+            margin: 5px 0px;
+        }
+
+        .breadcrumb-pdp {
+            font-size: 10px;
+            opacity: 0.5;
+            margin: 10px 0px;
+        }
+
+        .pdp {
+            margin-top: 120px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .container-img-pdp {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .img-pdp {
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .carrossel-pdp {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 5px;
+            margin-top: 10px;
+            width: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .carrossel-pdp::-webkit-scrollbar {
+            display: none;
+        }
+
+        .img-pdp-carrossel {
+            flex-shrink: 0;
+            width: 25%;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .img-pdp-carrossel img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .ame-pdp__desc {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .beneficios_rapidos {
+            flex-wrap: wrap;
+            gap: 8px;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .beneficios_rapidos .beneficio {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f7f5f2;
+            color: #5a5a5a;
+            border: 1px solid #e8e5df;
+            line-height: 1;
+        }
+
+        .beneficios_rapidos .icone {
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .beneficios_rapidos ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .beneficios_rapidos li {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .beneficios_rapidos li:before {
+            content: '✓';
+            color: #735e59;
+            font-weight: bold;
+        }
+
+        .container-preco {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .preco {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .container-cor {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+
+        .container-cor-title {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            text-align: center;
+        }
+
+        .cor-item {
+            width: 100%;
+        }
+
+        .cor-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+    }
+</style>
+
+<script>
+    (() => {
+        /* ── Carousel ── */
+        const track = document.getElementById('ame-carousel-track');
+        const thumbs = document.querySelectorAll('.ame-pdp__thumb');
+        const counter = document.getElementById('ame-slide-current');
+        let current = 0;
+        const total = thumbs.length || 1;
+
+        function goTo(index) {
+            current = Math.max(0, Math.min(index, total - 1));
+            track.style.transform = `translateX(-${current * 100}%)`;
+            thumbs.forEach((t, i) => t.classList.toggle('ame-pdp__thumb--active', i === current));
+            if (counter) counter.textContent = current + 1;
+        }
+
+        document.getElementById('ame-carousel-prev')?.addEventListener('click', () => goTo(current - 1));
+        document.getElementById('ame-carousel-next')?.addEventListener('click', () => goTo(current + 1));
+        thumbs.forEach((t) => t.addEventListener('click', () => goTo(parseInt(t.dataset.index))));
+
+        /* Swipe */
+        let tx = 0;
+        track?.addEventListener(
+            'touchstart',
+            (e) => {
+                tx = e.touches[0].clientX;
+            },
+            { passive: true }
+        );
+        track?.addEventListener('touchend', (e) => {
+            const dx = tx - e.changedTouches[0].clientX;
+            if (Math.abs(dx) > 40) goTo(dx > 0 ? current + 1 : current - 1);
+        });
+
+        /* ── Qty ── */
+        const qtyInput = document.getElementById('ame-qty');
+        document.getElementById('ame-qty-minus')?.addEventListener('click', () => {
+            if (qtyInput && qtyInput.value > 1) qtyInput.value = parseInt(qtyInput.value) - 1;
+        });
+        document.getElementById('ame-qty-plus')?.addEventListener('click', () => {
+            if (qtyInput) qtyInput.value = parseInt(qtyInput.value) + 1;
+        });
+
+        /* ── Option selectors ── */
+        document.querySelectorAll('[data-option-index]').forEach((group) => {
+            const btns = group.querySelectorAll('.ame-pdp__swatch, .ame-pdp__size-btn');
+            btns.forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    btns.forEach((b) => b.classList.remove('ame-pdp__swatch--active', 'ame-pdp__size-btn--active'));
+                    btn.classList.add(
+                        btn.classList.contains('ame-pdp__swatch') ? 'ame-pdp__swatch--active' : 'ame-pdp__size-btn--active'
+                    );
+                    const idx = group.dataset.optionIndex;
+                    const valEl = document.getElementById(`ame-option-val-${parseInt(idx) + 1}`);
+                    if (valEl) valEl.textContent = btn.dataset.value;
+                    updateVariant();
+                });
+            });
+        });
+
+        function updateVariant() {
+            const opts = [];
+            document.querySelectorAll('[data-option-index]').forEach((g) => {
+                const active = g.querySelector('.ame-pdp__swatch--active, .ame-pdp__size-btn--active');
+                if (active) opts.push(active.dataset.value);
+            });
+            const variantData = JSON.parse(document.getElementById('ame-variants-json')?.textContent || '[]');
+            const matched = variantData.find((v) => opts.every((o, i) => v.options[i] === o));
+            if (matched) {
+                document.getElementById('ame-variant-id').value = matched.id;
+                const priceEl = document.getElementById('ame-price');
+                if (priceEl) {
+                    const fmt =
+                        typeof Shopify !== 'undefined' && Shopify.formatMoney
+                            ? Shopify.formatMoney(matched.price, '{{ shop.money_format }}')
+                            : 'R$ ' + (matched.price / 100).toFixed(2).replace('.', ',');
+                    priceEl.innerHTML = matched.available ? fmt : 'Esgotado';
+                }
+                const addBtn = document.getElementById('ame-add-btn');
+                if (addBtn) addBtn.disabled = !matched.available;
+                updateCashback(matched.price);
+            }
+        }
+
+        function updateCashback(priceCents) {
+            const wrap = document.getElementById('ame-cashback-wrap');
+            if (!wrap) return;
+            const el = wrap.querySelector('[data-cashback]');
+            if (!el) return;
+            const pct = parseFloat(el.dataset.pct) || 8;
+            const min = parseFloat(el.dataset.min) || 10;
+            const cb = (priceCents / 100) * (pct / 100);
+            const cifra = el.querySelector('.ame-cashback__cifra');
+            const val = el.querySelector('[data-cashback-value]');
+            if (!val) return;
+            if (cb >= min) {
+                if (cifra) cifra.style.display = '';
+                val.textContent = cb.toFixed(2).replace('.', ',');
+            } else {
+                if (cifra) cifra.style.display = 'none';
+                val.textContent = Math.round(pct) + '%';
+            }
+        }
+
+        /* ── Wishlist ── */
+        const wishlistBtn = document.getElementById('ame-wishlist');
+        wishlistBtn?.addEventListener('click', () => {
+            const active = wishlistBtn.classList.toggle('is-active');
+            wishlistBtn.querySelector('.material-symbols-outlined').style.fontVariationSettings = active
+                ? "'FILL' 1"
+                : "'FILL' 0";
+        });
+
+        /* ── Add to cart AJAX ── */
+        document.getElementById('ame-product-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('ame-add-btn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = 'Adicionado ✓';
+            btn.disabled = true;
+            await fetch('/cart/add.js', { method: 'POST', body: new FormData(e.target) });
+            setTimeout(() => {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }, 1800);
+        });
+
+        /* ── Accordions ── */
+        document.querySelectorAll('.ame-accordion__btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                /* Close all */
+                document.querySelectorAll('.ame-accordion__btn').forEach((b) => {
+                    b.setAttribute('aria-expanded', 'false');
+                    b.nextElementSibling.setAttribute('hidden', '');
+                    b.nextElementSibling.style.maxHeight = '0';
+                });
+                if (!expanded) {
+                    btn.setAttribute('aria-expanded', 'true');
+                    const content = btn.nextElementSibling;
+                    content.removeAttribute('hidden');
+                    content.style.maxHeight = '600px';
+                }
+            });
+        });
+    })();
+</script>
+
+</html>
