@@ -292,3 +292,9 @@ body::after {
     min-width: 0;
   }
 }
+
+/* ── Accessibility ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}

@@ -1,0 +1,3 @@
+## 2024-04-22 - Improved Interactive States and Focus Accessibility
+**Learning:** The "Quick Add" button optimistically showed "Adicionado ✓" before the network request completed, leading to poor UX if the request failed or was slow. The wishlist button lacked semantic state (`aria-pressed`), and the global stylesheet was missing a visible focus indicator for keyboard users.
+**Action:** Ensure async operations have clear loading states (`aria-busy="true"` and text updates) before indicating success. Always include `aria-pressed` for toggle buttons, and establish a clear `:focus-visible` baseline in `critical.css`.

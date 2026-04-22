@@ -43,6 +43,7 @@
         aria-label="Adicionar aos favoritos"
         data-wishlist-btn="{{ card_product.id }}"
         type="button"
+        aria-pressed="false"
       >
         <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 0;">favorite</span>
       </button>
@@ -249,8 +250,10 @@
     document.querySelectorAll('[data-wishlist-btn]').forEach(btn => {
       btn.addEventListener('click', () => {
         btn.classList.toggle('is-active');
+        const isActive = btn.classList.contains('is-active');
+        btn.setAttribute('aria-pressed', isActive);
         const icon = btn.querySelector('.material-symbols-outlined');
-        icon.style.fontVariationSettings = btn.classList.contains('is-active') ? "'FILL' 1" : "'FILL' 0";
+        icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
       });
     });
 
@@ -259,9 +262,12 @@
         e.preventDefault();
         const btn = form.querySelector('[type="submit"]');
         const orig = btn.textContent;
-        btn.textContent = 'Adicionado ✓';
+        btn.textContent = 'Adicionando...';
         btn.disabled = true;
+        btn.setAttribute('aria-busy', 'true');
         await fetch('/cart/add.js', { method: 'POST', body: new FormData(form) });
+        btn.textContent = 'Adicionado ✓';
+        btn.removeAttribute('aria-busy');
         setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1800);
       });
     });
