@@ -77,19 +77,29 @@
         });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
 
-        async function updateItem(key, quantity) {
+        let _cartUpdating = false;
+
+        async function updateItem(key, quantity, triggerBtn) {
+          if (_cartUpdating) return;
+          _cartUpdating = true;
+
           const item = drawer()?.querySelector(`[data-item-key="${key}"]`);
-          if (item) item.classList.add('is-loading');
+          const btns = item?.querySelectorAll('.ame-cart-item__qty-btn');
+          if (btns) btns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
+
           try {
             const res  = await fetch('/cart/change.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
               body: JSON.stringify({ id: key, quantity })
             });
+            if (!res.ok) throw new Error('cart/change failed');
             refreshDrawer(await res.json());
           } catch (err) {
             console.error('[Cart]', err);
-            if (item) item.classList.remove('is-loading');
+            if (btns) btns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
+          } finally {
+            _cartUpdating = false;
           }
         }
 
@@ -176,16 +186,28 @@
             </div></li>`;
         }
 
-        function fmt(c) { return 'R$ ' + (c / 100).toFixed(2).replace('.', ','); }
+        function fmt(c) {
+          const n = parseInt(c, 10);
+          if (isNaN(n)) return '—';
+          return 'R$ ' + (n / 100).toFixed(2).replace('.', ',');
+        }
         function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
         document.addEventListener('click', (e) => {
           const plus   = e.target.closest('[data-qty-plus]');
           const minus  = e.target.closest('[data-qty-minus]');
           const remove = e.target.closest('[data-remove]');
-          if (plus)   updateItem(plus.dataset.qtyPlus, parseInt(drawer()?.querySelector(`[data-qty-val="${plus.dataset.qtyPlus}"]`)?.textContent || '1') + 1);
-          if (minus)  { const c = parseInt(drawer()?.querySelector(`[data-qty-val="${minus.dataset.qtyMinus}"]`)?.textContent || '1'); if (c > 1) updateItem(minus.dataset.qtyMinus, c - 1); }
-          if (remove) updateItem(remove.dataset.remove, 0);
+          if (!plus && !minus && !remove) return;
+          e.preventDefault();
+          if (plus) {
+            const cur = parseInt(drawer()?.querySelector(`[data-qty-val="${plus.dataset.qtyPlus}"]`)?.textContent || '1', 10);
+            updateItem(plus.dataset.qtyPlus, cur + 1, plus);
+          }
+          if (minus) {
+            const cur = parseInt(drawer()?.querySelector(`[data-qty-val="${minus.dataset.qtyMinus}"]`)?.textContent || '1', 10);
+            if (cur > 1) updateItem(minus.dataset.qtyMinus, cur - 1, minus);
+          }
+          if (remove) updateItem(remove.dataset.remove, 0, remove);
         });
 
         window.AmeCart = { open: openCart, close: closeCart };
