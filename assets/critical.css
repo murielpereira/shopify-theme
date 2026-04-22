@@ -50,6 +50,29 @@ p:empty { display: none; }
 
 a { color: inherit; text-decoration: none; }
 
+/* ── Skip to content ── */
+.ame-skip-to-content {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  background: var(--color-primary, #5a4742);
+  color: var(--color-on-primary, #ffffff);
+  padding: 1rem 2rem;
+  z-index: 9999;
+  font-family: var(--font-primary--family, 'Lexend', sans-serif);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-bottom-left-radius: var(--radius-lg, 0.5rem);
+  border-bottom-right-radius: var(--radius-lg, 0.5rem);
+  transition: transform 0.3s ease;
+}
+.ame-skip-to-content:focus {
+  transform: translate(-50%, 0);
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
+
 /* ── Section grid layout ── */
 .shopify-section {
   --content-width: min(
