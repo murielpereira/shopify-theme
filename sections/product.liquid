@@ -116,12 +116,21 @@
       {{ current_variant.price | money }}
     </p>
 
+    <!-- Cashback -->
+    <div class="ame-fade-up ame-delay-3" id="ame-cashback-wrap">
+      {%- render 'cashback', cashback_price: current_variant.price, cashback_mode: 'pdp' -%}
+    </div>
+
     <!-- Description -->
     {%- if product.description != blank -%}
       <div class="ame-pdp__desc ame-fade-up ame-delay-3">{{ product.description }}</div>
     {%- endif -%}
 
     <!-- Product form -->
+    <script id="ame-variants-json" type="application/json">
+      {{ product.variants | json }}
+    </script>
+
     {%- form 'product', product, id: 'ame-product-form', novalidate: true -%}
       <input type="hidden" name="id" value="{{ current_variant.id }}" id="ame-variant-id">
 
@@ -643,16 +652,40 @@
         const active = g.querySelector('.ame-pdp__swatch--active, .ame-pdp__size-btn--active');
         if (active) opts.push(active.dataset.value);
       });
-      const variantData = JSON.parse(document.getElementById('ame-product-form')?.dataset.variants || '[]');
+      const variantData = JSON.parse(document.getElementById('ame-variants-json')?.textContent || '[]');
       const matched = variantData.find(v => opts.every((o, i) => v.options[i] === o));
       if (matched) {
         document.getElementById('ame-variant-id').value = matched.id;
         const priceEl = document.getElementById('ame-price');
-        if (priceEl) priceEl.innerHTML = matched.available
-          ? Shopify.formatMoney(matched.price)
-          : 'Esgotado';
+        if (priceEl) {
+          const fmt = typeof Shopify !== 'undefined' && Shopify.formatMoney
+            ? Shopify.formatMoney(matched.price, '{{ shop.money_format }}')
+            : 'R$ ' + (matched.price / 100).toFixed(2).replace('.', ',');
+          priceEl.innerHTML = matched.available ? fmt : 'Esgotado';
+        }
         const addBtn = document.getElementById('ame-add-btn');
         if (addBtn) addBtn.disabled = !matched.available;
+        updateCashback(matched.price);
+      }
+    }
+
+    function updateCashback(priceCents) {
+      const wrap = document.getElementById('ame-cashback-wrap');
+      if (!wrap) return;
+      const el = wrap.querySelector('[data-cashback]');
+      if (!el) return;
+      const pct = parseFloat(el.dataset.pct) || 8;
+      const min = parseFloat(el.dataset.min) || 10;
+      const cb  = (priceCents / 100) * (pct / 100);
+      const cifra = el.querySelector('.ame-cashback__cifra');
+      const val   = el.querySelector('[data-cashback-value]');
+      if (!val) return;
+      if (cb >= min) {
+        if (cifra) cifra.style.display = '';
+        val.textContent = cb.toFixed(2).replace('.', ',');
+      } else {
+        if (cifra) cifra.style.display = 'none';
+        val.textContent = Math.round(pct) + '%';
       }
     }
 

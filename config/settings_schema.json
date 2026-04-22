@@ -39,7 +39,7 @@
         "max": 120,
         "step": 8,
         "unit": "px",
-        "label": "Margem lateral",
+        "label": "Margem lateral (desktop)",
         "default": 64
       },
       {
@@ -51,6 +51,17 @@
         "unit": "px",
         "label": "Espaçamento entre seções",
         "default": 120
+      },
+      {
+        "type": "range",
+        "id": "border_radius_base",
+        "min": 0,
+        "max": 16,
+        "step": 2,
+        "unit": "px",
+        "label": "Arredondamento base (md)",
+        "info": "Aplica-se a botões, inputs e cards. lg = 2×, sm = 0.5×.",
+        "default": 4
       }
     ]
   },
@@ -59,41 +70,75 @@
     "settings": [
       {
         "type": "header",
-        "content": "Paleta principal"
+        "content": "Cor Principal"
+      },
+      {
+        "type": "paragraph",
+        "content": "Usada em botões primários, links ativos, bordas de seleção e ícones."
       },
       {
         "type": "color",
         "id": "color_primary",
         "default": "#5a4742",
-        "label": "Cor primária"
+        "label": "Cor Principal"
       },
       {
         "type": "color",
         "id": "color_primary_container",
         "default": "#735e59",
-        "label": "Container primário"
+        "label": "Cor Principal — variação (gradiente)"
       },
       {
         "type": "color",
         "id": "color_on_primary",
         "default": "#ffffff",
-        "label": "Texto sobre primário"
+        "label": "Texto sobre Cor Principal"
       },
       {
         "type": "header",
-        "content": "Superfícies"
+        "content": "Cor Secundária"
+      },
+      {
+        "type": "paragraph",
+        "content": "Usada em chips, badges e elementos de apoio."
+      },
+      {
+        "type": "color",
+        "id": "color_secondary",
+        "default": "#655d54",
+        "label": "Cor Secundária"
+      },
+      {
+        "type": "color",
+        "id": "color_secondary_container",
+        "default": "#e9ded2",
+        "label": "Container Secundário"
+      },
+      {
+        "type": "header",
+        "content": "Fundo e Superfícies"
+      },
+      {
+        "type": "paragraph",
+        "content": "Fundo da página e das seções. Sem linhas — use variações de tom para separar áreas."
       },
       {
         "type": "color",
         "id": "color_background",
         "default": "#fff8f3",
-        "label": "Fundo da página"
+        "label": "Fundo da Página"
       },
       {
         "type": "color",
         "id": "color_surface_container",
         "default": "#f8ece0",
-        "label": "Container de superfície"
+        "label": "Superfície — Container (cards, seções)"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_container_high",
+        "default": "#f2e6da",
+        "label": "Superfície — Container Alto (hover, destaque)"
       },
       {
         "type": "header",
@@ -103,13 +148,55 @@
         "type": "color",
         "id": "color_on_background",
         "default": "#201b14",
-        "label": "Texto principal"
+        "label": "Texto Principal"
       },
       {
         "type": "color",
         "id": "color_on_surface_variant",
         "default": "#4f4442",
-        "label": "Texto secundário"
+        "label": "Texto Secundário"
+      },
+      {
+        "type": "header",
+        "content": "Barra de Anúncios"
+      },
+      {
+        "type": "color",
+        "id": "color_announce_bg",
+        "default": "#5a4742",
+        "label": "Fundo da barra de anúncios"
+      },
+      {
+        "type": "color",
+        "id": "color_announce_text",
+        "default": "#ffffff",
+        "label": "Texto da barra de anúncios"
+      },
+      {
+        "type": "header",
+        "content": "Botão Primário (CTA)"
+      },
+      {
+        "type": "color",
+        "id": "color_btn_primary_bg",
+        "default": "#5a4742",
+        "label": "Fundo do botão"
+      },
+      {
+        "type": "color",
+        "id": "color_btn_primary_text",
+        "default": "#ffffff",
+        "label": "Texto do botão"
+      },
+      {
+        "type": "header",
+        "content": "Bordas e Divisores"
+      },
+      {
+        "type": "color",
+        "id": "color_outline_variant",
+        "default": "#d2c3c0",
+        "label": "Borda sutil (inputs, divisores)"
       }
     ]
   },
@@ -138,10 +225,48 @@
         "id": "cart_type",
         "label": "Tipo de carrinho",
         "options": [
-          { "value": "page",    "label": "Página de carrinho" },
-          { "value": "drawer",  "label": "Gaveta lateral" }
+          { "value": "page",   "label": "Página de carrinho" },
+          { "value": "drawer", "label": "Gaveta lateral" }
         ],
         "default": "drawer"
+      }
+    ]
+  },
+  {
+    "name": "Cashback",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "cashback_enabled",
+        "label": "Exibir cashback",
+        "default": true,
+        "info": "Mostra o valor de cashback na página de produto e nos cards."
+      },
+      {
+        "type": "range",
+        "id": "cashback_percent",
+        "min": 1,
+        "max": 30,
+        "step": 0.5,
+        "unit": "%",
+        "label": "Porcentagem de cashback",
+        "default": 8
+      },
+      {
+        "type": "range",
+        "id": "cashback_min_value",
+        "min": 1,
+        "max": 50,
+        "step": 1,
+        "unit": "R$",
+        "label": "Valor mínimo para exibir cashback (R$)",
+        "default": 10
+      },
+      {
+        "type": "color",
+        "id": "cashback_color",
+        "label": "Cor do ícone e texto de cashback",
+        "default": "#5a4742"
       }
     ]
   },

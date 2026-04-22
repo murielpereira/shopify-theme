@@ -1,2 +1,0 @@
-shopify login
-shopify theme dev --store ame-acessorios-pet.myshopify.com

@@ -13,7 +13,7 @@
   endif
 -%}
 
-<section class="ame-hero">
+<section class="ame-hero full-width">
 
   <!-- Fundo (lado direito): vídeo ou imagem -->
   <div class="ame-hero__bg">
@@ -100,11 +100,15 @@
 {% stylesheet %}
   .ame-hero {
     position: relative;
-    min-height: calc(100svh - 5rem);
+    width: 100%;
+    min-height: 75svh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .ame-hero { min-height: calc(100svh - 5rem); }
   }
 
   /* Background — full width, fade cobre o lado esquerdo */
@@ -146,8 +150,8 @@
       to right,
       var(--color-background, #fff8f3) 0%,
       var(--color-background, #fff8f3) 30%,
-      rgba(255,248,243,0.85) 42%,
-      rgba(255,248,243,0.4) 55%,
+      color-mix(in srgb, var(--color-background, #fff8f3) 85%, transparent) 42%,
+      color-mix(in srgb, var(--color-background, #fff8f3) 40%, transparent) 55%,
       transparent 70%
     );
     z-index: 1;
@@ -158,7 +162,7 @@
         to top,
         var(--color-background, #fff8f3) 0%,
         var(--color-background, #fff8f3) 25%,
-        rgba(255,248,243,0.7) 50%,
+        color-mix(in srgb, var(--color-background, #fff8f3) 70%, transparent) 50%,
         transparent 75%
       );
     }
@@ -262,7 +266,14 @@
     .ame-hero__stats { display: none; }
   }
 
-  .ame-hero__stat { text-align: right; }
+  .ame-hero__stat {
+    text-align: right;
+    background: rgba(255, 248, 243, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--radius-lg, 0.5rem);
+    padding: 0.75rem 1rem;
+  }
   .ame-hero__stat-value {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 1.875rem;

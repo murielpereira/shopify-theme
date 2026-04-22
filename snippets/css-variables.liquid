@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
 {% style %}
   {{ settings.type_primary_font | font_face: font_display: 'swap' }}
@@ -10,54 +10,79 @@
   {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
   {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
 
+  {%- liquid
+    assign r_base = settings.border_radius_base | default: 4
+    assign r_sm   = r_base | divided_by: 2.0
+    assign r_lg   = r_base | times: 2
+    assign r_xl   = r_base | times: 4
+    assign r_full = r_base | times: 6
+  -%}
+
   :root {
+    /* ── Tipografia ── */
     --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
-    --page-width: {{ settings.max_page_width }};
-    /* Margem responsive: mobile fixo 20px, desktop usa o valor do painel */
-    --page-margin: 20px;
 
-    /* Brand Palette — editável via Painel > Configurações do Tema > Cores */
-    --color-background:                {{ settings.color_background }};
-    --color-surface:                   {{ settings.color_background }};
-    --color-surface-container-lowest:  #ffffff;
-    --color-surface-container-low:     #fef2e5;
-    --color-surface-container:         {{ settings.color_surface_container }};
-    --color-surface-container-high:    #f2e6da;
-    --color-surface-container-highest: #ece1d5;
-    --color-surface-variant:           #ece1d5;
-    --color-surface-dim:               #e3d8cc;
-    --color-tertiary-fixed:            #e7e2de;
-    --color-primary:                   {{ settings.color_primary }};
-    --color-primary-container:         {{ settings.color_primary_container }};
-    --color-primary-fixed:             #f9dcd6;
-    --color-primary-fixed-dim:         #dcc1ba;
-    --color-on-primary:                {{ settings.color_on_primary }};
-    --color-on-background:             {{ settings.color_on_background }};
-    --color-on-surface:                {{ settings.color_on_background }};
-    --color-on-surface-variant:        {{ settings.color_on_surface_variant }};
-    --color-outline:                   #817471;
-    --color-outline-variant:           #d2c3c0;
-    --color-secondary:                 #655d54;
-    --color-secondary-container:       #e9ded2;
+    /* ── Layout ── */
+    --page-width:   {{ settings.max_page_width }};
+    --page-margin:  20px;   /* mobile — sobrescrito por media query abaixo */
+    --section-gap:  3rem;   /* mobile — sobrescrito por media query abaixo */
 
-    /* Radius */
-    --radius-sm:   0.125rem;
-    --radius-md:   0.25rem;
-    --radius-lg:   0.5rem;
-    --radius-full: 0.75rem;
+    /* ── Cor Principal ── */
+    --color-primary:            {{ settings.color_primary }};
+    --color-primary-container:  {{ settings.color_primary_container }};
+    --color-on-primary:         {{ settings.color_on_primary }};
+    --color-primary-fixed:      #f9dcd6;
+    --color-primary-fixed-dim:  #dcc1ba;
 
-    /* Shadows */
+    /* ── Cor Secundária ── */
+    --color-secondary:           {{ settings.color_secondary }};
+    --color-secondary-container: {{ settings.color_secondary_container }};
+
+    /* ── Fundo e Superfícies ── */
+    --color-background:                 {{ settings.color_background }};
+    --color-surface:                    {{ settings.color_background }};
+    --color-surface-container-lowest:   #ffffff;
+    --color-surface-container-low:      #fef2e5;
+    --color-surface-container:          {{ settings.color_surface_container }};
+    --color-surface-container-high:     {{ settings.color_surface_container_high }};
+    --color-surface-container-highest:  #ece1d5;
+    --color-surface-variant:            #ece1d5;
+    --color-surface-dim:                #e3d8cc;
+    --color-tertiary-fixed:             #e7e2de;
+
+    /* ── Texto ── */
+    --color-on-background:      {{ settings.color_on_background }};
+    --color-on-surface:         {{ settings.color_on_background }};
+    --color-on-surface-variant: {{ settings.color_on_surface_variant }};
+    --color-outline:            #817471;
+    --color-outline-variant:    {{ settings.color_outline_variant }};
+
+    /* ── Barra de anúncios ── */
+    --color-announce-bg:   {{ settings.color_announce_bg }};
+    --color-announce-text: {{ settings.color_announce_text }};
+
+    /* ── Botão primário ── */
+    --color-btn-primary-bg:   {{ settings.color_btn_primary_bg }};
+    --color-btn-primary-text: {{ settings.color_btn_primary_text }};
+
+    /* ── Border radius (gerados a partir de border_radius_base) ── */
+    --radius-sm:   {{ r_sm }}px;
+    --radius-md:   {{ r_base }}px;
+    --radius-lg:   {{ r_lg }}px;
+    --radius-xl:   {{ r_xl }}px;
+    --radius-full: {{ r_full }}px;
+
+    /* ── Sombras ── */
     --shadow-ambient: 0 16px 32px rgba(32,27,20,0.06);
     --shadow-float:   0 32px 64px rgba(32,27,20,0.08);
 
-    /* Easing */
+    /* ── Easing ── */
     --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
-    /* section-gap mobile sobrescrito via media query abaixo */
-    --section-gap: 3rem;
   }
 {% endstyle %}
 
 {% style %}
+  /* Desktop: aplica valores do painel */
   @media (min-width: 768px) {
     :root {
       --page-margin: {{ settings.min_page_margin }}px;

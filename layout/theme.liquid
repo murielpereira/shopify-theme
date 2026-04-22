@@ -26,6 +26,8 @@
 
     {%- sections 'header-group' -%}
 
+    {%- render 'cart-drawer' -%}
+
     <main id="main-content" tabindex="-1">
       {{ content_for_layout }}
     </main>
@@ -33,7 +35,7 @@
     {%- sections 'footer-group' -%}
 
     <script>
-      /* Scroll reveal — shared across all pages */
+      /* ── Scroll reveal ── */
       document.addEventListener('DOMContentLoaded', () => {
         const reveals = document.querySelectorAll('.ame-reveal');
         if (!reveals.length) return;
@@ -42,6 +44,152 @@
         }, { threshold: 0.1 });
         reveals.forEach(el => io.observe(el));
       });
+
+      /* ── Cart Drawer ── */
+      (() => {
+        'use strict';
+        const drawer   = () => document.getElementById('cart-drawer');
+        const backdrop = () => document.getElementById('cart-backdrop');
+
+        function openCart() {
+          const d = drawer(), b = backdrop();
+          if (!d) return;
+          d.classList.add('is-open');
+          d.setAttribute('aria-hidden', 'false');
+          b?.classList.add('is-open');
+          document.body.style.overflow = 'hidden';
+          setTimeout(() => d.querySelector('[data-cart-close]')?.focus(), 50);
+        }
+
+        function closeCart() {
+          const d = drawer(), b = backdrop();
+          if (!d) return;
+          d.classList.remove('is-open');
+          d.setAttribute('aria-hidden', 'true');
+          b?.classList.remove('is-open');
+          document.body.style.overflow = '';
+        }
+
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('[data-cart-open]'))  { e.preventDefault(); openCart(); }
+          if (e.target.closest('[data-cart-close]')) closeCart();
+          if (e.target.id === 'cart-backdrop')       closeCart();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
+
+        async function updateItem(key, quantity) {
+          const item = drawer()?.querySelector(`[data-item-key="${key}"]`);
+          if (item) item.classList.add('is-loading');
+          try {
+            const res  = await fetch('/cart/change.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify({ id: key, quantity })
+            });
+            refreshDrawer(await res.json());
+          } catch (err) {
+            console.error('[Cart]', err);
+            if (item) item.classList.remove('is-loading');
+          }
+        }
+
+        function refreshDrawer(cart) {
+          /* Header badge */
+          document.querySelectorAll('.ame-header__cart-count').forEach(el => {
+            el.textContent   = cart.item_count;
+            el.style.display = cart.item_count > 0 ? '' : 'none';
+          });
+          /* Count label */
+          document.querySelectorAll('[data-cart-count]').forEach(el => {
+            el.textContent = cart.item_count > 0
+              ? `${cart.item_count} ${cart.item_count === 1 ? 'item' : 'itens'}` : '';
+          });
+          /* Subtotal */
+          document.querySelectorAll('[data-cart-subtotal]').forEach(el => {
+            el.textContent = fmt(cart.total_price);
+          });
+
+          const d      = drawer();
+          const list   = d?.querySelector('[data-cart-items]');
+          const footer = d?.querySelector('[data-cart-footer]');
+          const body   = d?.querySelector('[data-cart-body]');
+
+          if (cart.item_count === 0) {
+            list?.remove();
+            if (footer) footer.style.display = 'none';
+            if (body && !body.querySelector('[data-cart-empty]')) body.innerHTML = emptyHTML();
+            return;
+          }
+
+          body?.querySelector('[data-cart-empty]')?.remove();
+          if (footer) footer.style.display = '';
+
+          if (list) {
+            list.innerHTML = cart.items.map(itemHTML).join('');
+          } else if (body) {
+            const ul = Object.assign(document.createElement('ul'), { className: 'ame-cart-items' });
+            ul.setAttribute('data-cart-items', '');
+            ul.innerHTML = cart.items.map(itemHTML).join('');
+            body.prepend(ul);
+          }
+
+          const pct = Math.min((cart.total_price / 100 / 300) * 100, 100);
+          const fill = d?.querySelector('.ame-cart-shipping-bar__fill');
+          if (fill) fill.style.width = pct + '%';
+        }
+
+        function emptyHTML() {
+          return `<div class="ame-cart-empty" data-cart-empty>
+            <span class="material-symbols-outlined ame-cart-empty__icon">shopping_bag</span>
+            <p class="ame-cart-empty__title">Seu carrinho está vazio</p>
+            <p class="ame-cart-empty__sub">Adicione produtos para começar</p>
+            <a href="/collections/all" class="ame-cta ame-cart-empty__cta" data-cart-close>
+              Explorar produtos<span class="material-symbols-outlined">arrow_forward</span>
+            </a></div>`;
+        }
+
+        function itemHTML(item) {
+          const img  = item.featured_image?.url
+            ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2') : '';
+          const v    = item.variant_title && item.variant_title !== 'Default Title';
+          const disc = item.original_line_price !== item.final_line_price
+            ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>` : '';
+          return `<li class="ame-cart-item" data-item-key="${item.key}">
+            <a href="${item.url}" class="ame-cart-item__img-link">
+              <div class="ame-cart-item__img-wrap">${img ? `<img src="${img}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">` : ''}</div>
+            </a>
+            <div class="ame-cart-item__info">
+              <a href="${item.url}" class="ame-cart-item__name">${esc(item.product_title)}</a>
+              ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
+              <div class="ame-cart-item__bottom">
+                <div class="ame-cart-item__qty">
+                  <button class="ame-cart-item__qty-btn" ${item.quantity <= 1 ? `data-remove="${item.key}"` : `data-qty-minus="${item.key}"`}>
+                    <span class="material-symbols-outlined">${item.quantity <= 1 ? 'delete' : 'remove'}</span>
+                  </button>
+                  <span class="ame-cart-item__qty-val" data-qty-val="${item.key}">${item.quantity}</span>
+                  <button class="ame-cart-item__qty-btn" data-qty-plus="${item.key}">
+                    <span class="material-symbols-outlined">add</span>
+                  </button>
+                </div>
+                <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${item.key}">${fmt(item.final_line_price)}</span></div>
+              </div>
+            </div></li>`;
+        }
+
+        function fmt(c) { return 'R$ ' + (c / 100).toFixed(2).replace('.', ','); }
+        function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+        document.addEventListener('click', (e) => {
+          const plus   = e.target.closest('[data-qty-plus]');
+          const minus  = e.target.closest('[data-qty-minus]');
+          const remove = e.target.closest('[data-remove]');
+          if (plus)   updateItem(plus.dataset.qtyPlus, parseInt(drawer()?.querySelector(`[data-qty-val="${plus.dataset.qtyPlus}"]`)?.textContent || '1') + 1);
+          if (minus)  { const c = parseInt(drawer()?.querySelector(`[data-qty-val="${minus.dataset.qtyMinus}"]`)?.textContent || '1'); if (c > 1) updateItem(minus.dataset.qtyMinus, c - 1); }
+          if (remove) updateItem(remove.dataset.remove, 0);
+        });
+
+        window.AmeCart = { open: openCart, close: closeCart };
+      })();
     </script>
   </body>
 </html>

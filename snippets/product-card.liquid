@@ -1,16 +1,18 @@
 {% comment %}
   Reutilizável — card de produto
   Parâmetros esperados (via assign antes do render):
-    card_product   — objeto product obrigatório
+    card_product    — objeto product obrigatório
     card_show_badge — boolean (opcional)
+    card_btn_label  — string (opcional, default "Comprar")
 {% endcomment %}
 
 {%- liquid
-  assign card_url   = card_product.url
-  assign card_title = card_product.title
-  assign card_price = card_product.price | money
-  assign card_img   = card_product.featured_image
-  assign card_badge = ''
+  assign card_url       = card_product.url
+  assign card_title     = card_product.title
+  assign card_price     = card_product.price | money
+  assign card_img       = card_product.featured_image
+  assign card_cta_label = card_btn_label | default: 'Comprar'
+  assign card_badge     = ''
   if card_product.tags contains 'heritage'
     assign card_badge = 'Heritage'
   elsif card_product.tags contains 'novo'
@@ -47,21 +49,6 @@
       >
         <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 0;">favorite</span>
       </button>
-
-      <!-- Quick add -->
-      <div class="ame-card__quick-add">
-        {%- form 'product', card_product, data-quick-form: '' -%}
-          <input type="hidden" name="id" value="{{ card_product.selected_or_first_available_variant.id }}">
-          <input type="hidden" name="quantity" value="1">
-          <button type="submit" class="ame-card__quick-btn" {% unless card_product.available %}disabled{% endunless %}>
-            {%- if card_product.available -%}
-              Adicionar ao Carrinho
-            {%- else -%}
-              Esgotado
-            {%- endif -%}
-          </button>
-        {%- endform -%}
-      </div>
     </div>
   </a>
 
@@ -76,49 +63,34 @@
       <a href="{{ card_url }}">{{ card_title }}</a>
     </h3>
 
-    <div class="ame-card__bottom">
-      <p class="ame-card__price">
-        {%- if card_product.compare_at_price > card_product.price -%}
-          <s class="ame-card__price-compare">{{ card_product.compare_at_price | money }}</s>
-        {%- endif -%}
-        {{ card_price }}
-      </p>
+    <p class="ame-card__price">
+      {%- if card_product.compare_at_price > card_product.price -%}
+        <s class="ame-card__price-compare">{{ card_product.compare_at_price | money }}</s>
+      {%- endif -%}
+      {{ card_price }}
+    </p>
 
-      <!-- Color swatches from variants -->
-      {%- assign color_option = card_product.options_with_values | where: 'name', 'Color' | first -%}
-      {%- if color_option == blank -%}
-        {%- assign color_option = card_product.options_with_values | where: 'name', 'Cor' | first -%}
-      {%- endif -%}
-      {%- if color_option == blank -%}
-        {%- assign color_option = card_product.options_with_values | where: 'name', 'Acabamento' | first -%}
-      {%- endif -%}
-      {%- if color_option -%}
-        <div class="ame-card__swatches">
-          {%- for value in color_option.values limit: 4 -%}
-            <span
-              class="ame-card__swatch"
-              title="{{ value }}"
-              style="background: {{ value | downcase | replace: ' ', '-' | prepend: 'var(--swatch-' | append: ', #ccc)' }}"
-            ></span>
-          {%- endfor -%}
-        </div>
-      {%- endif -%}
-    </div>
+    {%- render 'cashback', cashback_price: card_product.price, cashback_mode: 'card' -%}
+
+    <!-- Botão Comprar abaixo do preço -->
+    <a href="{{ card_url }}" class="ame-card__buy-btn" aria-label="{{ card_cta_label }}: {{ card_title }}">
+      {{ card_cta_label }}
+    </a>
   </div>
 </div>
 
 {% stylesheet %}
-  .ame-card { position: relative; }
+  .ame-card { position: relative; display: flex; flex-direction: column; }
   .ame-card__link { display: block; }
 
   .ame-card__image-wrap {
     position: relative;
     border-radius: var(--radius-lg, 0.5rem);
     overflow: hidden;
-    aspect-ratio: 1 / 1;
     width: 100%;
+    aspect-ratio: 1 / 1;
     background: var(--color-surface-container-highest, #ece1d5);
-    margin-bottom: 1rem;
+    margin-bottom: 0.875rem;
   }
 
   .ame-card__img {
@@ -136,26 +108,20 @@
 
   .ame-card__badge {
     position: absolute;
-    top: 1rem;
-    left: 1rem;
+    top: 1rem; left: 1rem;
     z-index: 2;
   }
 
   .ame-card__wishlist {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
+    top: 1rem; right: 1rem;
     z-index: 2;
     background: rgba(255,255,255,0.65);
     backdrop-filter: blur(8px);
-    border: none;
-    cursor: pointer;
-    width: 2.25rem;
-    height: 2.25rem;
+    border: none; cursor: pointer;
+    width: 2.25rem; height: 2.25rem;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     color: rgba(90,71,66,0.4);
     transition: color 0.25s ease, transform 0.25s ease;
   }
@@ -163,86 +129,83 @@
   .ame-card__wishlist.is-active { color: var(--color-primary, #5a4742); transform: scale(1.15); }
   .ame-card__wishlist.is-active .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
 
-  .ame-card__quick-add {
-    position: absolute;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    z-index: 2;
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.28s ease, transform 0.28s ease;
+  /* Info area */
+  .ame-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    flex: 1;
   }
-  .ame-card:hover .ame-card__quick-add { opacity: 1; transform: translateY(0); }
-
-  .ame-card__quick-btn {
-    width: 100%;
-    background: rgba(90,71,66,0.9);
-    color: #ffffff;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    padding: 0.75rem;
-    border-radius: var(--radius-md, 0.25rem);
-    backdrop-filter: blur(4px);
-    transition: background 0.2s ease;
-  }
-  .ame-card__quick-btn:hover { background: var(--color-primary, #5a4742); }
-  .ame-card__quick-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .ame-card__collection {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.625rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0.2em; text-transform: uppercase;
     color: rgba(90,71,66,0.5);
-    margin-bottom: 0.375rem;
   }
 
   .ame-card__title {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1.0625rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-size: 1rem;
+    font-weight: 500; letter-spacing: -0.01em;
     color: var(--color-on-background, #201b14);
-    margin-bottom: 0.5rem;
+    line-height: 1.3;
   }
   .ame-card__title a {
-    color: inherit;
-    text-decoration: none;
+    color: inherit; text-decoration: none;
     transition: color 0.2s ease;
   }
   .ame-card:hover .ame-card__title a { color: var(--color-primary, #5a4742); }
-
-  .ame-card__bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
 
   .ame-card__price {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 1rem;
     color: var(--color-on-background, #201b14);
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
+    display: flex; align-items: baseline; gap: 0.5rem;
+    margin-bottom: 0.125rem;
   }
   .ame-card__price-compare {
-    font-size: 0.75rem;
-    color: rgba(90,71,66,0.5);
+    font-size: 0.75rem; color: rgba(90,71,66,0.5);
   }
 
-  .ame-card__swatches { display: flex; gap: 0.375rem; }
-  .ame-card__swatch {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 50%;
-    border: 1px solid rgba(210,195,192,0.3);
+  /* Comprar button — abaixo do preço */
+  .ame-card__buy-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--color-btn-primary-bg, var(--color-primary, #5a4742)), var(--color-primary-container, #735e59));
+    color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
+    border: none; cursor: pointer;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 0.875rem;
+    border-radius: var(--radius-md, 0.25rem);
+    text-align: center; text-decoration: none;
+    transition: transform 0.25s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1)),
+                box-shadow 0.25s ease,
+                opacity 0.2s ease;
+    box-shadow: 0 8px 20px rgba(32,27,20,0.08);
+    margin-top: auto;
   }
+  .ame-card__buy-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 28px rgba(32,27,20,0.12);
+    color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
+  }
+
+  /* Cashback no card */
+  .ame-cashback--card {
+    margin: 0;
+    padding: 0;
+  }
+  .ame-cashback--card .ame-cashback__icon {
+    width: 0.75rem; height: 0.75rem;
+  }
+  .ame-cashback--card .ame-cashback__text {
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
+
 {% endstylesheet %}
 
 <script>
@@ -254,21 +217,6 @@
         btn.setAttribute('aria-pressed', isActive);
         const icon = btn.querySelector('.material-symbols-outlined');
         icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
-      });
-    });
-
-    document.querySelectorAll('[data-quick-form]').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = form.querySelector('[type="submit"]');
-        const orig = btn.textContent;
-        btn.textContent = 'Adicionando...';
-        btn.disabled = true;
-        btn.setAttribute('aria-busy', 'true');
-        await fetch('/cart/add.js', { method: 'POST', body: new FormData(form) });
-        btn.textContent = 'Adicionado ✓';
-        btn.removeAttribute('aria-busy');
-        setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1800);
       });
     });
   })();

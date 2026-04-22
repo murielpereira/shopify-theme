@@ -73,7 +73,7 @@
       {%- else -%}
         <div class="ame-col-grid">
           {%- for product in collection.products -%}
-            {%- render 'product-card', card_product: product -%}
+            {%- render 'product-card', card_product: product, card_btn_label: section.settings.card_btn_label -%}
           {%- endfor -%}
         </div>
 
@@ -144,12 +144,12 @@
     background: rgba(210,195,192,0.2);
   }
 
-  /* Layout */
+  /* Layout — full-width usa toda a largura da página com margens laterais */
   .ame-col-layout {
     display: flex; flex-direction: column; gap: 3rem;
     padding: 3rem var(--page-margin, 2rem) var(--section-gap, 7.5rem);
-    max-width: var(--page-width, 120rem);
-    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
   }
   @media (min-width: 1024px) { .ame-col-layout { flex-direction: row; } }
 
@@ -257,6 +257,12 @@
       "min": 8, "max": 48, "step": 4,
       "label": "Produtos por página",
       "default": 12
+    },
+    {
+      "type": "text",
+      "id": "card_btn_label",
+      "label": "Texto do botão do card",
+      "default": "Comprar"
     }
   ]
 }

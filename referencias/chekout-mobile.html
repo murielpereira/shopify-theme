@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Âme Acessórios Pet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#e3deda",
+                        "tertiary-container": "#65625f",
+                        "surface-variant": "#ece1d5",
+                        "on-background": "#201b14",
+                        "secondary-container": "#e9ded2",
+                        "primary-fixed": "#f9dcd6",
+                        "tertiary-fixed-dim": "#cac6c2",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#655d54",
+                        "on-secondary-container": "#696158",
+                        "on-tertiary-fixed": "#1d1b19",
+                        "outline-variant": "#d2c3c0",
+                        "on-secondary-fixed-variant": "#4d463d",
+                        "inverse-on-surface": "#fbefe3",
+                        "on-primary-fixed-variant": "#55423e",
+                        "inverse-primary": "#dcc1ba",
+                        "outline": "#817471",
+                        "background": "#fff8f3",
+                        "surface": "#fff8f3",
+                        "on-surface-variant": "#4f4442",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#f5d9d3",
+                        "on-primary-fixed": "#271814",
+                        "tertiary": "#4d4a48",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#6e5a55",
+                        "primary-fixed-dim": "#dcc1ba",
+                        "secondary-fixed-dim": "#cfc5b9",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#201b14",
+                        "surface-container": "#f8ece0",
+                        "primary": "#5a4742",
+                        "surface-container-highest": "#ece1d5",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#e3d8cc",
+                        "surface-container-high": "#f2e6da",
+                        "secondary-fixed": "#ece1d5",
+                        "surface-container-low": "#fef2e5",
+                        "inverse-surface": "#362f27",
+                        "primary-container": "#735e59",
+                        "surface-bright": "#fff8f3",
+                        "on-tertiary-fixed-variant": "#494644",
+                        "tertiary-fixed": "#e7e2de",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#201b14"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Lexend"],
+                        "body": ["Lexend"],
+                        "label": ["Lexend"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Lexend', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen pb-32">
+<!-- Header (Simplified for Checkout) -->
+<header class="fixed top-0 w-full z-[100] bg-white/80 dark:bg-stone-900/80 backdrop-blur-[30px] shadow-[0_16px_32px_-12px_rgba(32,27,20,0.05)] transition-transform duration-[800ms] cubic-bezier(0.22,1,0.36,1)">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-[1920px] mx-auto">
+<button aria-label="Go back" class="text-primary p-2 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="text-xl font-bold tracking-tighter text-[#5a4742] dark:text-stone-100 uppercase">
+                Âme Acessórios Pet
+            </div>
+<div class="w-10"></div> <!-- Spacer -->
+</div>
+</header>
+<main class="pt-24 px-6 max-w-md mx-auto">
+<h1 class="text-3xl font-headline font-light tracking-[-0.02em] text-primary mb-8 mt-4">Secure Checkout</h1>
+<!-- Step Indicator -->
+<div class="flex items-center justify-between mb-12">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-sm font-medium mb-2">1</div>
+<span class="text-xs uppercase tracking-widest text-primary font-medium">Cart</span>
+</div>
+<div class="flex-1 h-[1px] bg-outline-variant mx-4 mt-[-1rem]"></div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center text-sm font-medium mb-2">2</div>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant font-medium">Shipping</span>
+</div>
+<div class="flex-1 h-[1px] bg-outline-variant mx-4 mt-[-1rem]"></div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center text-sm font-medium mb-2">3</div>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant font-medium">Pay</span>
+</div>
+</div>
+<!-- Order Summary Card (Glassmorphism) -->
+<section class="mb-10 bg-surface/70 backdrop-blur-xl rounded-xl p-6 shadow-[0_8px_32px_rgba(32,27,20,0.04)] border border-white/20">
+<h2 class="text-lg font-headline text-primary mb-6">Order Summary</h2>
+<div class="space-y-6">
+<!-- Item 1 -->
+<div class="flex items-center gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container shrink-0">
+<img alt="Product Image" class="w-full h-full object-cover mix-blend-multiply" data-alt="close up of a premium leather dog collar in saddle brown with brass hardware on a white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOxi5w4750C0eunCwf_6RBTU8sY3o6R5ha4hn8XWVJZZtPjQKP_LkowJ5WLrNRFGC_Koy214zj5m9jBnvBNqcfy6PyOEDdMlvWr6SFykR_ejiPukoch_jgoTDrnER2vW6k0ImpeKzsQQBGmJi7cmLHCmxemkYAOD_7_CS0wQpmebuTkafJrN5vO-Vzd5Ypgo8HeA4VKS7zZBLwjMbr_I3SMDMpZkB7KIFvp-p0-K9oWeza7DShLMGkjLyOzlVUJXlBS_D3hPzCBN8"/>
+</div>
+<div class="flex-1">
+<h3 class="font-medium text-primary text-sm mb-1">Bespoke Leather Collar</h3>
+<p class="text-xs text-on-surface-variant mb-2">Saddle Brown, Size M</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-semibold text-primary">$120.00</span>
+<div class="flex items-center gap-3 bg-surface-container-low rounded-full px-3 py-1">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="text-xs font-medium">1</span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container shrink-0">
+<img alt="Product Image" class="w-full h-full object-cover mix-blend-multiply" data-alt="minimalist ceramic dog bowl in matte cream finish sitting on a light oak wooden floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXjfhU4EyzeEvo6C4SgTjknzIKctfj5wkImfAVc3AV3b7PPSfZlBTa52BJ-A30mRaxq5AZBpWlNxe4KzhDHi-RomDZXoB_tQjb_rG_T4k5Wb-cFjwM1IvFtH0ylc87VzP88lKpKD8zWC9537WNpH_Dh-1hCoLm6t5ololulj0HJFOND2RfWnCgc4U7LdZ8mgxDlbGkx2OLqwmT3u5I_IT42_dvGN-ocOffc041iX0aoDniQ-OP7Wm00LYBNipcFOz2R1lWu_B0K6I"/>
+</div>
+<div class="flex-1">
+<h3 class="font-medium text-primary text-sm mb-1">Ceramic Dining Bowl</h3>
+<p class="text-xs text-on-surface-variant mb-2">Matte Cream</p>
+<div class="flex justify-between items-center">
+<span class="text-sm font-semibold text-primary">$45.00</span>
+<div class="flex items-center gap-3 bg-surface-container-low rounded-full px-3 py-1">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">remove</span></button>
+<span class="text-xs font-medium">1</span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined text-sm">add</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/30 space-y-3">
+<div class="flex justify-between text-sm text-on-surface-variant">
+<span>Subtotal</span>
+<span>$165.00</span>
+</div>
+<div class="flex justify-between text-sm text-on-surface-variant">
+<span>Shipping</span>
+<span>Calculated at next step</span>
+</div>
+<div class="flex justify-between text-lg font-semibold text-primary pt-2">
+<span>Total</span>
+<span>$165.00</span>
+</div>
+</div>
+</section>
+<!-- Express Checkout -->
+<section class="mb-10">
+<div class="flex items-center gap-4 mb-6">
+<div class="h-[1px] flex-1 bg-outline-variant/50"></div>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant font-medium">Express Checkout</span>
+<div class="h-[1px] flex-1 bg-outline-variant/50"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="w-full py-4 rounded-lg bg-[#000000] text-white flex justify-center items-center gap-2 hover:scale-[1.02] transition-transform shadow-sm">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+<span class="text-sm font-medium tracking-wide">Pay</span>
+</button>
+<button class="w-full py-4 rounded-lg bg-[#FFC439] text-[#000000] flex justify-center items-center gap-2 hover:scale-[1.02] transition-transform shadow-sm">
+<span class="font-bold tracking-wide">PayPal</span>
+</button>
+</div>
+</section>
+<!-- Form Fields -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<div class="h-[1px] flex-1 bg-outline-variant/50"></div>
+<span class="text-xs uppercase tracking-widest text-on-surface-variant font-medium">Or enter details</span>
+<div class="h-[1px] flex-1 bg-outline-variant/50"></div>
+</div>
+<form class="space-y-8">
+<div class="relative group">
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 text-primary placeholder-transparent peer transition-colors" id="email" placeholder="Email Address" required="" type="email"/>
+<label class="absolute left-0 -top-4 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-primary" for="email">Email Address</label>
+</div>
+<!-- Checkbox -->
+<div class="flex items-center gap-3">
+<div class="relative flex items-center">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary focus:ring-offset-background bg-transparent transition-all" id="newsletter" type="checkbox"/>
+</div>
+<label class="text-sm text-on-surface-variant" for="newsletter">Email me with news and offers</label>
+</div>
+</form>
+</section>
+</main>
+<!-- Sticky Bottom CTA -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-xl p-6 border-t border-outline-variant/20 z-50 shadow-[0_-8px_32px_rgba(32,27,20,0.05)]">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-5 rounded-lg text-lg font-medium tracking-wide hover:scale-[1.02] hover:opacity-90 transition-all duration-300 shadow-[0_16px_32px_-12px_rgba(90,71,66,0.3)] flex justify-center items-center gap-2">
+                Continue to Shipping
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

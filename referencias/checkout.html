@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout - Âme Acessórios Pet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#1d1b19",
+                        "surface-container-highest": "#ece1d5",
+                        "on-primary-fixed": "#271814",
+                        "inverse-primary": "#dcc1ba",
+                        "primary-container": "#735e59",
+                        "on-background": "#201b14",
+                        "tertiary": "#4d4a48",
+                        "inverse-surface": "#362f27",
+                        "background": "#fff8f3",
+                        "outline-variant": "#d2c3c0",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#4f4442",
+                        "surface-bright": "#fff8f3",
+                        "tertiary-fixed": "#e7e2de",
+                        "on-error-container": "#93000a",
+                        "outline": "#817471",
+                        "on-surface": "#201b14",
+                        "on-primary-container": "#f5d9d3",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#696158",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#f8ece0",
+                        "primary": "#5a4742",
+                        "secondary-container": "#e9ded2",
+                        "tertiary-fixed-dim": "#cac6c2",
+                        "surface-variant": "#ece1d5",
+                        "inverse-on-surface": "#fbefe3",
+                        "on-primary-fixed-variant": "#55423e",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#201b14",
+                        "surface": "#fff8f3",
+                        "secondary": "#655d54",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#65625f",
+                        "on-secondary-fixed-variant": "#4d463d",
+                        "primary-fixed-dim": "#dcc1ba",
+                        "surface-container-high": "#f2e6da",
+                        "surface-tint": "#6e5a55",
+                        "primary-fixed": "#f9dcd6",
+                        "on-tertiary-container": "#e3deda",
+                        "surface-container-low": "#fef2e5",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#e3d8cc",
+                        "secondary-fixed-dim": "#cfc5b9",
+                        "on-tertiary-fixed-variant": "#494644",
+                        "secondary-fixed": "#ece1d5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Lexend"],
+                        "body": ["Lexend"],
+                        "label": ["Lexend"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Lexend', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 248, 243, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+        .step-transition {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container relative">
+<!-- Decorative blurred shapes for glassmorphism background -->
+<div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-surface-container-high/40 blur-3xl mix-blend-multiply"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-surface-variant/30 blur-3xl mix-blend-multiply"></div>
+</div>
+<!-- TopNavBar (Nav suppressed for Checkout Flow, only Logo) -->
+<header class="fixed top-0 w-full z-50 h-20 glass-panel flex justify-center items-center px-8 md:px-16 border-b-0">
+<a class="text-xl font-bold tracking-tighter text-[#5a4742] hover:opacity-80 transition-opacity" href="#">
+            Âme Acessórios Pet
+        </a>
+</header>
+<!-- Main Checkout Canvas -->
+<main class="pt-32 pb-24 px-6 md:px-12 lg:px-24 max-w-[1440px] mx-auto min-h-screen flex flex-col lg:flex-row gap-16 lg:gap-24 relative">
+<!-- Left Column: Checkout Steps -->
+<div class="flex-1 max-w-2xl step-transition opacity-100 translate-y-0">
+<!-- Progress Indicator -->
+<div class="flex items-center justify-between mb-16 relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[1px] bg-outline-variant/30 -z-10"></div>
+<div class="flex flex-col items-center gap-2 px-2 relative group">
+<div class="absolute inset-0 bg-background/80 blur-md -z-10 group-hover:bg-background transition-colors"></div>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-semibold text-sm shadow-sm transition-transform group-hover:scale-110 duration-300">
+<span class="material-symbols-outlined" style="font-size: 16px;">check</span>
+</div>
+<span class="font-label text-[10px] uppercase tracking-widest text-primary font-medium">Information</span>
+</div>
+<div class="flex flex-col items-center gap-2 px-2 relative group">
+<div class="absolute inset-0 bg-background/80 blur-md -z-10"></div>
+<div class="w-8 h-8 rounded-full border-2 border-primary text-primary flex items-center justify-center font-semibold text-sm bg-white/50 backdrop-blur-sm shadow-sm relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/10 scale-0 group-hover:scale-100 rounded-full transition-transform duration-300 origin-center"></div>
+                        2
+                    </div>
+<span class="font-label text-[10px] uppercase tracking-widest text-primary font-bold">Shipping</span>
+</div>
+<div class="flex flex-col items-center gap-2 px-2 relative group">
+<div class="absolute inset-0 bg-background/80 blur-md -z-10"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container/50 border border-outline-variant/30 text-on-surface-variant flex items-center justify-center font-semibold text-sm backdrop-blur-sm transition-colors group-hover:bg-surface-container">
+                        3
+                    </div>
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/50">Payment</span>
+</div>
+</div>
+<!-- Current Step: Shipping -->
+<section class="mb-16">
+<div class="flex items-center gap-3 mb-8">
+<h2 class="font-headline text-2xl tracking-tight text-on-background">Shipping Address</h2>
+<span class="material-symbols-outlined text-[#DCF0F2] text-xl" title="Heritage Secure">verified_user</span>
+</div>
+<form class="space-y-6">
+<!-- Contact Info -->
+<div class="space-y-6 glass-panel p-8 rounded-xl hover-lift">
+<h3 class="font-label text-xs uppercase tracking-[0.1em] text-on-surface-variant mb-4 font-semibold">Contact</h3>
+<div class="relative">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="email" placeholder="Email Address" type="email"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="email">Email Address</label>
+</div>
+</div>
+<!-- Address Info -->
+<div class="space-y-6 glass-panel p-8 rounded-xl hover-lift">
+<h3 class="font-label text-xs uppercase tracking-[0.1em] text-on-surface-variant mb-4 font-semibold">Delivery Details</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="relative">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="firstName" placeholder="First Name" type="text"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="firstName">First Name</label>
+</div>
+<div class="relative">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="lastName" placeholder="Last Name" type="text"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="lastName">Last Name</label>
+</div>
+</div>
+<div class="relative">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="address" placeholder="Address" type="text"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="address">Address</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="relative md:col-span-2">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="city" placeholder="City" type="text"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="city">City</label>
+</div>
+<div class="relative">
+<input class="peer w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background placeholder-transparent transition-colors" id="postal" placeholder="Postal Code" type="text"/>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-primary font-medium" for="postal">Postal Code</label>
+</div>
+</div>
+<div class="relative">
+<select class="w-full bg-transparent border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-0 py-3 text-on-background appearance-none cursor-pointer" id="country">
+<option value="br">Brazil</option>
+<option value="us">United States</option>
+<option value="uk">United Kingdom</option>
+<option value="eu">Europe</option>
+</select>
+<label class="absolute left-0 -top-3.5 text-xs text-on-surface-variant font-medium" for="country">Country</label>
+<span class="material-symbols-outlined absolute right-0 top-3 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Shipping Method -->
+<div class="space-y-4 pt-8">
+<h3 class="font-label text-xs uppercase tracking-[0.1em] text-on-surface-variant mb-4 font-semibold">Shipping Method</h3>
+<label class="flex items-center justify-between p-6 glass-panel rounded-xl cursor-pointer border border-primary/30 relative overflow-hidden group hover-lift">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="flex items-center gap-4 relative z-10">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4 bg-transparent border-outline transition-all" name="shipping" type="radio"/>
+<div>
+<p class="font-medium text-on-background">Standard Atelier Shipping</p>
+<p class="text-sm text-on-surface-variant/70 mt-1">3-5 Business Days</p>
+</div>
+</div>
+<span class="font-medium text-primary relative z-10">Free</span>
+</label>
+<label class="flex items-center justify-between p-6 bg-white/40 backdrop-blur-md border border-white/20 rounded-xl cursor-pointer hover:bg-white/60 transition-colors group hover-lift">
+<div class="flex items-center gap-4 relative z-10">
+<input class="text-primary focus:ring-primary h-4 w-4 bg-transparent border-outline transition-all" name="shipping" type="radio"/>
+<div>
+<p class="font-medium text-on-background">Express Courrier</p>
+<p class="text-sm text-on-surface-variant/70 mt-1">1-2 Business Days</p>
+</div>
+</div>
+<span class="font-medium text-primary relative z-10">$15.00</span>
+</label>
+</div>
+<!-- Actions -->
+<div class="flex items-center justify-between pt-12">
+<a class="text-sm font-medium text-primary hover:text-primary-container transition-colors flex items-center gap-2 group" href="#">
+<span class="material-symbols-outlined transition-transform group-hover:-translate-x-1" style="font-size: 18px;">arrow_back</span>
+                            Return to Cart
+                        </a>
+<button class="bg-primary text-on-primary px-10 py-4 rounded-md font-semibold tracking-wide hover:scale-[1.03] hover:shadow-lg transition-all duration-300 relative overflow-hidden group" type="button">
+<span class="relative z-10">Continue to Payment</span>
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+</button>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Order Summary -->
+<aside class="w-full lg:w-[450px]">
+<div class="sticky top-32 glass-panel rounded-2xl p-8 lg:p-10 step-transition shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+<div class="flex items-center justify-between mb-8">
+<h3 class="font-headline text-lg tracking-tight text-on-background font-semibold">Order Summary</h3>
+<span class="material-symbols-outlined text-[#DCF0F2] text-sm" title="Heritage Secure">local_police</span>
+</div>
+<!-- Items -->
+<div class="space-y-6 mb-8 border-b border-outline-variant/20 pb-8">
+<!-- Item 1 -->
+<div class="flex gap-6 items-start group">
+<div class="relative w-20 h-24 bg-white/50 rounded-md overflow-hidden flex-shrink-0 shadow-sm transition-transform group-hover:scale-105 duration-300">
+<img alt="Bespoke Leather Collar" class="w-full h-full object-cover" data-alt="High-end tan leather dog collar with solid brass hardware lying on a pristine white marble surface, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJRbTY1KPvjzlrFph7XbYtDGu1i_Jmtr_u8hPXVlx0z2c-FWRGDbqQAWpqKsZ6roqzjbt4wGf4H73UPRuzSmGtOrvGxIvFDRJRjQNGTu6BQ8pIsgu6TPg-_sknb_xRuSmhM2XY_u_es1Tt-VIN9NKAqX4avA12o5YC8WGJyPGqxRInfJyt1a443494j8jAvA-YwHmRN2tmpeavaybY1Z0pKTWmzdDJi0405YLGyP03edfSsnEjGc6dlPodKgJv1kQJAHi5huSPfNE"/>
+<span class="absolute -top-2 -right-2 w-6 h-6 bg-primary text-on-primary rounded-full flex items-center justify-center text-xs font-bold z-10 shadow-md border border-white/50 backdrop-blur-sm">1</span>
+</div>
+<div class="flex-1 pt-1">
+<h4 class="font-medium text-on-background leading-snug group-hover:text-primary transition-colors">The Monaco Collar</h4>
+<p class="text-sm text-on-surface-variant mt-1">Tan Leather / Brass</p>
+<p class="text-xs text-on-surface-variant/70 mt-1 uppercase tracking-wider font-medium">Size: M</p>
+</div>
+<div class="pt-1 font-semibold text-on-background">
+                            $125.00
+                        </div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-6 items-start group">
+<div class="relative w-20 h-24 bg-white/50 rounded-md overflow-hidden flex-shrink-0 shadow-sm transition-transform group-hover:scale-105 duration-300">
+<img alt="Matching Leather Leash" class="w-full h-full object-cover" data-alt="Rolled tan leather dog leash with brass clip elegantly coiled on a soft cream linen background, soft directional light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu-TvE-6BaUrXWJKOXSG73WBNWj9yPpTvGXw-LCwEIAVVknqlP1kZf6yA43iBIVp6JLSni_r2bupbKnGrXoEJ86gDXrCDDdtJKSwyO3pAmAmv3hLZSoXttdRKuZLqC8Tu-RSzU8lkX8lKefbaRQLCWWGj3Vvpezod1wV05jn2YzomQmJoK5AXRjV_S_7oOe4kjyWuJ_EOfcfGZ06_BRwhieiwpv9q7gUvtrZqcl83Ic-3eI3F-5XZmXrmCTgkjOR_OZSRkQx83ZhA"/>
+<span class="absolute -top-2 -right-2 w-6 h-6 bg-primary text-on-primary rounded-full flex items-center justify-center text-xs font-bold z-10 shadow-md border border-white/50 backdrop-blur-sm">1</span>
+</div>
+<div class="flex-1 pt-1">
+<h4 class="font-medium text-on-background leading-snug group-hover:text-primary transition-colors">The Monaco Leash</h4>
+<p class="text-sm text-on-surface-variant mt-1">Tan Leather / Brass</p>
+<p class="text-xs text-on-surface-variant/70 mt-1 uppercase tracking-wider font-medium">Length: Standard</p>
+</div>
+<div class="pt-1 font-semibold text-on-background">
+                            $145.00
+                        </div>
+</div>
+</div>
+<!-- Discount Code -->
+<div class="flex gap-4 mb-8">
+<div class="relative flex-1">
+<input class="peer w-full bg-white/40 backdrop-blur-sm border-0 border-b border-outline-variant/50 focus:border-primary focus:ring-0 px-4 py-3 text-sm text-on-background placeholder-transparent rounded-t-md transition-colors" id="discount" placeholder="Gift card or discount code" type="text"/>
+<label class="absolute left-4 top-3 text-xs text-on-surface-variant transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:top-3 peer-focus:top-1 peer-focus:text-[10px] peer-focus:text-primary font-medium" for="discount">Gift card or discount code</label>
+</div>
+<button class="bg-surface-variant/80 backdrop-blur-sm text-on-surface-variant px-6 rounded-md font-semibold text-sm hover:bg-surface-container-highest hover:shadow-sm transition-all">Apply</button>
+</div>
+<!-- Totals -->
+<div class="space-y-4 text-sm">
+<div class="flex justify-between text-on-surface-variant">
+<span>Subtotal</span>
+<span class="font-medium text-on-background">$270.00</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Shipping</span>
+<span class="font-semibold text-primary">Free</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Estimated Taxes</span>
+<span class="font-medium text-on-background">$21.60</span>
+</div>
+<div class="pt-6 mt-6 border-t border-outline-variant/20 flex justify-between items-end">
+<span class="font-headline text-lg text-on-background font-semibold">Total</span>
+<div class="text-right">
+<span class="text-xs text-on-surface-variant/70 uppercase tracking-widest mr-2 font-medium">USD</span>
+<span class="font-headline text-2xl text-on-background font-bold">$291.60</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/20 flex items-center justify-center gap-2 text-xs text-on-surface-variant/80 font-medium">
+<span class="material-symbols-outlined text-primary/70" style="font-size: 16px;">lock</span>
+                    Secure SSL Encrypted Checkout
+                </div>
+</div>
+</aside>
+</main>
+<!-- Footer (Suppressed mostly for focus, kept minimal) -->
+<footer class="w-full mt-16 border-t border-outline-variant/10 glass-panel px-8 py-12 flex justify-center border-b-0 border-l-0 border-r-0">
+<p class="font-lexend text-sm leading-[1.6] tracking-wide text-[#5a4742]/70 font-medium flex items-center gap-2">
+<span>© 2024 Âme Acessórios Pet. Secure Checkout.</span>
+<span class="material-symbols-outlined text-[#DCF0F2] text-xs" title="Heritage Secure">gpp_good</span>
+</p>
+</footer>
+</body></html>

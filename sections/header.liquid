@@ -1,128 +1,299 @@
-<header
-  class="ame-header{% if settings.header_sticky %} ame-header--sticky{% endif %}"
-  data-header
->
-  <a href="{{ routes.root_url }}" class="ame-header__logo">
-    {{ shop.name }}
-  </a>
+{% comment %} Âme — Header: glassmorphism + nav bar separada + logo imagem {% endcomment %}
 
-  <nav class="ame-header__nav" aria-label="Menu principal">
-    {% for link in section.settings.menu.links %}
-      <a
-        href="{{ link.url }}"
-        class="ame-header__nav-link{% if link.active %} ame-header__nav-link--active{% endif %}"
-        {% if link.current %}aria-current="page"{% endif %}
-      >
-        {{ link.title }}
-      </a>
-    {% endfor %}
-  </nav>
+{%- liquid
+  assign logo_img_alt = section.settings.logo.alt | default: shop.name | escape
+  assign logo_w = section.settings.logo_width
+  assign logo_h_max = section.settings.logo_height
+  assign logo_h = 0
+  if section.settings.logo != blank and section.settings.logo.width > 0
+    assign logo_h = section.settings.logo.height | times: logo_w | divided_by: section.settings.logo.width
+  endif
+-%}
 
-  <div class="ame-header__actions">
-    <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
-      <span class="material-symbols-outlined">search</span>
-    </button>
-
-    {% if shop.customer_accounts_enabled %}
-      <shopify-account menu="{{ section.settings.customer_account_menu }}">
-        <button class="ame-header__icon-btn" aria-label="Minha conta">
-          <span class="material-symbols-outlined">person</span>
-        </button>
-      </shopify-account>
-    {% endif %}
-
-    <a href="{{ routes.cart_url }}" class="ame-header__icon-btn ame-header__cart" aria-label="Carrinho ({{ cart.item_count }} itens)">
-      <span class="material-symbols-outlined">shopping_bag</span>
-      {%- if cart.item_count > 0 -%}
-        <span class="ame-header__cart-count">{{ cart.item_count }}</span>
+<!-- Header group: sempre fixed, top ajustado pelo JS para ficar abaixo da announce -->
+<div class="ame-header-group" data-header-group style="top: 2.5rem">
+  <!-- Topo: logo + ações -->
+  <header
+    class="ame-header{% if settings.header_sticky %} ame-header--sticky{% endif %}"
+    data-header
+  >
+    <!-- Logo -->
+    <a href="{{ routes.root_url }}" class="ame-header__logo" aria-label="{{ shop.name }}">
+      {%- if section.settings.logo != blank -%}
+        {{
+          section.settings.logo
+          | image_url: width: 560
+          | image_tag:
+            loading: 'eager',
+            fetchpriority: 'high',
+            class: 'ame-header__logo-img',
+            alt: logo_img_alt,
+            width: logo_w,
+            height: logo_h
+        }}
+      {%- else -%}
+        <span class="ame-header__logo-text">{{ shop.name }}</span>
       {%- endif -%}
     </a>
 
-    <button class="ame-header__icon-btn ame-header__mobile-menu-btn" aria-label="Menu" aria-expanded="false" data-mobile-menu-toggle>
-      <span class="material-symbols-outlined" data-menu-icon>menu</span>
-    </button>
-  </div>
-</header>
+    <!-- Ações -->
+    <div class="ame-header__actions" data-header-actions>
+      <!-- Search inline (desktop: expande para a esquerda; mobile: abre overlay) -->
+      <div class="ame-header__search-wrap" data-search-wrap>
+        <form
+          action="{{ routes.search_url }}"
+          method="get"
+          class="ame-header__search-form"
+          data-search-form-inline
+          role="search"
+        >
+          <input type="hidden" name="type" value="product">
+          <input
+            type="search"
+            name="q"
+            class="ame-header__search-input"
+            placeholder="Buscar produtos…"
+            autocomplete="off"
+            aria-label="Buscar"
+            data-search-input
+          >
+          <button
+            type="button"
+            class="ame-header__icon-btn ame-header__search-close"
+            aria-label="Fechar busca"
+            data-search-close
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </form>
+      </div>
 
+      <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
+        <span class="material-symbols-outlined">search</span>
+      </button>
+
+      {%- if shop.customer_accounts_enabled -%}
+        <shopify-account menu="{{ section.settings.customer_account_menu }}">
+          <button class="ame-header__icon-btn" aria-label="Minha conta">
+            <span class="material-symbols-outlined">person</span>
+          </button>
+        </shopify-account>
+      {%- endif -%}
+
+      <button
+        class="ame-header__icon-btn ame-header__cart"
+        aria-label="Carrinho ({{ cart.item_count }} itens)"
+        data-cart-open
+      >
+        <span class="material-symbols-outlined">shopping_bag</span>
+        <span
+          class="ame-header__cart-count"
+          data-cart-count
+          {% unless cart.item_count > 0 %}
+            style="display:none"
+          {% endunless %}
+        >
+          {{- cart.item_count -}}
+        </span>
+      </button>
+
+      <button
+        class="ame-header__icon-btn ame-header__mobile-menu-btn"
+        aria-label="Menu"
+        aria-expanded="false"
+        data-mobile-menu-toggle
+      >
+        <span class="material-symbols-outlined" data-menu-icon>menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Nav bar secundária (desktop) -->
+  <nav class="ame-header__nav-bar" aria-label="Menu principal" data-nav-bar>
+    {%- for link in section.settings.menu.links -%}
+      <a
+        href="{{ link.url }}"
+        class="ame-header__nav-link{% if link.active %} ame-header__nav-link--active{% endif %}"
+        {% if link.current %}
+          aria-current="page"
+        {% endif %}
+      >
+        {{- link.title -}}
+      </a>
+    {%- endfor -%}
+  </nav>
+</div>
+
+<!-- Search overlay mobile (desliza abaixo do header-group — apenas mobile) -->
+<div class="ame-search-overlay" id="search-overlay" aria-hidden="true" data-search-overlay>
+  <form action="{{ routes.search_url }}" method="get" class="ame-search-form" role="search">
+    <input type="hidden" name="type" value="product">
+    <span class="material-symbols-outlined ame-search-form__icon" aria-hidden="true">search</span>
+    <input
+      type="search"
+      name="q"
+      class="ame-search-form__input"
+      placeholder="Buscar produtos…"
+      autocomplete="off"
+      aria-label="Buscar"
+      data-search-input-mobile
+    >
+    <button type="button" class="ame-search-form__close" aria-label="Fechar busca" data-search-close-mobile>
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </form>
+</div>
+
+<!-- Mobile nav drawer (fora do grupo fixed) -->
 <nav class="ame-mobile-nav" id="mobile-nav" aria-hidden="true" data-mobile-nav>
-  {% for link in section.settings.menu.links %}
+  {%- for link in section.settings.menu.links -%}
     <a
       href="{{ link.url }}"
       class="ame-mobile-nav__link{% if link.active %} ame-mobile-nav__link--active{% endif %}"
     >
-      {{ link.title }}
+      {{- link.title -}}
     </a>
-  {% endfor %}
+  {%- endfor -%}
 </nav>
 
+{% style %}
+  :root {
+    --logo-width:  {{ logo_w }}px;
+    --logo-height: {{ logo_h_max }}px;
+  }
+{% endstyle %}
+
 {% stylesheet %}
-  .ame-header {
+  /* ═══════════════════════════════════════════════
+     GROUP WRAPPER — sempre fixed, top definido pelo JS
+     (que considera a altura da countdown bar quando ativa)
+  ════════════════════════════════════════════════ */
+  .ame-header-group {
     position: fixed;
-    top: 0;
+    top: 0; /* sobrescrito pelo JS quando countdown está ativa */
     left: 0;
     right: 0;
     z-index: 100;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: box-shadow 0.3s ease, top 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ame-header-group.is-sticky {
+    box-shadow: 0 4px 24px rgba(32, 27, 20, 0.07);
+  }
+
+  /* ── Header principal ── */
+  .ame-header {
+    width: 100%;
     height: 5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--page-margin, 2rem);
-    background: rgba(255, 248, 243, 0.72);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
+    padding: 0 var(--page-margin, 20px);
+
+    /* Glassmorphism */
+    background: rgba(255, 248, 243, 0.55);
+    backdrop-filter: blur(32px) saturate(1.6);
+    -webkit-backdrop-filter: blur(32px) saturate(1.6);
+    border-bottom: 1px solid rgba(255, 248, 243, 0.15);
+    transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
   }
 
   .ame-header.is-scrolled {
-    background: rgba(255, 248, 243, 0.92);
-    box-shadow: 0 1px 0 rgba(32, 27, 20, 0.06);
+    background: rgba(255, 248, 243, 0.88);
+    border-bottom-color: rgba(210, 195, 192, 0.18);
   }
 
-  /* Logo */
+  /* ── Logo ── */
   .ame-header__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .ame-header__logo-img {
+    height: auto;
+    width: var(--logo-width, 140px);
+    max-height: var(--logo-height, 2.5rem);
+    max-width: 50vw;
+    object-fit: contain;
+    display: block;
+  }
+
+  .ame-header__logo-text {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 1.125rem;
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--color-primary, #5a4742);
-    text-decoration: none;
     white-space: nowrap;
   }
 
-  /* Desktop nav */
-  .ame-header__nav {
+  /* ── Nav bar secundária (desktop) — largura total ── */
+  .ame-header__nav-bar {
+    width: 100%;
+    height: 2.5rem;
     display: none;
-    gap: 2.5rem;
     align-items: center;
+    justify-content: center;
+    gap: 2.75rem;
+
+    background: rgba(255, 248, 243, 0.45);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid rgba(210, 195, 192, 0.12);
+    transition: background 0.4s ease;
   }
   @media (min-width: 768px) {
-    .ame-header__nav { display: flex; }
+    .ame-header__nav-bar {
+      display: flex;
+    }
+  }
+  .ame-header__nav-bar.is-scrolled {
+    background: rgba(255, 248, 243, 0.82);
   }
 
   .ame-header__nav-link {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    letter-spacing: 0.12em;
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: rgba(90, 71, 66, 0.5);
     text-decoration: none;
-    transition: color 0.25s ease, letter-spacing 0.3s ease;
+    padding: 0.25rem 0;
+    position: relative;
+    transition: color 0.25s ease;
   }
-  .ame-header__nav-link:hover,
+  .ame-header__nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-primary, #5a4742);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .ame-header__nav-link:hover {
+    color: var(--color-primary, #5a4742);
+  }
+  .ame-header__nav-link:hover::after,
+  .ame-header__nav-link--active::after {
+    transform: scaleX(1);
+  }
   .ame-header__nav-link--active {
     color: var(--color-primary, #5a4742);
-    letter-spacing: 0.18em;
-  }
-  .ame-header__nav-link--active {
-    border-bottom: 1px solid rgba(90, 71, 66, 0.3);
-    padding-bottom: 2px;
   }
 
-  /* Action icons */
+  /* ── Ações ── */
   .ame-header__actions {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1.125rem;
   }
 
   .ame-header__icon-btn {
@@ -137,10 +308,11 @@
     transition: transform 0.25s ease;
     position: relative;
   }
-  .ame-header__icon-btn:hover { transform: scale(1.1); }
-
+  .ame-header__icon-btn:hover {
+    transform: scale(1.1);
+  }
   .ame-header__icon-btn .material-symbols-outlined {
-    font-size: 1.375rem;
+    font-size: 1.25rem;
     font-variation-settings: 'wght' 250;
   }
 
@@ -152,7 +324,7 @@
     height: 1rem;
     background: var(--color-primary, #5a4742);
     color: var(--color-on-primary, #ffffff);
-    font-size: 0.5625rem;
+    font-size: 0.5rem;
     font-weight: 700;
     border-radius: 50%;
     display: flex;
@@ -160,30 +332,33 @@
     justify-content: center;
   }
 
-  /* Mobile menu button — hide on desktop */
-  .ame-header__mobile-menu-btn { display: flex; }
+  .ame-header__mobile-menu-btn {
+    display: flex;
+  }
   @media (min-width: 768px) {
-    .ame-header__mobile-menu-btn { display: none; }
+    .ame-header__mobile-menu-btn {
+      display: none;
+    }
   }
 
-  /* Mobile nav drawer */
+  /* ── Mobile nav drawer ── */
   .ame-mobile-nav {
     position: fixed;
-    top: 5rem;
     left: 0;
     right: 0;
     z-index: 99;
-    background: rgba(255, 248, 243, 0.96);
+    background: rgba(255, 248, 243, 0.97);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
     display: flex;
     flex-direction: column;
-    padding: 1.5rem var(--page-margin, 2rem) 2rem;
-    gap: 1.5rem;
-    transform: translateY(-100%);
+    padding: 1.5rem var(--page-margin, 20px) 2rem;
+    gap: 1.25rem;
+    transform: translateY(-110%);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+    /* top definido pelo JS */
   }
   .ame-mobile-nav.is-open {
     transform: translateY(0);
@@ -191,12 +366,14 @@
     pointer-events: auto;
   }
   @media (min-width: 768px) {
-    .ame-mobile-nav { display: none; }
+    .ame-mobile-nav {
+      display: none;
+    }
   }
 
   .ame-mobile-nav__link {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--color-on-background, #201b14);
@@ -206,27 +383,261 @@
     transition: color 0.2s ease;
   }
   .ame-mobile-nav__link:hover,
-  .ame-mobile-nav__link--active { color: var(--color-primary, #5a4742); }
+  .ame-mobile-nav__link--active {
+    color: var(--color-primary, #5a4742);
+  }
 
-  /* Body offset so content doesn't hide under fixed header */
-  body { padding-top: 5rem; }
+  /* ── Search inline (desktop) ── */
+  .ame-header__search-wrap {
+    display: none; /* mobile: não aparece aqui */
+    align-items: center;
+    overflow: hidden;
+    width: 0;
+    opacity: 0;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+  .ame-header__search-wrap.is-open {
+    width: 18rem;
+    opacity: 1;
+  }
+  @media (min-width: 768px) {
+    .ame-header__search-wrap {
+      display: flex;
+    }
+  }
+
+  .ame-header__search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    border-bottom: 1px solid rgba(210, 195, 192, 0.5);
+    padding-bottom: 2px;
+  }
+
+  .ame-header__search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    color: var(--color-on-background, #201b14);
+    padding: 0;
+    min-width: 0;
+  }
+  .ame-header__search-input::placeholder {
+    color: rgba(90, 71, 66, 0.35);
+  }
+
+  .ame-header__search-close {
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+  .ame-header__search-close:hover {
+    opacity: 1;
+  }
+  .ame-header__search-close .material-symbols-outlined {
+    font-size: 1rem;
+    font-variation-settings: 'wght' 250;
+  }
+
+  /* ── Search overlay (mobile apenas) ── */
+  .ame-search-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 98;
+    background: rgba(255, 248, 243, 0.97);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-bottom: 1px solid rgba(210, 195, 192, 0.2);
+    box-shadow: 0 8px 32px rgba(32, 27, 20, 0.07);
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+  .ame-search-overlay.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @media (min-width: 768px) {
+    /* No desktop o overlay nunca abre */
+    .ame-search-overlay {
+      display: none;
+    }
+  }
+
+  .ame-search-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem var(--page-margin, 20px);
+  }
+  .ame-search-form__icon {
+    color: var(--color-primary, #5a4742);
+    font-size: 1.25rem;
+    font-variation-settings: 'wght' 250;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+  .ame-search-form__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--color-on-background, #201b14);
+    padding: 0;
+  }
+  .ame-search-form__input::placeholder {
+    color: rgba(90, 71, 66, 0.35);
+  }
+  .ame-search-form__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(90, 71, 66, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .ame-search-form__close:hover {
+    color: var(--color-primary, #5a4742);
+    transform: rotate(90deg);
+  }
+  .ame-search-form__close .material-symbols-outlined {
+    font-size: 1.25rem;
+    font-variation-settings: 'wght' 250;
+  }
 {% endstylesheet %}
 
 <script>
   (() => {
-    const header     = document.querySelector('[data-header]');
-    const mobileNav  = document.querySelector('[data-mobile-nav]');
-    const menuBtn    = document.querySelector('[data-mobile-menu-toggle]');
-    const menuIcon   = document.querySelector('[data-menu-icon]');
+    const group = document.querySelector('[data-header-group]');
+    const header = document.querySelector('[data-header]');
+    const navBar = document.querySelector('[data-nav-bar]');
+    const mobileNav = document.querySelector('[data-mobile-nav]');
+    const menuBtn = document.querySelector('[data-mobile-menu-toggle]');
+    const menuIcon = document.querySelector('[data-menu-icon]');
+    const searchBtn = document.querySelector('[data-search-toggle]');
+    const searchOverlay = document.querySelector('[data-search-overlay]');
 
-    /* Scroll shadow */
-    const onScroll = () => {
-      header.classList.toggle('is-scrolled', window.scrollY > 20);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    /*
+      Arquitetura de posicionamento (todos fixed, JS controla top):
+      ─ [data-countdown-bar]  z-index:300  top:0
+      ─ [data-announce]       z-index:200  top: countdownH
+      ─ [data-header-group]   z-index:100  top: countdownH + announceH
+      ─ [data-search-overlay] z-index:98   top: countdownH + announceH + groupH
+      ─ [data-mobile-nav]     z-index:99   top: countdownH + announceH + groupH
 
-    /* Mobile menu toggle */
+      Ao rolar: announce recebe .is-hidden (translateY(-100%)),
+      e header-group sobe junto (top: countdownH).
+      body.paddingTop = countdownH + announceH + groupH (sempre, para reservar espaço).
+    */
+    function layout() {
+      if (!group) return;
+
+      const countdown = document.querySelector('[data-countdown-bar]');
+      const countdownH = countdown && countdown.offsetHeight > 0 ? countdown.offsetHeight : 0;
+
+      const announce = document.querySelector('[data-announce]');
+      const announceH = announce ? announce.offsetHeight : 0;
+
+      const scrolled = window.scrollY > 10;
+
+      // Announce: sobe para fora da tela ao rolar
+      if (announce) {
+        announce.style.top = countdownH + 'px';
+        announce.classList.toggle('is-hidden', scrolled);
+      }
+
+      // Header-group: abaixo da announce quando no topo, sobe quando announce some
+      const groupTop = scrolled ? countdownH : countdownH + announceH;
+      group.style.top = groupTop + 'px';
+      group.classList.toggle('is-sticky', scrolled);
+
+      // Reserva espaço no body sempre com announce + countdown + header
+      const totalPad = countdownH + announceH + group.offsetHeight;
+      document.body.style.paddingTop = totalPad + 'px';
+
+      // Search overlay e mobile nav: sempre abaixo do header-group
+      const headerBottom = groupTop + group.offsetHeight;
+      if (searchOverlay) searchOverlay.style.top = headerBottom + 'px';
+      if (mobileNav) mobileNav.style.top = headerBottom + 'px';
+    }
+
+    layout();
+    window.addEventListener('scroll', layout, { passive: true });
+    window.addEventListener('resize', layout, { passive: true });
+
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(layout);
+      const announce = document.querySelector('[data-announce]');
+      const countdown = document.querySelector('[data-countdown-bar]');
+      if (announce) ro.observe(announce);
+      if (countdown) ro.observe(countdown);
+      if (group) ro.observe(group);
+    }
+
+    /* ── Scroll state (glassmorphism intensidade) ── */
+    window.addEventListener(
+      'scroll',
+      () => {
+        const scrolled = window.scrollY > 10;
+        header?.classList.toggle('is-scrolled', scrolled);
+        navBar?.classList.toggle('is-scrolled', scrolled);
+      },
+      { passive: true }
+    );
+
+    /* ── Search: inline no desktop, overlay no mobile ── */
+    const searchWrap = document.querySelector('[data-search-wrap]');
+    const searchInputInline = document.querySelector('[data-search-input]');
+    const searchCloseInline = document.querySelector('[data-search-close]');
+    const searchInputMobile = document.querySelector('[data-search-input-mobile]');
+    const searchCloseMobile = document.querySelector('[data-search-close-mobile]');
+
+    const isDesktop = () => window.innerWidth >= 768;
+
+    function openSearch() {
+      if (isDesktop()) {
+        searchWrap?.classList.add('is-open');
+        setTimeout(() => searchInputInline?.focus(), 80);
+      } else {
+        searchOverlay?.classList.add('is-open');
+        searchOverlay?.setAttribute('aria-hidden', 'false');
+        setTimeout(() => searchInputMobile?.focus(), 80);
+      }
+    }
+    function closeSearch() {
+      searchWrap?.classList.remove('is-open');
+      searchOverlay?.classList.remove('is-open');
+      searchOverlay?.setAttribute('aria-hidden', 'true');
+    }
+
+    searchBtn?.addEventListener('click', () => {
+      const isOpen = isDesktop()
+        ? searchWrap?.classList.contains('is-open')
+        : searchOverlay?.classList.contains('is-open');
+      isOpen ? closeSearch() : openSearch();
+    });
+    searchCloseInline?.addEventListener('click', closeSearch);
+    searchCloseMobile?.addEventListener('click', closeSearch);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSearch();
+    });
+
+    /* ── Mobile menu ── */
     if (menuBtn && mobileNav) {
       menuBtn.addEventListener('click', () => {
         const open = mobileNav.classList.toggle('is-open');
@@ -242,6 +653,40 @@
 {
   "name": "Cabeçalho",
   "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Imagem do logo",
+      "info": "Se vazio, exibe o nome da loja em texto."
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 60,
+      "max": 280,
+      "step": 10,
+      "unit": "px",
+      "label": "Largura do logo",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "min": 20,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Altura máxima do logo",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Navegação"
+    },
     {
       "type": "link_list",
       "id": "menu",

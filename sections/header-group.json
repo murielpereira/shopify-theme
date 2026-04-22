@@ -11,12 +11,33 @@
   "type": "header",
   "name": "t:general.header",
   "sections": {
+    "countdown-bar": {
+      "type": "countdown-bar",
+      "settings": {
+        "enabled": false,
+        "message": "Oferta especial — aproveite!",
+        "end_date": "2026-12-31",
+        "end_time": "23:59:59"
+      }
+    },
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-1": { "type": "announcement", "settings": { "text": "Frete grátis acima de R$299", "icon": "local_shipping" } },
+        "announcement-2": { "type": "announcement", "settings": { "text": "Parcelamento em até 6x sem juros", "icon": "sell" } },
+        "announcement-3": { "type": "announcement", "settings": { "text": "10% off na primeira compra · use o cupom BEMVINDO", "icon": "favorite" } }
+      },
+      "block_order": ["announcement-1", "announcement-2", "announcement-3"],
+      "settings": { "speed": 5 }
+    },
     "header": {
       "type": "header",
       "settings": {}
     }
   },
   "order": [
+    "countdown-bar",
+    "announcement-bar",
     "header"
   ]
 }

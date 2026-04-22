@@ -1,0 +1,164 @@
+{% comment %} Cart Drawer — sidebar desktop, bottom sheet mobile {% endcomment %}
+
+<!-- Backdrop -->
+<div class="ame-cart-backdrop" id="cart-backdrop" aria-hidden="true"></div>
+
+<!-- Drawer -->
+<div
+  class="ame-cart-drawer"
+  id="cart-drawer"
+  aria-hidden="true"
+  aria-label="Carrinho de compras"
+  role="dialog"
+  data-cart-drawer
+>
+  <!-- Header do drawer -->
+  <div class="ame-cart-drawer__header">
+    <div class="ame-cart-drawer__title-row">
+      <h2 class="ame-cart-drawer__title">Carrinho</h2>
+      <span class="ame-cart-drawer__count" data-cart-count>
+        {%- if cart.item_count > 0 -%}{{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}itens{% endif %}{%- endif -%}
+      </span>
+    </div>
+    <button class="ame-cart-drawer__close" aria-label="Fechar carrinho" data-cart-close>
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Handle bar (mobile only) -->
+  <div class="ame-cart-drawer__handle" aria-hidden="true"></div>
+
+  <!-- Conteúdo -->
+  <div class="ame-cart-drawer__body" data-cart-body>
+
+    {%- if cart.item_count == 0 -%}
+      <!-- Empty state -->
+      <div class="ame-cart-empty" data-cart-empty>
+        <span class="material-symbols-outlined ame-cart-empty__icon">shopping_bag</span>
+        <p class="ame-cart-empty__title">Seu carrinho está vazio</p>
+        <p class="ame-cart-empty__sub">Adicione produtos para começar</p>
+        <a href="{{ routes.all_products_collection_url }}" class="ame-cta ame-cart-empty__cta" data-cart-close>
+          Explorar produtos
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    {%- else -%}
+      <!-- Free shipping progress bar -->
+      {%- assign free_shipping_threshold = 300 -%}
+      {%- assign cart_total_price = cart.total_price | divided_by: 100.0 -%}
+      {%- if cart_total_price < free_shipping_threshold -%}
+        {%- assign remaining = free_shipping_threshold | minus: cart_total_price -%}
+        {%- assign progress = cart_total_price | divided_by: free_shipping_threshold | times: 100 -%}
+        <div class="ame-cart-shipping-bar">
+          <p class="ame-cart-shipping-bar__text">
+            Frete grátis a partir de {{ free_shipping_threshold | money_without_trailing_zeros }} — faltam
+            <strong>{{ remaining | money }}</strong>
+          </p>
+          <div class="ame-cart-shipping-bar__track">
+            <div class="ame-cart-shipping-bar__fill" style="width: {{ progress | round }}%"></div>
+          </div>
+        </div>
+      {%- else -%}
+        <div class="ame-cart-shipping-bar ame-cart-shipping-bar--achieved">
+          <span class="material-symbols-outlined">local_shipping</span>
+          <p>Você ganhou <strong>frete grátis</strong>!</p>
+        </div>
+      {%- endif -%}
+
+      <!-- Lista de itens -->
+      <ul class="ame-cart-items" data-cart-items>
+        {%- for item in cart.items -%}
+          <li class="ame-cart-item" data-item-key="{{ item.key }}">
+            <a href="{{ item.url }}" class="ame-cart-item__img-link">
+              <div class="ame-cart-item__img-wrap">
+                {{
+                  item.image
+                  | image_url: width: 200
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'ame-cart-item__img',
+                    alt: item.product.title
+                }}
+              </div>
+            </a>
+
+            <div class="ame-cart-item__info">
+              <a href="{{ item.url }}" class="ame-cart-item__name">{{ item.product.title }}</a>
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="ame-cart-item__variant">{{ item.variant.title }}</p>
+              {%- endunless -%}
+
+              <div class="ame-cart-item__bottom">
+                <!-- Quantity stepper -->
+                <div class="ame-cart-item__qty" data-item-qty="{{ item.key }}">
+                  <button
+                    class="ame-cart-item__qty-btn"
+                    aria-label="Diminuir quantidade"
+                    data-qty-minus="{{ item.key }}"
+                    {% if item.quantity <= 1 %}data-remove="{{ item.key }}"{% endif %}
+                  >
+                    <span class="material-symbols-outlined">
+                      {%- if item.quantity <= 1 -%}delete{%- else -%}remove{%- endif -%}
+                    </span>
+                  </button>
+                  <span class="ame-cart-item__qty-val" data-qty-val="{{ item.key }}">{{ item.quantity }}</span>
+                  <button
+                    class="ame-cart-item__qty-btn"
+                    aria-label="Aumentar quantidade"
+                    data-qty-plus="{{ item.key }}"
+                  >
+                    <span class="material-symbols-outlined">add</span>
+                  </button>
+                </div>
+
+                <!-- Price -->
+                <div class="ame-cart-item__prices">
+                  {%- if item.original_line_price != item.final_line_price -%}
+                    <span class="ame-cart-item__price-original">{{ item.original_line_price | money }}</span>
+                  {%- endif -%}
+                  <span class="ame-cart-item__price" data-line-price="{{ item.key }}">{{ item.final_line_price | money }}</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+
+  <!-- Footer fixo com totais e CTA -->
+  <div class="ame-cart-drawer__footer" data-cart-footer {% if cart.item_count == 0 %}style="display:none"{% endif %}>
+    <!-- Discount code -->
+    <div class="ame-cart-discount">
+      <div class="ame-cart-discount__wrap">
+        <span class="material-symbols-outlined ame-cart-discount__icon">sell</span>
+        <input
+          type="text"
+          class="ame-cart-discount__input"
+          placeholder="Código de desconto"
+          aria-label="Código de desconto"
+        >
+      </div>
+      <button class="ame-cart-discount__btn">Aplicar</button>
+    </div>
+
+    <!-- Totals -->
+    <div class="ame-cart-totals">
+      <div class="ame-cart-totals__row">
+        <span>Subtotal</span>
+        <span data-cart-subtotal>{{ cart.total_price | money }}</span>
+      </div>
+      <p class="ame-cart-totals__note">Frete e impostos calculados no checkout</p>
+    </div>
+
+    <!-- CTA -->
+    <a href="{{ routes.cart_url }}" class="ame-cta ame-cart-drawer__cta" data-cart-checkout>
+      Finalizar compra
+      <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+
+    <a href="#" class="ame-cart-drawer__continue" data-cart-close>
+      Continuar comprando
+    </a>
+  </div>
+</div>

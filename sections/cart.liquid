@@ -1,35 +1,8 @@
 {% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
+  Cart section — placeholder para o template /cart.
+  O drawer HTML e JS vivem em snippets/cart-drawer.liquid e layout/theme.liquid.
+  Os estilos vivem em assets/critical.css.
 {% endcomment %}
-
-<h1>{{ 'cart.title' | t }}</h1>
-
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          <a class="image" href="{{ item.url }}">
-            {{ item.image | image_url: width: item.image.width | image_tag: loading: 'lazy' }}
-          </a>
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
 
 {% schema %}
 {

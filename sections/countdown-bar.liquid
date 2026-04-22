@@ -1,0 +1,218 @@
+{% comment %} Âme — Barra de contagem regressiva (fixed no topo quando ativa) {% endcomment %}
+
+{%- if section.settings.enabled -%}
+  <div
+    class="ame-countdown"
+    data-countdown-bar
+    data-end="{{ section.settings.end_date }} {{ section.settings.end_time }}"
+    style="display:none"
+    role="region"
+    aria-label="Promoção com contagem regressiva"
+  >
+    {%- if section.settings.link != blank -%}
+      <a href="{{ section.settings.link }}" class="ame-countdown__inner">
+    {%- else -%}
+      <div class="ame-countdown__inner">
+    {%- endif -%}
+
+    <span class="ame-countdown__message">{{ section.settings.message }}</span>
+
+    <div class="ame-countdown__timer" aria-live="polite">
+      <span class="ame-countdown__block">
+        <span class="ame-countdown__val" data-cd-days>00</span>
+        <span class="ame-countdown__label">dias</span>
+      </span>
+      <span class="ame-countdown__sep">:</span>
+      <span class="ame-countdown__block">
+        <span class="ame-countdown__val" data-cd-hours>00</span>
+        <span class="ame-countdown__label">h</span>
+      </span>
+      <span class="ame-countdown__sep">:</span>
+      <span class="ame-countdown__block">
+        <span class="ame-countdown__val" data-cd-min>00</span>
+        <span class="ame-countdown__label">min</span>
+      </span>
+      <span class="ame-countdown__sep">:</span>
+      <span class="ame-countdown__block">
+        <span class="ame-countdown__val" data-cd-sec>00</span>
+        <span class="ame-countdown__label">seg</span>
+      </span>
+    </div>
+
+    {%- if section.settings.link != blank -%}
+      </a>
+    {%- else -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ame-countdown {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 200; /* acima do header-group (z-index: 100) */
+    width: 100%;
+    /*background: var(--color-primary, #5a4742);*/
+    background: black;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ame-countdown__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-decoration: none;
+    color: var(--color-on-primary, #ffffff);
+  }
+
+  .ame-countdown__message {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-on-primary, #ffffff);
+    white-space: nowrap;
+  }
+
+  .ame-countdown__timer {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .ame-countdown__block {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+  }
+
+  .ame-countdown__val {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--color-on-primary, #ffffff);
+    min-width: 1.5ch;
+    text-align: center;
+  }
+
+  .ame-countdown__label {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .ame-countdown__sep {
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1;
+  }
+
+  @media (max-width: 600px) {
+    .ame-countdown__message {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const bar = document.querySelector('[data-countdown-bar]');
+    if (!bar) return;
+
+    const endStr = bar.dataset.end;
+    const endDate = new Date(endStr).getTime();
+
+    if (isNaN(endDate) || endDate <= Date.now()) return;
+
+    const daysEl = bar.querySelector('[data-cd-days]');
+    const hoursEl = bar.querySelector('[data-cd-hours]');
+    const minEl = bar.querySelector('[data-cd-min]');
+    const secEl = bar.querySelector('[data-cd-sec]');
+
+    function pad(n) {
+      return n < 10 ? '0' + n : n;
+    }
+
+    function tick() {
+      const diff = endDate - Date.now();
+      if (diff <= 0) {
+        clearInterval(timer);
+        bar.style.display = 'none';
+        // Notifica header para recalcular posição
+        window.dispatchEvent(new Event('resize'));
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+
+      daysEl.textContent = pad(d);
+      hoursEl.textContent = pad(h);
+      minEl.textContent = pad(m);
+      secEl.textContent = pad(s);
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
+
+    // Exibe a barra e notifica o header para recalcular offset
+    bar.style.display = '';
+    window.dispatchEvent(new Event('resize'));
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Contagem Regressiva",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Ativar barra de contagem",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Mensagem da promoção",
+      "default": "Oferta especial — aproveite!"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Data final",
+      "info": "Formato: AAAA-MM-DD (ex: 2026-12-31)",
+      "default": "2026-12-31"
+    },
+    {
+      "type": "text",
+      "id": "end_time",
+      "label": "Hora final",
+      "info": "Formato: HH:MM:SS (ex: 23:59:59)",
+      "default": "23:59:59"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link ao clicar (opcional)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contagem Regressiva"
+    }
+  ],
+  "enabled_on": { "groups": ["header"] }
+}
+{% endschema %}
