@@ -78,6 +78,27 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
 
         let _cartUpdating = false;
+        let _discountCode = '';
+
+        /* ── Desconto ── */
+        function applyDiscount() {
+          const d        = drawer();
+          const input    = d?.querySelector('[data-cart-discount-input]');
+          const feedback = d?.querySelector('[data-cart-discount-feedback]');
+          const applyBtn = d?.querySelector('[data-cart-discount-apply]');
+          const code     = input?.value.trim().toUpperCase();
+          if (!code) {
+            input?.classList.add('is-error');
+            setTimeout(() => input?.classList.remove('is-error'), 1200);
+            return;
+          }
+          _discountCode = code;
+          if (feedback) {
+            feedback.textContent = `Cupom "${_discountCode}" será aplicado no checkout`;
+            feedback.classList.add('is-applied');
+          }
+          if (applyBtn) { applyBtn.textContent = '✓ Aplicado'; applyBtn.disabled = true; }
+        }
 
         async function updateItem(key, quantity, triggerBtn) {
           if (_cartUpdating) return;
@@ -208,6 +229,42 @@
             if (cur > 1) updateItem(minus.dataset.qtyMinus, cur - 1, minus);
           }
           if (remove) updateItem(remove.dataset.remove, 0, remove);
+        });
+
+        /* ── Checkout & desconto ── */
+        document.addEventListener('click', (e) => {
+          if (e.target.closest('[data-cart-discount-apply]')) {
+            e.preventDefault();
+            applyDiscount();
+            return;
+          }
+          const checkout = e.target.closest('[data-cart-checkout]');
+          if (checkout) {
+            e.preventDefault();
+            const url = _discountCode
+              ? `/checkout?discount=${encodeURIComponent(_discountCode)}`
+              : '/checkout';
+            window.location.href = url;
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && e.target.matches('[data-cart-discount-input]')) {
+            e.preventDefault();
+            applyDiscount();
+          }
+        });
+
+        document.addEventListener('input', (e) => {
+          if (!e.target.matches('[data-cart-discount-input]')) return;
+          const d        = drawer();
+          const feedback = d?.querySelector('[data-cart-discount-feedback]');
+          const applyBtn = d?.querySelector('[data-cart-discount-apply]');
+          if (_discountCode && e.target.value.trim().toUpperCase() !== _discountCode) {
+            _discountCode = '';
+            if (feedback) { feedback.textContent = ''; feedback.classList.remove('is-applied'); }
+            if (applyBtn) { applyBtn.textContent = 'Aplicar'; applyBtn.disabled = false; }
+          }
         });
 
         window.AmeCart = { open: openCart, close: closeCart, refresh: refreshDrawer };

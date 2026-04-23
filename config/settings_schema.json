@@ -246,7 +246,7 @@
         "id": "cashback_percent",
         "min": 1,
         "max": 30,
-        "step": 0.5,
+        "step": 1,
         "unit": "%",
         "label": "Porcentagem de cashback",
         "default": 8
@@ -286,6 +286,52 @@
         "type": "url",
         "id": "social_whatsapp",
         "label": "WhatsApp"
+      }
+    ]
+  },
+  {
+    "name": "Produto",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Preço & Pagamento"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_pix",
+        "label": "Exibir preço no Pix",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pix_discount",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "unit": "%",
+        "label": "Desconto Pix (%)",
+        "default": 5
+      },
+      {
+        "type": "checkbox",
+        "id": "show_installments",
+        "label": "Exibir parcelamento",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "installments_count",
+        "min": 2,
+        "max": 12,
+        "step": 1,
+        "label": "Parcelas sem juros",
+        "default": 3
+      },
+      {
+        "type": "checkbox",
+        "id": "show_installments_link",
+        "label": "Mostrar link 'Ver mais detalhes' no parcelamento",
+        "default": true
       }
     ]
   },

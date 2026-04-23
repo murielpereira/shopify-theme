@@ -136,13 +136,18 @@
         <span class="material-symbols-outlined ame-cart-discount__icon">sell</span>
         <input
           type="text"
+          id="cart-discount-input"
           class="ame-cart-discount__input"
           placeholder="Código de desconto"
           aria-label="Código de desconto"
+          data-cart-discount-input
+          autocomplete="off"
+          autocapitalize="characters"
         >
       </div>
-      <button class="ame-cart-discount__btn">Aplicar</button>
+      <button type="button" class="ame-cart-discount__btn" data-cart-discount-apply>Aplicar</button>
     </div>
+    <p class="ame-cart-discount__feedback" data-cart-discount-feedback aria-live="polite"></p>
 
     <!-- Totals -->
     <div class="ame-cart-totals">
@@ -154,7 +159,7 @@
     </div>
 
     <!-- CTA -->
-    <a href="{{ routes.cart_url }}" class="ame-cta ame-cart-drawer__cta" data-cart-checkout>
+    <a href="/checkout" class="ame-cta ame-cart-drawer__cta" data-cart-checkout>
       Finalizar compra
       <span class="material-symbols-outlined">arrow_forward</span>
     </a>

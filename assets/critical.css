@@ -1000,6 +1000,38 @@ body::after {
   background: var(--color-surface-container, #f8ece0);
 }
 
+.ame-cart-discount__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  color: var(--color-primary, #5a4742);
+  background: none;
+}
+
+.ame-cart-discount__input.is-error {
+  border-bottom-color: #c0392b;
+  animation: cart-shake 0.3s ease;
+}
+
+@keyframes cart-shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+.ame-cart-discount__feedback {
+  font-family: var(--font-primary--family, 'Lexend', sans-serif);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: rgba(90, 71, 66, 0.45);
+  min-height: 1em;
+  margin-top: -0.5rem;
+}
+
+.ame-cart-discount__feedback.is-applied {
+  color: var(--color-primary, #5a4742);
+  font-weight: 600;
+}
+
 .ame-cart-totals {
   display: flex;
   flex-direction: column;
@@ -1770,6 +1802,24 @@ shopify-account {
 
 .pdp__nav .material-symbols-outlined {
   font-size: 1rem;
+}
+
+/* badge de desconto sobre a imagem da PDP */
+.pdp__img-discount-badge {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+  z-index: 10;
+  background: var(--color-on-background, #201b14);
+  color: #ffffff;
+  font-family: var(--font-primary--family, 'Lexend', sans-serif);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 0.75rem);
+  pointer-events: none;
 }
 
 /* contador */

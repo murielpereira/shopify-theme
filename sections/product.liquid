@@ -55,6 +55,13 @@
           </div>
         </div>
       {%- endif -%}
+
+      {%- if product.compare_at_price > product.price -%}
+        {%- assign pdp_img_discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round -%}
+        <span class="pdp__img-discount-badge" aria-label="{{ pdp_img_discount }}% de desconto">
+          {{ pdp_img_discount }}% OFF
+        </span>
+      {%- endif -%}
     </div>
 
     <!-- Thumbnails em linha horizontal com scroll -->
@@ -152,10 +159,10 @@
         assign has_compare = true
         assign discount_pct = cv.compare_at_price | minus: cv.price | times: 100 | divided_by: cv.compare_at_price
       endif
-      assign pix_pct = section.settings.pix_discount | default: 5
+      assign pix_pct = settings.pix_discount | default: 5
       assign pix_price_cents = cv.price | times: pix_pct | divided_by: 100
       assign pix_price_cents = cv.price | minus: pix_price_cents
-      assign inst_count = section.settings.installments_count | default: 3
+      assign inst_count = settings.installments_count | default: 3
       assign inst_value = cv.price | divided_by: inst_count
     -%}
 
@@ -176,7 +183,7 @@
       </div>
 
       <!-- Preço no Pix -->
-      {%- if section.settings.show_pix -%}
+      {%- if settings.show_pix != false -%}
         <div class="pdp__price-pix-row">
           <span class="pdp__price-label">ou</span>
           <strong class="pdp__price-pix" id="pdp-price-pix">{{ pix_price_cents | money }}</strong>
@@ -185,11 +192,11 @@
       {%- endif -%}
 
       <!-- Parcelamento -->
-      {%- if section.settings.show_installments and inst_count > 1 -%}
+      {%- if settings.show_installments != false and inst_count > 1 -%}
         <p class="pdp__installments">
           Até <strong>{{ inst_count }}x</strong> de <strong id="pdp-inst-value">{{ inst_value | money }}</strong> sem
           juros
-          {%- if section.settings.show_installments_link -%}
+          {%- if settings.show_installments_link != false -%}
             <a href="#" class="pdp__installments-link">Ver mais detalhes</a>
           {%- endif -%}
         </p>
@@ -574,10 +581,10 @@
     });
 
     /* ── Variantes ── */
-    const PIX_PCT  = {{ section.settings.pix_discount | default: 5 }};
-    const INST_CNT = {{ section.settings.installments_count | default: 3 }};
-    const SHOW_PIX  = {{ section.settings.show_pix | json }};
-    const SHOW_INST = {{ section.settings.show_installments | json }};
+    const PIX_PCT  = {{ settings.pix_discount | default: 5 }};
+    const INST_CNT = {{ settings.installments_count | default: 3 }};
+    const SHOW_PIX  = {{ settings.show_pix | default: true | json }};
+    const SHOW_INST = {{ settings.show_installments | default: true | json }};
 
     function fmtMoney(cents) {
       if (typeof Shopify !== 'undefined' && Shopify.formatMoney)
@@ -841,47 +848,6 @@
       "type": "checkbox",
       "id": "show_related",
       "label": "Exibir produtos relacionados",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Preço & Pagamento"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_pix",
-      "label": "Exibir preço no Pix",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "pix_discount",
-      "min": 1,
-      "max": 20,
-      "step": 1,
-      "unit": "%",
-      "label": "Desconto Pix",
-      "default": 5
-    },
-    {
-      "type": "checkbox",
-      "id": "show_installments",
-      "label": "Exibir parcelamento",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "installments_count",
-      "min": 2,
-      "max": 12,
-      "step": 1,
-      "label": "Número de parcelas sem juros",
-      "default": 3
-    },
-    {
-      "type": "checkbox",
-      "id": "show_installments_link",
-      "label": "Mostrar link 'Ver mais detalhes' no parcelamento",
       "default": true
     }
   ],
