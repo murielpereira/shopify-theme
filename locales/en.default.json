@@ -40,11 +40,11 @@
     "title": "Categorias"
   },
   "gift_card": {
-    "add_to_apple_wallet": "Add to Apple Wallet",
-    "card": "Gift card",
-    "expired": "This gift card has expired",
-    "expires_on": "Expires on {{ expires_on }}",
-    "use_at_checkout": "Use this gift card at checkout"
+    "add_to_apple_wallet": "Adicionar a Apple Wallet",
+    "card": "Gift Card",
+    "expired": "Este cartão presente expirou",
+    "expires_on": "Valido até {{ expires_on }}",
+    "use_at_checkout": "Use esse cartão presente no checkout"
   },
   "password": {
     "title": "This shop is private",
