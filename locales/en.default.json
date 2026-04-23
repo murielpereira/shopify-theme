@@ -31,13 +31,13 @@
   "customers": {
     "login": {
       "email": "Email",
-      "password": "Password",
-      "submit": "Sign in",
+      "password": "Senha",
+      "submit": "Entrar",
       "title": "Login"
     }
   },
   "collections": {
-    "title": "Collections"
+    "title": "Categorias"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
