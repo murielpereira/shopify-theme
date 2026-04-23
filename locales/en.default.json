@@ -52,10 +52,10 @@
     "enter": "Enter"
   },
   "search": {
-    "title": "Search",
-    "placeholder": "Search articles, pages, or products",
-    "submit": "Search",
-    "no_results_html": "No results found for {{ terms }}",
-    "results_for_html": "{{ count }} results found for {{ terms }}"
+    "title": "Procurar",
+    "placeholder": "Procure artigos, páginas ou produtos",
+    "submit": "Pesquisar",
+    "no_results_html": "Nenhum resultado encontrado para {{ terms }}",
+    "results_for_html": "{{ count }} resultados encontrados para {{ terms }}"
   }
 }
