@@ -57,5 +57,68 @@
     "submit": "Pesquisar",
     "no_results_html": "Nenhum resultado encontrado para {{ terms }}",
     "results_for_html": "{{ count }} resultados encontrados para {{ terms }}"
+  },
+  "shopify": {
+    "sentence": {
+      "two_words_connector": "e",
+      "last_word_connector": ", e"
+    },
+    "checkout": {
+      "general": {
+        "error_page_title": "Erro",
+        "skip_to_content": "Pular para conteudo",
+        "complete_purchase_button_label": "Continuar compra",
+        "pay_now_button_label": "Pagar agora",
+        "finalize_order_accessibility_label": "Finalizar compra",
+        "authenticate_purchase_button_label": "Autenticar pagamento",
+        "edit_link_label": "Editar",
+        "all_rights_reserved": "Todos os direitos reservados{{shop_name}}",
+        "print_policies_link_label": "Imprimir",
+        "cart": "Carrinho",
+        "close_modal_label": "Fechar",
+        "close_notice_label": "Fechar",
+        "expand_notice_label": "Ver mais",
+        "continue_to_shipping_method": "Continuar para meios de envio",
+        "continue_to_payment_method": "Continuar para pagamento",
+        "continue_to_review": "Revisar Pedido",
+        "back_to_cart": "Voltar ao carrinho",
+        "back_to_contact_information": "Voltar para informações",
+        "back_to_shipping_method": "Voltar para meios de envio",
+        "back_to_payment_method": "Voltar para pagamento",
+        "choose_shipping_method": "Selecione o meio de envio",
+        "choose_payment_method": "Selecione a forma de pagamento",
+        "choose_billing_address": "Selecione um endereço de cobrança",
+        "contact_us_html": "Contate-nos",
+        "autocomplete_title": "Sugestões",
+        "autocomplete_single_item": "1 item disponível",
+        "autocomplete_multi_item": "{{number}} itens disponíveis",
+        "autocomplete_selection": "{{number}} de {{total}}",
+        "autocomplete_close": "Fechar sugestões",
+        "forwarding_indicator": {
+          "new_window": "Abrir em uma nova janela",
+          "external": "Abrir link externo",
+          "external_and_new_window": "Abrie link externo em uma nova janela"
+        },
+        "tooltip_accessibility_label": "Mais informações",
+        "full_price": "Preço:",
+        "title": "Checkout {{shopName}}",
+        "full_title": "{{pageTitle}} - {{shopName}} - Checkout",
+        "loading": "Carregando",
+        "loading_title": "Checkout - {{shopName}}",
+        "confirm_order_button_label": "Confirmar pedido",
+        "submit_order_button_label": "Enviar pedido",
+        "submit_for_review_button_label": "Enviar para revisão",
+        "submit_for_review_notice_label": "O pagamento só será devido após a análise do seu pedido.",
+        "continue_to_payment_plans_button_label": "Continue para meios de pagamento",
+        "back_button_label": "Voltar",
+        "choose_delivery_strategy": "Selecione um meio de entrega",
+        "autocomplete_zero_item": "Nenhum item disponível",
+        "submit": "Enviar",
+        "processing": "Processando",
+        "remove_chip": "Remover item",
+        "remove_item": "Remover {{label}}",
+        "remove_tag": "Remover tag"
+      }
+    }
   }
 }
