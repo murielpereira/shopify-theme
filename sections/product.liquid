@@ -154,10 +154,15 @@
 
     <!-- ── Bloco de preços ── -->
     {%- liquid
+      assign cv_compare = cv.compare_at_price | default: 0
+      if cv_compare == 0
+        assign cv_compare = product.compare_at_price_max | default: 0
+      endif
       assign has_compare = false
-      if cv.compare_at_price > cv.price
+      assign discount_pct = 0
+      if cv_compare > cv.price
         assign has_compare = true
-        assign discount_pct = cv.compare_at_price | minus: cv.price | times: 100 | divided_by: cv.compare_at_price
+        assign discount_pct = cv_compare | minus: cv.price | times: 100 | divided_by: cv_compare
       endif
       assign pix_pct = settings.pix_discount | default: 5
       assign pix_price_cents = cv.price | times: pix_pct | divided_by: 100
@@ -167,13 +172,11 @@
     -%}
 
     <div class="pdp__price-block">
-      <!-- Linha "De:" riscado + badge desconto -->
-      {%- if has_compare -%}
-        <div class="pdp__price-compare-row">
-          <s class="pdp__price-compare">De: {{ cv.compare_at_price | money }}</s>
-          <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
-        </div>
-      {%- endif -%}
+      <!-- Linha "De:" riscado + badge desconto (sempre no DOM para o JS atualizar) -->
+      <div class="pdp__price-compare-row" id="pdp-compare-row"{% unless has_compare %} style="display:none"{% endunless %}>
+        <s class="pdp__price-compare" id="pdp-compare-price">De: {{ cv_compare | money }}</s>
+        <span class="pdp__discount-badge" id="pdp-discount-badge">−{{ discount_pct }}% OFF</span>
+      </div>
 
       <!-- Preço no cartão -->
       <div class="pdp__price-card-row">
@@ -242,6 +245,7 @@
               {%- for value in option.values -%}
                 {%- liquid
                   assign sw_img = ''
+                  assign sw_media_id = ''
                   assign opt_pos = option.position | minus: 1
                   for variant in product.variants
                     assign matches = false
@@ -254,6 +258,7 @@
                     endif
                     if matches and variant.featured_image != blank
                       assign sw_img = variant.featured_image | image_url: width: 120
+                      assign sw_media_id = variant.featured_image.id
                       break
                     endif
                   endfor
@@ -264,6 +269,7 @@
                   data-value="{{ value }}"
                   aria-label="{{ value }}"
                   title="{{ value }}"
+                  {% if sw_media_id != '' %}data-media-id="{{ sw_media_id }}"{% endif %}
                 >
                   {%- if sw_img != '' -%}
                     <img
@@ -604,6 +610,23 @@
 
       document.getElementById('pdp-variant-id').value = v.id;
 
+      /* Update compare price / discount badge */
+      const compareRow   = document.getElementById('pdp-compare-row');
+      const comparePrice = document.getElementById('pdp-compare-price');
+      const discBadge    = document.getElementById('pdp-discount-badge');
+      const imgBadge     = document.querySelector('.pdp__img-discount-badge');
+      if (v.compare_at_price && v.compare_at_price > v.price) {
+        const pct = Math.round((v.compare_at_price - v.price) * 100 / v.compare_at_price);
+        if (compareRow)   compareRow.style.display   = '';
+        if (comparePrice) comparePrice.textContent   = `De: ${fmtMoney(v.compare_at_price)}`;
+        if (discBadge)    discBadge.textContent      = `−${pct}% OFF`;
+        if (imgBadge)     { imgBadge.textContent = `${pct}% OFF`; imgBadge.style.display = ''; }
+      } else {
+        if (compareRow) compareRow.style.display = 'none';
+        if (imgBadge)   imgBadge.style.display   = 'none';
+      }
+
+      /* Navigate gallery to variant image (fallback after direct swatch click) */
       if (v.featured_image) {
         const targetSlide = track?.querySelector(`[data-media-id="${v.featured_image.id}"]`);
         if (targetSlide) {
@@ -639,6 +662,17 @@
         btn.classList.add(btn.classList.contains('pdp__swatch') ? 'pdp__swatch--active' : 'pdp__size-btn--active');
         const valEl = document.getElementById(`pdp-opt-val-${+group.dataset.optionIndex + 1}`);
         if (valEl) valEl.textContent = btn.dataset.value;
+
+        /* Navigate gallery to the swatch's associated image immediately */
+        if (btn.classList.contains('pdp__swatch') && btn.dataset.mediaId) {
+          const targetSlide = track?.querySelector(`[data-media-id="${btn.dataset.mediaId}"]`);
+          if (targetSlide) {
+            const slides = Array.from(track.querySelectorAll('.pdp__slide'));
+            const idx = slides.indexOf(targetSlide);
+            if (idx >= 0) goTo(idx);
+          }
+        }
+
         updateVariant();
       }));
     });

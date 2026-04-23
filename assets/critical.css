@@ -19,7 +19,7 @@ body {
   flex-direction: column;
   min-height: 100svh;
   font-family: var(--font-primary--family, 'Lexend', sans-serif);
-  background-color: var(--color-background, #fff8f3);
+  background-color: var(--color-background, #f7f4f1);
   color: var(--color-on-background, #201b14);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

@@ -336,7 +336,7 @@
     ]
   },
   {
-    "name": "Campos Personalizados",
+    "name": "Campos Personalizados 1–2",
     "settings": [
       {
         "type": "paragraph",
@@ -362,8 +362,12 @@
       { "type": "text", "id": "custom_field_2_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
       { "type": "select", "id": "custom_field_2_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
       { "type": "text", "id": "custom_field_2_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "checkbox", "id": "custom_field_2_required", "label": "Campo obrigatório", "default": false },
-
+      { "type": "checkbox", "id": "custom_field_2_required", "label": "Campo obrigatório", "default": false }
+    ]
+  },
+  {
+    "name": "Campos Personalizados 3–4",
+    "settings": [
       { "type": "header", "content": "Campo 3" },
       { "type": "checkbox", "id": "custom_field_3_enable", "label": "Ativar campo 3", "default": false },
       { "type": "text", "id": "custom_field_3_tag", "label": "Tag de ativação" },
@@ -384,8 +388,12 @@
       { "type": "text", "id": "custom_field_4_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
       { "type": "select", "id": "custom_field_4_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
       { "type": "text", "id": "custom_field_4_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "checkbox", "id": "custom_field_4_required", "label": "Campo obrigatório", "default": false },
-
+      { "type": "checkbox", "id": "custom_field_4_required", "label": "Campo obrigatório", "default": false }
+    ]
+  },
+  {
+    "name": "Campos Personalizados 5–6",
+    "settings": [
       { "type": "header", "content": "Campo 5" },
       { "type": "checkbox", "id": "custom_field_5_enable", "label": "Ativar campo 5", "default": false },
       { "type": "text", "id": "custom_field_5_tag", "label": "Tag de ativação" },
@@ -406,8 +414,12 @@
       { "type": "text", "id": "custom_field_6_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
       { "type": "select", "id": "custom_field_6_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
       { "type": "text", "id": "custom_field_6_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "checkbox", "id": "custom_field_6_required", "label": "Campo obrigatório", "default": false },
-
+      { "type": "checkbox", "id": "custom_field_6_required", "label": "Campo obrigatório", "default": false }
+    ]
+  },
+  {
+    "name": "Campos Personalizados 7–8",
+    "settings": [
       { "type": "header", "content": "Campo 7" },
       { "type": "checkbox", "id": "custom_field_7_enable", "label": "Ativar campo 7", "default": false },
       { "type": "text", "id": "custom_field_7_tag", "label": "Tag de ativação" },
@@ -428,8 +440,12 @@
       { "type": "text", "id": "custom_field_8_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
       { "type": "select", "id": "custom_field_8_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
       { "type": "text", "id": "custom_field_8_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "checkbox", "id": "custom_field_8_required", "label": "Campo obrigatório", "default": false },
-
+      { "type": "checkbox", "id": "custom_field_8_required", "label": "Campo obrigatório", "default": false }
+    ]
+  },
+  {
+    "name": "Campos Personalizados 9–10",
+    "settings": [
       { "type": "header", "content": "Campo 9" },
       { "type": "checkbox", "id": "custom_field_9_enable", "label": "Ativar campo 9", "default": false },
       { "type": "text", "id": "custom_field_9_tag", "label": "Tag de ativação" },

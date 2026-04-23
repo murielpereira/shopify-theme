@@ -53,6 +53,10 @@
     "ad_bar": "Barra de Diferenciais",
     "cart": "Carrinho",
     "product": "Produto",
+    "products": "Produtos",
+    "product_card": "Card de Produto",
+    "product_recommendations": "Recomendações de Produtos",
+    "product_grid": "Grade de Produtos",
     "collection": "Coleção",
     "search": "Busca",
     "blog": "Blog",
@@ -71,6 +75,19 @@
     "currency": "Moeda",
     "drawer": "Gaveta lateral",
     "predictive_search": "Busca preditiva"
+  },
+  "settings": {
+    "quick_add": "Adicionar rapidamente",
+    "mobile_quick_add": "Adicionar rapidamente no mobile",
+    "quick_add_colors": "Cores de adição rápida",
+    "enable_video_looping": "Repetir vídeo em loop",
+    "show_vendor": "Exibir fornecedor",
+    "show_rating": "Exibir avaliação",
+    "image_ratio": "Proporção da imagem",
+    "image_shape": "Formato da imagem",
+    "columns_desktop": "Colunas no desktop",
+    "columns_mobile": "Colunas no mobile",
+    "swipe_on_mobile": "Deslizar no mobile"
   },
   "labels": {
     "alignment": "Alignment",

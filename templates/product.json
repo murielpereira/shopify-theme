@@ -12,12 +12,7 @@
     "main": {
       "type": "product",
       "settings": {
-        "show_related": true,
-        "show_pix": true,
-        "pix_discount": 5,
-        "show_installments": true,
-        "installments_count": 3,
-        "show_installments_link": true
+        "show_related": true
       }
     }
   },

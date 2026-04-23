@@ -14,9 +14,11 @@
 
   assign card_has_discount = false
   assign card_discount_pct = 0
-  if card_product.compare_at_price > card_product.price
+  assign _card_compare = card_product.compare_at_price_max | default: card_product.compare_at_price
+  assign _card_price   = card_product.price_min | default: card_product.price
+  if _card_compare > _card_price
     assign card_has_discount = true
-    assign card_discount_pct = card_product.compare_at_price | minus: card_product.price | times: 100 | divided_by: card_product.compare_at_price | round
+    assign card_discount_pct = _card_compare | minus: _card_price | times: 100 | divided_by: _card_compare | round
   endif
 
   assign card_badge = ''
