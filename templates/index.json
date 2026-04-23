@@ -49,8 +49,9 @@
           "type": "card",
           "settings": {
             "collection": "",
-            "label": "The Veloce Harness",
-            "price": "R$ 1.950",
+            "image": "shopify://shop_images/rosaprata10.jpg",
+            "label": "Bolsa Ollie",
+            "price": "R$ 1.900",
             "badge": "Heritage Series",
             "url": "",
             "is_large": true
