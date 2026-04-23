@@ -51,26 +51,28 @@
             <div class="img-pdp">
                 <img src="/assets/images/allure-off-prata-circulo.webp" alt="Coleira Atena Allure">
             </div>
-            <div class="carrossel-pdp">
-                <div class="img-pdp-carrossel">
+            <form class="carrossel-pdp">
+                <input type="radio" class="img-pdp-carrossel">
+                <label for="img-pdp-carrossel">
                     <img src="/assets/images/marinho-allure-grafite-circulo.webp" alt="Coleira Atena Marinho">
-                </div>
-                <div class="img-pdp-carrossel">
+                </label>
+                </input>
+                <button type="radio" class="img-pdp-carrossel">
                     <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
-                </div>
-                <div class="img-pdp-carrossel">
+                </button>
+                <button type="radio" class="img-pdp-carrossel">
                     <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
-                </div>
-                <div class="img-pdp-carrossel">
+                </button>
+                <button type="radio" class="img-pdp-carrossel">
                     <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
-                </div>
-                <div class="img-pdp-carrossel">
+                </button>
+                <button type="radio" class="img-pdp-carrossel">
                     <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
-                </div>
-                <div class="img-pdp-carrossel">
+                </button>
+                <button type="radio" class="img-pdp-carrossel">
                     <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
-                </div>
-            </div>
+                </button>
+            </form>
         </div>
 
         <div class="ame-pdp__desc ame-fade-up ame-delay-3">
@@ -118,42 +120,54 @@
                     <p>Off-White</p>
                 </div>
                 <div class="container-cor">
-                    <div class="cor-item">
+                    <button class="cor-item">
                         <img src="/assets/images/allure-off-prata-circulo.webp" alt="Coleira Atena Allure">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/marinho-allure-grafite-circulo.webp" alt="Coleira Atena Marinho">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/turquesa-azulbb-ouro-osso.webp" alt="Coleira Atena Turquesa">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/lavanda-lilascandy-prata-coração.webp" alt="Coleira Atena Lavanda">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/rosaseco-rosabb-ouro-coração.webp" alt="Coleira Atena Rosaseco">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/camel-nude-grafite-osso.webp" alt="Coleira Atena Camel">
-                    </div>
-                    <div class="cor-item">
+                    </button>
+                    <button class="cor-item">
                         <img src="/assets/images/off-branco-ouro-flor.webp" alt="Coleira Atena Off-Branco">
-                    </div>
+                    </button>
+                </div>
+            </div>
+            <div class="metal">
+                <div class="container-metal-title">
+                    <p>Metal</p>
+                    <p>Prata</p>
+                </div>
+                <div class="container-metal">
+                    <button>Grafite</button>
+                    <button>Prata</button>
+                    <button>Ouro</button>
+                    <button>Rose</button>
                 </div>
             </div>
         </div>
@@ -199,6 +213,10 @@
             overflow: hidden;
         }
 
+        input[type="radio"] {
+            visibility: hidden;
+        }
+
         .carrossel-pdp {
             display: flex;
             flex-direction: row;
@@ -219,6 +237,12 @@
             width: 25%;
             border-radius: 8px;
             overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .img-pdp-carrossel:focus .img-pdp-carrossel:checked {
+            outline: 2px solid var(--color-primary);
         }
 
         .img-pdp-carrossel img {

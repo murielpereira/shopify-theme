@@ -16,24 +16,23 @@
   <span aria-current="page">{{ product.title }}</span>
 </nav>
 
-<!-- ═══════════════════════════════════════
-     PÁGINA DE PRODUTO — layout principal
-     Mobile: coluna única (título → galeria → info)
-     Desktop: duas colunas (galeria | info)
-════════════════════════════════════════ -->
 <div class="pdp full-width">
-
   <!-- ── Coluna esquerda: galeria ── -->
   <div class="pdp__gallery">
-
     <!-- Imagem principal -->
     <div class="pdp__main-img-wrap">
       {%- if media_size > 0 -%}
-          <div class="pdp__track" id="pdp-track">
+        <div class="pdp__track" id="pdp-track">
           {%- for media in product.media -%}
-            <div class="pdp__slide">
+            <div class="pdp__slide" data-media-id="{{ media.id }}">
               {%- if media.media_type == 'image' -%}
-                {{- media | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'pdp__slide-img', alt: media.alt | default: product.title | escape -}}
+                {{-
+                  media
+                  | image_url: width: 1200
+                  | image_tag: loading: 'lazy', class: 'pdp__slide-img', alt: media.alt
+                  | default: product.title
+                  | escape
+                -}}
               {%- elsif media.media_type == 'video' -%}
                 {{ media | video_tag: class: 'pdp__slide-img', autoplay: false, loop: true, muted: true }}
               {%- endif -%}
@@ -41,9 +40,7 @@
           {%- endfor -%}
         </div>
         <!-- contador -->
-        <div class="pdp__counter" aria-live="polite">
-          <span id="pdp-current">1</span> / {{ media_size }}
-        </div>
+        <div class="pdp__counter" aria-live="polite"><span id="pdp-current">1</span> / {{ media_size }}</div>
         <!-- botões de navegação -->
         <button class="pdp__nav pdp__nav--prev" id="pdp-prev" aria-label="Anterior">
           <span class="material-symbols-outlined">arrow_back_ios</span>
@@ -62,26 +59,32 @@
 
     <!-- Thumbnails em linha horizontal com scroll -->
     {%- if media_size > 1 -%}
-      <div class="pdp__thumbs no-scrollbar" role="list">
-        {%- for media in product.media -%}
-          <button
-            class="pdp__thumb{% if forloop.first %} pdp__thumb--active{% endif %}"
-            data-index="{{ forloop.index0 }}"
-            aria-label="Imagem {{ forloop.index }}"
-            role="listitem"
-            type="button"
-          >
-            {{- media.preview_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: '', class: 'pdp__thumb-img' -}}
-          </button>
-        {%- endfor -%}
+      <div class="pdp__thumbs-wrap">
+        <div class="pdp__thumbs-fade pdp__thumbs-fade--top" aria-hidden="true"></div>
+        <div class="pdp__thumbs" role="list">
+          {%- for media in product.media -%}
+            <button
+              class="pdp__thumb{% if forloop.first %} pdp__thumb--active{% endif %}"
+              data-index="{{ forloop.index0 }}"
+              aria-label="Imagem {{ forloop.index }}"
+              role="listitem"
+              type="button"
+            >
+              {{-
+                media.preview_image
+                | image_url: width: 160
+                | image_tag: loading: 'lazy', alt: '', class: 'pdp__thumb-img'
+              -}}
+            </button>
+          {%- endfor -%}
+        </div>
+        <div class="pdp__thumbs-fade pdp__thumbs-fade--bottom" aria-hidden="true"></div>
       </div>
     {%- endif -%}
-
   </div>
 
   <!-- ── Coluna direita: informações ── -->
   <div class="pdp__info">
-
     <!-- Badge de coleção / heritage -->
     {%- liquid
       assign show_meta = false
@@ -113,11 +116,31 @@
     <!-- Rating (placeholder — substituir por app) -->
     <div class="pdp__rating" aria-label="4.8 de 5 estrelas">
       <div class="pdp__stars" aria-hidden="true">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);">star</span>
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);">star</span>
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);">star</span>
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);">star</span>
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;font-size:0.9rem;color:var(--color-outline-variant);">star</span>
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
+          >star</span
+        >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
+          >star</span
+        >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
+          >star</span
+        >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
+          >star</span
+        >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings:'FILL' 0;font-size:0.9rem;color:var(--color-outline-variant);"
+          >star</span
+        >
       </div>
       <span class="pdp__rating-text">4.8 · 32 avaliações</span>
     </div>
@@ -129,15 +152,14 @@
         assign has_compare = true
         assign discount_pct = cv.compare_at_price | minus: cv.price | times: 100 | divided_by: cv.compare_at_price
       endif
-      assign pix_pct        = section.settings.pix_discount | default: 5
+      assign pix_pct = section.settings.pix_discount | default: 5
       assign pix_price_cents = cv.price | times: pix_pct | divided_by: 100
       assign pix_price_cents = cv.price | minus: pix_price_cents
-      assign inst_count     = section.settings.installments_count | default: 3
-      assign inst_value     = cv.price | divided_by: inst_count
+      assign inst_count = section.settings.installments_count | default: 3
+      assign inst_value = cv.price | divided_by: inst_count
     -%}
 
     <div class="pdp__price-block">
-
       <!-- Linha "De:" riscado + badge desconto -->
       {%- if has_compare -%}
         <div class="pdp__price-compare-row">
@@ -165,7 +187,8 @@
       <!-- Parcelamento -->
       {%- if section.settings.show_installments and inst_count > 1 -%}
         <p class="pdp__installments">
-          Até <strong>{{ inst_count }}x</strong> de <strong id="pdp-inst-value">{{ inst_value | money }}</strong> sem juros
+          Até <strong>{{ inst_count }}x</strong> de <strong id="pdp-inst-value">{{ inst_value | money }}</strong> sem
+          juros
           {%- if section.settings.show_installments_link -%}
             <a href="#" class="pdp__installments-link">Ver mais detalhes</a>
           {%- endif -%}
@@ -176,7 +199,6 @@
       <div id="pdp-cashback-wrap">
         {%- render 'cashback', cashback_price: cv.price, cashback_mode: 'pdp' -%}
       </div>
-
     </div>
 
     <!-- ── Descrição curta ── -->
@@ -185,7 +207,9 @@
     {%- endif -%}
 
     <!-- ── Formulário de produto ── -->
-    <script id="pdp-variants-json" type="application/json">{{ product.variants | json }}</script>
+    <script id="pdp-variants-json" type="application/json">
+      {{ product.variants | json }}
+    </script>
 
     {%- form 'product', product, id: 'pdp-form', novalidate: true -%}
       <input type="hidden" name="id" value="{{ cv.id }}" id="pdp-variant-id">
@@ -199,7 +223,7 @@
           endif
         -%}
 
-        <div class="pdp__option" data-option-index="{{ forloop.index0 }}">
+        <div class="pdp__option">
           <div class="pdp__option-header">
             <span class="pdp__option-label">{{ option.name }}</span>
             <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">{{ option.selected_value }}</span>
@@ -235,9 +259,19 @@
                   title="{{ value }}"
                 >
                   {%- if sw_img != '' -%}
-                    <img src="{{ sw_img }}" alt="{{ value | escape }}" class="pdp__swatch-img" loading="lazy" width="120" height="120">
+                    <img
+                      src="{{ sw_img }}"
+                      alt="{{ value | escape }}"
+                      class="pdp__swatch-img"
+                      loading="lazy"
+                      width="120"
+                      height="120"
+                    >
                   {%- else -%}
-                    <span class="pdp__swatch-color" style="background:var(--swatch-{{ value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"></span>
+                    <span
+                      class="pdp__swatch-color"
+                      style="background:var(--swatch-{{ value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
+                    ></span>
                   {%- endif -%}
                 </button>
               {%- endfor -%}
@@ -250,7 +284,9 @@
                   type="button"
                   class="pdp__size-btn{% if value == option.selected_value %} pdp__size-btn--active{% endif %}"
                   data-value="{{ value }}"
-                >{{ value }}</button>
+                >
+                  {{ value }}
+                </button>
               {%- endfor -%}
             </div>
           {%- endif -%}
@@ -262,7 +298,15 @@
         <span class="pdp__option-label">Quantidade</span>
         <div class="pdp__qty-ctrl">
           <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir">−</button>
-          <input type="number" name="quantity" id="pdp-qty" value="1" min="1" class="pdp__qty-input" aria-label="Quantidade">
+          <input
+            type="number"
+            name="quantity"
+            id="pdp-qty"
+            value="1"
+            min="1"
+            class="pdp__qty-input"
+            aria-label="Quantidade"
+          >
           <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar">+</button>
         </div>
       </div>
@@ -273,7 +317,9 @@
           type="submit"
           class="ame-cta pdp__add-btn"
           id="pdp-add-btn"
-          {%- unless cv.available %} disabled{%- endunless %}
+          {%- unless cv.available %}
+            disabled
+          {%- endunless %}
         >
           {%- if cv.available -%}
             Adicionar ao Carrinho
@@ -284,7 +330,9 @@
         </button>
 
         <button type="button" class="pdp__wishlist-btn" aria-label="Favoritar" id="pdp-wishlist">
-          <span class="material-symbols-outlined" style="font-size:1.25rem;font-variation-settings:'FILL' 0;">favorite</span>
+          <span class="material-symbols-outlined" style="font-size:1.25rem;font-variation-settings:'FILL' 0;"
+            >favorite</span
+          >
         </button>
       </div>
 
@@ -306,9 +354,10 @@
         <span>Garantia vitalícia de artesanato</span>
       </div>
     </div>
-
-  </div><!-- /pdp__info -->
-</div><!-- /pdp -->
+  </div>
+  <!-- /pdp__info -->
+</div>
+<!-- /pdp -->
 
 <!-- ── Acordeões de detalhes ── -->
 <div class="pdp-accordions full-width">
@@ -317,7 +366,12 @@
       <div class="ame-accordion" {{ block.shopify_attributes }}>
         <button class="ame-accordion__btn" type="button" aria-expanded="false">
           <span>{{ block.settings.title }}</span>
-          <span class="material-symbols-outlined ame-accordion__icon" style="font-variation-settings:'wght' 300;" aria-hidden="true">add</span>
+          <span
+            class="material-symbols-outlined ame-accordion__icon"
+            style="font-variation-settings:'wght' 300;"
+            aria-hidden="true"
+            >add</span
+          >
         </button>
         <div class="ame-accordion__content" hidden>
           <div class="ame-accordion__body">{{ block.settings.body }}</div>
@@ -330,7 +384,12 @@
     <div class="ame-accordion">
       <button class="ame-accordion__btn" type="button" aria-expanded="false">
         <span>Detalhes do Produto</span>
-        <span class="material-symbols-outlined ame-accordion__icon" style="font-variation-settings:'wght' 300;" aria-hidden="true">add</span>
+        <span
+          class="material-symbols-outlined ame-accordion__icon"
+          style="font-variation-settings:'wght' 300;"
+          aria-hidden="true"
+          >add</span
+        >
       </button>
       <div class="ame-accordion__content" hidden>
         <div class="ame-accordion__body">{{ product.description }}</div>
@@ -358,16 +417,42 @@
   (() => {
     /* ── Carousel ── */
     const track   = document.getElementById('pdp-track');
-    const thumbs  = document.querySelectorAll('.pdp__thumb');
-    const counter = document.getElementById('pdp-current');
+    const thumbs     = document.querySelectorAll('.pdp__thumb');
+    const counter    = document.getElementById('pdp-current');
+    const thumbsEl   = document.querySelector('.pdp__thumbs');
+    const thumbsWrap = document.querySelector('.pdp__thumbs-wrap');
     let cur = 0;
     const total = thumbs.length || 1;
+
+    function updateThumbIndicators() {
+      if (!thumbsWrap || !thumbsEl) return;
+      thumbsWrap.classList.toggle('can-scroll-up',   thumbsEl.scrollTop > 4);
+      thumbsWrap.classList.toggle('can-scroll-down',
+        thumbsEl.scrollTop < thumbsEl.scrollHeight - thumbsEl.clientHeight - 4);
+    }
+
+    function scrollThumbIntoView(thumb) {
+      if (!thumbsEl || !thumb) return;
+      const relTop    = thumb.offsetTop - thumbsEl.offsetTop;
+      const relBottom = relTop + thumb.offsetHeight;
+      if (relBottom > thumbsEl.scrollTop + thumbsEl.clientHeight) {
+        thumbsEl.scrollTo({ top: relBottom - thumbsEl.clientHeight, behavior: 'smooth' });
+      } else if (relTop < thumbsEl.scrollTop) {
+        thumbsEl.scrollTo({ top: relTop, behavior: 'smooth' });
+      }
+    }
 
     function goTo(i) {
       cur = Math.max(0, Math.min(i, total - 1));
       track.style.transform = `translateX(-${cur * 100}%)`;
       thumbs.forEach((t, idx) => t.classList.toggle('pdp__thumb--active', idx === cur));
       if (counter) counter.textContent = cur + 1;
+      if (window.matchMedia('(min-width: 1024px)').matches) scrollThumbIntoView(thumbs[cur]);
+    }
+
+    if (thumbsEl) {
+      thumbsEl.addEventListener('scroll', updateThumbIndicators, { passive: true });
+      updateThumbIndicators();
     }
 
     document.getElementById('pdp-prev')?.addEventListener('click', () => goTo(cur - 1));
@@ -414,6 +499,15 @@
       if (!v) return;
 
       document.getElementById('pdp-variant-id').value = v.id;
+
+      if (v.featured_image) {
+        const targetSlide = track?.querySelector(`[data-media-id="${v.featured_image.id}"]`);
+        if (targetSlide) {
+          const slides = Array.from(track.querySelectorAll('.pdp__slide'));
+          const idx = slides.indexOf(targetSlide);
+          if (idx >= 0) goTo(idx);
+        }
+      }
 
       const priceEl = document.getElementById('pdp-price');
       if (priceEl) priceEl.textContent = v.available ? fmtMoney(v.price) : 'Esgotado';
@@ -491,34 +585,10 @@
 
         if (!res.ok) throw new Error('cart/add failed');
 
-        /* Busca contagem atualizada */
-        const cartRes  = await fetch('/cart.js');
-        const cartData = await cartRes.json();
-        const count    = cartData.item_count;
-
-        /* Atualiza badge do header */
-        const badge = document.querySelector('[data-cart-count]');
-        if (badge) {
-          badge.textContent = count;
-          badge.hidden = count === 0;
-        }
-
-        /* Animação no ícone do carrinho */
-        const cartBtn = document.querySelector('[data-cart-open]');
-        if (cartBtn) {
-          cartBtn.classList.remove('cart-bump');
-          void cartBtn.offsetWidth; /* reflow para reiniciar a animação se já estiver ativa */
-          cartBtn.classList.add('cart-bump');
-          cartBtn.addEventListener('animationend', () => cartBtn.classList.remove('cart-bump'), { once: true });
-        }
-
-        /* Anima o badge separadamente */
-        if (badge) {
-          badge.classList.remove('cart-bump');
-          void badge.offsetWidth;
-          badge.classList.add('cart-bump');
-          badge.addEventListener('animationend', () => badge.classList.remove('cart-bump'), { once: true });
-        }
+        /* Busca carrinho atualizado e repassa ao drawer */
+        const cartData = await (await fetch('/cart.js')).json();
+        window.AmeCart?.refresh(cartData);
+        window.AmeCart?.open();
 
         /* Feedback no botão */
         btn.innerHTML = 'Adicionado ✓';
