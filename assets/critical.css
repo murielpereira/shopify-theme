@@ -1792,6 +1792,14 @@ shopify-account {
   opacity: 1;
 }
 
+@media (min-width: 1024px) {
+  .pdp__nav {
+    opacity: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
 .pdp__nav--prev {
   left: 0.75rem;
 }

@@ -56,8 +56,9 @@
         </div>
       {%- endif -%}
 
-      {%- if product.compare_at_price > product.price -%}
-        {%- assign pdp_img_discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round -%}
+      {%- assign _pdp_compare_max = product.compare_at_price_max | default: product.compare_at_price -%}
+      {%- if _pdp_compare_max > product.price -%}
+        {%- assign pdp_img_discount = _pdp_compare_max | minus: product.price | times: 100 | divided_by: _pdp_compare_max | round -%}
         <span class="pdp__img-discount-badge" aria-label="{{ pdp_img_discount }}% de desconto">
           {{ pdp_img_discount }}% OFF
         </span>
@@ -172,17 +173,17 @@
     -%}
 
     <div class="pdp__price-block">
-      <!-- Linha "De:" riscado + badge desconto (sempre no DOM para o JS atualizar) -->
+      <!-- Linha "De:" riscado (sempre no DOM para o JS atualizar) -->
       <div class="pdp__price-compare-row" id="pdp-compare-row"{% unless has_compare %} style="display:none"{% endunless %}>
         <s class="pdp__price-compare" id="pdp-compare-price">De: {{ cv_compare | money }}</s>
-        <span class="pdp__discount-badge" id="pdp-discount-badge">−{{ discount_pct }}% OFF</span>
       </div>
 
-      <!-- Preço no cartão -->
+      <!-- Preço no cartão + badge de desconto -->
       <div class="pdp__price-card-row">
         <span class="pdp__price-label">a partir de</span>
         <strong class="pdp__price-main" id="pdp-price">{{ cv.price | money }}</strong>
         <span class="pdp__price-label">no cartão</span>
+        <span class="pdp__discount-badge" id="pdp-discount-badge"{% unless has_compare %} style="display:none"{% endunless %}>−{{ discount_pct }}% OFF</span>
       </div>
 
       <!-- Preço no Pix -->
@@ -619,10 +620,11 @@
         const pct = Math.round((v.compare_at_price - v.price) * 100 / v.compare_at_price);
         if (compareRow)   compareRow.style.display   = '';
         if (comparePrice) comparePrice.textContent   = `De: ${fmtMoney(v.compare_at_price)}`;
-        if (discBadge)    discBadge.textContent      = `−${pct}% OFF`;
+        if (discBadge)    { discBadge.textContent = `−${pct}% OFF`; discBadge.style.display = ''; }
         if (imgBadge)     { imgBadge.textContent = `${pct}% OFF`; imgBadge.style.display = ''; }
       } else {
         if (compareRow) compareRow.style.display = 'none';
+        if (discBadge)  discBadge.style.display  = 'none';
         if (imgBadge)   imgBadge.style.display   = 'none';
       }
 

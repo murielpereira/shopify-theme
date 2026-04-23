@@ -2,9 +2,11 @@
 
 {%- assign banner_video = collection.metafields.custom.banner_video.value -%}
 {%- assign banner_img   = collection.featured_image -%}
-{%- assign has_banner   = false -%}
-{%- if section.settings.show_banner and (banner_video != blank or banner_img != blank) -%}
-  {%- assign has_banner = true -%}
+{%- assign has_banner = false -%}
+{%- if section.settings.show_banner -%}
+  {%- if banner_video != blank or banner_img != blank -%}
+    {%- assign has_banner = true -%}
+  {%- endif -%}
 {%- endif -%}
 
 {%- if has_banner -%}
