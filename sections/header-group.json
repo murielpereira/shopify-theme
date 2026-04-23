@@ -14,9 +14,9 @@
     "countdown-bar": {
       "type": "countdown-bar",
       "settings": {
-        "enabled": false,
-        "message": "Oferta especial — aproveite!",
-        "end_date": "2026-12-31",
+        "enabled": true,
+        "message": "Contagem regressiva para o aniversário Âme",
+        "end_date": "2026-04-31",
         "end_time": "23:59:59",
         "link": ""
       }
