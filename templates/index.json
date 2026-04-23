@@ -42,6 +42,75 @@
         "cta_secondary_url": ""
       }
     },
+    "home_ad_bar_6pF6UL": {
+      "type": "home-ad-bar",
+      "blocks": {
+        "item_3z9Bdp": {
+          "type": "item",
+          "settings": {
+            "icon": "warranty",
+            "label": "Garantia",
+            "sublabel": "de 6 meses",
+            "link": ""
+          }
+        },
+        "item_9w9dy4": {
+          "type": "item",
+          "settings": {
+            "icon": "leather",
+            "label": "Couro",
+            "sublabel": "Legítimo",
+            "link": ""
+          }
+        },
+        "item_CCbwJB": {
+          "type": "item",
+          "settings": {
+            "icon": "handmade",
+            "label": "Feito a mão",
+            "sublabel": "com carinho",
+            "link": ""
+          }
+        },
+        "item_8pRPxa": {
+          "type": "item",
+          "settings": {
+            "icon": "shipping",
+            "label": "Entrega",
+            "sublabel": "para todo o Brasil",
+            "link": ""
+          }
+        },
+        "item_wrgHLD": {
+          "type": "item",
+          "settings": {
+            "icon": "installments",
+            "label": "Parcelamento",
+            "sublabel": "até 6x sem juros",
+            "link": ""
+          }
+        },
+        "item_h8Xb4Y": {
+          "type": "item",
+          "settings": {
+            "icon": "whatsapp",
+            "label": "Dúvidas?",
+            "sublabel": "Fale com a gente",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "item_3z9Bdp",
+        "item_9w9dy4",
+        "item_CCbwJB",
+        "item_8pRPxa",
+        "item_wrgHLD",
+        "item_h8Xb4Y"
+      ],
+      "name": "Barra de Diferenciais",
+      "settings": {}
+    },
     "featured-collections": {
       "type": "home-featured-collections",
       "blocks": {
@@ -90,6 +159,14 @@
         "title": "Curado para Cada Silhueta.",
         "cta_label": "Ver Todas",
         "cta_url": ""
+      }
+    },
+    "collections_9ccN68": {
+      "type": "collections",
+      "name": "t:general.collections_grid",
+      "settings": {
+        "grid_item_width": "collections--full",
+        "grid_gap": 10
       }
     },
     "lookbook": {
@@ -174,7 +251,9 @@
   },
   "order": [
     "hero",
+    "home_ad_bar_6pF6UL",
     "featured-collections",
+    "collections_9ccN68",
     "lookbook",
     "brand-story",
     "newsletter"
