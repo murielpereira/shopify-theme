@@ -173,12 +173,12 @@
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
               <div class="ame-cart-item__bottom">
                 <div class="ame-cart-item__qty">
-                  <button class="ame-cart-item__qty-btn" ${item.quantity <= 1 ? `data-remove="${item.key}"` : `data-qty-minus="${item.key}"`}>
-                    <span class="material-symbols-outlined">${item.quantity <= 1 ? 'delete' : 'remove'}</span>
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${item.quantity <= 1 ? `data-remove="${item.key}"` : `data-qty-minus="${item.key}"`}>
+                    <span class="material-symbols-outlined" aria-hidden="true">${item.quantity <= 1 ? 'delete' : 'remove'}</span>
                   </button>
                   <span class="ame-cart-item__qty-val" data-qty-val="${item.key}">${item.quantity}</span>
-                  <button class="ame-cart-item__qty-btn" data-qty-plus="${item.key}">
-                    <span class="material-symbols-outlined">add</span>
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" data-qty-plus="${item.key}">
+                    <span class="material-symbols-outlined" aria-hidden="true">add</span>
                   </button>
                 </div>
                 <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${item.key}">${fmt(item.final_line_price)}</span></div>
