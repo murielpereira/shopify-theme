@@ -293,6 +293,103 @@
         </div>
       {%- endfor -%}
 
+      <!-- ── Campos Personalizados ── -->
+      {%- for _cf_tag_item in product.tags -%}
+        {%- for _cf_i in (1..10) -%}
+          {%- liquid
+            assign _cf_en_key  = 'custom_field_' | append: _cf_i | append: '_enable'
+            assign _cf_tag_key = 'custom_field_' | append: _cf_i | append: '_tag'
+            assign _cf_enabled = settings[_cf_en_key]
+            assign _cf_cfg_tag = settings[_cf_tag_key]
+          -%}
+          {%- if _cf_enabled and _cf_cfg_tag == _cf_tag_item -%}
+            {%- liquid
+              assign _cf_nm_key  = 'custom_field_' | append: _cf_i | append: '_name'
+              assign _cf_tt_key  = 'custom_field_' | append: _cf_i | append: '_title'
+              assign _cf_hl_key  = 'custom_field_' | append: _cf_i | append: '_helper'
+              assign _cf_lm_key  = 'custom_field_' | append: _cf_i | append: '_limiter'
+              assign _cf_tp_key  = 'custom_field_' | append: _cf_i | append: '_type'
+              assign _cf_op_key  = 'custom_field_' | append: _cf_i | append: '_options'
+              assign _cf_rq_key  = 'custom_field_' | append: _cf_i | append: '_required'
+              assign _cf_name    = settings[_cf_nm_key]
+              assign _cf_title   = settings[_cf_tt_key]
+              assign _cf_helper  = settings[_cf_hl_key]
+              assign _cf_limiter = settings[_cf_lm_key]
+              assign _cf_type    = settings[_cf_tp_key]
+              assign _cf_options = settings[_cf_op_key]
+              assign _cf_req     = settings[_cf_rq_key]
+            -%}
+            <div class="pdp__custom-field">
+              {%- if _cf_type == 'text' or _cf_type == 'date' -%}
+                <label class="pdp__custom-field__label" for="cf-{{ _cf_name | handle }}">
+                  {{- _cf_title -}}{%- if _cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                </label>
+                <input
+                  id="cf-{{ _cf_name | handle }}"
+                  type="text"
+                  name="properties[{{ _cf_name }}]"
+                  placeholder="{{ _cf_title }}"
+                  class="pdp__custom-field__input{% if _cf_type == 'date' %} pdp__custom-field__input--date{% endif %}"
+                  {%- if _cf_req %} data-cf-required="true"{% endif %}
+                  {%- if _cf_limiter != blank %} maxlength="{{ _cf_limiter }}"{% endif %}
+                >
+                {%- if _cf_helper != blank -%}
+                  <p class="pdp__custom-field__helper">{{ _cf_helper }}</p>
+                {%- endif -%}
+                {%- if _cf_req -%}
+                  <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
+                {%- endif -%}
+              {%- elsif _cf_type == 'long_text' -%}
+                <label class="pdp__custom-field__label" for="cf-{{ _cf_name | handle }}">
+                  {{- _cf_title -}}{%- if _cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                </label>
+                <textarea
+                  id="cf-{{ _cf_name | handle }}"
+                  name="properties[{{ _cf_name }}]"
+                  placeholder="{{ _cf_title }}"
+                  class="pdp__custom-field__textarea"
+                  {%- if _cf_req %} data-cf-required="true"{% endif %}
+                  {%- if _cf_limiter != blank %} maxlength="{{ _cf_limiter }}"{% endif %}
+                  rows="3"
+                ></textarea>
+                {%- if _cf_helper != blank -%}
+                  <p class="pdp__custom-field__helper">{{ _cf_helper }}</p>
+                {%- endif -%}
+                {%- if _cf_req -%}
+                  <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
+                {%- endif -%}
+              {%- elsif _cf_type == 'radio' -%}
+                <div class="pdp__custom-field__label">
+                  {{- _cf_title -}}{%- if _cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                </div>
+                <div class="pdp__custom-field__radio-group">
+                  {%- assign _cf_opts = _cf_options | split: ',' -%}
+                  {%- for _opt in _cf_opts -%}
+                    {%- assign _opt_val = _opt | strip -%}
+                    <button type="button" class="pdp__custom-field__radio-btn" data-value="{{ _opt_val | escape }}">
+                      {{- _opt_val -}}
+                    </button>
+                  {%- endfor -%}
+                </div>
+                <input
+                  type="hidden"
+                  name="properties[{{ _cf_name }}]"
+                  id="cf-hidden-{{ _cf_name | handle }}"
+                  class="pdp__custom-field__radio-val"
+                  {%- if _cf_req %} data-cf-required="true"{% endif %}
+                >
+                {%- if _cf_helper != blank -%}
+                  <p class="pdp__custom-field__helper">{{ _cf_helper }}</p>
+                {%- endif -%}
+                {%- if _cf_req -%}
+                  <p class="pdp__custom-field__error-msg">Selecione uma opção.</p>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+
       <!-- Quantidade -->
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
@@ -426,19 +523,19 @@
 
     function updateThumbIndicators() {
       if (!thumbsWrap || !thumbsEl) return;
-      thumbsWrap.classList.toggle('can-scroll-up',   thumbsEl.scrollTop > 4);
+      thumbsWrap.classList.toggle('can-scroll-up',   thumbsEl.scrollLeft > 4);
       thumbsWrap.classList.toggle('can-scroll-down',
-        thumbsEl.scrollTop < thumbsEl.scrollHeight - thumbsEl.clientHeight - 4);
+        thumbsEl.scrollLeft < thumbsEl.scrollWidth - thumbsEl.clientWidth - 4);
     }
 
     function scrollThumbIntoView(thumb) {
       if (!thumbsEl || !thumb) return;
-      const relTop    = thumb.offsetTop - thumbsEl.offsetTop;
-      const relBottom = relTop + thumb.offsetHeight;
-      if (relBottom > thumbsEl.scrollTop + thumbsEl.clientHeight) {
-        thumbsEl.scrollTo({ top: relBottom - thumbsEl.clientHeight, behavior: 'smooth' });
-      } else if (relTop < thumbsEl.scrollTop) {
-        thumbsEl.scrollTo({ top: relTop, behavior: 'smooth' });
+      const relLeft  = thumb.offsetLeft - thumbsEl.offsetLeft;
+      const relRight = relLeft + thumb.offsetWidth;
+      if (relRight > thumbsEl.scrollLeft + thumbsEl.clientWidth) {
+        thumbsEl.scrollTo({ left: relRight - thumbsEl.clientWidth, behavior: 'smooth' });
+      } else if (relLeft < thumbsEl.scrollLeft) {
+        thumbsEl.scrollTo({ left: relLeft, behavior: 'smooth' });
       }
     }
 
@@ -447,7 +544,7 @@
       track.style.transform = `translateX(-${cur * 100}%)`;
       thumbs.forEach((t, idx) => t.classList.toggle('pdp__thumb--active', idx === cur));
       if (counter) counter.textContent = cur + 1;
-      if (window.matchMedia('(min-width: 1024px)').matches) scrollThumbIntoView(thumbs[cur]);
+      scrollThumbIntoView(thumbs[cur]);
     }
 
     if (thumbsEl) {
@@ -560,6 +657,24 @@
       }
     }
 
+    /* ── Campos Personalizados — radio ── */
+    document.querySelectorAll('.pdp__custom-field__radio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.pdp__custom-field');
+        group?.querySelectorAll('.pdp__custom-field__radio-btn').forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        const hidden = group?.querySelector('.pdp__custom-field__radio-val');
+        if (hidden) hidden.value = btn.dataset.value;
+        group?.classList.remove('pdp__custom-field--error');
+      });
+    });
+
+    document.getElementById('pdp-form')?.addEventListener('input', e => {
+      if (e.target.dataset.cfRequired) {
+        e.target.closest('.pdp__custom-field')?.classList.remove('pdp__custom-field--error');
+      }
+    });
+
     /* ── Wishlist ── */
     const wishBtn = document.getElementById('pdp-wishlist');
     wishBtn?.addEventListener('click', () => {
@@ -570,6 +685,16 @@
     /* ── Add to cart AJAX ── */
     document.getElementById('pdp-form')?.addEventListener('submit', async e => {
       e.preventDefault();
+
+      /* Validate required custom fields */
+      let cfValid = true;
+      e.target.querySelectorAll('[data-cf-required]').forEach(field => {
+        const wrap = field.closest('.pdp__custom-field');
+        if (!field.value.trim()) { cfValid = false; wrap?.classList.add('pdp__custom-field--error'); }
+        else wrap?.classList.remove('pdp__custom-field--error');
+      });
+      if (!cfValid) return;
+
       const btn  = document.getElementById('pdp-add-btn');
       const orig = btn.innerHTML;
 
@@ -619,6 +744,94 @@
     });
   })();
 </script>
+
+{% stylesheet %}
+  .pdp__custom-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .pdp__custom-field__label {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant, #4f4442);
+    font-weight: 600;
+  }
+
+  .pdp__custom-field__req { color: var(--color-primary, #5a4742); }
+
+  .pdp__custom-field__input,
+  .pdp__custom-field__textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 4px);
+    background: transparent;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    color: var(--color-on-background, #201b14);
+    transition: border-color 0.2s ease;
+    outline: none;
+  }
+
+  .pdp__custom-field__input:focus,
+  .pdp__custom-field__textarea:focus { border-color: var(--color-primary, #5a4742); }
+
+  .pdp__custom-field__textarea { resize: vertical; min-height: 5rem; }
+
+  .pdp__custom-field__helper {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .pdp__custom-field__radio-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .pdp__custom-field__radio-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 4px);
+    background: transparent;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    color: var(--color-on-background, #201b14);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .pdp__custom-field__radio-btn:hover,
+  .pdp__custom-field__radio-btn.is-selected {
+    border-color: var(--color-primary, #5a4742);
+    background: var(--color-surface-container, #f8ece0);
+  }
+
+  .pdp__custom-field__radio-btn.is-selected { font-weight: 600; }
+
+  .pdp__custom-field__error-msg {
+    font-size: 0.75rem;
+    color: #c0392b;
+    margin: 0;
+    display: none;
+  }
+
+  .pdp__custom-field--error .pdp__custom-field__error-msg { display: block; }
+
+  .pdp__custom-field--error .pdp__custom-field__label { color: #c0392b; }
+
+  .pdp__custom-field--error .pdp__custom-field__input,
+  .pdp__custom-field--error .pdp__custom-field__textarea {
+    border-color: #c0392b;
+  }
+
+  .pdp__custom-field--error .pdp__custom-field__radio-btn {
+    border-color: #c0392b;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {

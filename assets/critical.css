@@ -1666,15 +1666,15 @@ shopify-account {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.75rem;
-  padding: 0.5rem var(--page-margin, 20px) 3rem;
+  padding: 10px var(--page-margin, 1.5rem);
   max-width: var(--page-width, 120rem);
   margin: 0 auto;
 }
 
 @media (min-width: 1024px) {
   .pdp {
-    grid-template-columns: 46% 1fr;
-    column-gap: 4rem;
+    grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 3.5vw, 4rem);
     row-gap: 0;
     padding-top: 1.5rem;
     align-items: start;
@@ -1682,13 +1682,13 @@ shopify-account {
 
   .pdp__gallery {
     grid-column: 1;
-    position: relative;
-    padding-left: calc(4.75rem + 0.625rem);
+    min-width: 0;
   }
 
   .pdp__info {
     grid-column: 2;
     padding-top: 0.5rem;
+    min-width: 0;
   }
 }
 
@@ -1825,19 +1825,16 @@ shopify-account {
 
 @media (min-width: 1024px) {
   .pdp__thumbs-wrap {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 4.75rem;
+    position: relative;
+    width: 100%;
     overflow: hidden;
   }
 
   .pdp__thumbs-fade {
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 3rem;
+    top: 0;
+    bottom: 0;
+    width: 3rem;
     z-index: 2;
     pointer-events: none;
     opacity: 0;
@@ -1845,13 +1842,13 @@ shopify-account {
   }
 
   .pdp__thumbs-fade--top {
-    top: 0;
-    background: linear-gradient(to bottom, var(--color-background, #fff8f3) 30%, transparent);
+    left: 0;
+    background: linear-gradient(to right, var(--color-background, #fff8f3) 40%, transparent);
   }
 
   .pdp__thumbs-fade--bottom {
-    bottom: 0;
-    background: linear-gradient(to top, var(--color-background, #fff8f3) 30%, transparent);
+    right: 0;
+    background: linear-gradient(to left, var(--color-background, #fff8f3) 40%, transparent);
   }
 
   .pdp__thumbs-wrap.can-scroll-up   .pdp__thumbs-fade--top,
@@ -1860,17 +1857,16 @@ shopify-account {
   }
 
   .pdp__thumbs {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 100%;
-    height: 100%;
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
+    height: auto;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+    padding: 3px;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    flex-wrap: nowrap;
-    gap: 0.3rem;
-    margin: 0;
-    padding: 3px;
   }
 
   .pdp__thumbs::-webkit-scrollbar {
@@ -1878,9 +1874,9 @@ shopify-account {
   }
 
   .pdp__thumb {
-    width: 100%;
+    width: 4.5rem;
     height: 4.5rem;
-    aspect-ratio: unset;
+    aspect-ratio: 1 / 1;
     border-radius: var(--radius-md, 0.25rem);
     flex-shrink: 0;
   }
@@ -2286,6 +2282,14 @@ shopify-account {
   display: flex;
   gap: 0.625rem;
   margin-bottom: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+/* botão de checkout acelerado do Shopify */
+.shopify-payment-button {
+  width: 100%;
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {

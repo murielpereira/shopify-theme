@@ -13,7 +13,6 @@
       {
         "type": "font_picker",
         "id": "type_primary_font",
-        "default": "lexend_n4",
         "label": "Fonte principal"
       }
     ]
@@ -288,6 +287,124 @@
         "id": "social_whatsapp",
         "label": "WhatsApp"
       }
+    ]
+  },
+  {
+    "name": "Campos Personalizados",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Campos extras exibidos na página do produto, ativados por tag. Adicione a tag ao produto no Shopify Admin (ex: campo_gravacao) e insira o mesmo valor em 'Tag de ativação' abaixo."
+      },
+      { "type": "header", "content": "Campo 1" },
+      { "type": "checkbox", "id": "custom_field_1_enable", "label": "Ativar campo 1", "default": false },
+      { "type": "text", "id": "custom_field_1_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_1_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_1_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_1_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_1_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_1_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_1_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_1_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 2" },
+      { "type": "checkbox", "id": "custom_field_2_enable", "label": "Ativar campo 2", "default": false },
+      { "type": "text", "id": "custom_field_2_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_2_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_2_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_2_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_2_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_2_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_2_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_2_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 3" },
+      { "type": "checkbox", "id": "custom_field_3_enable", "label": "Ativar campo 3", "default": false },
+      { "type": "text", "id": "custom_field_3_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_3_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_3_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_3_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_3_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_3_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_3_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_3_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 4" },
+      { "type": "checkbox", "id": "custom_field_4_enable", "label": "Ativar campo 4", "default": false },
+      { "type": "text", "id": "custom_field_4_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_4_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_4_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_4_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_4_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_4_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_4_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_4_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 5" },
+      { "type": "checkbox", "id": "custom_field_5_enable", "label": "Ativar campo 5", "default": false },
+      { "type": "text", "id": "custom_field_5_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_5_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_5_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_5_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_5_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_5_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_5_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_5_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 6" },
+      { "type": "checkbox", "id": "custom_field_6_enable", "label": "Ativar campo 6", "default": false },
+      { "type": "text", "id": "custom_field_6_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_6_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_6_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_6_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_6_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_6_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_6_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_6_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 7" },
+      { "type": "checkbox", "id": "custom_field_7_enable", "label": "Ativar campo 7", "default": false },
+      { "type": "text", "id": "custom_field_7_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_7_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_7_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_7_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_7_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_7_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_7_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_7_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 8" },
+      { "type": "checkbox", "id": "custom_field_8_enable", "label": "Ativar campo 8", "default": false },
+      { "type": "text", "id": "custom_field_8_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_8_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_8_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_8_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_8_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_8_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_8_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_8_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 9" },
+      { "type": "checkbox", "id": "custom_field_9_enable", "label": "Ativar campo 9", "default": false },
+      { "type": "text", "id": "custom_field_9_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_9_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_9_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_9_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_9_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_9_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_9_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_9_required", "label": "Campo obrigatório", "default": false },
+
+      { "type": "header", "content": "Campo 10" },
+      { "type": "checkbox", "id": "custom_field_10_enable", "label": "Ativar campo 10", "default": false },
+      { "type": "text", "id": "custom_field_10_tag", "label": "Tag de ativação" },
+      { "type": "text", "id": "custom_field_10_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
+      { "type": "text", "id": "custom_field_10_title", "label": "Label / Placeholder" },
+      { "type": "text", "id": "custom_field_10_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
+      { "type": "text", "id": "custom_field_10_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
+      { "type": "select", "id": "custom_field_10_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "radio", "label": "Seleção (botões)" }] },
+      { "type": "text", "id": "custom_field_10_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
+      { "type": "checkbox", "id": "custom_field_10_required", "label": "Campo obrigatório", "default": false }
     ]
   }
 ]

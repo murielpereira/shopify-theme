@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json; json.load\\(open\\('config/settings_schema.json', encoding='utf-8'\\)\\); print\\('JSON válido'\\)\")",
+      "PowerShell($json = Get-Content \"c:\\\\Users\\\\pedid\\\\OneDrive\\\\Área de Trabalho\\\\Arquivos Âme\\\\Muriel\\\\Projetos\\\\shopify-theme\\\\config\\\\settings_schema.json\" -Raw -Encoding UTF8; try { $null = ConvertFrom-Json $json; Write-Host \"JSON válido\" } catch { Write-Host \"ERRO: $_\" })"
+    ]
+  }
+}
