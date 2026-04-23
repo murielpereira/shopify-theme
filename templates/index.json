@@ -1,16 +1,45 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
       "type": "home-hero",
       "blocks": {
-        "stat-1": { "type": "stat", "settings": { "value": "100%", "label": "Couro Natural" } },
-        "stat-2": { "type": "stat", "settings": { "value": "Artesanal", "label": "Feito à Mão" } }
+        "stat-1": {
+          "type": "stat",
+          "settings": {
+            "value": "100%",
+            "label": "Couro Natural"
+          }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": {
+            "value": "Artesanal",
+            "label": "Feito à Mão"
+          }
+        }
       },
-      "block_order": ["stat-1", "stat-2"],
+      "block_order": [
+        "stat-1",
+        "stat-2"
+      ],
       "settings": {
+        "video_url": "https://www.youtube.com/watch?v=ze869tziyg4&t=60s&pp=ygUPZG9ncyBwbGF5aW5nIDRr0gcJCcMKAYcqIYzv",
         "eyebrow": "Heritage Series — 2024",
+        "title": "<p>Feito<br/><em>com</em><br/>Amor.</p>",
+        "subtitle": "Acessórios de couro feitos à mão para pets que se movem com propósito.",
         "cta_primary_label": "Explorar Coleções",
-        "cta_secondary_label": "Nossa História"
+        "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
+        "cta_secondary_label": "Nossa História",
+        "cta_secondary_url": ""
       }
     },
     "featured-collections": {
@@ -19,44 +48,76 @@
         "card-1": {
           "type": "card",
           "settings": {
-            "is_large": true,
-            "badge": "Heritage Series",
+            "collection": "",
             "label": "The Veloce Harness",
-            "price": "R$ 1.950"
+            "price": "R$ 1.950",
+            "badge": "Heritage Series",
+            "url": "",
+            "is_large": true
           }
         },
         "card-2": {
           "type": "card",
           "settings": {
-            "is_large": false,
+            "collection": "",
             "label": "The Monaco Collar",
-            "price": "R$ 620"
+            "price": "R$ 620",
+            "badge": "",
+            "url": "",
+            "is_large": false
           }
         },
         "card-3": {
           "type": "card",
           "settings": {
-            "is_large": false,
+            "collection": "",
             "label": "The Monaco Leash",
-            "price": "R$ 730"
+            "price": "R$ 730",
+            "badge": "",
+            "url": "",
+            "is_large": false
           }
         }
       },
-      "block_order": ["card-1", "card-2", "card-3"],
+      "block_order": [
+        "card-1",
+        "card-2",
+        "card-3"
+      ],
       "settings": {
         "eyebrow": "Coleções em Destaque",
         "title": "Curado para Cada Silhueta.",
-        "cta_label": "Ver Todas"
+        "cta_label": "Ver Todas",
+        "cta_url": ""
       }
     },
     "lookbook": {
       "type": "home-lookbook",
       "blocks": {
-        "img-1": { "type": "image", "settings": {} },
-        "img-2": { "type": "image", "settings": {} },
-        "img-3": { "type": "image", "settings": {} }
+        "img-1": {
+          "type": "image",
+          "settings": {
+            "caption": ""
+          }
+        },
+        "img-2": {
+          "type": "image",
+          "settings": {
+            "caption": ""
+          }
+        },
+        "img-3": {
+          "type": "image",
+          "settings": {
+            "caption": ""
+          }
+        }
       },
-      "block_order": ["img-1", "img-2", "img-3"],
+      "block_order": [
+        "img-1",
+        "img-2",
+        "img-3"
+      ],
       "settings": {
         "eyebrow": "Lookbook 2024",
         "title": "O Atelier em Cena."
@@ -65,13 +126,37 @@
     "brand-story": {
       "type": "home-brand-story",
       "blocks": {
-        "stat-1": { "type": "stat", "settings": { "value": "7+", "label": "Anos de Craft" } },
-        "stat-2": { "type": "stat", "settings": { "value": "3", "label": "Curtumes" } },
-        "stat-3": { "type": "stat", "settings": { "value": "∞", "label": "Durabilidade" } }
+        "stat-1": {
+          "type": "stat",
+          "settings": {
+            "value": "7+",
+            "label": "Anos de Craft"
+          }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": {
+            "value": "3",
+            "label": "Curtumes"
+          }
+        },
+        "stat-3": {
+          "type": "stat",
+          "settings": {
+            "value": "∞",
+            "label": "Durabilidade"
+          }
+        }
       },
-      "block_order": ["stat-1", "stat-2", "stat-3"],
+      "block_order": [
+        "stat-1",
+        "stat-2",
+        "stat-3"
+      ],
       "settings": {
         "eyebrow": "Nossa Filosofia",
+        "title": "<p>Elegância<br><em>Aerodinámica.</em></p>",
+        "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos.</p>",
         "floating_eyebrow": "Satisfação",
         "floating_label": "98.7%",
         "floating_sublabel": "de clientes satisfeitos"
