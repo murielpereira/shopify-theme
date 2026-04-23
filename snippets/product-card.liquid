@@ -14,8 +14,12 @@
 
   assign card_has_discount = false
   assign card_discount_pct = 0
-  assign _card_compare = card_product.compare_at_price_max | default: card_product.compare_at_price
-  assign _card_price   = card_product.price_min | default: card_product.price
+  assign _card_compare = card_product.compare_at_price_max | default: 0
+  if _card_compare == 0
+    assign _card_cv      = card_product.selected_or_first_available_variant
+    assign _card_compare = _card_cv.compare_at_price | default: 0
+  endif
+  assign _card_price = card_product.price_min | default: card_product.price
   if _card_compare > _card_price
     assign card_has_discount = true
     assign card_discount_pct = _card_compare | minus: _card_price | times: 100 | divided_by: _card_compare | round
@@ -101,7 +105,7 @@
     <!-- Bloco de preços -->
     <div class="ame-card__prices">
       {%- if card_has_discount -%}
-        <p class="ame-card__price-de">De: <s>{{ card_product.compare_at_price | money }}</s></p>
+        <p class="ame-card__price-de">De: <s>{{ _card_compare | money }}</s></p>
       {%- endif -%}
 
       <p class="ame-card__price-main">
