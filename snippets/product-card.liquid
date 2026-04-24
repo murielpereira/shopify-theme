@@ -7,22 +7,33 @@
 {% endcomment %}
 
 {%- liquid
-  assign card_url       = card_product.url
-  assign card_title     = card_product.title
-  assign card_img       = card_product.featured_image
+  assign card_url = card_product.url
+  assign card_title = card_product.title
+  assign card_img = card_product.featured_image
   assign card_cta_label = card_btn_label | default: 'Comprar'
 
   assign card_has_discount = false
   assign card_discount_pct = 0
-  assign _card_compare = card_product.compare_at_price_max | default: 0
-  if _card_compare == 0
-    assign _card_cv      = card_product.selected_or_first_available_variant
-    assign _card_compare = _card_cv.compare_at_price | default: 0
+  assign card_compare = card_product.compare_at_price_max | default: 0
+  if card_compare == 0
+    assign card_cv = card_product.selected_or_first_available_variant
+    assign card_compare = card_cv.compare_at_price | default: 0
   endif
-  assign _card_price = card_product.price_min | default: card_product.price
-  if _card_compare > _card_price
+  assign card_price = card_product.price_min | default: card_product.price
+  if card_compare > card_price
     assign card_has_discount = true
-    assign card_discount_pct = _card_compare | minus: _card_price | times: 100 | divided_by: _card_compare | round
+    assign card_discount_pct = card_compare | minus: card_price | times: 100 | divided_by: card_compare | round
+  endif
+
+  assign card_effective_price = card_product.price
+  if card_has_discount == false and settings.auto_discount_enabled and settings.auto_discount_percent > 0
+    assign card_has_discount = true
+    assign card_discount_pct = settings.auto_discount_percent
+    assign card_compare_price = card_product.price
+    assign card_discount_cents = card_product.price | times: card_discount_pct | divided_by: 100
+    assign card_effective_price = card_product.price | minus: card_discount_cents
+  else
+    assign card_compare_price = card_compare
   endif
 
   assign card_badge = ''
@@ -34,14 +45,13 @@
     assign card_badge = 'Mais Vendido'
   endif
 
-  assign card_rating       = card_product.metafields.reviews.rating.value
-  assign card_rating_count = card_product.metafields.reviews.rating_count.value
+  assign card_rating = card_product.metafields.reviews.rating.value
 
-  assign pix_pct    = settings.pix_discount | default: 5
-  assign pix_cents  = card_product.price | times: pix_pct | divided_by: 100
-  assign pix_cents  = card_product.price | minus: pix_cents
+  assign pix_pct = settings.pix_discount | default: 5
+  assign pix_cents = card_effective_price | times: pix_pct | divided_by: 100
+  assign pix_cents = card_effective_price | minus: pix_cents
   assign inst_count = settings.installments_count | default: 3
-  assign inst_value = card_product.price | divided_by: inst_count
+  assign inst_value = card_effective_price | divided_by: inst_count
 -%}
 
 <div class="ame-card" data-product-card>
@@ -49,11 +59,7 @@
     <div class="ame-card__image-wrap">
       {%- if card_img != blank -%}
         {%- assign card_img_alt = card_img.alt | default: card_title | escape -%}
-        {{
-          card_img
-          | image_url: width: 600
-          | image_tag: loading: 'lazy', class: 'ame-card__img', alt: card_img_alt
-        }}
+        {{ card_img | image_url: width: 600 | image_tag: loading: 'lazy', class: 'ame-card__img', alt: card_img_alt }}
       {%- else -%}
         {{ 'product-1' | placeholder_svg_tag: 'ame-card__img ame-card__img--placeholder' }}
       {%- endif -%}
@@ -86,7 +92,9 @@
         type="button"
         aria-pressed="false"
       >
-        <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 0;">favorite</span>
+        <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 0;"
+          >favorite</span
+        >
       </button>
     </div>
   </a>
@@ -105,12 +113,14 @@
     <!-- Bloco de preços -->
     <div class="ame-card__prices">
       {%- if card_has_discount -%}
-        <p class="ame-card__price-de">De: <s>{{ _card_compare | money }}</s></p>
+        <p class="ame-card__price-de">
+          De: <s>{{ card_compare_price | money }}</s>
+        </p>
       {%- endif -%}
 
       <p class="ame-card__price-main">
         <span class="ame-card__price-label">a partir de</span>
-        <strong class="ame-card__price-value">{{ card_product.price | money }}</strong>
+        <strong class="ame-card__price-value">{{ card_effective_price | money }}</strong>
       </p>
 
       {%- if settings.show_installments != false and inst_count > 1 -%}
@@ -122,7 +132,7 @@
       {%- endif -%}
     </div>
 
-    {%- render 'cashback', cashback_price: card_product.price, cashback_mode: 'card' -%}
+    {%- render 'cashback', cashback_price: card_effective_price, cashback_mode: 'card' -%}
 
     <a href="{{ card_url }}" class="ame-card__buy-btn" aria-label="{{ card_cta_label }}: {{ card_title }}">
       {{ card_cta_label }}
@@ -131,8 +141,14 @@
 </div>
 
 {% stylesheet %}
-  .ame-card { position: relative; display: flex; flex-direction: column; }
-  .ame-card__link { display: block; }
+  .ame-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .ame-card__link {
+    display: block;
+  }
 
   .ame-card__image-wrap {
     position: relative;
@@ -152,10 +168,14 @@
     object-fit: cover;
     mix-blend-mode: multiply;
     opacity: 0.9;
-    transition: transform 1s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+    transition: transform 1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   }
-  .ame-card__img--placeholder { opacity: 0.3; }
-  .ame-card:hover .ame-card__img { transform: scale(1.05); }
+  .ame-card__img--placeholder {
+    opacity: 0.3;
+  }
+  .ame-card:hover .ame-card__img {
+    transform: scale(1.05);
+  }
 
   /* Badge de desconto — top-left */
   .ame-card__discount-badge {
@@ -214,7 +234,7 @@
     bottom: 0.75rem;
     right: 0.75rem;
     z-index: 2;
-    background: rgba(255,255,255,0.65);
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(8px);
     border: none;
     cursor: pointer;
@@ -224,12 +244,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(90,71,66,0.4);
+    color: rgba(90, 71, 66, 0.4);
     transition: color 0.25s ease, transform 0.25s ease;
   }
   .ame-card__wishlist:hover,
-  .ame-card__wishlist.is-active { color: var(--color-primary, #5a4742); transform: scale(1.15); }
-  .ame-card__wishlist.is-active .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+  .ame-card__wishlist.is-active {
+    color: var(--color-primary, #5a4742);
+    transform: scale(1.15);
+  }
+  .ame-card__wishlist.is-active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+  }
 
   /* Info area */
   .ame-card__info {
@@ -237,6 +262,7 @@
     flex-direction: column;
     gap: 0.3rem;
     flex: 1;
+    align-items: center;
   }
 
   .ame-card__collection {
@@ -244,7 +270,7 @@
     font-size: 0.625rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(90,71,66,0.5);
+    color: rgba(90, 71, 66, 0.5);
   }
 
   .ame-card__title {
@@ -256,22 +282,31 @@
     line-height: 1.3;
     margin-bottom: 0.125rem;
   }
-  .ame-card__title a { color: inherit; text-decoration: none; transition: color 0.2s ease; }
-  .ame-card:hover .ame-card__title a { color: var(--color-primary, #5a4742); }
+  .ame-card__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .ame-card:hover .ame-card__title a {
+    color: var(--color-primary, #5a4742);
+  }
 
   /* Preços */
   .ame-card__prices {
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
+    align-items: center;
   }
 
   .ame-card__price-de {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.75rem;
-    color: rgba(90,71,66,0.45);
+    color: rgba(90, 71, 66, 0.45);
   }
-  .ame-card__price-de s { text-decoration: line-through; }
+  .ame-card__price-de s {
+    text-decoration: line-through;
+  }
 
   .ame-card__price-main {
     display: flex;
@@ -283,7 +318,7 @@
   .ame-card__price-label {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.75rem;
-    color: rgba(90,71,66,0.55);
+    color: rgba(90, 71, 66, 0.55);
     font-weight: 400;
   }
 
@@ -299,25 +334,38 @@
   .ame-card__installments {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.75rem;
-    color: rgba(90,71,66,0.55);
+    color: rgba(90, 71, 66, 0.55);
   }
 
   .ame-card__pix {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.75rem;
-    color: rgba(90,71,66,0.55);
+    color: rgba(90, 71, 66, 0.55);
   }
 
   /* Cashback no card */
-  .ame-cashback--card { margin: 0; padding: 0; }
-  .ame-cashback--card .ame-cashback__icon { width: 0.75rem; height: 0.75rem; }
-  .ame-cashback--card .ame-cashback__text { font-size: 0.625rem; letter-spacing: 0.04em; }
+  .ame-cashback--card {
+    margin: 0;
+    padding: 0;
+  }
+  .ame-cashback--card .ame-cashback__icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .ame-cashback--card .ame-cashback__text {
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+  }
 
   /* Botão Comprar */
   .ame-card__buy-btn {
     display: block;
     width: 100%;
-    background: linear-gradient(135deg, var(--color-btn-primary-bg, var(--color-primary, #5a4742)), var(--color-primary-container, #735e59));
+    background: linear-gradient(
+      135deg,
+      var(--color-btn-primary-bg, var(--color-primary, #5a4742)),
+      var(--color-primary-container, #735e59)
+    );
     color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
     border: none;
     cursor: pointer;
@@ -329,21 +377,20 @@
     border-radius: var(--radius-md, 0.25rem);
     text-align: center;
     text-decoration: none;
-    transition: transform 0.25s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1)),
-                box-shadow 0.25s ease;
-    box-shadow: 0 8px 20px rgba(32,27,20,0.08);
+    transition: transform 0.25s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow 0.25s ease;
+    box-shadow: 0 8px 20px rgba(32, 27, 20, 0.08);
     margin-top: auto;
   }
   .ame-card__buy-btn:hover {
     transform: scale(1.02);
-    box-shadow: 0 12px 28px rgba(32,27,20,0.12);
+    box-shadow: 0 12px 28px rgba(32, 27, 20, 0.12);
     color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
   }
 {% endstylesheet %}
 
 <script>
   (() => {
-    document.querySelectorAll('[data-wishlist-btn]').forEach(btn => {
+    document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
       btn.addEventListener('click', () => {
         btn.classList.toggle('is-active');
         const isActive = btn.classList.contains('is-active');

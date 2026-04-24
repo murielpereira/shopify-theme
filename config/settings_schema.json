@@ -295,6 +295,30 @@
     "settings": [
       {
         "type": "header",
+        "content": "Desconto automático (vitrine)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Espelha o desconto automático criado em Admin → Descontos. Marque a opção abaixo e informe a MESMA % do desconto automático para que o badge e o preço 'De/Por' apareçam nos cards e na página do produto. O desconto real continua sendo aplicado pelo Shopify no carrinho."
+      },
+      {
+        "type": "checkbox",
+        "id": "auto_discount_enabled",
+        "label": "Exibir desconto automático em cards e PDP",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "auto_discount_percent",
+        "min": 1,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "label": "Porcentagem do desconto automático",
+        "default": 10
+      },
+      {
+        "type": "header",
         "content": "Preço & Pagamento"
       },
       {

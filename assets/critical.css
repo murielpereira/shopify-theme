@@ -2272,6 +2272,34 @@ shopify-account {
   font-weight: 500;
 }
 
+.pdp__swatch--disabled,
+.pdp__size-btn--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.pdp__swatch--disabled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    to top right,
+    transparent calc(50% - 1px),
+    rgba(90, 71, 66, 0.6) calc(50% - 1px),
+    rgba(90, 71, 66, 0.6) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+  pointer-events: none;
+}
+
+.pdp__swatch--disabled:hover,
+.pdp__size-btn--disabled:hover {
+  transform: none;
+  border-color: var(--color-outline-variant, #d2c3c0);
+  background: transparent;
+}
+
 /* ── Quantidade ── */
 .pdp__qty {
   margin-bottom: 1rem;
