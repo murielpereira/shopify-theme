@@ -5,3 +5,7 @@
 ## 2026-04-23 - Dynamic Element ARIA Consistency
 **Learning:** Dynamically generated DOM elements (e.g., from AJAX cart updates) often miss ARIA attributes that were present in the initial server-rendered HTML, causing accessibility regressions on interaction.
 **Action:** Always ensure client-side rendering logic mirrors the same accessibility attributes (like `aria-label` and `aria-hidden`) as the server-side templates.
+
+## 2024-04-24 - Accessibility and Interactive States
+**Learning:** Add-to-cart button missed communicating async loading to screen readers, and wishlist button lacked `aria-pressed` semantic state for its toggle functionality.
+**Action:** Ensure async action buttons have `aria-busy="true"` added during requests and removed after completion/failure. Add `aria-pressed` and toggle it correctly for buttons acting as switches.

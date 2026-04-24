@@ -440,7 +440,7 @@
           {%- endif -%}
         </button>
 
-        <button type="button" class="pdp__wishlist-btn" aria-label="Favoritar" id="pdp-wishlist">
+        <button type="button" class="pdp__wishlist-btn" aria-label="Favoritar" id="pdp-wishlist" aria-pressed="false">
           <span class="material-symbols-outlined" style="font-size:1.25rem;font-variation-settings:'FILL' 0;"
             >favorite</span
           >
@@ -722,6 +722,7 @@
     const wishBtn = document.getElementById('pdp-wishlist');
     wishBtn?.addEventListener('click', () => {
       const on = wishBtn.classList.toggle('is-active');
+      wishBtn.setAttribute('aria-pressed', on);
       wishBtn.querySelector('.material-symbols-outlined').style.fontVariationSettings = on ? "'FILL' 1" : "'FILL' 0";
     });
 
@@ -743,6 +744,7 @@
 
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem;animation:pdp-spin 0.6s linear infinite;">refresh</span>';
       btn.disabled  = true;
+      btn.setAttribute('aria-busy', 'true');
 
       try {
         const res = await fetch('/cart/add.js', {
@@ -760,11 +762,13 @@
 
         /* Feedback no botão */
         btn.innerHTML = 'Adicionado ✓';
+        btn.removeAttribute('aria-busy');
         setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1800);
 
       } catch {
         btn.innerHTML = 'Tente novamente';
         btn.style.opacity = '0.7';
+        btn.removeAttribute('aria-busy');
         setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.opacity = ''; }, 2000);
       }
     });
