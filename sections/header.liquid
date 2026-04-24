@@ -181,7 +181,7 @@
   .ame-predictive {
     position: absolute;
     top: calc(100% + 0.5rem);
-    right: 0;
+    left: 0;
     width: min(22rem, calc(100vw - 2rem));
     max-height: 70vh;
     overflow-y: auto;
@@ -520,7 +520,10 @@
 
     function bindPredictive(input) {
       if (!input) return;
-      const dropdown = input.closest('[data-search-wrap], [data-search-overlay]')?.querySelector('[data-predictive-dropdown]');
+      const inOverlay = input.closest('[data-search-overlay]');
+      const dropdown = inOverlay
+        ? inOverlay.querySelector('[data-predictive-dropdown]')
+        : document.querySelector('[data-predictive-dropdown][data-predictive-scope="desktop"]');
       if (!dropdown) return;
 
       input.addEventListener('input', () => {
@@ -556,7 +559,12 @@
     bindPredictive(searchInputMobile);
 
     document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-search-wrap]') || e.target.closest('[data-search-overlay]')) return;
+      if (
+        e.target.closest('[data-search-wrap]') ||
+        e.target.closest('[data-search-overlay]') ||
+        e.target.closest('[data-predictive-dropdown]') ||
+        e.target.closest('[data-search-toggle]')
+      ) return;
       document.querySelectorAll('[data-predictive-dropdown]').forEach(d => { d.hidden = true; });
     });
 

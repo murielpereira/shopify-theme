@@ -811,6 +811,24 @@ body::after {
   margin-top: 0.25rem;
 }
 
+.ame-cart-item__props {
+  list-style: none;
+  padding: 0;
+  margin: 0.375rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-family: var(--font-primary--family, 'Lexend', sans-serif);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--color-on-surface-variant, #4f4442);
+}
+
+.ame-cart-item__prop-key {
+  font-weight: 600;
+  color: rgba(90, 71, 66, 0.7);
+}
+
 .ame-cart-item__bottom {
   display: flex;
   align-items: center;
@@ -1375,6 +1393,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 1.125rem;
+  position: relative;
 }
 
 shopify-account {

@@ -185,6 +185,11 @@
           const v    = item.variant_title && item.variant_title !== 'Default Title';
           const disc = item.original_line_price !== item.final_line_price
             ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>` : '';
+          const propEntries = Object.entries(item.properties || {})
+            .filter(([k, val]) => k && val && !k.startsWith('_'));
+          const propsHTML = propEntries.length
+            ? `<ul class="ame-cart-item__props">${propEntries.map(([k, val]) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`).join('')}</ul>`
+            : '';
           return `<li class="ame-cart-item" data-item-key="${item.key}">
             <a href="${item.url}" class="ame-cart-item__img-link">
               <div class="ame-cart-item__img-wrap">${img ? `<img src="${img}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">` : ''}</div>
@@ -192,6 +197,7 @@
             <div class="ame-cart-item__info">
               <a href="${item.url}" class="ame-cart-item__name">${esc(item.product_title)}</a>
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
+              ${propsHTML}
               <div class="ame-cart-item__bottom">
                 <div class="ame-cart-item__qty">
                   <button type="button" class="ame-cart-item__qty-btn" aria-label="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${item.quantity <= 1 ? `data-remove="${item.key}"` : `data-qty-minus="${item.key}"`}>

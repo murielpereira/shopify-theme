@@ -7,26 +7,33 @@
 
 {%- if settings.cashback_enabled -%}
   {%- liquid
-    assign cb_pct     = settings.cashback_percent | default: 8
-    assign cb_min     = settings.cashback_min_value | default: 10
-    assign cb_color   = settings.cashback_color | default: '#5a4742'
-    assign cb_mode    = cashback_mode | default: 'pdp'
+    assign cb_pct = settings.cashback_percent | default: 8
+    assign cb_min = settings.cashback_min_value | default: 10
+    assign cb_color = settings.cashback_color | default: '#5a4742'
+    assign cb_mode = cashback_mode | default: 'pdp'
 
-    assign cb_value_cents  = cashback_price | default: 0
-    assign cb_value_reais  = cb_value_cents | times: cb_pct | divided_by: 10000.0
-    assign cb_show_value   = false
+    assign cb_value_cents = cashback_price | default: 0
+    assign cb_value_reais = cb_value_cents | times: cb_pct | divided_by: 10000.0
+    assign cb_show_value = false
     if cb_value_reais >= cb_min
       assign cb_show_value = true
     endif
   -%}
 
-  <div class="ame-cashback{% if cb_mode == 'card' %} ame-cashback--card{% endif %}"
-       data-cashback
-       data-pct="{{ cb_pct }}"
-       data-min="{{ cb_min }}"
-       style="--cashback-color: {{ cb_color }};"
+  <div
+    class="ame-cashback{% if cb_mode == 'card' %} ame-cashback--card{% endif %}"
+    data-cashback
+    data-pct="{{ cb_pct }}"
+    data-min="{{ cb_min }}"
+    style="--cashback-color: {{ cb_color }};"
   >
-    <svg class="ame-cashback__icon" viewBox="0 0 74 68" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg
+      class="ame-cashback__icon"
+      viewBox="0 0 74 68"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
       <path d="M73.5001 34C73.5001 52.5 58.5001 67.5 40.0001 67.5C21.5001 67.5 6.5001 52.5 6.5001 34C6.5001 33.7 6.60009 33.4 6.70009 33.2L3.40009 36.5C3.10009 36.8 2.60009 37 2.20009 37C1.80009 37 1.3001 36.8 1.0001 36.5C0.300098 35.8 0.300098 34.7 1.0001 34.1L7.1001 28C7.3001 27.8 7.50009 27.7 7.70009 27.6C8.20009 27.4 8.8001 27.4 9.3001 27.8C9.4001 27.9 9.5001 27.9 9.6001 28L15.7001 34.1C16.4001 34.8 16.4001 35.9 15.7001 36.5C15.4001 36.8 14.9001 37 14.5001 37C14.1001 37 13.6001 36.8 13.3001 36.5L10.0001 33.2C10.1001 33.4 10.2001 33.7 10.2001 34C10.2001 50.6 23.7001 64.1 40.3001 64.1C56.9001 64.1 70.4001 50.6 70.4001 34C70.4001 17.4 56.9001 3.89999 40.3001 3.89999C32.1001 3.89999 24.5001 7.1 18.8001 13C18.1001 13.7 17.0001 13.7 16.4001 13C15.7001 12.3 15.7001 11.2 16.4001 10.6C22.8001 4.10001 31.3001 0.5 40.4001 0.5C58.5001 0.5 73.5001 15.5 73.5001 34ZM40.0001 15.9C39.1001 15.9 38.3001 16.7 38.3001 17.6V21.2H37.5001C33.5001 21.2 30.3001 24.4 30.3001 28.4C30.3001 32.4 33.5001 35.6 37.5001 35.6H42.5001C44.6001 35.6 46.3001 37.3 46.3001 39.4C46.3001 41.5 44.6001 43.2 42.5001 43.2H42.4001H42.3001H33.4001C32.5001 43.2 31.7001 44 31.7001 44.9C31.7001 45.8 32.5001 46.6 33.4001 46.6H38.2001V50.2C38.2001 51.1 39.0001 51.9 39.9001 51.9C40.8001 51.9 41.6001 51.1 41.6001 50.2V46.6H42.2001H42.3001H42.4001C46.4001 46.6 49.6001 43.4 49.6001 39.4C49.6001 35.4 46.4001 32.2 42.4001 32.2H37.4001C35.3001 32.2 33.6001 30.5 33.6001 28.4C33.6001 26.3 35.3001 24.6 37.4001 24.6H46.3001C47.2001 24.6 48.0001 23.8 48.0001 22.9C48.0001 22 47.2001 21.2 46.3001 21.2H41.7001V17.6C41.8001 16.7 41.0001 15.9 40.0001 15.9Z" fill="currentColor"/>
     </svg>
     <p class="ame-cashback__text">
@@ -34,7 +41,7 @@
       {%- if cb_show_value -%}
         <strong class="ame-cashback__cifra">R$</strong>
         <strong class="ame-cashback__value" data-cashback-value>
-          {{- cb_value_reais | round: 2 | replace: '.', ',' -}}
+          {{- cb_value_reais | round: 1 | replace: '.', ',' -}}
         </strong>
       {%- else -%}
         <strong class="ame-cashback__value" data-cashback-value>{{ cb_pct | round }}%</strong>

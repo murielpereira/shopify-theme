@@ -357,6 +357,20 @@
         "id": "show_installments_link",
         "label": "Mostrar link 'Ver mais detalhes' no parcelamento",
         "default": true
+      },
+      {
+        "type": "header",
+        "content": "Pingente personalizado"
+      },
+      {
+        "type": "paragraph",
+        "content": "Ativa o bloco de customização em produtos com a tag 'customizacao_pingente'. O pingente é adicionado ao carrinho como um produto separado. Requer cadastro dos produtos 'pingente-de-metal-para-identificacao-pet', 'pingente-de-couro-para-identificacao-pet-<cor>' e 'pingente-de-metal-com-couro-para-identificacao-pet-<cor>' no admin, cada um com variantes 'Cor do Metal', 'Formato' e 'Tamanho'."
+      },
+      {
+        "type": "textarea",
+        "id": "pingente_warning_text",
+        "label": "Texto de aviso abaixo do seletor de formato",
+        "default": "A cor do pingente corresponderá à cor do metal e dos detalhes da coleira escolhida."
       }
     ]
   },

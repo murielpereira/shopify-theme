@@ -450,6 +450,8 @@
         {%- endfor -%}
       {%- endfor -%}
 
+      {%- render 'pingente-customization', product: product -%}
+
       <!-- Quantidade -->
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
@@ -662,6 +664,8 @@
 
         const newActive = document.querySelector('#pdp-options-wrap .pdp__swatch--active');
         if (newActive?.dataset.mediaId) navigateGalleryToMedia(newActive.dataset.mediaId);
+
+        document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
       } catch (err) {
         console.warn('[pdp] refreshVariantSection failed', err);
       }
@@ -727,6 +731,15 @@
       });
       if (!cfValid) return;
 
+      /* Validate pingente (se cliente optou por adicionar) */
+      if (window.amePingente?.isActive()) {
+        const pv = window.amePingente.validate();
+        if (!pv.ok) {
+          alert(pv.msg);
+          return;
+        }
+      }
+
       const btn  = document.getElementById('pdp-add-btn');
       const orig = btn.innerHTML;
 
@@ -735,10 +748,36 @@
       btn.setAttribute('aria-busy', 'true');
 
       try {
+        /* Monta item da coleira a partir do form */
+        const form = e.target;
+        const coleiraId = form.querySelector('#pdp-variant-id')?.value;
+        const coleiraQty = parseInt(form.querySelector('#pdp-qty')?.value || '1', 10);
+        const coleiraProps = {};
+        form.querySelectorAll('[name^="properties["]').forEach(el => {
+          if (!el.value || !el.value.trim()) return;
+          const key = el.name.replace(/^properties\[/, '').replace(/\]$/, '');
+          coleiraProps[key] = el.value.trim();
+        });
+        const items = [{
+          id: coleiraId,
+          quantity: coleiraQty,
+          ...(Object.keys(coleiraProps).length ? { properties: coleiraProps } : {})
+        }];
+
+        /* Adiciona pingente como item separado, se aplicável */
+        if (window.amePingente?.isActive()) {
+          const pingenteItem = window.amePingente.getCartItem();
+          if (pingenteItem) items.push(pingenteItem);
+        }
+
         const res = await fetch('/cart/add.js', {
           method:  'POST',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          body:    new FormData(e.target),
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ items })
         });
 
         if (!res.ok) throw new Error('cart/add failed');

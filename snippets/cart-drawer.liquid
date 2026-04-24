@@ -88,6 +88,30 @@
                 <p class="ame-cart-item__variant">{{ item.variant.title }}</p>
               {%- endunless -%}
 
+              {%- if item.properties != blank -%}
+                {%- assign has_visible_props = false -%}
+                {%- for p in item.properties -%}
+                  {%- if p.last != blank and p.first != blank -%}
+                    {%- assign first_char = p.first | slice: 0 -%}
+                    {%- if first_char != '_' -%}
+                      {%- assign has_visible_props = true -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if has_visible_props -%}
+                  <ul class="ame-cart-item__props">
+                    {%- for p in item.properties -%}
+                      {%- if p.last != blank and p.first != blank -%}
+                        {%- assign first_char = p.first | slice: 0 -%}
+                        {%- unless first_char == '_' -%}
+                          <li><span class="ame-cart-item__prop-key">{{ p.first }}:</span> {{ p.last }}</li>
+                        {%- endunless -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              {%- endif -%}
+
               <div class="ame-cart-item__bottom">
                 <!-- Quantity stepper -->
                 <div class="ame-cart-item__qty" data-item-qty="{{ item.key }}">
