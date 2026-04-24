@@ -1,73 +1,255 @@
-{% comment %}
-  This section is used in the search template to render search results for
-  products, articles, and pages.
+{% comment %} Âme — Resultados da busca {% endcomment %}
 
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/search
-{% endcomment %}
-
-<h1>{{ 'search.title' | t }}</h1>
-
-<form action="{{ routes.search_url }}" method="get" role="search">
-  <input
-    type="search"
-    size="50"
-    name="q"
-    value="{{ search.terms | escape }}"
-    placeholder="{{ 'search.placeholder' | t }}"
-  >
-  <button type="submit">{{ 'search.submit' | t }}</button>
-</form>
-
-{% if search.performed %}
-  {% assign escaped_terms = search.terms | escape %}
-  {% if search.results_count == 0 %}
-    <p>{{ 'search.no_results_html' | t: terms: escaped_terms }}</p>
-  {% else %}
-    <p>{{ 'search.results_for_html' | t: terms: escaped_terms, count: search.results_count }}</p>
-
-    <div class="search-results">
-      {% paginate search.results by 20 %}
-        {% # Search result items may be an article, a page, or a product. %}
-        {% for result in search.results %}
-          <div class="search-result">
-            {% assign featured_image = result.featured_image | default: result.image %}
-            {% if featured_image %}
-              <a class="image search-result__image" href="{{ result.url }}">
-                {{ featured_image | image_url: width: 400 | image_tag: loading: 'lazy' }}
-              </a>
-            {% endif %}
-            <div class="search-result__content">
-              <p>
-                {{ result.title | link_to: result.url }}
-                {% if result.price %}
-                  {{ result.price | money_with_currency }}
-                {% endif %}
-              </p>
-            </div>
-          </div>
-        {% endfor %}
-
-        {{ paginate | default_pagination }}
-      {% endpaginate %}
+<header class="ame-search-page-header full-width">
+  <div class="ame-search-page-header__inner">
+    <div class="ame-fade-up ame-delay-1">
+      <p class="ame-label-sm">Busca</p>
+      {%- if search.performed -%}
+        <h1 class="ame-search-page-header__title">
+          Resultados para<br>
+          <em>&ldquo;{{ search.terms | escape }}&rdquo;</em>
+        </h1>
+      {%- else -%}
+        <h1 class="ame-search-page-header__title">
+          Encontre<br>
+          <em>o que você busca.</em>
+        </h1>
+      {%- endif -%}
     </div>
-  {% endif %}
-{% endif %}
+  </div>
+
+  <form
+    action="{{ routes.search_url }}"
+    method="get"
+    class="ame-search-page-form ame-fade-up ame-delay-2"
+    role="search"
+  >
+    <input type="hidden" name="type" value="product">
+    <span class="material-symbols-outlined ame-search-page-form__icon" aria-hidden="true">search</span>
+    <input
+      type="search"
+      name="q"
+      value="{{ search.terms | escape }}"
+      placeholder="Buscar produtos..."
+      aria-label="Buscar"
+      autocomplete="off"
+      class="ame-search-page-form__input"
+    >
+    <button type="submit" class="ame-search-page-form__btn">
+      Buscar
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+    </button>
+  </form>
+
+  <div class="ame-search-page-header__divider"></div>
+</header>
+
+<div class="ame-search-page-main full-width">
+  {%- if search.performed -%}
+    {%- if search.results_count == 0 -%}
+      <div class="ame-search-page-empty ame-fade-up">
+        <span class="material-symbols-outlined ame-search-page-empty__icon" aria-hidden="true">search_off</span>
+        <h2 class="ame-search-page-empty__title">
+          Nenhum resultado para<br>
+          <em>&ldquo;{{ search.terms | escape }}&rdquo;</em>
+        </h2>
+        <p class="ame-search-page-empty__desc">
+          Tente outro termo ou navegue pelas coleções.
+        </p>
+        <a href="{{ routes.all_products_collection_url }}" class="ame-cta">
+          Ver todos os produtos
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    {%- else -%}
+      <p class="ame-col-count">
+        {{ search.results_count }}
+        {% if search.results_count == 1 %}resultado{% else %}resultados{% endif %}
+      </p>
+
+      {%- paginate search.results by section.settings.products_per_page -%}
+        <div class="ame-col-grid" style="--grid-cols: {{ section.settings.cols_desktop }};">
+          {%- for result in search.results -%}
+            {%- if result.object_type == 'product' -%}
+              {%- render 'product-card', card_product: result -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <div class="ame-col-pagination">{{ paginate | default_pagination: anchor: '' }}</div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    {%- endif -%}
+  {%- else -%}
+    <div class="ame-search-page-placeholder ame-fade-up">
+      <p>Digite um termo acima para encontrar produtos.</p>
+    </div>
+  {%- endif -%}
+</div>
 
 {% stylesheet %}
-  .search-results {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  .ame-search-page-header {
+    padding: 2rem var(--page-margin, 2rem) 0;
   }
-  .search-results .prev,
-  .search-results .page,
-  .search-results .next {
-    grid-column: 1 / -1;
+  .ame-search-page-header__inner {
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto 2.5rem;
+  }
+  .ame-search-page-header__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 0.95;
+    color: var(--color-on-background, #201b14);
+    word-break: break-word;
+  }
+  .ame-search-page-header__title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-primary, #5a4742);
+  }
+
+  .ame-search-page-form {
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.625rem 0.625rem 1.25rem;
+    background: var(--color-surface-container, #f8ece0);
+    border: 1px solid rgba(210, 195, 192, 0.3);
+    border-radius: var(--radius-full, 0.75rem);
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .ame-search-page-form:focus-within {
+    border-color: var(--color-primary, #5a4742);
+    background: var(--color-surface-container-high, #f2e6da);
+  }
+  .ame-search-page-form__icon {
+    font-size: 1.25rem !important;
+    color: var(--color-on-surface-variant, #4f4442);
+    font-variation-settings: 'wght' 300;
+  }
+  .ame-search-page-form__input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem;
+    color: var(--color-on-background, #201b14);
+    padding: 0.25rem 0;
+  }
+  .ame-search-page-form__input::placeholder {
+    color: rgba(90, 71, 66, 0.45);
+  }
+  .ame-search-page-form__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-btn-primary-bg, var(--color-primary, #5a4742));
+    color: var(--color-btn-primary-text, #fff);
+    border: none;
+    border-radius: var(--radius-full, 0.75rem);
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ame-search-page-form__btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(32, 27, 20, 0.12);
+  }
+  .ame-search-page-form__btn .material-symbols-outlined {
+    font-size: 1rem !important;
+  }
+
+  .ame-search-page-header__divider {
+    max-width: var(--page-width, 120rem);
+    margin: 1.5rem auto 0;
+    height: 1px;
+    background: rgba(210, 195, 192, 0.2);
+  }
+
+  .ame-search-page-main {
+    padding: 3rem var(--page-margin, 2rem) var(--section-gap, 7.5rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ame-search-page-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    padding: 5rem 1rem;
+  }
+  .ame-search-page-empty__icon {
+    font-size: 3rem !important;
+    color: rgba(90, 71, 66, 0.35);
+    font-variation-settings: 'wght' 200;
+  }
+  .ame-search-page-empty__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-on-background, #201b14);
+    max-width: 28rem;
+  }
+  .ame-search-page-empty__title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-primary, #5a4742);
+  }
+  .ame-search-page-empty__desc {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.9375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    max-width: 24rem;
+    margin: 0;
+  }
+
+  .ame-search-page-placeholder {
+    padding: 4rem 0;
+    text-align: center;
+    color: rgba(90, 71, 66, 0.5);
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
   }
 {% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.search",
-  "settings": []
+  "name": "Busca",
+  "settings": [
+    {
+      "type": "range",
+      "id": "cols_desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "label": "Produtos por linha (desktop)",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "label": "Produtos por página",
+      "default": 12
+    }
+  ]
 }
 {% endschema %}

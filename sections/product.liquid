@@ -272,7 +272,10 @@
                     assign sw_variant = option_value.variant
                     assign sw_img = ''
                     assign sw_media_id = ''
-                    if sw_variant.featured_image != blank
+                    if sw_variant.featured_media != blank
+                      assign sw_img = sw_variant.featured_media.preview_image | image_url: width: 120
+                      assign sw_media_id = sw_variant.featured_media.id
+                    elsif sw_variant.featured_image != blank
                       assign sw_img = sw_variant.featured_image | image_url: width: 120
                       assign sw_media_id = sw_variant.featured_image.id
                     endif
@@ -284,8 +287,12 @@
                     data-option-value-id="{{ option_value.id }}"
                     aria-label="{{ option_value }}"
                     title="{{ option_value }}"
-                    {% if sw_media_id != '' %}data-media-id="{{ sw_media_id }}"{% endif %}
-                    {% unless option_value.available %}aria-disabled="true"{% endunless %}
+                    {% if sw_media_id != '' %}
+                      data-media-id="{{ sw_media_id }}"
+                    {% endif %}
+                    {% unless option_value.available %}
+                      aria-disabled="true"
+                    {% endunless %}
                   >
                     {%- if sw_img != '' -%}
                       <img
@@ -314,7 +321,9 @@
                     class="pdp__size-btn{% if option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
                     data-value="{{ option_value | escape }}"
                     data-option-value-id="{{ option_value.id }}"
-                    {% unless option_value.available %}aria-disabled="true"{% endunless %}
+                    {% unless option_value.available %}
+                      aria-disabled="true"
+                    {% endunless %}
                   >
                     {{ option_value }}
                   </button>
@@ -329,32 +338,35 @@
       {%- for cf_tag_item in product.tags -%}
         {%- for cf_i in (1..10) -%}
           {%- liquid
-            assign cf_en_key  = 'custom_field_' | append: cf_i | append: '_enable'
+            assign cf_en_key = 'custom_field_' | append: cf_i | append: '_enable'
             assign cf_tag_key = 'custom_field_' | append: cf_i | append: '_tag'
             assign cf_enabled = settings[cf_en_key]
             assign cf_cfg_tag = settings[cf_tag_key]
           -%}
           {%- if cf_enabled and cf_cfg_tag == cf_tag_item -%}
             {%- liquid
-              assign cf_nm_key  = 'custom_field_' | append: cf_i | append: '_name'
-              assign cf_tt_key  = 'custom_field_' | append: cf_i | append: '_title'
-              assign cf_hl_key  = 'custom_field_' | append: cf_i | append: '_helper'
-              assign cf_lm_key  = 'custom_field_' | append: cf_i | append: '_limiter'
-              assign cf_tp_key  = 'custom_field_' | append: cf_i | append: '_type'
-              assign cf_op_key  = 'custom_field_' | append: cf_i | append: '_options'
-              assign cf_rq_key  = 'custom_field_' | append: cf_i | append: '_required'
-              assign cf_name    = settings[cf_nm_key]
-              assign cf_title   = settings[cf_tt_key]
-              assign cf_helper  = settings[cf_hl_key]
+              assign cf_nm_key = 'custom_field_' | append: cf_i | append: '_name'
+              assign cf_tt_key = 'custom_field_' | append: cf_i | append: '_title'
+              assign cf_hl_key = 'custom_field_' | append: cf_i | append: '_helper'
+              assign cf_lm_key = 'custom_field_' | append: cf_i | append: '_limiter'
+              assign cf_tp_key = 'custom_field_' | append: cf_i | append: '_type'
+              assign cf_op_key = 'custom_field_' | append: cf_i | append: '_options'
+              assign cf_rq_key = 'custom_field_' | append: cf_i | append: '_required'
+              assign cf_name = settings[cf_nm_key]
+              assign cf_title = settings[cf_tt_key]
+              assign cf_helper = settings[cf_hl_key]
               assign cf_limiter = settings[cf_lm_key]
-              assign cf_type    = settings[cf_tp_key]
+              assign cf_type = settings[cf_tp_key]
               assign cf_options = settings[cf_op_key]
-              assign cf_req     = settings[cf_rq_key]
+              assign cf_req = settings[cf_rq_key]
             -%}
             <div class="pdp__custom-field">
               {%- if cf_type == 'text' or cf_type == 'date' -%}
                 <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
-                  {{- cf_title -}}{%- if cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                  {{- cf_title -}}
+                  {%- if cf_req -%}
+                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+                  {%- endif -%}
                 </label>
                 <input
                   id="cf-{{ cf_name | handle }}"
@@ -362,8 +374,12 @@
                   name="properties[{{ cf_name }}]"
                   placeholder="{{ cf_title }}"
                   class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}"
-                  {%- if cf_req %} data-cf-required="true"{% endif %}
-                  {%- if cf_limiter != blank %} maxlength="{{ cf_limiter }}"{% endif %}
+                  {%- if cf_req %}
+                    data-cf-required="true"
+                  {% endif %}
+                  {%- if cf_limiter != blank %}
+                    maxlength="{{ cf_limiter }}"
+                  {% endif %}
                 >
                 {%- if cf_helper != blank -%}
                   <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
@@ -373,15 +389,22 @@
                 {%- endif -%}
               {%- elsif cf_type == 'long_text' -%}
                 <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
-                  {{- cf_title -}}{%- if cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                  {{- cf_title -}}
+                  {%- if cf_req -%}
+                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+                  {%- endif -%}
                 </label>
                 <textarea
                   id="cf-{{ cf_name | handle }}"
                   name="properties[{{ cf_name }}]"
                   placeholder="{{ cf_title }}"
                   class="pdp__custom-field__textarea"
-                  {%- if cf_req %} data-cf-required="true"{% endif %}
-                  {%- if cf_limiter != blank %} maxlength="{{ cf_limiter }}"{% endif %}
+                  {%- if cf_req %}
+                    data-cf-required="true"
+                  {% endif %}
+                  {%- if cf_limiter != blank %}
+                    maxlength="{{ cf_limiter }}"
+                  {% endif %}
                   rows="3"
                 ></textarea>
                 {%- if cf_helper != blank -%}
@@ -392,7 +415,10 @@
                 {%- endif -%}
               {%- elsif cf_type == 'radio' -%}
                 <div class="pdp__custom-field__label">
-                  {{- cf_title -}}{%- if cf_req %}<span class="pdp__custom-field__req" aria-hidden="true"> *</span>{%- endif -%}
+                  {{- cf_title -}}
+                  {%- if cf_req -%}
+                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+                  {%- endif -%}
                 </div>
                 <div class="pdp__custom-field__radio-group">
                   {%- assign cf_opts = cf_options | split: ',' -%}
@@ -408,7 +434,9 @@
                   name="properties[{{ cf_name }}]"
                   id="cf-hidden-{{ cf_name | handle }}"
                   class="pdp__custom-field__radio-val"
-                  {%- if cf_req %} data-cf-required="true"{% endif %}
+                  {%- if cf_req %}
+                    data-cf-required="true"
+                  {% endif %}
                 >
                 {%- if cf_helper != blank -%}
                   <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
@@ -466,25 +494,7 @@
           >
         </button>
       </div>
-
-      {{ form | payment_button }}
     {%- endform -%}
-
-    <!-- Selos de confiança -->
-    <div class="pdp__trust">
-      <div class="pdp__trust-item">
-        <span class="material-symbols-outlined" style="font-variation-settings:'wght' 250;">local_shipping</span>
-        <span>Frete grátis com embalagem bespoke</span>
-      </div>
-      <div class="pdp__trust-item">
-        <span class="material-symbols-outlined" style="font-variation-settings:'wght' 250;">autorenew</span>
-        <span>Devoluções grátis em 14 dias</span>
-      </div>
-      <div class="pdp__trust-item">
-        <span class="material-symbols-outlined" style="font-variation-settings:'wght' 250;">workspace_premium</span>
-        <span>Garantia vitalícia de artesanato</span>
-      </div>
-    </div>
   </div>
   <!-- /pdp__info -->
 </div>
@@ -787,7 +797,9 @@
     font-weight: 600;
   }
 
-  .pdp__custom-field__req { color: var(--color-primary, #5a4742); }
+  .pdp__custom-field__req {
+    color: var(--color-primary, #5a4742);
+  }
 
   .pdp__custom-field__input,
   .pdp__custom-field__textarea {
@@ -804,9 +816,14 @@
   }
 
   .pdp__custom-field__input:focus,
-  .pdp__custom-field__textarea:focus { border-color: var(--color-primary, #5a4742); }
+  .pdp__custom-field__textarea:focus {
+    border-color: var(--color-primary, #5a4742);
+  }
 
-  .pdp__custom-field__textarea { resize: vertical; min-height: 5rem; }
+  .pdp__custom-field__textarea {
+    resize: vertical;
+    min-height: 5rem;
+  }
 
   .pdp__custom-field__helper {
     font-size: 0.75rem;
@@ -815,7 +832,11 @@
     margin: 0;
   }
 
-  .pdp__custom-field__radio-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .pdp__custom-field__radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 
   .pdp__custom-field__radio-btn {
     padding: 0.5rem 1rem;
@@ -835,7 +856,9 @@
     background: var(--color-surface-container, #f8ece0);
   }
 
-  .pdp__custom-field__radio-btn.is-selected { font-weight: 600; }
+  .pdp__custom-field__radio-btn.is-selected {
+    font-weight: 600;
+  }
 
   .pdp__custom-field__error-msg {
     font-size: 0.75rem;
@@ -844,9 +867,13 @@
     display: none;
   }
 
-  .pdp__custom-field--error .pdp__custom-field__error-msg { display: block; }
+  .pdp__custom-field--error .pdp__custom-field__error-msg {
+    display: block;
+  }
 
-  .pdp__custom-field--error .pdp__custom-field__label { color: #c0392b; }
+  .pdp__custom-field--error .pdp__custom-field__label {
+    color: #c0392b;
+  }
 
   .pdp__custom-field--error .pdp__custom-field__input,
   .pdp__custom-field--error .pdp__custom-field__textarea {

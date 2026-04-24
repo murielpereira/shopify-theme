@@ -1013,9 +1013,19 @@ body::after {
 }
 
 @keyframes cart-shake {
-  0%, 100% { transform: translateX(0); }
-  25%       { transform: translateX(-4px); }
-  75%       { transform: translateX(4px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 .ame-cart-discount__feedback {
@@ -1909,7 +1919,7 @@ shopify-account {
     background: linear-gradient(to left, var(--color-background, #fff8f3) 40%, transparent);
   }
 
-  .pdp__thumbs-wrap.can-scroll-up   .pdp__thumbs-fade--top,
+  .pdp__thumbs-wrap.can-scroll-up .pdp__thumbs-fade--top,
   .pdp__thumbs-wrap.can-scroll-down .pdp__thumbs-fade--bottom {
     opacity: 1;
   }
@@ -2283,13 +2293,11 @@ shopify-account {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(
-    to top right,
-    transparent calc(50% - 1px),
-    rgba(90, 71, 66, 0.6) calc(50% - 1px),
-    rgba(90, 71, 66, 0.6) calc(50% + 1px),
-    transparent calc(50% + 1px)
-  );
+  background-image: linear-gradient(to top right,
+      transparent calc(50% - 1px),
+      rgba(90, 71, 66, 0.6) calc(50% - 1px),
+      rgba(90, 71, 66, 0.6) calc(50% + 1px),
+      transparent calc(50% + 1px));
   pointer-events: none;
 }
 
@@ -2551,4 +2559,8 @@ shopify-account {
   color: rgba(90, 71, 66, 0.5);
   display: block;
   margin-bottom: 0.5rem;
+}
+
+.account-button {
+  color: var(--color-primary) !important;
 }

@@ -55,7 +55,7 @@
             placeholder="Buscar produtos…"
             autocomplete="off"
             aria-label="Buscar"
-            data-search-input
+            data-predictive-input
           >
           <button
             type="button"
@@ -67,6 +67,15 @@
           </button>
         </form>
       </div>
+
+      <!-- Dropdown da busca preditiva (fora do search-wrap pra não ser clipado por overflow:hidden) -->
+      <div
+        class="ame-predictive"
+        data-predictive-dropdown
+        data-predictive-scope="desktop"
+        aria-live="polite"
+        hidden
+      ></div>
 
       <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
         <span class="material-symbols-outlined">search</span>
@@ -136,12 +145,18 @@
       placeholder="Buscar produtos…"
       autocomplete="off"
       aria-label="Buscar"
-      data-search-input-mobile
+      data-predictive-input
     >
     <button type="button" class="ame-search-form__close" aria-label="Fechar busca" data-search-close-mobile>
       <span class="material-symbols-outlined">close</span>
     </button>
   </form>
+  <div
+    class="ame-predictive ame-predictive--mobile"
+    data-predictive-dropdown
+    aria-live="polite"
+    hidden
+  ></div>
 </div>
 
 <!-- Mobile nav drawer (fora do grupo fixed) -->
@@ -160,6 +175,145 @@
   :root {
     --logo-width:  {{ logo_w }}px;
     --logo-height: {{ logo_h_max }}px;
+  }
+
+  /* ── Predictive search dropdown ── */
+  .ame-predictive {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: min(22rem, calc(100vw - 2rem));
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--color-background, #fff8f3);
+    border: 1px solid rgba(210, 195, 192, 0.3);
+    border-radius: var(--radius-lg, 0.5rem);
+    box-shadow: 0 20px 40px rgba(32, 27, 20, 0.12);
+    z-index: 90;
+    padding: 0.5rem;
+  }
+  .ame-predictive[hidden] { display: none; }
+
+  .ame-predictive--mobile {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin-top: 0.75rem;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
+
+  .ame-predictive__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .ame-predictive__item {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.625rem;
+    border-radius: var(--radius-md, 0.25rem);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s ease;
+  }
+  .ame-predictive__item:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
+
+  .ame-predictive__thumb {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-md, 0.25rem);
+    overflow: hidden;
+    background: var(--color-surface-container-highest, #ece1d5);
+  }
+  .ame-predictive__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ame-predictive__info {
+    flex: 1;
+    min-width: 0;
+  }
+  .ame-predictive__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 0.125rem;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .ame-predictive__price {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .ame-predictive__price s {
+    color: rgba(90, 71, 66, 0.45);
+    font-size: 0.6875rem;
+  }
+  .ame-predictive__price strong {
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+  }
+
+  .ame-predictive__all {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.875rem 0.625rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.2);
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .ame-predictive__all:hover {
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-predictive__all .material-symbols-outlined {
+    font-size: 1rem !important;
+  }
+
+  .ame-predictive__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+  }
+  .ame-predictive__empty .material-symbols-outlined {
+    font-size: 2rem !important;
+    color: rgba(90, 71, 66, 0.4);
+  }
+  .ame-predictive__empty p {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0;
   }
 {% endstyle %}
 
@@ -244,9 +398,9 @@
 
     /* ── Search: inline no desktop, overlay no mobile ── */
     const searchWrap = document.querySelector('[data-search-wrap]');
-    const searchInputInline = document.querySelector('[data-search-input]');
+    const searchInputInline = searchWrap?.querySelector('[data-predictive-input]');
     const searchCloseInline = document.querySelector('[data-search-close]');
-    const searchInputMobile = document.querySelector('[data-search-input-mobile]');
+    const searchInputMobile = searchOverlay?.querySelector('[data-predictive-input]');
     const searchCloseMobile = document.querySelector('[data-search-close-mobile]');
 
     const isDesktop = () => window.innerWidth >= 768;
@@ -265,6 +419,10 @@
       searchWrap?.classList.remove('is-open');
       searchOverlay?.classList.remove('is-open');
       searchOverlay?.setAttribute('aria-hidden', 'true');
+      document.querySelectorAll('[data-predictive-dropdown]').forEach(d => {
+        d.hidden = true;
+        d.innerHTML = '';
+      });
     }
 
     searchBtn?.addEventListener('click', () => {
@@ -277,6 +435,129 @@
     searchCloseMobile?.addEventListener('click', closeSearch);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSearch();
+    });
+
+    /* ── Predictive search (dropdown com sugestões em tempo real) ── */
+    const PREDICTIVE_LIMIT = 6;
+    const PREDICTIVE_DEBOUNCE_MS = 220;
+    const SHOP_CURRENCY_FORMAT = {{ shop.money_format | json }};
+    const moneyFmt = (cents) => {
+      if (window.Shopify?.formatMoney) return window.Shopify.formatMoney(cents, SHOP_CURRENCY_FORMAT);
+      return 'R$ ' + ((cents || 0) / 100).toFixed(2).replace('.', ',');
+    };
+
+    const escapeHTML = (str) => String(str ?? '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+
+    function renderPredictiveDropdown(dropdown, query, products) {
+      if (!dropdown) return;
+      if (!query.trim()) {
+        dropdown.hidden = true;
+        dropdown.innerHTML = '';
+        return;
+      }
+      if (!products || products.length === 0) {
+        dropdown.innerHTML = `
+          <div class="ame-predictive__empty">
+            <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+            <p>Nenhum produto encontrado para <strong>"${escapeHTML(query)}"</strong>.</p>
+          </div>
+        `;
+        dropdown.hidden = false;
+        return;
+      }
+      const items = products.map(p => {
+        const img = p.featured_image?.url || p.image || '';
+        const title = escapeHTML(p.title || '');
+        const url = p.url || '#';
+        const priceCents = p.price_min ?? p.price ?? 0;
+        const compareCents = p.compare_at_price_min ?? p.compare_at_price ?? 0;
+        const hasCompare = compareCents > priceCents;
+        return `
+          <a class="ame-predictive__item" href="${url}">
+            <div class="ame-predictive__thumb">
+              ${img ? `<img src="${img}" alt="${title}" loading="lazy">` : ''}
+            </div>
+            <div class="ame-predictive__info">
+              <p class="ame-predictive__title">${title}</p>
+              <p class="ame-predictive__price">
+                ${hasCompare ? `<s>${moneyFmt(compareCents)}</s>` : ''}
+                <strong>${moneyFmt(priceCents)}</strong>
+              </p>
+            </div>
+          </a>
+        `;
+      }).join('');
+
+      dropdown.innerHTML = `
+        <div class="ame-predictive__list">${items}</div>
+        <a class="ame-predictive__all" href="{{ routes.search_url }}?type=product&q=${encodeURIComponent(query)}">
+          Ver todos os resultados para "${escapeHTML(query)}"
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </a>
+      `;
+      dropdown.hidden = false;
+    }
+
+    async function fetchPredictive(query) {
+      const params = new URLSearchParams({
+        q: query,
+        'resources[type]': 'product',
+        'resources[limit]': String(PREDICTIVE_LIMIT),
+        'resources[options][unavailable_products]': 'last',
+      });
+      const res = await fetch(`/search/suggest.json?${params.toString()}`, {
+        headers: { Accept: 'application/json' },
+      });
+      if (!res.ok) throw new Error('suggest fetch failed');
+      const data = await res.json();
+      return data?.resources?.results?.products || [];
+    }
+
+    let predictiveTimer = null;
+    let predictiveAbort = null;
+
+    function bindPredictive(input) {
+      if (!input) return;
+      const dropdown = input.closest('[data-search-wrap], [data-search-overlay]')?.querySelector('[data-predictive-dropdown]');
+      if (!dropdown) return;
+
+      input.addEventListener('input', () => {
+        const query = input.value.trim();
+        clearTimeout(predictiveTimer);
+        predictiveAbort?.abort?.();
+
+        if (query.length < 2) {
+          dropdown.hidden = true;
+          dropdown.innerHTML = '';
+          return;
+        }
+
+        predictiveTimer = setTimeout(async () => {
+          try {
+            predictiveAbort = new AbortController();
+            const products = await fetchPredictive(query);
+            renderPredictiveDropdown(dropdown, query, products);
+          } catch (err) {
+            if (err.name !== 'AbortError') console.warn('[predictive]', err);
+          }
+        }, PREDICTIVE_DEBOUNCE_MS);
+      });
+
+      input.addEventListener('focus', () => {
+        if (input.value.trim().length >= 2 && dropdown.innerHTML) {
+          dropdown.hidden = false;
+        }
+      });
+    }
+
+    bindPredictive(searchInputInline);
+    bindPredictive(searchInputMobile);
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-search-wrap]') || e.target.closest('[data-search-overlay]')) return;
+      document.querySelectorAll('[data-predictive-dropdown]').forEach(d => { d.hidden = true; });
     });
 
     /* ── Mobile menu ── */

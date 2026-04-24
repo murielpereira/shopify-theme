@@ -20,7 +20,7 @@
     {%- if hero_video_id != '' -%}
       <iframe
         class="ame-hero__bg-video"
-        src="https://www.youtube.com/embed/{{ hero_video_id }}?autoplay=1&mute=1&loop=1&playlist={{ hero_video_id }}&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0"
+        src="https://www.youtube.com/embed/{{ hero_video_id }}?autoplay=1&mute=1&loop=1&playlist={{ hero_video_id }}&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&fs=0"
         frameborder="0"
         allow="autoplay; encrypted-media"
         allowfullscreen
@@ -133,13 +133,39 @@
 
   .ame-hero__bg-video {
     position: absolute;
-    top: 50%; left: 50%;
-    /* 16:9 pillar-box fill */
-    width: 177.8%; height: 100%;
-    min-width: 100%; min-height: 56.25vw;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    border: none; pointer-events: none;
+    border: none;
+    pointer-events: none;
     opacity: 0.9;
+    /* Cover 16:9 — cresce pro lado maior, evitando letterbox */
+    aspect-ratio: 16 / 9;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+  }
+
+  /* Máscara no topo — esconde o título do YouTube que aparece quando o vídeo está carregando/pausado */
+  .ame-hero__bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rem;
+    background: linear-gradient(
+      to bottom,
+      var(--color-background, #fff8f3) 0%,
+      color-mix(in srgb, var(--color-background, #fff8f3) 65%, transparent) 55%,
+      transparent 100%
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+  @media (max-width: 767px) {
+    .ame-hero__bg::before { height: 3.25rem; }
   }
 
   /* Fade cobre o lado esquerdo (conteúdo) de forma opaca e suave */
@@ -161,9 +187,9 @@
       background: linear-gradient(
         to top,
         var(--color-background, #fff8f3) 0%,
-        var(--color-background, #fff8f3) 25%,
-        color-mix(in srgb, var(--color-background, #fff8f3) 70%, transparent) 50%,
-        transparent 75%
+        color-mix(in srgb, var(--color-background, #fff8f3) 80%, transparent) 15%,
+        color-mix(in srgb, var(--color-background, #fff8f3) 35%, transparent) 40%,
+        transparent 65%
       );
     }
   }
