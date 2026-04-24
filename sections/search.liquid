@@ -19,10 +19,11 @@
 </form>
 
 {% if search.performed %}
+  {% assign escaped_terms = search.terms | escape %}
   {% if search.results_count == 0 %}
-    <p>{{ 'search.no_results_html' | t: terms: search.terms }}</p>
+    <p>{{ 'search.no_results_html' | t: terms: escaped_terms }}</p>
   {% else %}
-    <p>{{ 'search.results_for_html' | t: terms: search.terms, count: search.results_count }}</p>
+    <p>{{ 'search.results_for_html' | t: terms: escaped_terms, count: search.results_count }}</p>
 
     <div class="search-results">
       {% paginate search.results by 20 %}
