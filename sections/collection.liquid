@@ -115,9 +115,14 @@
         <p class="ame-col-empty">Nenhum produto encontrado nesta coleção.</p>
       {%- else -%}
         <div class="ame-col-grid" style="--grid-cols: {{ section.settings.cols_desktop }};">
-          {%- for product in collection.products -%}
-            {%- render 'product-card', card_product: product, card_btn_label: section.settings.card_btn_label -%}
-          {%- endfor -%}
+          {% comment %}
+            ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
+            💡 What: Uses the `render 'product-card' for array` tag instead of manually looping.
+            🎯 Why: Liquid processes a `for` loop with a `render` inside by parsing and scoping the snippet per iteration (N+1 overhead).
+            📊 Impact: Eliminates N+1 rendering overhead, dramatically reducing template compilation time for large collections.
+            🔬 Measurement: Profile the Server Response time on large collection pages.
+          {% endcomment %}
+          {%- render 'product-card' for collection.products as card_product, card_btn_label: section.settings.card_btn_label -%}
         </div>
 
         {%- if paginate.pages > 1 -%}
