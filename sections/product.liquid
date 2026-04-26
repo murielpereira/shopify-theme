@@ -549,9 +549,12 @@
       <h2 class="ame-pdp-related__title">Você Também Vai Amar.</h2>
     </div>
     <div class="ame-pdp-related__grid">
-      {%- for rec in recommendations.products limit: 4 -%}
-        {%- render 'product-card', card_product: rec -%}
-      {%- endfor -%}
+      {%- comment -%}
+        ⚡ Bolt: Slice recommendations array and use 'render ... for' syntax instead of 'for' loop.
+        Prevents N+1 rendering overhead to speed up the template compilation.
+      {%- endcomment -%}
+      {%- assign rec_products = recommendations.products | slice: 0, 4 -%}
+      {%- render 'product-card' for rec_products as card_product -%}
     </div>
   </div>
 {%- endif -%}

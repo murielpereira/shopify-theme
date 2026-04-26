@@ -69,11 +69,12 @@
 
       {%- paginate search.results by section.settings.products_per_page -%}
         <div class="ame-col-grid" style="--grid-cols: {{ section.settings.cols_desktop }};">
-          {%- for result in search.results -%}
-            {%- if result.object_type == 'product' -%}
-              {%- render 'product-card', card_product: result -%}
-            {%- endif -%}
-          {%- endfor -%}
+          {%- comment -%}
+            ⚡ Bolt: Use 'where' filter and 'render ... for' syntax instead of a 'for' loop.
+            Prevents N+1 rendering overhead to speed up the template compilation.
+          {%- endcomment -%}
+          {%- assign product_results = search.results | where: 'object_type', 'product' -%}
+          {%- render 'product-card' for product_results as card_product -%}
         </div>
 
         {%- if paginate.pages > 1 -%}

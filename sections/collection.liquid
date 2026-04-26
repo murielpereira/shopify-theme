@@ -115,9 +115,11 @@
         <p class="ame-col-empty">Nenhum produto encontrado nesta coleção.</p>
       {%- else -%}
         <div class="ame-col-grid" style="--grid-cols: {{ section.settings.cols_desktop }};">
-          {%- for product in collection.products -%}
-            {%- render 'product-card', card_product: product, card_btn_label: section.settings.card_btn_label -%}
-          {%- endfor -%}
+          {%- comment -%}
+            ⚡ Bolt: Use 'render ... for' syntax instead of 'for' loop to prevent N+1 rendering overhead.
+            Reduces template compilation time and speeds up server response time.
+          {%- endcomment -%}
+          {%- render 'product-card' for collection.products as card_product, card_btn_label: section.settings.card_btn_label -%}
         </div>
 
         {%- if paginate.pages > 1 -%}
