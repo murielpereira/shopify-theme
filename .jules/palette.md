@@ -9,3 +9,6 @@
 ## 2024-04-24 - Accessibility and Interactive States
 **Learning:** Add-to-cart button missed communicating async loading to screen readers, and wishlist button lacked `aria-pressed` semantic state for its toggle functionality.
 **Action:** Ensure async action buttons have `aria-busy="true"` added during requests and removed after completion/failure. Add `aria-pressed` and toggle it correctly for buttons acting as switches.
+## 2024-04-25 - Interactive Elements Accessibility
+**Learning:** Several interactive elements like `pdp__swatch`, `pdp__size-btn`, and `pdp__qty-btn` in the product page were missing `:focus-visible` styles, making keyboard navigation difficult. They only had hover or active state styles.
+**Action:** Always append `:focus-visible` states to `assets/critical.css` for custom UI interactive elements that act as buttons or radios but are not native inputs.
