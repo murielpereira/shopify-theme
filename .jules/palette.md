@@ -13,3 +13,6 @@
 ## $(date +%Y-%m-%d) - Unique ID Generation in Shopify Accordions
 **Learning:** When generating `id` attributes in Shopify for accessible linking (like `aria-controls`), relying purely on loop indices (`{{ forloop.index }}`) is insufficient because sections can be rendered multiple times on a page, causing ID collisions.
 **Action:** Always prefix dynamically generated IDs with `{{ section.id }}` (e.g., `id="accordion-{{ section.id }}-{{ forloop.index }}"`) to ensure global uniqueness and prevent accessibility regressions on pages with duplicate sections.
+## 2024-04-25 - Interactive Elements Accessibility
+**Learning:** Several interactive elements like `pdp__swatch`, `pdp__size-btn`, and `pdp__qty-btn` in the product page were missing `:focus-visible` styles, making keyboard navigation difficult. They only had hover or active state styles.
+**Action:** Always append `:focus-visible` states to `assets/critical.css` for custom UI interactive elements that act as buttons or radios but are not native inputs.

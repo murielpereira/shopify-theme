@@ -100,11 +100,6 @@
       <label for="ame-pingente-tel">Telefone do tutor</label>
       <input type="tel" id="ame-pingente-tel" data-pingente-tel placeholder="11 99999-9999" maxlength="13" autocomplete="off" inputmode="numeric">
     </div>
-
-    <div class="ame-pingente__field">
-      <label for="ame-pingente-info">Informações adicionais</label>
-      <textarea id="ame-pingente-info" data-pingente-info rows="3" maxlength="300" placeholder="Raça, peso, idade, observações..."></textarea>
-    </div>
   </div>
 </section>
 
@@ -472,12 +467,17 @@
     /* ── Coleira selection ── */
     function readColeiraSelection() {
       const wrap = document.getElementById('pdp-options-wrap');
-      if (!wrap) return {};
-      const sel = {};
+      const sel = { cor: null, corMetal: null, tamanho: null, raw: {} };
+      if (!wrap) return sel;
       wrap.querySelectorAll('.pdp__option').forEach(opt => {
         const label = opt.querySelector('.pdp__option-label')?.textContent.trim();
         const active = opt.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
-        if (label && active) sel[label] = active.dataset.value;
+        if (!label || !active) return;
+        sel.raw[label] = active.dataset.value;
+        const norm = String(label).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+        if (norm === 'cor') sel.cor = active.dataset.value;
+        else if (norm === 'cor do metal' || norm === 'metal') sel.corMetal = active.dataset.value;
+        else if (norm === 'tamanho' || norm === 'size') sel.tamanho = active.dataset.value;
       });
       return sel;
     }
@@ -519,7 +519,8 @@
     async function handleTipoChange(tipo) {
       if (!tipo) return;
       const coleira = readColeiraSelection();
-      const handle = buildHandle(tipo, coleira['Cor']);
+      console.info('[pingente] coleira selection:', coleira);
+      const handle = buildHandle(tipo, coleira.cor);
       if (!handle) {
         setStatus('Selecione a cor da coleira antes de escolher o tipo do pingente.', true);
         state.product = null;
@@ -531,15 +532,17 @@
       setStatus('Carregando opções...', false);
       try {
         const res = await fetch(`/products/${handle}.js`, { headers: { Accept: 'application/json' } });
-        if (!res.ok) throw new Error('not found');
+        if (!res.ok) throw new Error(`Pingente product not found: ${handle} (status ${res.status})`);
         const product = await res.json();
+        console.info('[pingente] produto carregado:', { handle, options: product.options, variants_count: product.variants?.length });
         state.product = product;
         updateTipoPrice(tipo, product);
-        renderFormatos();
-        step3.hidden = false;
         setStatus('', false);
+        step3.hidden = false;
+        renderFormatos();
       } catch (err) {
-        setStatus('Pingente indisponível para a cor selecionada da coleira.', true);
+        console.warn('[pingente] erro ao carregar produto:', err);
+        setStatus('Pingente indisponível para a cor selecionada da coleira. Verifique se o produto pingente foi cadastrado com o handle correto.', true);
         state.product = null;
         state.variant = null;
         step3.hidden = true;
@@ -555,28 +558,38 @@
     }
 
     /* ── Passo 3: Formato ── */
+    function normalizeOptName(name) {
+      return String(name || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+    }
+
     function getOptionIndexes(product) {
       const optNames = (product.options || []).map(o => (typeof o === 'string' ? o : o.name));
+      const findIdx = (matchers) => optNames.findIndex(n => {
+        const norm = normalizeOptName(n);
+        return matchers.some(m => norm === m || norm.startsWith(m + ' ') || norm.endsWith(' ' + m) || norm.includes(' ' + m + ' '));
+      });
       return {
         names: optNames,
-        formato: optNames.findIndex(n => n.toLowerCase() === 'formato'),
-        corMetal: optNames.findIndex(n => n.toLowerCase() === 'cor do metal'),
-        tamanho: optNames.findIndex(n => n.toLowerCase() === 'tamanho'),
+        formato: findIdx(['formato']),
+        corMetal: findIdx(['cor do metal', 'metal']),
+        tamanho: findIdx(['tamanho', 'size']),
       };
     }
 
     function renderFormatos() {
       if (!state.product || !formatoGrid) return;
       const idx = getOptionIndexes(state.product);
+      console.info('[pingente] options index:', idx);
       if (idx.formato === -1) {
-        setStatus('Produto de pingente sem opção "Formato" cadastrada.', true);
+        const optNames = idx.names.join(', ') || '(nenhuma)';
+        setStatus(`Produto de pingente não tem option "Formato". Options atuais: ${optNames}. Cadastre o produto com options "Cor do Metal", "Formato" e "Tamanho".`, true);
         formatoGrid.innerHTML = '';
         return;
       }
 
       const coleira = readColeiraSelection();
-      const targetMetal = coleira['Cor do Metal'];
-      const targetTamanho = SIZE_MAP[coleira['Tamanho']] || null;
+      const targetMetal = coleira.corMetal;
+      const targetTamanho = SIZE_MAP[coleira.tamanho] || null;
 
       const html = FORMATOS.map(formato => {
         // Preferido: variante com formato + cor do metal certa
@@ -635,8 +648,8 @@
       }
       const idx = getOptionIndexes(state.product);
       const coleira = readColeiraSelection();
-      const targetMetal = coleira['Cor do Metal'];
-      const targetTamanho = SIZE_MAP[coleira['Tamanho']];
+      const targetMetal = coleira.corMetal;
+      const targetTamanho = SIZE_MAP[coleira.tamanho];
 
       const variant = state.product.variants.find(v => {
         if (v[`option${idx.formato + 1}`] !== state.formato) return false;
@@ -705,11 +718,9 @@
         const pet = petInput?.value.trim() || '';
         const tutor = root.querySelector('[data-pingente-tutor]')?.value.trim() || '';
         const tel = root.querySelector('[data-pingente-tel]')?.value.trim() || '';
-        const info = root.querySelector('[data-pingente-info]')?.value.trim() || '';
         const properties = { 'Nome do pet': pet };
         if (tutor) properties['Nome do tutor'] = tutor;
         if (tel) properties['Telefone do tutor'] = tel;
-        if (info) properties['Informações adicionais'] = info;
         return { id: state.variant.id, quantity: 1, properties };
       }
     };

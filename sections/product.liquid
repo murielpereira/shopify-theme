@@ -334,6 +334,8 @@
         {%- endfor -%}
       </div>
 
+      {%- render 'pingente-customization', product: product -%}
+
       <!-- ── Campos Personalizados ── -->
       {%- for cf_tag_item in product.tags -%}
         {%- for cf_i in (1..10) -%}
@@ -450,8 +452,6 @@
         {%- endfor -%}
       {%- endfor -%}
 
-      {%- render 'pingente-customization', product: product -%}
-
       <!-- Quantidade -->
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
@@ -549,9 +549,15 @@
       <h2 class="ame-pdp-related__title">Você Também Vai Amar.</h2>
     </div>
     <div class="ame-pdp-related__grid">
-      {%- for rec in recommendations.products limit: 4 -%}
-        {%- render 'product-card', card_product: rec -%}
-      {%- endfor -%}
+      {% comment %}
+        ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
+        💡 What: Pre-slices the recommendations to 4 products and uses the `render 'product-card' for array` tag instead of manually looping.
+        🎯 Why: Liquid processes a `for` loop with a `render` inside by parsing and scoping the snippet per iteration (N+1 overhead).
+        📊 Impact: Eliminates N+1 rendering overhead, improving product page rendering time.
+        🔬 Measurement: Profile the Server Response time on product pages.
+      {% endcomment %}
+      {%- assign limited_recs = recommendations.products | slice: 0, 4 -%}
+      {%- render 'product-card' for limited_recs as card_product -%}
     </div>
   </div>
 {%- endif -%}

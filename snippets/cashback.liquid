@@ -13,9 +13,10 @@
     assign cb_mode = cashback_mode | default: 'pdp'
 
     assign cb_value_cents = cashback_price | default: 0
-    assign cb_value_reais = cb_value_cents | times: cb_pct | divided_by: 10000.0
+    assign cb_cashback_cents = cb_value_cents | times: cb_pct | divided_by: 100
+    assign cb_min_cents = cb_min | times: 100
     assign cb_show_value = false
-    if cb_value_reais >= cb_min
+    if cb_cashback_cents >= cb_min_cents
       assign cb_show_value = true
     endif
   -%}
@@ -41,7 +42,7 @@
       {%- if cb_show_value -%}
         <strong class="ame-cashback__cifra">R$</strong>
         <strong class="ame-cashback__value" data-cashback-value>
-          {{- cb_value_reais | round: 1 | replace: '.', ',' -}}
+          {{- cb_cashback_cents | money_without_currency -}}
         </strong>
       {%- else -%}
         <strong class="ame-cashback__value" data-cashback-value>{{ cb_pct | round }}%</strong>
