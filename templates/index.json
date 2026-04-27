@@ -9,6 +9,48 @@
  */
 {
   "sections": {
+    "1777297182d3f231ef": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_92c48dc_NCPQcp": {
+          "type": "ai_gen_block_92c48dc",
+          "settings": {
+            "image_desktop": "shopify://shop_images/pYl1oq4kQo3UTJa8Icmdw_uOlPoJRi_00001_3.jpg",
+            "image_position": "center",
+            "height_mobile": 400,
+            "height_desktop": 600,
+            "show_overlay": true,
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.3,
+            "heading": "Para quem ama de verdade",
+            "text": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>",
+            "content_alignment_mobile": "center",
+            "content_vertical_alignment_mobile": "center",
+            "content_alignment_desktop": "flex-start",
+            "content_vertical_alignment_desktop": "flex-end",
+            "heading_color": "#ffffff",
+            "heading_size_mobile": 32,
+            "heading_size_desktop": 48,
+            "text_color": "#ffffff",
+            "text_size_mobile": 16,
+            "text_size_desktop": 18,
+            "button_text": "Explorar coleção",
+            "button_link": "",
+            "button_bg_color": "#ffffff",
+            "button_hover_bg_color": "#f8ece0",
+            "button_text_color": "#5a4742",
+            "button_text_size": 16,
+            "button_border_radius": 4
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_92c48dc_NCPQcp"
+      ],
+      "name": "Banner",
+      "settings": {}
+    },
     "hero": {
       "type": "home-hero",
       "blocks": {
@@ -31,6 +73,7 @@
         "stat-1",
         "stat-2"
       ],
+      "disabled": true,
       "settings": {
         "video_url": "https://www.youtube.com/watch?v=ze869tziyg4&t=60s&pp=ygUPZG9ncyBwbGF5aW5nIDRr0gcJCcMKAYcqIYzv",
         "eyebrow": "Heritage Series — 2024",
@@ -96,7 +139,7 @@
             "icon": "whatsapp",
             "label": "Dúvidas?",
             "sublabel": "Fale com a gente",
-            "link": ""
+            "link": "https://wa.me/5548991574943"
           }
         }
       },
@@ -109,6 +152,209 @@
         "item_h8Xb4Y"
       ],
       "name": "Barra de Diferenciais",
+      "settings": {}
+    },
+    "home_video_stories_MErTLy": {
+      "type": "home-video-stories",
+      "blocks": {
+        "video_9NCbzb": {
+          "type": "video",
+          "settings": {
+            "url": "",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_AttiH7": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/4iPWGkeJp3M",
+            "title": "Teste 1",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_JmNNLx": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/zNQ8UXn9BpY",
+            "title": "Teste 2",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_itxBrA": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/Ltr5dSFLrXs",
+            "title": "Teste 3",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_cnTReD": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/ZRgTFWjUaIM",
+            "title": "Teste 4",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_tP4rhQ": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/eU3h6sWw84M",
+            "title": "Teste 5",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_9NCbzb",
+        "video_AttiH7",
+        "video_JmNNLx",
+        "video_itxBrA",
+        "video_cnTReD",
+        "video_tP4rhQ"
+      ],
+      "name": "Vídeos (stories)",
+      "settings": {
+        "eyebrow": "",
+        "title": "Em movimento",
+        "subtitle": "",
+        "format": "stories",
+        "tamanho": 90,
+        "espacamento": 12,
+        "mostrar_titulo": true,
+        "border_type": "solida",
+        "espessura": 3,
+        "cor": "#5a4742",
+        "cor_fim": "#735e59",
+        "cor_3": "#dcc1ba",
+        "angulo": 135,
+        "autoplay": true,
+        "cta_default": "Ver mais"
+      }
+    },
+    "home_video_stories_pNn8UU": {
+      "type": "home-video-stories",
+      "blocks": {
+        "video_4xnDcG": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/4iPWGkeJp3M",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_9ApKnh": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/zNQ8UXn9BpY",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_WVK8cR": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/Ltr5dSFLrXs",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_hXUiAF": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/ZRgTFWjUaIM",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_KBX4NR": {
+          "type": "video",
+          "settings": {
+            "url": "https://www.youtube.com/shorts/eU3h6sWw84M",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_4xnDcG",
+        "video_9ApKnh",
+        "video_WVK8cR",
+        "video_hXUiAF",
+        "video_KBX4NR"
+      ],
+      "name": "Vídeos (stories)",
+      "settings": {
+        "eyebrow": "",
+        "title": "Em movimento",
+        "subtitle": "",
+        "format": "spotlight",
+        "tamanho": 70,
+        "espacamento": 12,
+        "mostrar_titulo": false,
+        "border_type": "solida",
+        "espessura": 3,
+        "cor": "#5a4742",
+        "cor_fim": "#735e59",
+        "cor_3": "#dcc1ba",
+        "angulo": 135,
+        "autoplay": true,
+        "cta_default": "Ver mais"
+      }
+    },
+    "1777314298a0e78e83": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_cbd3f16_FLFUQ3": {
+          "type": "ai_gen_block_cbd3f16",
+          "settings": {
+            "desktop_width_percent": 100,
+            "gap": 50,
+            "border_radius": 8,
+            "desktop_aspect_ratio": "16 / 9",
+            "mobile_aspect_ratio": "9 / 16",
+            "show_overlay": true,
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.3,
+            "text_alignment": "center",
+            "title_font": "covered_by_your_grace_n4",
+            "title_size": 32,
+            "title_color": "#ffffff",
+            "button_font": "anonymous_pro_n4",
+            "button_font_size": 16,
+            "button_bg_color": "#777777",
+            "button_hover_bg_color": "#735e59",
+            "button_text_color": "#ffffff",
+            "button_border_radius": 4,
+            "banner_1_image_desktop": "shopify://shop_images/cachorros_9937ea53-a440-4680-b4ac-a66114f32a03.png",
+            "banner_1_image_mobile": "shopify://shop_images/cachorros_9937ea53-a440-4680-b4ac-a66114f32a03.png",
+            "banner_1_title": "Para cães",
+            "banner_1_button_text": "Comprar agora",
+            "banner_1_button_link": "",
+            "banner_2_image_desktop": "shopify://shop_images/gatos_2f6c9afb-a454-43b4-a397-1813ed4709d2.png",
+            "banner_2_image_mobile": "shopify://shop_images/gatos_2f6c9afb-a454-43b4-a397-1813ed4709d2.png",
+            "banner_2_title": "Para gatos",
+            "banner_2_button_text": "Ver coleção",
+            "banner_2_button_link": ""
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_cbd3f16_FLFUQ3"
+      ],
       "settings": {}
     },
     "featured-collections": {
@@ -154,19 +400,12 @@
         "card-2",
         "card-3"
       ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Coleções em Destaque",
         "title": "Curado para Cada Silhueta.",
         "cta_label": "Ver Todas",
         "cta_url": ""
-      }
-    },
-    "collections_9ccN68": {
-      "type": "collections",
-      "name": "t:general.collections_grid",
-      "settings": {
-        "grid_item_width": "collections--full",
-        "grid_gap": 10
       }
     },
     "lookbook": {
@@ -196,6 +435,7 @@
         "img-2",
         "img-3"
       ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Lookbook 2024",
         "title": "O Atelier em Cena."
@@ -233,7 +473,7 @@
       ],
       "settings": {
         "eyebrow": "Nossa Filosofia",
-        "title": "<p>Elegância<br><em>Aerodinámica.</em></p>",
+        "title": "<p>Elegância<br/><em>Aerodinámica.</em></p>",
         "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos.</p>",
         "floating_eyebrow": "Satisfação",
         "floating_label": "98.7%",
@@ -250,10 +490,13 @@
     }
   },
   "order": [
+    "1777297182d3f231ef",
     "hero",
     "home_ad_bar_6pF6UL",
+    "home_video_stories_MErTLy",
+    "home_video_stories_pNn8UU",
+    "1777314298a0e78e83",
     "featured-collections",
-    "collections_9ccN68",
     "lookbook",
     "brand-story",
     "newsletter"
