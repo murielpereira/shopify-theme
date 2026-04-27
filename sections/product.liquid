@@ -549,9 +549,9 @@
       <h2 class="ame-pdp-related__title">Você Também Vai Amar.</h2>
     </div>
     <div class="ame-pdp-related__grid">
-      {%- for rec in recommendations.products limit: 4 -%}
-        {%- render 'product-card', card_product: rec -%}
-      {%- endfor -%}
+      {%- comment -%} ⚡ Bolt: Performance optimization to avoid N+1 snippet rendering bottleneck {%- endcomment -%}
+      {%- assign limited_recs = recommendations.products | slice: 0, 4 -%}
+      {%- render 'product-card' for limited_recs as card_product -%}
     </div>
   </div>
 {%- endif -%}
