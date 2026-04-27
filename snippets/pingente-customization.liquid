@@ -205,6 +205,15 @@
     border-color: var(--color-primary, #5a4742);
     background: rgba(90, 71, 66, 0.06);
   }
+  .ame-pingente__tipo-card.is-unavailable {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .ame-pingente__tipo-card.is-unavailable:hover {
+    transform: none;
+    border-color: var(--color-outline-variant, #d2c3c0);
+    background: rgba(255, 255, 255, 0.4);
+  }
 
   .ame-pingente__tipo-thumb {
     width: 100%;
@@ -454,6 +463,59 @@
       product: null,
       variant: null,
     };
+    const productCache = new Map();
+
+    async function fetchProduct(handle) {
+      if (!handle) return null;
+      if (productCache.has(handle)) return productCache.get(handle);
+      try {
+        const res = await fetch(`/products/${handle}.js`, { headers: { Accept: 'application/json' } });
+        if (!res.ok) {
+          productCache.set(handle, null);
+          return null;
+        }
+        const product = await res.json();
+        productCache.set(handle, product);
+        return product;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    async function loadTipoThumbs() {
+      const coleira = readColeiraSelection();
+      const tipos = ['metal', 'couro', 'metal-couro'];
+      await Promise.all(tipos.map(async tipo => {
+        const card = root.querySelector(`[data-pingente-tipo-card="${tipo}"]`);
+        if (!card) return;
+        const thumb = card.querySelector('[data-tipo-thumb]');
+        const priceEl = card.querySelector('[data-tipo-price]');
+        const radio = card.querySelector('[data-pingente-tipo]');
+
+        const handle = buildHandle(tipo, coleira.cor);
+        const product = handle ? await fetchProduct(handle) : null;
+
+        if (!product) {
+          card.classList.add('is-unavailable');
+          if (radio) radio.disabled = true;
+          if (priceEl) priceEl.textContent = '';
+          if (thumb) thumb.innerHTML = '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">block</span></span>';
+          return;
+        }
+
+        card.classList.remove('is-unavailable');
+        if (radio) radio.disabled = false;
+        const imgSrc = product.featured_image || (product.images && product.images[0]) || '';
+        if (thumb) {
+          if (imgSrc) {
+            thumb.innerHTML = `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(product.title || '')}" loading="lazy">`;
+          } else {
+            thumb.innerHTML = '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>';
+          }
+        }
+        if (priceEl && product.price) priceEl.textContent = '+ ' + moneyFmt(product.price);
+      }));
+    }
 
     /* ── DOM refs ── */
     const step2 = root.querySelector('[data-pingente-step="2"]');
@@ -501,8 +563,9 @@
           step3.hidden = true;
           step4.hidden = true;
           setStatus('');
-        } else if (state.tipo) {
-          handleTipoChange(state.tipo);
+        } else {
+          loadTipoThumbs();
+          if (state.tipo) handleTipoChange(state.tipo);
         }
       });
     });
@@ -530,24 +593,22 @@
         return;
       }
       setStatus('Carregando opções...', false);
-      try {
-        const res = await fetch(`/products/${handle}.js`, { headers: { Accept: 'application/json' } });
-        if (!res.ok) throw new Error(`Pingente product not found: ${handle} (status ${res.status})`);
-        const product = await res.json();
-        console.info('[pingente] produto carregado:', { handle, options: product.options, variants_count: product.variants?.length });
-        state.product = product;
-        updateTipoPrice(tipo, product);
-        setStatus('', false);
-        step3.hidden = false;
-        renderFormatos();
-      } catch (err) {
-        console.warn('[pingente] erro ao carregar produto:', err);
+      const product = await fetchProduct(handle);
+      if (!product) {
+        console.warn('[pingente] produto pingente não encontrado:', handle);
         setStatus('Pingente indisponível para a cor selecionada da coleira. Verifique se o produto pingente foi cadastrado com o handle correto.', true);
         state.product = null;
         state.variant = null;
         step3.hidden = true;
         step4.hidden = true;
+        return;
       }
+      console.info('[pingente] produto carregado:', { handle, options: product.options, variants_count: product.variants?.length });
+      state.product = product;
+      updateTipoPrice(tipo, product);
+      setStatus('', false);
+      step3.hidden = false;
+      renderFormatos();
     }
 
     function updateTipoPrice(tipo, product) {
@@ -693,8 +754,9 @@
 
     /* ── Re-validar quando variante da coleira muda ── */
     document.addEventListener('pdp:variant-changed', () => {
-      if (!state.opted || !state.tipo) return;
-      handleTipoChange(state.tipo);
+      if (!state.opted) return;
+      loadTipoThumbs();
+      if (state.tipo) handleTipoChange(state.tipo);
     });
 
     /* ── API pública pro submit do product form ── */

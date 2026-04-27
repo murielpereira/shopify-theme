@@ -349,6 +349,7 @@
             {%- liquid
               assign cf_nm_key = 'custom_field_' | append: cf_i | append: '_name'
               assign cf_tt_key = 'custom_field_' | append: cf_i | append: '_title'
+              assign cf_ph_key = 'custom_field_' | append: cf_i | append: '_placeholder'
               assign cf_hl_key = 'custom_field_' | append: cf_i | append: '_helper'
               assign cf_lm_key = 'custom_field_' | append: cf_i | append: '_limiter'
               assign cf_tp_key = 'custom_field_' | append: cf_i | append: '_type'
@@ -356,6 +357,7 @@
               assign cf_rq_key = 'custom_field_' | append: cf_i | append: '_required'
               assign cf_name = settings[cf_nm_key]
               assign cf_title = settings[cf_tt_key]
+              assign cf_placeholder = settings[cf_ph_key] | default: cf_title
               assign cf_helper = settings[cf_hl_key]
               assign cf_limiter = settings[cf_lm_key]
               assign cf_type = settings[cf_tp_key]
@@ -374,7 +376,7 @@
                   id="cf-{{ cf_name | handle }}"
                   type="text"
                   name="properties[{{ cf_name }}]"
-                  placeholder="{{ cf_title }}"
+                  placeholder="{{ cf_placeholder }}"
                   class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}"
                   {%- if cf_req %}
                     data-cf-required="true"
@@ -399,7 +401,7 @@
                 <textarea
                   id="cf-{{ cf_name | handle }}"
                   name="properties[{{ cf_name }}]"
-                  placeholder="{{ cf_title }}"
+                  placeholder="{{ cf_placeholder }}"
                   class="pdp__custom-field__textarea"
                   {%- if cf_req %}
                     data-cf-required="true"
