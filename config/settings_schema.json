@@ -36,8 +36,8 @@
         "type": "range",
         "id": "min_page_margin",
         "min": 16,
-        "max": 120,
-        "step": 8,
+        "max": 250,
+        "step": 6,
         "unit": "px",
         "label": "Margem lateral (desktop)",
         "default": 64
@@ -356,6 +356,20 @@
         "type": "checkbox",
         "id": "show_installments_link",
         "label": "Mostrar link 'Ver mais detalhes' no parcelamento",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Cor do Metal (swatches visuais)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Substitui o texto da option 'Cor do Metal' por uma bolinha colorida + nome (ex: ⚫ Grafite, 🟡 Ouro). Cores conhecidas: Grafite, Ouro, Prata, Rose. Outros valores caem para a cor padrão de superfície."
+      },
+      {
+        "type": "checkbox",
+        "id": "show_metal_color_swatches",
+        "label": "Exibir swatches visuais para 'Cor do Metal'",
         "default": true
       },
       {

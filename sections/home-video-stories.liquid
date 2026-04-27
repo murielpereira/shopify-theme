@@ -1,0 +1,274 @@
+{% comment %} Âme — Video Stories (configurável via blocks) {% endcomment %}
+
+<section class="ame-vs-section">
+  {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
+    <header class="ame-vs-section__header ame-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.title != blank -%}
+        <h2 class="ame-vs-section__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subtitle != blank -%}
+        <p class="ame-vs-section__subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </header>
+  {%- endif -%}
+
+  {%- if section.blocks.size > 0 -%}
+    {%- render 'video-stories',
+      videos: section.blocks,
+      source_type: 'blocks',
+      widget_id: section.id,
+      format: section.settings.format,
+      border_type: section.settings.border_type,
+      cor: section.settings.cor,
+      cor_fim: section.settings.cor_fim,
+      cor_3: section.settings.cor_3,
+      angulo: section.settings.angulo,
+      tamanho: section.settings.tamanho,
+      espessura: section.settings.espessura,
+      espacamento: section.settings.espacamento,
+      mostrar_titulo: section.settings.mostrar_titulo,
+      autoplay: section.settings.autoplay,
+      cta_default: section.settings.cta_default
+    -%}
+  {%- else -%}
+    <p class="ame-vs-section__empty">Adicione blocos de vídeo para preencher esta seção.</p>
+  {%- endif -%}
+</section>
+
+<style>
+  .ame-vs-section {
+    padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+  .ame-vs-section__header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .ame-vs-section__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--color-on-background, #201b14);
+    margin: 0;
+  }
+  .ame-vs-section__subtitle {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.9375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.6;
+    max-width: 36rem;
+    margin: 1rem auto 0;
+  }
+  .ame-vs-section__empty {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
+    color: rgba(90, 71, 66, 0.5);
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .ame-label-sm {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Vídeos (stories)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Cabeçalho (opcional)"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "format",
+      "label": "Formato de exibição",
+      "options": [
+        { "value": "stories",   "label": "Stories (círculos)" },
+        { "value": "carrossel", "label": "Carrossel (cards 9:16)" },
+        { "value": "spotlight", "label": "Destaque (cards 16:9 grandes)" }
+      ],
+      "default": "stories"
+    },
+    {
+      "type": "range",
+      "id": "tamanho",
+      "min": 50,
+      "max": 180,
+      "step": 5,
+      "unit": "px",
+      "label": "Tamanho do thumbnail",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "espacamento",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaçamento entre itens",
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "mostrar_titulo",
+      "label": "Mostrar título abaixo do thumbnail",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Borda"
+    },
+    {
+      "type": "select",
+      "id": "border_type",
+      "label": "Tipo de borda",
+      "options": [
+        { "value": "solida",  "label": "Sólida" },
+        { "value": "degrade", "label": "Degradê" }
+      ],
+      "default": "solida"
+    },
+    {
+      "type": "range",
+      "id": "espessura",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Espessura da borda",
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "cor",
+      "label": "Cor (1ª no degradê)",
+      "default": "#5a4742"
+    },
+    {
+      "type": "color",
+      "id": "cor_fim",
+      "label": "Cor final (2ª no degradê — só usada em degradê)",
+      "default": "#735e59"
+    },
+    {
+      "type": "color",
+      "id": "cor_3",
+      "label": "Terceira cor (opcional, só degradê)",
+      "default": "#dcc1ba"
+    },
+    {
+      "type": "range",
+      "id": "angulo",
+      "min": 0,
+      "max": 360,
+      "step": 5,
+      "unit": "°",
+      "label": "Ângulo do degradê",
+      "default": 135
+    },
+    {
+      "type": "header",
+      "content": "Reprodução"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Iniciar automaticamente ao abrir o player",
+      "info": "O vídeo abre mutado se autoplay estiver ativo (exigência dos navegadores).",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "cta_default",
+      "label": "Texto padrão do botão CTA",
+      "default": "Ver mais"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video",
+      "name": "Vídeo",
+      "settings": [
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL do vídeo",
+          "info": "Cole um link do YouTube (watch, youtu.be ou shorts) ou Vimeo."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título do vídeo"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Thumbnail customizada (opcional)",
+          "info": "Se vazio, o YouTube fornece a thumbnail automaticamente."
+        },
+        {
+          "type": "header",
+          "content": "Botão CTA (opcional)"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Texto do botão"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Link do botão"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [
+    {
+      "name": "Vídeos (stories)",
+      "settings": { "title": "Em movimento", "format": "stories" },
+      "blocks": [
+        { "type": "video" },
+        { "type": "video" },
+        { "type": "video" }
+      ]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

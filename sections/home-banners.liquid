@@ -1,0 +1,330 @@
+{% comment %} Âme — Banners de categoria (lado a lado) {% endcomment %}
+
+<section class="ame-banners">
+  {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
+    <header class="ame-banners__header ame-reveal">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.title != blank -%}
+        <h2 class="ame-banners__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subtitle != blank -%}
+        <p class="ame-banners__subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </header>
+  {%- endif -%}
+
+  {%- assign cols = section.blocks.size | at_most: section.settings.cols_desktop | at_least: 1 -%}
+
+  <div class="ame-banners__grid" style="--cols: {{ cols }};">
+    {%- for block in section.blocks -%}
+      {%- assign banner_url = block.settings.url | default: '#' -%}
+      {%- assign overlay = block.settings.overlay | default: 25 | divided_by: 100.0 -%}
+      {%- assign text_color = block.settings.text_color | default: '#ffffff' -%}
+      {%- assign align = block.settings.text_align | default: 'center' -%}
+
+      <a
+        href="{{ banner_url }}"
+        class="ame-banner ame-reveal"
+        style="--overlay: {{ overlay }}; --text-color: {{ text_color }}; --align: {{ align }};"
+        {{ block.shopify_attributes }}
+        aria-label="{{ block.settings.title | default: 'Banner' }}"
+      >
+        <div class="ame-banner__img-wrap">
+          {%- if block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'lazy',
+                class: 'ame-banner__img',
+                alt: block.settings.title | default: '' | escape
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'ame-banner__img ame-banner__img--placeholder' }}
+          {%- endif -%}
+          <div class="ame-banner__overlay" aria-hidden="true"></div>
+        </div>
+
+        <div class="ame-banner__caption">
+          {%- if block.settings.eyebrow != blank -%}
+            <p class="ame-banner__eyebrow">{{ block.settings.eyebrow }}</p>
+          {%- endif -%}
+          {%- if block.settings.title != blank -%}
+            <h3 class="ame-banner__title">{{ block.settings.title }}</h3>
+          {%- endif -%}
+          {%- if block.settings.cta_label != blank -%}
+            <span class="ame-banner__cta">
+              {{ block.settings.cta_label }}
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </span>
+          {%- endif -%}
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
+
+<style>
+  .ame-banners {
+    padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem);
+    max-width: var(--page-width, 120rem);
+    margin: 0 auto;
+  }
+
+  .ame-banners__header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .ame-banners__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    color: var(--color-on-background, #201b14);
+    margin: 0;
+  }
+  .ame-banners__subtitle {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.9375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.6;
+    max-width: 36rem;
+    margin: 1rem auto 0;
+  }
+
+  .ame-banners__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .ame-banners__grid {
+      grid-template-columns: repeat(var(--cols, 2), 1fr);
+    }
+  }
+
+  .ame-banner {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-lg, 0.5rem);
+    text-decoration: none;
+    color: var(--text-color, #fff);
+    background: var(--color-surface-container, #f8ece0);
+    transition: transform 0.6s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .ame-banner:hover { transform: translateY(-6px); }
+
+  .ame-banner__img-wrap {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .ame-banner__img-wrap { aspect-ratio: 5 / 4; }
+  }
+
+  .ame-banner__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.92;
+    transition: transform 1.1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .ame-banner__img--placeholder { opacity: 0.3; }
+  .ame-banner:hover .ame-banner__img { transform: scale(1.05); }
+
+  .ame-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(32, 27, 20, calc(var(--overlay, 0.25) + 0.1)) 0%, rgba(32, 27, 20, var(--overlay, 0.25)) 60%, rgba(32, 27, 20, calc(var(--overlay, 0.25) * 0.5)) 100%);
+    pointer-events: none;
+  }
+
+  .ame-banner__caption {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem 2rem 2.25rem;
+    text-align: var(--align, center);
+    align-items: center;
+    z-index: 1;
+  }
+  .ame-banner__caption[style*="--align: left"],
+  .ame-banner[style*="--align: left"] .ame-banner__caption { align-items: flex-start; text-align: left; }
+  .ame-banner[style*="--align: right"] .ame-banner__caption { align-items: flex-end; text-align: right; }
+
+  .ame-banner__eyebrow {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-color, #fff);
+    opacity: 0.7;
+    margin: 0 0 0.5rem;
+  }
+
+  .ame-banner__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: var(--text-color, #fff);
+    margin: 0 0 0.875rem;
+  }
+
+  .ame-banner__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-color, #fff);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    padding-bottom: 0.25rem;
+    transition: border-color 0.2s ease;
+  }
+  .ame-banner__cta .material-symbols-outlined {
+    font-size: 0.875rem !important;
+    transition: transform 0.3s ease;
+  }
+  .ame-banner:hover .ame-banner__cta { border-color: var(--text-color, #fff); }
+  .ame-banner:hover .ame-banner__cta .material-symbols-outlined { transform: translateX(3px); }
+
+  .ame-label-sm {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Banners de categoria",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Cabeçalho da seção (opcional)"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "cols_desktop",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Banners por linha (desktop)",
+      "default": 2
+    }
+  ],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "Banner",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Texto acima do título (opcional)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Para cachorros"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "Texto da CTA",
+          "default": "Explorar"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Estilo"
+        },
+        {
+          "type": "select",
+          "id": "text_align",
+          "label": "Alinhamento do texto",
+          "options": [
+            { "value": "left",   "label": "Esquerda" },
+            { "value": "center", "label": "Centro" },
+            { "value": "right",  "label": "Direita" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Cor do texto",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "overlay",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "label": "Escurecimento da imagem",
+          "default": 25
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Banners de categoria",
+      "blocks": [
+        { "type": "banner", "settings": { "title": "Para cachorros", "cta_label": "Explorar" } },
+        { "type": "banner", "settings": { "title": "Para gatos", "cta_label": "Explorar" } }
+      ]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

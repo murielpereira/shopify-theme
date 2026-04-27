@@ -1,28 +1,40 @@
 {% comment %} Âme — Barra de anúncios rotativa (fluxo normal — some ao rolar) {% endcomment %}
 
 {%- if section.blocks.size > 0 -%}
-  <div class="ame-announce" role="region" aria-label="Anúncios" data-announce style="top: 0">
+  {%- liquid
+    assign announce_bg = section.settings.bg_color | default: settings.color_announce_bg
+    assign announce_text = section.settings.text_color | default: settings.color_announce_text
+  -%}
+  <div
+    class="ame-announce"
+    role="region"
+    aria-label="Anúncios"
+    data-announce
+    style="top: 0; --color-announce-bg: {{ announce_bg }}; --color-announce-text: {{ announce_text }};"
+  >
     <div class="ame-announce__track" data-announce-track>
       {%- for block in section.blocks -%}
         <div
           class="ame-announce__slide{% if forloop.first %} ame-announce__slide--active{% endif %}"
           {{ block.shopify_attributes }}
         >
-          {%- if block.settings.link != blank -%}
-            <a href="{{ block.settings.link }}" class="ame-announce__link">
-          {%- endif -%}
+          <div class="ame-announce__inner" data-announce-inner>
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}" class="ame-announce__link">
+            {%- endif -%}
 
-          {%- if block.settings.icon != blank -%}
-            <span class="ame-announce__icon material-symbols-outlined" aria-hidden="true">
-              {{- block.settings.icon -}}
-            </span>
-          {%- endif -%}
+            {%- if block.settings.icon != blank -%}
+              <span class="ame-announce__icon material-symbols-outlined" aria-hidden="true">
+                {{- block.settings.icon -}}
+              </span>
+            {%- endif -%}
 
-          <span class="ame-announce__text">{{ block.settings.text }}</span>
+            <span class="ame-announce__text">{{ block.settings.text }}</span>
 
-          {%- if block.settings.link != blank -%}
-            </a>
-          {%- endif -%}
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- endif -%}
+          </div>
         </div>
       {%- endfor -%}
     </div>
@@ -44,14 +56,35 @@
   (() => {
     const slides = document.querySelectorAll('.ame-announce__slide');
     const dots   = document.querySelectorAll('[data-announce-dot]');
+
+    const baseInterval = {{ section.settings.speed | times: 1000 }};
+    const marqueeDuration = 14000;
+
+    function applyMarqueeIfNeeded(slide) {
+      if (!slide) return false;
+      const inner = slide.querySelector('[data-announce-inner]');
+      if (!inner) return false;
+      slide.classList.remove('is-marquee');
+      void slide.offsetWidth;
+      const slideWidth = slide.clientWidth;
+      const innerWidth = inner.scrollWidth;
+      const overflow = innerWidth > slideWidth - 32;
+      slide.classList.toggle('is-marquee', overflow);
+      return overflow;
+    }
+
+    if (slides.length === 0) return;
+    let current = 0;
+    applyMarqueeIfNeeded(slides[current]);
+
     if (slides.length <= 1) return;
 
-    let current = 0;
-    const interval = {{ section.settings.speed | times: 1000 }};
+    let timer = null;
 
     function goTo(next) {
       slides[current].classList.remove('ame-announce__slide--active');
       slides[current].classList.add('ame-announce__slide--exit');
+      slides[current].classList.remove('is-marquee');
       dots[current]?.classList.remove('ame-announce__dot--active');
 
       const prev = current;
@@ -60,9 +93,16 @@
       current = next % slides.length;
       slides[current].classList.add('ame-announce__slide--active');
       dots[current]?.classList.add('ame-announce__dot--active');
+
+      const isMarquee = applyMarqueeIfNeeded(slides[current]);
+      const duration = isMarquee ? marqueeDuration : baseInterval;
+      clearTimeout(timer);
+      timer = setTimeout(() => goTo(current + 1), duration);
     }
 
-    setInterval(() => goTo(current + 1), interval);
+    const initialMarquee = slides[current].classList.contains('is-marquee');
+    timer = setTimeout(() => goTo(current + 1), initialMarquee ? marqueeDuration : baseInterval);
+    window.addEventListener('resize', () => applyMarqueeIfNeeded(slides[current]), { passive: true });
   })();
 </script>
 
@@ -79,6 +119,26 @@
       "unit": "s",
       "label": "Tempo por anúncio",
       "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Cores"
+    },
+    {
+      "type": "paragraph",
+      "content": "Sobrescreve as cores globais da barra de anúncios definidas em Configurações do tema → Cores."
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Cor de fundo",
+      "default": "#5a4742"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Cor do texto",
+      "default": "#ffffff"
     }
   ],
   "blocks": [

@@ -82,11 +82,13 @@
       </button>
 
       {%- if shop.customer_accounts_enabled -%}
-        <shopify-account menu="{{ section.settings.customer_account_menu }}">
-          <button class="ame-header__icon-btn" aria-label="Minha conta">
-            <span class="material-symbols-outlined">person</span>
-          </button>
-        </shopify-account>
+        <a
+          href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+          class="ame-header__icon-btn"
+          aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
+        >
+          <span class="material-symbols-outlined">person</span>
+        </a>
       {%- endif -%}
 
       <button

@@ -7,786 +7,875 @@
 {% endcomment %}
 
 {%- if product.tags contains 'customizacao_pingente' -%}
+  <section class="ame-pingente" data-pingente>
+    <header class="ame-pingente__header">
+      <p class="ame-pingente__eyebrow">Personalização</p>
+      <h3 class="ame-pingente__title">Pingente de identificação</h3>
+    </header>
 
-<section class="ame-pingente" data-pingente>
-  <header class="ame-pingente__header">
-    <p class="ame-pingente__eyebrow">Personalização</p>
-    <h3 class="ame-pingente__title">Pingente de identificação</h3>
-  </header>
-
-  <!-- Passo 1: Sim / Não -->
-  <div class="ame-pingente__step" data-pingente-step="1">
-    <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado?</p>
-    <div class="ame-pingente__opt-row">
-      <label class="ame-pingente__opt">
-        <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
-        <span>Sim</span>
-      </label>
-      <label class="ame-pingente__opt">
-        <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt checked>
-        <span>Não</span>
-      </label>
-    </div>
-  </div>
-
-  <!-- Passo 2: Tipo -->
-  <div class="ame-pingente__step" data-pingente-step="2" hidden>
-    <p class="ame-pingente__step-label">Tipo do pingente</p>
-    <div class="ame-pingente__tipo-grid">
-      <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal">
-        <input type="radio" name="ame-pingente-tipo" value="metal" data-pingente-tipo>
-        <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-          <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-            <span class="material-symbols-outlined">image</span>
-          </span>
-        </div>
-        <span class="ame-pingente__tipo-name">Metal</span>
-        <span class="ame-pingente__tipo-price" data-tipo-price></span>
-      </label>
-      <label class="ame-pingente__tipo-card" data-pingente-tipo-card="couro">
-        <input type="radio" name="ame-pingente-tipo" value="couro" data-pingente-tipo>
-        <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-          <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-            <span class="material-symbols-outlined">image</span>
-          </span>
-        </div>
-        <span class="ame-pingente__tipo-name">Couro</span>
-        <span class="ame-pingente__tipo-price" data-tipo-price></span>
-      </label>
-      <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal-couro">
-        <input type="radio" name="ame-pingente-tipo" value="metal-couro" data-pingente-tipo>
-        <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-          <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-            <span class="material-symbols-outlined">image</span>
-          </span>
-        </div>
-        <span class="ame-pingente__tipo-name">Metal com Couro</span>
-        <span class="ame-pingente__tipo-price" data-tipo-price></span>
-      </label>
-    </div>
-    <p class="ame-pingente__status" data-pingente-status></p>
-  </div>
-
-  <!-- Passo 3: Formato -->
-  <div class="ame-pingente__step" data-pingente-step="3" hidden>
-    <p class="ame-pingente__step-label">Formato do pingente</p>
-    <div class="ame-pingente__formato-grid" data-pingente-formato-grid></div>
-    {%- if settings.pingente_warning_text != blank -%}
-      <p class="ame-pingente__warning">
-        <span class="material-symbols-outlined" aria-hidden="true">info</span>
-        <span>{{ settings.pingente_warning_text }}</span>
-      </p>
-    {%- endif -%}
-  </div>
-
-  <!-- Passo 4: Dados -->
-  <div class="ame-pingente__step" data-pingente-step="4" hidden>
-    <p class="ame-pingente__step-label">Informações para gravação</p>
-
-    <div class="ame-pingente__field">
-      <label for="ame-pingente-pet">
-        Nome do pet <span class="ame-pingente__req" aria-hidden="true">*</span>
-      </label>
-      <input type="text" id="ame-pingente-pet" data-pingente-pet maxlength="20" autocomplete="off" required>
-      <p class="ame-pingente__error" data-pingente-error-pet>Informe o nome do pet.</p>
+    <!-- Passo 1: Sim / Não -->
+    <div class="ame-pingente__step" data-pingente-step="1">
+      <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado?</p>
+      <div class="ame-pingente__opt-row">
+        <label class="ame-pingente__opt">
+          <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
+          <span>Sim</span>
+        </label>
+        <label class="ame-pingente__opt">
+          <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt checked>
+          <span>Não</span>
+        </label>
+      </div>
     </div>
 
-    <div class="ame-pingente__field">
-      <label for="ame-pingente-tutor">Nome do tutor</label>
-      <input type="text" id="ame-pingente-tutor" data-pingente-tutor maxlength="40" autocomplete="off">
+    <!-- Passo 2: Tipo -->
+    <div class="ame-pingente__step" data-pingente-step="2" hidden>
+      <p class="ame-pingente__step-label">Tipo do pingente</p>
+      <div class="ame-pingente__tipo-grid">
+        <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal">
+          <input type="radio" name="ame-pingente-tipo" value="metal" data-pingente-tipo>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
+              <span class="material-symbols-outlined">image</span>
+            </span>
+          </div>
+          <span class="ame-pingente__tipo-name">Metal</span>
+          <span class="ame-pingente__tipo-price" data-tipo-price></span>
+        </label>
+        <label class="ame-pingente__tipo-card" data-pingente-tipo-card="couro">
+          <input type="radio" name="ame-pingente-tipo" value="couro" data-pingente-tipo>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
+              <span class="material-symbols-outlined">image</span>
+            </span>
+          </div>
+          <span class="ame-pingente__tipo-name">Couro</span>
+          <span class="ame-pingente__tipo-price" data-tipo-price></span>
+        </label>
+        <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal-couro">
+          <input type="radio" name="ame-pingente-tipo" value="metal-couro" data-pingente-tipo>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
+              <span class="material-symbols-outlined">image</span>
+            </span>
+          </div>
+          <span class="ame-pingente__tipo-name">Metal com Couro</span>
+          <span class="ame-pingente__tipo-price" data-tipo-price></span>
+        </label>
+      </div>
+      <p class="ame-pingente__status" data-pingente-status></p>
     </div>
 
-    <div class="ame-pingente__field">
-      <label for="ame-pingente-tel">Telefone do tutor</label>
-      <input type="tel" id="ame-pingente-tel" data-pingente-tel placeholder="11 99999-9999" maxlength="13" autocomplete="off" inputmode="numeric">
+    <!-- Passo 3: Formato -->
+    <div class="ame-pingente__step" data-pingente-step="3" hidden>
+      <p class="ame-pingente__step-label">Formato do pingente</p>
+      <div class="ame-pingente__formato-grid" data-pingente-formato-grid></div>
+      {%- if settings.pingente_warning_text != blank -%}
+        <p class="ame-pingente__warning">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <span>{{ settings.pingente_warning_text }}</span>
+        </p>
+      {%- endif -%}
     </div>
-  </div>
-</section>
 
-<style>
-  .ame-pingente {
-    margin: 1.25rem 0 1.5rem;
-    padding: 1.25rem 1.25rem 1rem;
-    border: 1px solid rgba(210, 195, 192, 0.3);
-    border-radius: var(--radius-lg, 0.5rem);
-    background: linear-gradient(180deg, var(--color-surface-container, #f8ece0) 0%, transparent 100%);
-  }
+    <!-- Passo 4: Dados -->
+    <div class="ame-pingente__step" data-pingente-step="4" hidden>
+      <p class="ame-pingente__step-label">Informações para gravação</p>
 
-  .ame-pingente__header {
-    margin-bottom: 1rem;
-  }
-  .ame-pingente__eyebrow {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.55);
-    margin: 0 0 0.375rem;
-  }
-  .ame-pingente__title {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--color-on-background, #201b14);
-    margin: 0;
-  }
+      <div class="ame-pingente__field">
+        <label for="ame-pingente-pet"> Nome do pet <span class="ame-pingente__req" aria-hidden="true">*</span> </label>
+        <input type="text" id="ame-pingente-pet" data-pingente-pet maxlength="20" autocomplete="off" required>
+        <p class="ame-pingente__error" data-pingente-error-pet>Informe o nome do pet.</p>
+      </div>
 
-  .ame-pingente__step + .ame-pingente__step {
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid rgba(210, 195, 192, 0.25);
-  }
-  .ame-pingente__step[hidden] { display: none; }
+      <div class="ame-pingente__field">
+        <label for="ame-pingente-tutor">Nome do tutor</label>
+        <input type="text" id="ame-pingente-tutor" data-pingente-tutor maxlength="40" autocomplete="off">
+      </div>
 
-  .ame-pingente__step-label {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-on-surface-variant, #4f4442);
-    margin: 0 0 0.75rem;
-  }
+      <div class="ame-pingente__field">
+        <label for="ame-pingente-tel">Telefone do tutor</label>
+        <input
+          type="tel"
+          id="ame-pingente-tel"
+          data-pingente-tel
+          placeholder="11 99999-9999"
+          maxlength="13"
+          autocomplete="off"
+          inputmode="numeric"
+        >
+      </div>
+    </div>
+  </section>
 
-  /* Passo 1 — Sim / Não */
-  .ame-pingente__opt-row { display: flex; gap: 0.5rem; }
-  .ame-pingente__opt {
-    flex: 1;
-    cursor: pointer;
-    position: relative;
-  }
-  .ame-pingente__opt input { position: absolute; opacity: 0; inset: 0; }
-  .ame-pingente__opt span {
-    display: block;
-    padding: 0.75rem 1rem;
-    text-align: center;
-    background: transparent;
-    border: 1px solid var(--color-outline-variant, #d2c3c0);
-    border-radius: var(--radius-md, 4px);
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.8125rem;
-    color: var(--color-on-surface-variant, #4f4442);
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  }
-  .ame-pingente__opt input:checked + span {
-    border-color: var(--color-primary, #5a4742);
-    background: rgba(90, 71, 66, 0.06);
-    color: var(--color-primary, #5a4742);
-    font-weight: 500;
-  }
-  .ame-pingente__opt:hover span { border-color: var(--color-primary, #5a4742); }
-
-  /* Passo 2 — Tipo */
-  .ame-pingente__tipo-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.625rem;
-  }
-  @media (max-width: 480px) {
-    .ame-pingente__tipo-grid { gap: 0.5rem; }
-  }
-  .ame-pingente__tipo-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.75rem 0.5rem;
-    border: 1px solid var(--color-outline-variant, #d2c3c0);
-    border-radius: var(--radius-md, 4px);
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.4);
-    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-  }
-  .ame-pingente__tipo-card:hover { border-color: var(--color-primary, #5a4742); transform: translateY(-1px); }
-  .ame-pingente__tipo-card input { position: absolute; opacity: 0; inset: 0; }
-  .ame-pingente__tipo-card:has(input:checked) {
-    border-color: var(--color-primary, #5a4742);
-    background: rgba(90, 71, 66, 0.06);
-  }
-  .ame-pingente__tipo-card.is-unavailable {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-  .ame-pingente__tipo-card.is-unavailable:hover {
-    transform: none;
-    border-color: var(--color-outline-variant, #d2c3c0);
-    background: rgba(255, 255, 255, 0.4);
-  }
-
-  .ame-pingente__tipo-thumb {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-sm, 2px);
-    background: var(--color-surface-container-highest, #ece1d5);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .ame-pingente__tipo-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .ame-pingente__tipo-placeholder {
-    color: rgba(90, 71, 66, 0.3);
-  }
-  .ame-pingente__tipo-placeholder .material-symbols-outlined {
-    font-size: 1.5rem !important;
-    font-variation-settings: 'wght' 200;
-  }
-
-  .ame-pingente__tipo-name {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-align: center;
-    line-height: 1.2;
-    color: var(--color-on-background, #201b14);
-  }
-  .ame-pingente__tipo-price {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    color: var(--color-primary, #5a4742);
-    font-weight: 600;
-    min-height: 0.875rem;
-  }
-  .ame-pingente__tipo-price:empty { display: none; }
-
-  /* Passo 3 — Formato */
-  .ame-pingente__formato-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-  }
-  @media (max-width: 480px) {
-    .ame-pingente__formato-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  .ame-pingente__formato-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.5rem 0.375rem;
-    border: 1px solid var(--color-outline-variant, #d2c3c0);
-    border-radius: var(--radius-md, 4px);
-    cursor: pointer;
-    background: rgba(255, 255, 255, 0.4);
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-  .ame-pingente__formato-card:hover { border-color: var(--color-primary, #5a4742); }
-  .ame-pingente__formato-card input { position: absolute; opacity: 0; inset: 0; }
-  .ame-pingente__formato-card:has(input:checked) {
-    border-color: var(--color-primary, #5a4742);
-    background: rgba(90, 71, 66, 0.08);
-  }
-  .ame-pingente__formato-card.is-unavailable {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .ame-pingente__formato-card.is-unavailable::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-      to top right,
-      transparent calc(50% - 0.5px),
-      rgba(90, 71, 66, 0.4) calc(50% - 0.5px),
-      rgba(90, 71, 66, 0.4) calc(50% + 0.5px),
-      transparent calc(50% + 0.5px)
-    );
-    pointer-events: none;
-  }
-
-  .ame-pingente__formato-thumb {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-sm, 2px);
-    background: var(--color-surface-container-highest, #ece1d5);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .ame-pingente__formato-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .ame-pingente__formato-name {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    color: var(--color-on-background, #201b14);
-  }
-
-  .ame-pingente__warning {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin: 0.875rem 0 0;
-    padding: 0.625rem 0.75rem;
-    background: rgba(90, 71, 66, 0.06);
-    border-left: 2px solid var(--color-primary, #5a4742);
-    border-radius: 0 var(--radius-sm, 2px) var(--radius-sm, 2px) 0;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.75rem;
-    line-height: 1.5;
-    color: var(--color-on-surface-variant, #4f4442);
-  }
-  .ame-pingente__warning .material-symbols-outlined {
-    font-size: 1rem !important;
-    color: var(--color-primary, #5a4742);
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
-
-  /* Passo 4 — Campos */
-  .ame-pingente__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    margin-bottom: 0.875rem;
-  }
-  .ame-pingente__field:last-child { margin-bottom: 0; }
-  .ame-pingente__field label {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-on-surface-variant, #4f4442);
-    font-weight: 600;
-  }
-  .ame-pingente__req {
-    color: var(--color-primary, #5a4742);
-    margin-left: 0.1rem;
-  }
-  .ame-pingente__field input,
-  .ame-pingente__field textarea {
-    width: 100%;
-    padding: 0.625rem 0.875rem;
-    border: 1px solid var(--color-outline-variant, #d2c3c0);
-    border-radius: var(--radius-md, 4px);
-    background: rgba(255, 255, 255, 0.6);
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.875rem;
-    color: var(--color-on-background, #201b14);
-    outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
-    box-sizing: border-box;
-  }
-  .ame-pingente__field input:focus,
-  .ame-pingente__field textarea:focus {
-    border-color: var(--color-primary, #5a4742);
-    background: #fff;
-  }
-  .ame-pingente__field textarea { resize: vertical; min-height: 3.75rem; }
-
-  .ame-pingente__error {
-    display: none;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem;
-    color: #c0392b;
-    margin: 0;
-  }
-  .ame-pingente__field.is-invalid .ame-pingente__error { display: block; }
-  .ame-pingente__field.is-invalid input,
-  .ame-pingente__field.is-invalid textarea {
-    border-color: #c0392b;
-  }
-
-  .ame-pingente__status {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.75rem;
-    color: var(--color-on-surface-variant, #4f4442);
-    margin: 0.5rem 0 0;
-    min-height: 1rem;
-  }
-  .ame-pingente__status.is-error {
-    color: #c0392b;
-  }
-</style>
-
-<script>
-  (() => {
-    const root = document.querySelector('[data-pingente]');
-    if (!root) return;
-
-    const TIPO_HANDLE_PREFIX = {
-      'metal': 'pingente-de-metal-para-identificacao-pet',
-      'couro': 'pingente-de-couro-para-identificacao-pet-',
-      'metal-couro': 'pingente-de-metal-com-couro-para-identificacao-pet-',
-    };
-    const TIPO_NEEDS_COURO_COLOR = { 'metal': false, 'couro': true, 'metal-couro': true };
-    const SIZE_MAP = { 'XPP': 'P', 'XPP+': 'P', 'PP': 'P', 'P': 'P', 'M': 'G', 'G': 'G' };
-    const FORMATOS = ['Círculo', 'Coração', 'Flor', 'Osso'];
-
-    /* ── Helpers ── */
-    function slugify(str) {
-      return String(str || '')
-        .toLowerCase()
-        .normalize('NFD').replace(/\p{Diacritic}/gu, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-    }
-    function extractLastColor(cor) {
-      if (!cor) return '';
-      const parts = cor.split(/\s+com\s+/i).map(s => s.trim()).filter(Boolean);
-      return parts[parts.length - 1] || '';
-    }
-    function buildHandle(tipo, corDoCouro) {
-      if (!TIPO_NEEDS_COURO_COLOR[tipo]) return TIPO_HANDLE_PREFIX[tipo];
-      const slug = slugify(extractLastColor(corDoCouro));
-      if (!slug) return null;
-      return TIPO_HANDLE_PREFIX[tipo] + slug;
-    }
-    function moneyFmt(cents) {
-      if (window.Shopify?.formatMoney) return window.Shopify.formatMoney(cents);
-      return 'R$ ' + ((cents || 0) / 100).toFixed(2).replace('.', ',');
-    }
-    function escapeHTML(str) {
-      return String(str ?? '').replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      })[c]);
+  <style>
+    .ame-pingente {
+      margin: 1.25rem 0 1.5rem;
+      padding: 1.25rem 1.25rem 1rem;
+      border: 1px solid rgba(210, 195, 192, 0.3);
+      border-radius: var(--radius-lg, 0.5rem);
+      /*background: linear-gradient(180deg, var(--color-surface-container, #f8ece0) 0%, transparent 100%);*/
     }
 
-    /* ── State ── */
-    const state = {
-      opted: false,
-      tipo: null,
-      formato: null,
-      product: null,
-      variant: null,
-    };
-    const productCache = new Map();
+    .ame-pingente__header {
+      margin-bottom: 1rem;
+    }
+    .ame-pingente__eyebrow {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.625rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(90, 71, 66, 0.55);
+      margin: 0 0 0.375rem;
+    }
+    .ame-pingente__title {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--color-on-background, #201b14);
+      margin: 0;
+    }
 
-    async function fetchProduct(handle) {
-      if (!handle) return null;
-      if (productCache.has(handle)) return productCache.get(handle);
-      try {
-        const res = await fetch(`/products/${handle}.js`, { headers: { Accept: 'application/json' } });
-        if (!res.ok) {
-          productCache.set(handle, null);
-          return null;
-        }
-        const product = await res.json();
-        productCache.set(handle, product);
-        return product;
-      } catch (err) {
-        return null;
+    .ame-pingente__step + .ame-pingente__step {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(210, 195, 192, 0.25);
+    }
+    .ame-pingente__step[hidden] {
+      display: none;
+    }
+
+    .ame-pingente__step-label {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-on-surface-variant, #4f4442);
+      margin: 0 0 0.75rem;
+    }
+
+    /* Passo 1 — Sim / Não */
+    .ame-pingente__opt-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .ame-pingente__opt {
+      flex: 1;
+      cursor: pointer;
+      position: relative;
+    }
+    .ame-pingente__opt input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+    }
+    .ame-pingente__opt span {
+      display: block;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      background: transparent;
+      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      border-radius: var(--radius-md, 4px);
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.8125rem;
+      color: var(--color-on-surface-variant, #4f4442);
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .ame-pingente__opt input:checked + span {
+      border-color: var(--color-primary, #5a4742);
+      background: rgba(90, 71, 66, 0.06);
+      color: var(--color-primary, #5a4742);
+      font-weight: 500;
+    }
+    .ame-pingente__opt:hover span {
+      border-color: var(--color-primary, #5a4742);
+    }
+
+    /* Passo 2 — Tipo */
+    .ame-pingente__tipo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.625rem;
+    }
+    @media (max-width: 480px) {
+      .ame-pingente__tipo-grid {
+        gap: 0.5rem;
       }
     }
+    .ame-pingente__tipo-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.75rem 0.5rem;
+      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      border-radius: var(--radius-md, 4px);
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.4);
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+    .ame-pingente__tipo-card:hover {
+      border-color: var(--color-primary, #5a4742);
+      transform: translateY(-1px);
+    }
+    .ame-pingente__tipo-card input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+    }
+    .ame-pingente__tipo-card:has(input:checked) {
+      border-color: var(--color-primary, #5a4742);
+      background: rgba(90, 71, 66, 0.06);
+    }
+    .ame-pingente__tipo-card.is-unavailable {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .ame-pingente__tipo-card.is-unavailable:hover {
+      transform: none;
+      border-color: var(--color-outline-variant, #d2c3c0);
+      background: rgba(255, 255, 255, 0.4);
+    }
 
-    async function loadTipoThumbs() {
-      const coleira = readColeiraSelection();
-      const tipos = ['metal', 'couro', 'metal-couro'];
-      await Promise.all(tipos.map(async tipo => {
-        const card = root.querySelector(`[data-pingente-tipo-card="${tipo}"]`);
-        if (!card) return;
-        const thumb = card.querySelector('[data-tipo-thumb]');
-        const priceEl = card.querySelector('[data-tipo-price]');
-        const radio = card.querySelector('[data-pingente-tipo]');
+    .ame-pingente__tipo-thumb {
+      width: clamp(72px, 70%, 110px);
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius-sm, 2px);
+      background: var(--color-surface-container-highest, #ece1d5);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .ame-pingente__tipo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .ame-pingente__tipo-placeholder {
+      color: rgba(90, 71, 66, 0.3);
+    }
+    .ame-pingente__tipo-placeholder .material-symbols-outlined {
+      font-size: 1.5rem !important;
+      font-variation-settings: 'wght' 200;
+    }
 
-        const handle = buildHandle(tipo, coleira.cor);
-        const product = handle ? await fetchProduct(handle) : null;
+    .ame-pingente__tipo-name {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.2;
+      color: var(--color-on-background, #201b14);
+    }
+    .ame-pingente__tipo-price {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.6875rem;
+      color: var(--color-primary, #5a4742);
+      font-weight: 600;
+      min-height: 0.875rem;
+    }
+    .ame-pingente__tipo-price:empty {
+      display: none;
+    }
 
-        if (!product) {
-          card.classList.add('is-unavailable');
-          if (radio) radio.disabled = true;
-          if (priceEl) priceEl.textContent = '';
-          if (thumb) thumb.innerHTML = '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">block</span></span>';
-          return;
-        }
+    /* Passo 3 — Formato */
+    .ame-pingente__formato-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    @media (max-width: 480px) {
+      .ame-pingente__formato-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .ame-pingente__formato-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 0.375rem;
+      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      border-radius: var(--radius-md, 4px);
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.4);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .ame-pingente__formato-card:hover {
+      border-color: var(--color-primary, #5a4742);
+    }
+    .ame-pingente__formato-card input {
+      position: absolute;
+      opacity: 0;
+      inset: 0;
+    }
+    .ame-pingente__formato-card:has(input:checked) {
+      border-color: var(--color-primary, #5a4742);
+      background: rgba(90, 71, 66, 0.08);
+    }
+    .ame-pingente__formato-card.is-unavailable {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .ame-pingente__formato-card.is-unavailable::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(
+        to top right,
+        transparent calc(50% - 0.5px),
+        rgba(90, 71, 66, 0.4) calc(50% - 0.5px),
+        rgba(90, 71, 66, 0.4) calc(50% + 0.5px),
+        transparent calc(50% + 0.5px)
+      );
+      pointer-events: none;
+    }
 
-        card.classList.remove('is-unavailable');
-        if (radio) radio.disabled = false;
-        const imgSrc = product.featured_image || (product.images && product.images[0]) || '';
-        if (thumb) {
-          if (imgSrc) {
-            thumb.innerHTML = `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(product.title || '')}" loading="lazy">`;
-          } else {
-            thumb.innerHTML = '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>';
+    .ame-pingente__formato-thumb {
+      width: clamp(56px, 75%, 88px);
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius-sm, 2px);
+      background: var(--color-surface-container-highest, #ece1d5);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+    .ame-pingente__formato-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .ame-pingente__formato-name {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--color-on-background, #201b14);
+    }
+
+    .ame-pingente__warning {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin: 0.875rem 0 0;
+      padding: 0.625rem 0.75rem;
+      background: rgba(90, 71, 66, 0.06);
+      border-left: 2px solid var(--color-primary, #5a4742);
+      border-radius: 0 var(--radius-sm, 2px) var(--radius-sm, 2px) 0;
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: var(--color-on-surface-variant, #4f4442);
+    }
+    .ame-pingente__warning .material-symbols-outlined {
+      font-size: 1rem !important;
+      color: var(--color-primary, #5a4742);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    /* Passo 4 — Campos */
+    .ame-pingente__field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      margin-bottom: 0.875rem;
+    }
+    .ame-pingente__field:last-child {
+      margin-bottom: 0;
+    }
+    .ame-pingente__field label {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.6875rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-on-surface-variant, #4f4442);
+      font-weight: 600;
+    }
+    .ame-pingente__req {
+      color: var(--color-primary, #5a4742);
+      margin-left: 0.1rem;
+    }
+    .ame-pingente__field input,
+    .ame-pingente__field textarea {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      border-radius: var(--radius-md, 4px);
+      background: rgba(255, 255, 255, 0.6);
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.875rem;
+      color: var(--color-on-background, #201b14);
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      box-sizing: border-box;
+    }
+    .ame-pingente__field input:focus,
+    .ame-pingente__field textarea:focus {
+      border-color: var(--color-primary, #5a4742);
+      background: #fff;
+    }
+    .ame-pingente__field textarea {
+      resize: vertical;
+      min-height: 3.75rem;
+    }
+
+    .ame-pingente__error {
+      display: none;
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.6875rem;
+      color: #c0392b;
+      margin: 0;
+    }
+    .ame-pingente__field.is-invalid .ame-pingente__error {
+      display: block;
+    }
+    .ame-pingente__field.is-invalid input,
+    .ame-pingente__field.is-invalid textarea {
+      border-color: #c0392b;
+    }
+
+    .ame-pingente__status {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.75rem;
+      color: var(--color-on-surface-variant, #4f4442);
+      margin: 0.5rem 0 0;
+      min-height: 1rem;
+    }
+    .ame-pingente__status.is-error {
+      color: #c0392b;
+    }
+  </style>
+
+  <script>
+    (() => {
+      const root = document.querySelector('[data-pingente]');
+      if (!root) return;
+
+      const TIPO_HANDLE_PREFIX = {
+        metal: 'pingente-de-metal-para-identificacao-pet',
+        couro: 'pingente-de-couro-para-identificacao-pet-',
+        'metal-couro': 'pingente-de-metal-com-couro-para-identificacao-pet-',
+      };
+      const TIPO_NEEDS_COURO_COLOR = { metal: false, couro: true, 'metal-couro': true };
+      const SIZE_MAP = { XPP: 'P', 'XPP+': 'P', PP: 'P', P: 'P', M: 'G', G: 'G' };
+      const FORMATOS = ['Círculo', 'Coração', 'Flor', 'Osso'];
+
+      /* ── Helpers ── */
+      function slugify(str) {
+        return String(str || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+      function extractLastColor(cor) {
+        if (!cor) return '';
+        const parts = cor
+          .split(/\s+com\s+/i)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        return parts[parts.length - 1] || '';
+      }
+      function buildHandle(tipo, corDoCouro) {
+        if (!TIPO_NEEDS_COURO_COLOR[tipo]) return TIPO_HANDLE_PREFIX[tipo];
+        const slug = slugify(extractLastColor(corDoCouro));
+        if (!slug) return null;
+        return TIPO_HANDLE_PREFIX[tipo] + slug;
+      }
+      function moneyFmt(cents) {
+        if (window.Shopify?.formatMoney) return window.Shopify.formatMoney(cents);
+        return 'R$ ' + ((cents || 0) / 100).toFixed(2).replace('.', ',');
+      }
+      function escapeHTML(str) {
+        return String(str ?? '').replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            }[c])
+        );
+      }
+
+      /* ── State ── */
+      const state = {
+        opted: false,
+        tipo: null,
+        formato: null,
+        product: null,
+        variant: null,
+      };
+      const productCache = new Map();
+
+      async function fetchProduct(handle) {
+        if (!handle) return null;
+        if (productCache.has(handle)) return productCache.get(handle);
+        try {
+          const res = await fetch(`/products/${handle}.js`, { headers: { Accept: 'application/json' } });
+          if (!res.ok) {
+            productCache.set(handle, null);
+            return null;
           }
+          const product = await res.json();
+          productCache.set(handle, product);
+          return product;
+        } catch (err) {
+          return null;
         }
-        if (priceEl && product.price) priceEl.textContent = '+ ' + moneyFmt(product.price);
-      }));
-    }
+      }
 
-    /* ── DOM refs ── */
-    const step2 = root.querySelector('[data-pingente-step="2"]');
-    const step3 = root.querySelector('[data-pingente-step="3"]');
-    const step4 = root.querySelector('[data-pingente-step="4"]');
-    const formatoGrid = root.querySelector('[data-pingente-formato-grid]');
-    const statusEl = root.querySelector('[data-pingente-status]');
-    const phoneInput = root.querySelector('[data-pingente-tel]');
-    const petInput = root.querySelector('[data-pingente-pet]');
+      async function loadTipoThumbs() {
+        const coleira = readColeiraSelection();
+        const tipos = ['metal', 'couro', 'metal-couro'];
+        await Promise.all(
+          tipos.map(async (tipo) => {
+            const card = root.querySelector(`[data-pingente-tipo-card="${tipo}"]`);
+            if (!card) return;
+            const thumb = card.querySelector('[data-tipo-thumb]');
+            const priceEl = card.querySelector('[data-tipo-price]');
+            const radio = card.querySelector('[data-pingente-tipo]');
 
-    /* ── Coleira selection ── */
-    function readColeiraSelection() {
-      const wrap = document.getElementById('pdp-options-wrap');
-      const sel = { cor: null, corMetal: null, tamanho: null, raw: {} };
-      if (!wrap) return sel;
-      wrap.querySelectorAll('.pdp__option').forEach(opt => {
-        const label = opt.querySelector('.pdp__option-label')?.textContent.trim();
-        const active = opt.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
-        if (!label || !active) return;
-        sel.raw[label] = active.dataset.value;
-        const norm = String(label).toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
-        if (norm === 'cor') sel.cor = active.dataset.value;
-        else if (norm === 'cor do metal' || norm === 'metal') sel.corMetal = active.dataset.value;
-        else if (norm === 'tamanho' || norm === 'size') sel.tamanho = active.dataset.value;
+            const handle = buildHandle(tipo, coleira.cor);
+            const product = handle ? await fetchProduct(handle) : null;
+
+            if (!product) {
+              card.classList.add('is-unavailable');
+              if (radio) radio.disabled = true;
+              if (priceEl) priceEl.textContent = '';
+              if (thumb)
+                thumb.innerHTML =
+                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">block</span></span>';
+              return;
+            }
+
+            card.classList.remove('is-unavailable');
+            if (radio) radio.disabled = false;
+            const imgSrc = product.featured_image || (product.images && product.images[0]) || '';
+            if (thumb) {
+              if (imgSrc) {
+                thumb.innerHTML = `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(
+                  product.title || ''
+                )}" loading="lazy">`;
+              } else {
+                thumb.innerHTML =
+                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>';
+              }
+            }
+            if (priceEl && product.price) priceEl.textContent = '+ ' + moneyFmt(product.price);
+          })
+        );
+      }
+
+      /* ── DOM refs ── */
+      const step2 = root.querySelector('[data-pingente-step="2"]');
+      const step3 = root.querySelector('[data-pingente-step="3"]');
+      const step4 = root.querySelector('[data-pingente-step="4"]');
+      const formatoGrid = root.querySelector('[data-pingente-formato-grid]');
+      const statusEl = root.querySelector('[data-pingente-status]');
+      const phoneInput = root.querySelector('[data-pingente-tel]');
+      const petInput = root.querySelector('[data-pingente-pet]');
+
+      /* ── Coleira selection ── */
+      function readColeiraSelection() {
+        const wrap = document.getElementById('pdp-options-wrap');
+        const sel = { cor: null, corMetal: null, tamanho: null, raw: {} };
+        if (!wrap) return sel;
+        wrap.querySelectorAll('.pdp__option').forEach((opt) => {
+          const label = opt.querySelector('.pdp__option-label')?.textContent.trim();
+          const active = opt.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
+          if (!label || !active) return;
+          sel.raw[label] = active.dataset.value;
+          const norm = String(label)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '')
+            .trim();
+          if (norm === 'cor') sel.cor = active.dataset.value;
+          else if (norm === 'cor do metal' || norm === 'metal') sel.corMetal = active.dataset.value;
+          else if (norm === 'tamanho' || norm === 'size') sel.tamanho = active.dataset.value;
+        });
+        return sel;
+      }
+
+      function setStatus(msg, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+        statusEl.classList.toggle('is-error', !!isError);
+      }
+
+      /* ── Passo 1: Opt-in ── */
+      root.querySelectorAll('[data-pingente-opt]').forEach((r) => {
+        r.addEventListener('change', (e) => {
+          state.opted = e.target.value === 'sim';
+          step2.hidden = !state.opted;
+          if (!state.opted) {
+            state.tipo = null;
+            state.formato = null;
+            state.product = null;
+            state.variant = null;
+            step3.hidden = true;
+            step4.hidden = true;
+            setStatus('');
+          } else {
+            loadTipoThumbs();
+            if (state.tipo) handleTipoChange(state.tipo);
+          }
+        });
       });
-      return sel;
-    }
 
-    function setStatus(msg, isError) {
-      if (!statusEl) return;
-      statusEl.textContent = msg || '';
-      statusEl.classList.toggle('is-error', !!isError);
-    }
-
-    /* ── Passo 1: Opt-in ── */
-    root.querySelectorAll('[data-pingente-opt]').forEach(r => {
-      r.addEventListener('change', (e) => {
-        state.opted = e.target.value === 'sim';
-        step2.hidden = !state.opted;
-        if (!state.opted) {
-          state.tipo = null;
+      /* ── Passo 2: Tipo ── */
+      root.querySelectorAll('[data-pingente-tipo]').forEach((r) => {
+        r.addEventListener('change', (e) => {
+          state.tipo = e.target.value;
           state.formato = null;
+          handleTipoChange(state.tipo);
+        });
+      });
+
+      async function handleTipoChange(tipo) {
+        if (!tipo) return;
+        const coleira = readColeiraSelection();
+        console.info('[pingente] coleira selection:', coleira);
+        const handle = buildHandle(tipo, coleira.cor);
+        if (!handle) {
+          setStatus('Selecione a cor da coleira antes de escolher o tipo do pingente.', true);
           state.product = null;
           state.variant = null;
           step3.hidden = true;
           step4.hidden = true;
-          setStatus('');
-        } else {
-          loadTipoThumbs();
-          if (state.tipo) handleTipoChange(state.tipo);
+          return;
         }
-      });
-    });
-
-    /* ── Passo 2: Tipo ── */
-    root.querySelectorAll('[data-pingente-tipo]').forEach(r => {
-      r.addEventListener('change', (e) => {
-        state.tipo = e.target.value;
-        state.formato = null;
-        handleTipoChange(state.tipo);
-      });
-    });
-
-    async function handleTipoChange(tipo) {
-      if (!tipo) return;
-      const coleira = readColeiraSelection();
-      console.info('[pingente] coleira selection:', coleira);
-      const handle = buildHandle(tipo, coleira.cor);
-      if (!handle) {
-        setStatus('Selecione a cor da coleira antes de escolher o tipo do pingente.', true);
-        state.product = null;
-        state.variant = null;
-        step3.hidden = true;
-        step4.hidden = true;
-        return;
-      }
-      setStatus('Carregando opções...', false);
-      const product = await fetchProduct(handle);
-      if (!product) {
-        console.warn('[pingente] produto pingente não encontrado:', handle);
-        setStatus('Pingente indisponível para a cor selecionada da coleira. Verifique se o produto pingente foi cadastrado com o handle correto.', true);
-        state.product = null;
-        state.variant = null;
-        step3.hidden = true;
-        step4.hidden = true;
-        return;
-      }
-      console.info('[pingente] produto carregado:', { handle, options: product.options, variants_count: product.variants?.length });
-      state.product = product;
-      updateTipoPrice(tipo, product);
-      setStatus('', false);
-      step3.hidden = false;
-      renderFormatos();
-    }
-
-    function updateTipoPrice(tipo, product) {
-      const priceEl = root.querySelector(`[data-pingente-tipo-card="${tipo}"] [data-tipo-price]`);
-      if (priceEl && product?.price) {
-        priceEl.textContent = '+ ' + moneyFmt(product.price);
-      }
-    }
-
-    /* ── Passo 3: Formato ── */
-    function normalizeOptName(name) {
-      return String(name || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
-    }
-
-    function getOptionIndexes(product) {
-      const optNames = (product.options || []).map(o => (typeof o === 'string' ? o : o.name));
-      const findIdx = (matchers) => optNames.findIndex(n => {
-        const norm = normalizeOptName(n);
-        return matchers.some(m => norm === m || norm.startsWith(m + ' ') || norm.endsWith(' ' + m) || norm.includes(' ' + m + ' '));
-      });
-      return {
-        names: optNames,
-        formato: findIdx(['formato']),
-        corMetal: findIdx(['cor do metal', 'metal']),
-        tamanho: findIdx(['tamanho', 'size']),
-      };
-    }
-
-    function renderFormatos() {
-      if (!state.product || !formatoGrid) return;
-      const idx = getOptionIndexes(state.product);
-      console.info('[pingente] options index:', idx);
-      if (idx.formato === -1) {
-        const optNames = idx.names.join(', ') || '(nenhuma)';
-        setStatus(`Produto de pingente não tem option "Formato". Options atuais: ${optNames}. Cadastre o produto com options "Cor do Metal", "Formato" e "Tamanho".`, true);
-        formatoGrid.innerHTML = '';
-        return;
-      }
-
-      const coleira = readColeiraSelection();
-      const targetMetal = coleira.corMetal;
-      const targetTamanho = SIZE_MAP[coleira.tamanho] || null;
-
-      const html = FORMATOS.map(formato => {
-        // Preferido: variante com formato + cor do metal certa
-        let variant = state.product.variants.find(v => {
-          if (v[`option${idx.formato + 1}`] !== formato) return false;
-          if (idx.corMetal !== -1 && targetMetal && v[`option${idx.corMetal + 1}`] !== targetMetal) return false;
-          if (idx.tamanho !== -1 && targetTamanho && v[`option${idx.tamanho + 1}`] !== targetTamanho) return false;
-          return true;
+        setStatus('Carregando opções...', false);
+        const product = await fetchProduct(handle);
+        if (!product) {
+          console.warn('[pingente] produto pingente não encontrado:', handle);
+          setStatus(
+            'Pingente indisponível para a cor selecionada da coleira. Verifique se o produto pingente foi cadastrado com o handle correto.',
+            true
+          );
+          state.product = null;
+          state.variant = null;
+          step3.hidden = true;
+          step4.hidden = true;
+          return;
+        }
+        console.info('[pingente] produto carregado:', {
+          handle,
+          options: product.options,
+          variants_count: product.variants?.length,
         });
-        // Fallback: qualquer variante com esse formato (pra mostrar a imagem mesmo se indisponível)
-        const anyVariantOfFormato = state.product.variants.find(v => v[`option${idx.formato + 1}`] === formato);
-        const displayVariant = variant || anyVariantOfFormato;
-        const available = !!variant && variant.available;
+        state.product = product;
+        updateTipoPrice(tipo, product);
+        setStatus('', false);
+        step3.hidden = false;
+        renderFormatos();
+      }
 
-        const img = displayVariant?.featured_image?.src || state.product.featured_image || '';
+      function updateTipoPrice(tipo, product) {
+        const priceEl = root.querySelector(`[data-pingente-tipo-card="${tipo}"] [data-tipo-price]`);
+        if (priceEl && product?.price) {
+          priceEl.textContent = '+ ' + moneyFmt(product.price);
+        }
+      }
 
-        return `
-          <label class="ame-pingente__formato-card ${available ? '' : 'is-unavailable'}" data-formato-card="${escapeHTML(formato)}">
-            <input type="radio" name="ame-pingente-formato" value="${escapeHTML(formato)}" data-pingente-formato ${available ? '' : 'disabled'}>
+      /* ── Passo 3: Formato ── */
+      function normalizeOptName(name) {
+        return String(name || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .trim();
+      }
+
+      function getOptionIndexes(product) {
+        const optNames = (product.options || []).map((o) => (typeof o === 'string' ? o : o.name));
+        const findIdx = (matchers) =>
+          optNames.findIndex((n) => {
+            const norm = normalizeOptName(n);
+            return matchers.some(
+              (m) => norm === m || norm.startsWith(m + ' ') || norm.endsWith(' ' + m) || norm.includes(' ' + m + ' ')
+            );
+          });
+        return {
+          names: optNames,
+          formato: findIdx(['formato']),
+          corMetal: findIdx(['cor do metal', 'metal']),
+          tamanho: findIdx(['tamanho', 'size']),
+        };
+      }
+
+      function renderFormatos() {
+        if (!state.product || !formatoGrid) return;
+        const idx = getOptionIndexes(state.product);
+        console.info('[pingente] options index:', idx);
+        if (idx.formato === -1) {
+          const optNames = idx.names.join(', ') || '(nenhuma)';
+          setStatus(
+            `Produto de pingente não tem option "Formato". Options atuais: ${optNames}. Cadastre o produto com options "Cor do Metal", "Formato" e "Tamanho".`,
+            true
+          );
+          formatoGrid.innerHTML = '';
+          return;
+        }
+
+        const coleira = readColeiraSelection();
+        const targetMetal = coleira.corMetal;
+        const targetTamanho = SIZE_MAP[coleira.tamanho] || null;
+
+        const html = FORMATOS.map((formato) => {
+          // Preferido: variante com formato + cor do metal certa
+          let variant = state.product.variants.find((v) => {
+            if (v[`option${idx.formato + 1}`] !== formato) return false;
+            if (idx.corMetal !== -1 && targetMetal && v[`option${idx.corMetal + 1}`] !== targetMetal) return false;
+            if (idx.tamanho !== -1 && targetTamanho && v[`option${idx.tamanho + 1}`] !== targetTamanho) return false;
+            return true;
+          });
+          // Fallback: qualquer variante com esse formato (pra mostrar a imagem mesmo se indisponível)
+          const anyVariantOfFormato = state.product.variants.find((v) => v[`option${idx.formato + 1}`] === formato);
+          const displayVariant = variant || anyVariantOfFormato;
+          const available = !!variant && variant.available;
+
+          const img = displayVariant?.featured_image?.src || state.product.featured_image || '';
+
+          return `
+          <label class="ame-pingente__formato-card ${
+            available ? '' : 'is-unavailable'
+          }" data-formato-card="${escapeHTML(formato)}">
+            <input type="radio" name="ame-pingente-formato" value="${escapeHTML(formato)}" data-pingente-formato ${
+            available ? '' : 'disabled'
+          }>
             <div class="ame-pingente__formato-thumb">
               ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(formato)}" loading="lazy">` : ''}
             </div>
             <span class="ame-pingente__formato-name">${escapeHTML(formato)}</span>
           </label>
         `;
-      }).join('');
+        }).join('');
 
-      formatoGrid.innerHTML = html;
+        formatoGrid.innerHTML = html;
 
-      formatoGrid.querySelectorAll('[data-pingente-formato]').forEach(r => {
-        r.addEventListener('change', (e) => {
-          state.formato = e.target.value;
-          resolveVariant();
+        formatoGrid.querySelectorAll('[data-pingente-formato]').forEach((r) => {
+          r.addEventListener('change', (e) => {
+            state.formato = e.target.value;
+            resolveVariant();
+          });
         });
-      });
 
-      // Restaurar seleção anterior se o formato ainda estiver disponível
-      if (state.formato) {
-        const prev = formatoGrid.querySelector(`[value="${CSS.escape(state.formato)}"]:not(:disabled)`);
-        if (prev) {
-          prev.checked = true;
-          resolveVariant();
+        // Restaurar seleção anterior se o formato ainda estiver disponível
+        if (state.formato) {
+          const prev = formatoGrid.querySelector(`[value="${CSS.escape(state.formato)}"]:not(:disabled)`);
+          if (prev) {
+            prev.checked = true;
+            resolveVariant();
+            return;
+          }
+          state.formato = null;
+        }
+        step4.hidden = true;
+      }
+
+      /* ── Resolve final variant ── */
+      function resolveVariant() {
+        if (!state.product || !state.formato) {
+          state.variant = null;
+          step4.hidden = true;
           return;
         }
-        state.formato = null;
-      }
-      step4.hidden = true;
-    }
+        const idx = getOptionIndexes(state.product);
+        const coleira = readColeiraSelection();
+        const targetMetal = coleira.corMetal;
+        const targetTamanho = SIZE_MAP[coleira.tamanho];
 
-    /* ── Resolve final variant ── */
-    function resolveVariant() {
-      if (!state.product || !state.formato) {
-        state.variant = null;
-        step4.hidden = true;
-        return;
-      }
-      const idx = getOptionIndexes(state.product);
-      const coleira = readColeiraSelection();
-      const targetMetal = coleira.corMetal;
-      const targetTamanho = SIZE_MAP[coleira.tamanho];
+        const variant = state.product.variants.find((v) => {
+          if (v[`option${idx.formato + 1}`] !== state.formato) return false;
+          if (idx.corMetal !== -1 && targetMetal && v[`option${idx.corMetal + 1}`] !== targetMetal) return false;
+          if (idx.tamanho !== -1 && targetTamanho && v[`option${idx.tamanho + 1}`] !== targetTamanho) return false;
+          return true;
+        });
 
-      const variant = state.product.variants.find(v => {
-        if (v[`option${idx.formato + 1}`] !== state.formato) return false;
-        if (idx.corMetal !== -1 && targetMetal && v[`option${idx.corMetal + 1}`] !== targetMetal) return false;
-        if (idx.tamanho !== -1 && targetTamanho && v[`option${idx.tamanho + 1}`] !== targetTamanho) return false;
-        return true;
-      });
-
-      if (!variant || !variant.available) {
-        setStatus('Combinação de pingente indisponível (cor do metal ou tamanho).', true);
-        state.variant = null;
-        step4.hidden = true;
-        return;
-      }
-
-      state.variant = variant;
-      setStatus('', false);
-      step4.hidden = false;
-    }
-
-    /* ── Máscara de telefone ── */
-    if (phoneInput) {
-      phoneInput.addEventListener('input', (e) => {
-        const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
-        let formatted = digits;
-        if (digits.length > 7) {
-          formatted = `${digits.slice(0, 2)} ${digits.slice(2, 7)}-${digits.slice(7)}`;
-        } else if (digits.length > 2) {
-          formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+        if (!variant || !variant.available) {
+          setStatus('Combinação de pingente indisponível (cor do metal ou tamanho).', true);
+          state.variant = null;
+          step4.hidden = true;
+          return;
         }
-        e.target.value = formatted;
-      });
-    }
 
-    /* ── Limpa erro quando usuário digita ── */
-    if (petInput) {
-      petInput.addEventListener('input', () => {
-        petInput.closest('.ame-pingente__field')?.classList.remove('is-invalid');
-      });
-    }
-
-    /* ── Re-validar quando variante da coleira muda ── */
-    document.addEventListener('pdp:variant-changed', () => {
-      if (!state.opted) return;
-      loadTipoThumbs();
-      if (state.tipo) handleTipoChange(state.tipo);
-    });
-
-    /* ── API pública pro submit do product form ── */
-    window.amePingente = {
-      isActive() { return state.opted; },
-      validate() {
-        if (!state.opted) return { ok: true };
-        if (!state.tipo) return { ok: false, msg: 'Selecione o tipo do pingente.' };
-        if (!state.formato) return { ok: false, msg: 'Selecione o formato do pingente.' };
-        if (!state.variant) return { ok: false, msg: 'Combinação do pingente não está disponível.' };
-        const pet = petInput?.value.trim() || '';
-        if (!pet) {
-          petInput?.closest('.ame-pingente__field')?.classList.add('is-invalid');
-          petInput?.focus();
-          return { ok: false, msg: 'Informe o nome do pet.' };
-        }
-        return { ok: true };
-      },
-      getCartItem() {
-        if (!state.opted || !state.variant) return null;
-        const pet = petInput?.value.trim() || '';
-        const tutor = root.querySelector('[data-pingente-tutor]')?.value.trim() || '';
-        const tel = root.querySelector('[data-pingente-tel]')?.value.trim() || '';
-        const properties = { 'Nome do pet': pet };
-        if (tutor) properties['Nome do tutor'] = tutor;
-        if (tel) properties['Telefone do tutor'] = tel;
-        return { id: state.variant.id, quantity: 1, properties };
+        state.variant = variant;
+        setStatus('', false);
+        step4.hidden = false;
       }
-    };
-  })();
-</script>
 
+      /* ── Máscara de telefone ── */
+      if (phoneInput) {
+        phoneInput.addEventListener('input', (e) => {
+          const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+          let formatted = digits;
+          if (digits.length > 7) {
+            formatted = `${digits.slice(0, 2)} ${digits.slice(2, 7)}-${digits.slice(7)}`;
+          } else if (digits.length > 2) {
+            formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+          }
+          e.target.value = formatted;
+        });
+      }
+
+      /* ── Limpa erro quando usuário digita ── */
+      if (petInput) {
+        petInput.addEventListener('input', () => {
+          petInput.closest('.ame-pingente__field')?.classList.remove('is-invalid');
+        });
+      }
+
+      /* ── Re-validar quando variante da coleira muda ── */
+      document.addEventListener('pdp:variant-changed', () => {
+        if (!state.opted) return;
+        loadTipoThumbs();
+        if (state.tipo) handleTipoChange(state.tipo);
+      });
+
+      /* ── API pública pro submit do product form ── */
+      window.amePingente = {
+        isActive() {
+          return state.opted;
+        },
+        validate() {
+          if (!state.opted) return { ok: true };
+          if (!state.tipo) return { ok: false, msg: 'Selecione o tipo do pingente.' };
+          if (!state.formato) return { ok: false, msg: 'Selecione o formato do pingente.' };
+          if (!state.variant) return { ok: false, msg: 'Combinação do pingente não está disponível.' };
+          const pet = petInput?.value.trim() || '';
+          if (!pet) {
+            petInput?.closest('.ame-pingente__field')?.classList.add('is-invalid');
+            petInput?.focus();
+            return { ok: false, msg: 'Informe o nome do pet.' };
+          }
+          return { ok: true };
+        },
+        getCartItem() {
+          if (!state.opted || !state.variant) return null;
+          const pet = petInput?.value.trim() || '';
+          const tutor = root.querySelector('[data-pingente-tutor]')?.value.trim() || '';
+          const tel = root.querySelector('[data-pingente-tel]')?.value.trim() || '';
+          const properties = { 'Nome do pet': pet };
+          if (tutor) properties['Nome do tutor'] = tutor;
+          if (tel) properties['Telefone do tutor'] = tel;
+          return { id: state.variant.id, quantity: 1, properties };
+        },
+      };
+    })();
+  </script>
 {%- endif -%}

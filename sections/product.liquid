@@ -3,7 +3,42 @@
 {%- liquid
   assign cv = product.selected_or_first_available_variant
   assign media_size = product.media.size
+
+  assign pdp_videos_show = false
+  assign pdp_videos_count = 0
+  if section.settings.videos_enabled
+    for m in product.media
+      if m.media_type == 'video' or m.media_type == 'external_video'
+        assign pdp_videos_count = pdp_videos_count | plus: 1
+      endif
+    endfor
+    if pdp_videos_count > 0
+      assign pdp_videos_show = true
+    endif
+  endif
+  assign pdp_videos_pos = section.settings.videos_position | default: 'below-title'
 -%}
+
+{%- capture pdp_videos_widget -%}
+  {%- if pdp_videos_show -%}
+    {%- render 'video-stories',
+      videos: product.media,
+      source_type: 'media',
+      widget_id: 'pdp',
+      format: section.settings.videos_format,
+      border_type: section.settings.videos_border_type,
+      cor: section.settings.videos_cor,
+      cor_fim: section.settings.videos_cor_fim,
+      cor_3: section.settings.videos_cor_3,
+      angulo: section.settings.videos_angulo,
+      tamanho: section.settings.videos_tamanho,
+      espessura: section.settings.videos_espessura,
+      espacamento: section.settings.videos_espacamento,
+      mostrar_titulo: section.settings.videos_mostrar_titulo,
+      autoplay: section.settings.videos_autoplay
+    -%}
+  {%- endif -%}
+{%- endcapture -%}
 
 <!-- Breadcrumb -->
 <nav class="pdp-breadcrumb full-width" aria-label="Navegação">
@@ -130,8 +165,12 @@
       </div>
     {%- endif -%}
 
+    {%- if pdp_videos_pos == 'above-title' -%}{{ pdp_videos_widget }}{%- endif -%}
+
     <!-- Título -->
     <h1 class="pdp__title">{{ product.title }}</h1>
+
+    {%- if pdp_videos_pos == 'below-title' -%}{{ pdp_videos_widget }}{%- endif -%}
 
     <!-- Rating (placeholder — substituir por app) -->
     <div class="pdp__rating" aria-label="4.8 de 5 estrelas">
@@ -239,6 +278,8 @@
       </div>
     </div>
 
+    {%- if pdp_videos_pos == 'below-price' -%}{{ pdp_videos_widget }}{%- endif -%}
+
     <!-- ── Descrição curta ── -->
     {%- if product.description != blank -%}
       <div class="pdp__desc">{{ product.description }}</div>
@@ -255,6 +296,10 @@
             assign is_color = false
             if option.name == 'Color' or option.name == 'Cor' or option.name == 'Acabamento'
               assign is_color = true
+            endif
+            assign is_metal_color = false
+            if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
+              assign is_metal_color = true
             endif
           -%}
 
@@ -309,6 +354,29 @@
                         style="background:var(--swatch-{{ option_value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
                       ></span>
                     {%- endif -%}
+                  </button>
+                {%- endfor -%}
+              </div>
+            {%- elsif is_metal_color -%}
+              <!-- Botões com swatch de cor do metal -->
+              <div class="pdp__sizes pdp__sizes--metal" data-option-index="{{ forloop.index0 }}">
+                {%- for option_value in option.values -%}
+                  {%- assign metal_slug = option_value | downcase | replace: ' ', '-' -%}
+                  <button
+                    type="button"
+                    class="pdp__size-btn pdp__size-btn--metal{% if option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
+                    data-value="{{ option_value | escape }}"
+                    data-option-value-id="{{ option_value.id }}"
+                    {% unless option_value.available %}
+                      aria-disabled="true"
+                    {% endunless %}
+                  >
+                    <span
+                      class="pdp__metal-dot"
+                      aria-hidden="true"
+                      style="background:var(--metal-{{ metal_slug }}, var(--color-surface-container,#f8ece0));"
+                    ></span>
+                    {{ option_value }}
                   </button>
                 {%- endfor -%}
               </div>
@@ -471,6 +539,8 @@
           <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar">+</button>
         </div>
       </div>
+
+      {%- if pdp_videos_pos == 'above-cta' -%}{{ pdp_videos_widget }}{%- endif -%}
 
       <!-- CTAs -->
       <div class="pdp__ctas">
@@ -940,6 +1010,123 @@
       "type": "checkbox",
       "id": "show_related",
       "label": "Exibir produtos relacionados",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Vídeos do produto"
+    },
+    {
+      "type": "paragraph",
+      "content": "Detecta automaticamente os vídeos cadastrados em Mídia do produto (vídeos nativos Shopify ou links externos do YouTube/Vimeo) e renderiza como widget."
+    },
+    {
+      "type": "checkbox",
+      "id": "videos_enabled",
+      "label": "Exibir vídeos do produto",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "videos_position",
+      "label": "Posição na página",
+      "options": [
+        { "value": "above-title",  "label": "Acima do título" },
+        { "value": "below-title",  "label": "Abaixo do título" },
+        { "value": "below-price",  "label": "Abaixo do bloco de preços" },
+        { "value": "above-cta",    "label": "Acima do botão Adicionar ao Carrinho" }
+      ],
+      "default": "below-title"
+    },
+    {
+      "type": "select",
+      "id": "videos_format",
+      "label": "Formato",
+      "options": [
+        { "value": "stories",   "label": "Stories (círculos)" },
+        { "value": "carrossel", "label": "Carrossel (cards 9:16)" },
+        { "value": "spotlight", "label": "Destaque (cards 16:9 grandes)" }
+      ],
+      "default": "carrossel"
+    },
+    {
+      "type": "range",
+      "id": "videos_tamanho",
+      "min": 50,
+      "max": 180,
+      "step": 5,
+      "unit": "px",
+      "label": "Tamanho do thumbnail",
+      "default": 70
+    },
+    {
+      "type": "range",
+      "id": "videos_espacamento",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Espaçamento entre itens",
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "videos_mostrar_titulo",
+      "label": "Mostrar título abaixo do thumbnail",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "videos_border_type",
+      "label": "Tipo de borda",
+      "options": [
+        { "value": "solida",  "label": "Sólida" },
+        { "value": "degrade", "label": "Degradê" }
+      ],
+      "default": "solida"
+    },
+    {
+      "type": "range",
+      "id": "videos_espessura",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "label": "Espessura da borda",
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "videos_cor",
+      "label": "Cor (1ª no degradê)",
+      "default": "#5a4742"
+    },
+    {
+      "type": "color",
+      "id": "videos_cor_fim",
+      "label": "Cor final (2ª no degradê)",
+      "default": "#735e59"
+    },
+    {
+      "type": "color",
+      "id": "videos_cor_3",
+      "label": "Terceira cor (opcional)",
+      "default": "#dcc1ba"
+    },
+    {
+      "type": "range",
+      "id": "videos_angulo",
+      "min": 0,
+      "max": 360,
+      "step": 5,
+      "unit": "°",
+      "label": "Ângulo do degradê",
+      "default": 135
+    },
+    {
+      "type": "checkbox",
+      "id": "videos_autoplay",
+      "label": "Autoplay no player",
       "default": true
     }
   ],
