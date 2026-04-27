@@ -1,6 +1,487 @@
+{% doc %}
+  @prompt
+    Gere uma seção para adicionar 2 banners horizontais no desktop e 2 verticais no mobile, com titulo e botão para ação, onde eu posso escolher cores e fontes para personalizar o campo.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-dual-banners-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+  }
+
+  .ai-dual-banners__container-{{ ai_gen_id }} {
+    display: grid;
+    gap: {{ block.settings.gap }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-dual-banners__container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dual-banners__container-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ai-dual-banners__banner-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    border-radius: {{ block.settings.border_radius }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ai-dual-banners__banner-{{ ai_gen_id }} {
+      aspect-ratio: {{ block.settings.desktop_aspect_ratio }};
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dual-banners__banner-{{ ai_gen_id }} {
+      aspect-ratio: {{ block.settings.mobile_aspect_ratio }};
+    }
+  }
+
+  .ai-dual-banners__image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-dual-banners__placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-dual-banners__placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 300px;
+    max-height: 300px;
+  }
+
+  .ai-dual-banners__overlay-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: {{ block.settings.overlay_color }};
+    opacity: {{ block.settings.overlay_opacity }};
+  }
+
+  .ai-dual-banners__content-{{ ai_gen_id }} {
+    position: relative;
+    z-index: 2;
+    text-align: {{ block.settings.text_alignment }};
+    padding: 30px;
+    max-width: 600px;
+  }
+
+  .ai-dual-banners__title-{{ ai_gen_id }} {
+    margin: 0 0 15px;
+    font-family: {{ block.settings.title_font.family }}, {{ block.settings.title_font.fallback_families }};
+    font-weight: {{ block.settings.title_font.weight }};
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    line-height: 1.2;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dual-banners__title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+  }
+
+  .ai-dual-banners__button-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: {{ block.settings.button_border_radius }}px;
+    font-family: {{ block.settings.button_font.family }}, {{ block.settings.button_font.fallback_families }};
+    font-weight: {{ block.settings.button_font.weight }};
+    font-size: {{ block.settings.button_font_size }}px;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-dual-banners__button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dual-banners__button-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.button_font_size }}px * 0.9);
+      padding: 10px 20px;
+    }
+  }
+{% endstyle %}
+
+<dual-banners-{{ ai_gen_id }} class="ai-dual-banners-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-dual-banners__container-{{ ai_gen_id }}">
+    {% for i in (1..2) %}
+      {% liquid
+        assign image_key = 'banner_' | append: i | append: '_image_desktop'
+        assign image_mobile_key = 'banner_' | append: i | append: '_image_mobile'
+        assign title_key = 'banner_' | append: i | append: '_title'
+        assign button_text_key = 'banner_' | append: i | append: '_button_text'
+        assign button_link_key = 'banner_' | append: i | append: '_button_link'
+
+        assign desktop_image = block.settings[image_key]
+        assign mobile_image = block.settings[image_mobile_key]
+        assign title = block.settings[title_key]
+        assign button_text = block.settings[button_text_key]
+        assign button_link = block.settings[button_link_key]
+      %}
+
+      <div class="ai-dual-banners__banner-{{ ai_gen_id }}">
+        {% if desktop_image != blank %}
+          <picture>
+            {% if mobile_image != blank %}
+              <source media="(max-width: 749px)" srcset="{{ mobile_image | image_url: width: 800 }}">
+            {% endif %}
+            <img
+              src="{{ desktop_image | image_url: width: 1200 }}"
+              alt="{{ desktop_image.alt | escape }}"
+              loading="lazy"
+              width="{{ desktop_image.width }}"
+              height="{{ desktop_image.height }}"
+              class="ai-dual-banners__image-{{ ai_gen_id }}"
+            >
+          </picture>
+        {% else %}
+          <div class="ai-dual-banners__placeholder-{{ ai_gen_id }}">
+            {{ 'image' | placeholder_svg_tag }}
+          </div>
+        {% endif %}
+
+        {% if block.settings.show_overlay %}
+          <div class="ai-dual-banners__overlay-{{ ai_gen_id }}"></div>
+        {% endif %}
+
+        <div class="ai-dual-banners__content-{{ ai_gen_id }}">
+          {% if title != blank %}
+            <h2 class="ai-dual-banners__title-{{ ai_gen_id }}">{{ title }}</h2>
+          {% endif %}
+
+          {% if button_text != blank %}
+            <a
+              href="{{ button_link }}"
+              class="ai-dual-banners__button-{{ ai_gen_id }}"
+            >
+              {{ button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</dual-banners-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class DualBanners{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+    }
+
+    customElements.define('dual-banners-{{ ai_gen_id }}', DualBanners{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Banners duplos",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Largura no desktop",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Espaçamento entre banners",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Arredondamento das bordas",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "desktop_aspect_ratio",
+      "label": "Proporção no desktop",
+      "options": [
+        {
+          "value": "16 / 9",
+          "label": "16:9 (Horizontal)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "4:3 (Horizontal)"
+        },
+        {
+          "value": "3 / 2",
+          "label": "3:2 (Horizontal)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "1:1 (Quadrado)"
+        }
+      ],
+      "default": "16 / 9"
+    },
+    {
+      "type": "select",
+      "id": "mobile_aspect_ratio",
+      "label": "Proporção no mobile",
+      "options": [
+        {
+          "value": "9 / 16",
+          "label": "9:16 (Vertical)"
+        },
+        {
+          "value": "3 / 4",
+          "label": "3:4 (Vertical)"
+        },
+        {
+          "value": "2 / 3",
+          "label": "2:3 (Vertical)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "1:1 (Quadrado)"
+        }
+      ],
+      "default": "9 / 16"
+    },
+    {
+      "type": "header",
+      "content": "Sobreposição"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Mostrar sobreposição",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Cor da sobreposição",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacidade da sobreposição",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.3
+    },
+    {
+      "type": "header",
+      "content": "Título"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Alinhamento do texto",
+      "options": [
+        {
+          "value": "left",
+          "label": "Esquerda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Direita"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Fonte do título",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Tamanho do título",
+      "min": 16,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor do título",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Botão"
+    },
+    {
+      "type": "font_picker",
+      "id": "button_font",
+      "label": "Fonte do botão",
+      "default": "assistant_n4"
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Tamanho da fonte",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Cor de fundo",
+      "default": "#5a4742"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Cor de fundo ao passar o mouse",
+      "default": "#735e59"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Cor do texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Arredondamento do botão",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Banner 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_1_image_desktop",
+      "label": "Imagem desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_1_image_mobile",
+      "label": "Imagem mobile"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "banner_1_title",
+      "label": "Título",
+      "default": "Banner 1"
+    },
+    {
+      "type": "text",
+      "id": "banner_1_button_text",
+      "label": "Texto do botão",
+      "default": "Comprar agora"
+    },
+    {
+      "type": "url",
+      "id": "banner_1_button_link",
+      "label": "Link do botão"
+    },
+    {
+      "type": "header",
+      "content": "Banner 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_2_image_desktop",
+      "label": "Imagem desktop"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_2_image_mobile",
+      "label": "Imagem mobile"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "banner_2_title",
+      "label": "Título",
+      "default": "Banner 2"
+    },
+    {
+      "type": "text",
+      "id": "banner_2_button_text",
+      "label": "Texto do botão",
+      "default": "Ver coleção"
+    },
+    {
+      "type": "url",
+      "id": "banner_2_button_link",
+      "label": "Link do botão"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Banners duplos"
+    }
+  ]
+}
 {% endschema %}
