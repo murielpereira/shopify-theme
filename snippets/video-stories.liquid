@@ -243,16 +243,22 @@
     margin: 1.5rem 0;
   }
 
-  /* ── Stories / Carrossel: track horizontal ── */
+  /* ── Stories / Carrossel: track horizontal com scroll lateral ── */
   .ame-vs__track {
     display: flex;
+    flex-wrap: nowrap;
     gap: var(--vs-espacamento);
     overflow-x: auto;
+    overflow-y: hidden;
     padding: 0.25rem 0.125rem 0.5rem;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
+    width: 100%;
+    box-sizing: border-box;
   }
   .ame-vs__track::-webkit-scrollbar { display: none; }
+  .ame-vs__item { scroll-snap-align: start; }
 
   .ame-vs__item {
     flex-shrink: 0;
@@ -391,6 +397,11 @@
   /* ──────────────────────────────────────────── */
   .ame-vs--spotlight {
     position: relative;
+    /* Full-bleed: ignora padding do container e ocupa 100vw */
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
   }
   .ame-vs__spot-outer {
     position: relative;

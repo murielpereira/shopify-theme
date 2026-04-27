@@ -1788,6 +1788,11 @@ shopify-account {
   padding: 10px var(--page-margin, 1.5rem);
   max-width: var(--page-width, 120rem);
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pdp__info {
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
