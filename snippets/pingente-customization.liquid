@@ -100,11 +100,6 @@
       <label for="ame-pingente-tel">Telefone do tutor</label>
       <input type="tel" id="ame-pingente-tel" data-pingente-tel placeholder="11 99999-9999" maxlength="13" autocomplete="off" inputmode="numeric">
     </div>
-
-    <div class="ame-pingente__field">
-      <label for="ame-pingente-info">Informações adicionais</label>
-      <textarea id="ame-pingente-info" data-pingente-info rows="3" maxlength="300" placeholder="Raça, peso, idade, observações..."></textarea>
-    </div>
   </div>
 </section>
 
@@ -723,11 +718,9 @@
         const pet = petInput?.value.trim() || '';
         const tutor = root.querySelector('[data-pingente-tutor]')?.value.trim() || '';
         const tel = root.querySelector('[data-pingente-tel]')?.value.trim() || '';
-        const info = root.querySelector('[data-pingente-info]')?.value.trim() || '';
         const properties = { 'Nome do pet': pet };
         if (tutor) properties['Nome do tutor'] = tutor;
         if (tel) properties['Telefone do tutor'] = tel;
-        if (info) properties['Informações adicionais'] = info;
         return { id: state.variant.id, quantity: 1, properties };
       }
     };

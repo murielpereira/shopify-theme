@@ -334,6 +334,8 @@
         {%- endfor -%}
       </div>
 
+      {%- render 'pingente-customization', product: product -%}
+
       <!-- ── Campos Personalizados ── -->
       {%- for cf_tag_item in product.tags -%}
         {%- for cf_i in (1..10) -%}
@@ -449,8 +451,6 @@
           {%- endif -%}
         {%- endfor -%}
       {%- endfor -%}
-
-      {%- render 'pingente-customization', product: product -%}
 
       <!-- Quantidade -->
       <div class="pdp__qty">
