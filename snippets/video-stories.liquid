@@ -1,24 +1,8 @@
 {% comment %}
   Âme — Video Stories widget
-  Renderiza vídeos como stories (círculos), carrossel (cards 9:16) ou spotlight (cards 16:9).
+  Renderiza vídeos como stories (círculos), carrossel (cards 9:16) ou spotlight
+  (loop infinito com card central destacado, autoplay mutado nos próximos).
   Modal em lightbox com player (YouTube, Vimeo ou vídeo nativo Shopify).
-
-  Parâmetros (todos com defaults):
-    videos          — array (de product.media filtrada OU de section.blocks)
-    source_type     — 'media' | 'blocks'                    (default 'media')
-    widget_id       — string única                          (default 'vs-default')
-    format          — 'stories' | 'carrossel' | 'spotlight' (default 'stories')
-    border_type     — 'solida' | 'degrade'                  (default 'solida')
-    cor             — hex (1ª cor)                          (default '#5a4742')
-    cor_fim         — hex (2ª cor, só degradê)              (default '#735e59')
-    cor_3           — hex (3ª cor opcional, só degradê)     (default '')
-    angulo          — int 0-360                             (default 135)
-    tamanho         — int 50-180 px (largura do thumb)      (default 70)
-    espessura       — int 1-10 px                           (default 3)
-    espacamento     — int 4-40 px                           (default 12)
-    mostrar_titulo  — boolean                               (default true)
-    autoplay        — boolean (autoplay no modal)           (default true)
-    cta_default     — string (texto padrão do CTA)          (default 'Ver mais')
 {% endcomment %}
 
 {%- liquid
@@ -64,6 +48,7 @@
 <div
   class="ame-vs ame-vs--{{ vs_format }}"
   data-vs-widget="{{ vs_id }}"
+  {%- if vs_format == 'spotlight' %} data-vs-spotlight{% endif %}
   style="
     --vs-ring-bg: {{ vs_ring_bg }};
     --vs-tamanho: {{ vs_tamanho }}px;
@@ -71,79 +56,148 @@
     --vs-espacamento: {{ vs_espacamento }}px;
   "
 >
-  <div class="ame-vs__track" data-vs-track>
-    {%- for v in vs_videos -%}
-      {%- liquid
-        assign vt_type = ''
-        assign vt_id = ''
-        assign vt_host = ''
-        assign vt_title = ''
-        assign vt_image = ''
-        assign vt_native_src = ''
-        assign vt_cta_url = ''
-        assign vt_cta_label = ''
+  {%- if vs_format == 'spotlight' -%}
+    <div class="ame-vs__spot-outer" data-vs-spot-outer>
+      <div class="ame-vs__spot-track" data-vs-spot-track></div>
+      <button type="button" class="ame-vs__spot-nav ame-vs__spot-prev" data-vs-spot-prev aria-label="Anterior">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <button type="button" class="ame-vs__spot-nav ame-vs__spot-next" data-vs-spot-next aria-label="Próximo">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+    <div class="ame-vs__spot-dots" data-vs-spot-dots></div>
+  {%- else -%}
+    <div class="ame-vs__track" data-vs-track></div>
+  {%- endif -%}
+</div>
 
-        if vs_source == 'media'
-          if v.media_type == 'external_video'
-            assign vt_type = 'external'
-            assign vt_id = v.external_id
-            assign vt_host = v.host
-            assign vt_title = v.alt
-            if v.preview_image != blank
-              assign vt_image = v.preview_image | image_url: width: 480
-            endif
-          elsif v.media_type == 'video'
-            assign vt_type = 'native'
-            assign vt_id = v.id
-            assign vt_title = v.alt
-            if v.preview_image != blank
-              assign vt_image = v.preview_image | image_url: width: 480
-            endif
-            if v.sources.size > 0
-              assign vt_native_src = v.sources[0].url
-              for s in v.sources
-                if s.format == 'mp4' and s.height >= 720
-                  assign vt_native_src = s.url
-                  break
-                endif
-              endfor
-            endif
-          endif
-        elsif vs_source == 'blocks'
-          assign block_url_raw = v.settings.url | default: ''
-          assign block_url = block_url_raw | downcase
-          assign vt_title = v.settings.title
-          if v.settings.image != blank
-            assign vt_image = v.settings.image | image_url: width: 480
-          endif
-          assign vt_cta_url = v.settings.cta_url
-          assign vt_cta_label = v.settings.cta_label | default: vs_cta_default
+{%- comment -%} Render real cards via JS-friendly templates {%- endcomment -%}
+<template data-vs-template-for="{{ vs_id }}">
+  {%- for v in vs_videos -%}
+    {%- liquid
+      assign vt_type = ''
+      assign vt_id = ''
+      assign vt_host = ''
+      assign vt_title = ''
+      assign vt_image = ''
+      assign vt_native_src = ''
+      assign vt_cta_url = ''
+      assign vt_cta_label = ''
 
-          if block_url contains 'youtube.com/watch'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'v=' | last | split: '&' | first
-          elsif block_url contains 'youtu.be/'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'youtu.be/' | last | split: '?' | first
-          elsif block_url contains 'youtube.com/shorts/'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'shorts/' | last | split: '?' | first
-          elsif block_url contains 'vimeo.com/'
-            assign vt_type = 'external'
-            assign vt_host = 'vimeo'
-            assign vt_id = block_url_raw | split: 'vimeo.com/' | last | split: '?' | first
+      if vs_source == 'media'
+        if v.media_type == 'external_video'
+          assign vt_type = 'external'
+          assign vt_id = v.external_id
+          assign vt_host = v.host
+          assign vt_title = v.alt
+          if v.preview_image != blank
+            assign vt_image = v.preview_image | image_url: width: 720
           endif
-
-          if vt_image == '' and vt_type == 'external' and vt_host == 'youtube' and vt_id != ''
-            assign vt_image = 'https://img.youtube.com/vi/' | append: vt_id | append: '/hqdefault.jpg'
+        elsif v.media_type == 'video'
+          assign vt_type = 'native'
+          assign vt_id = v.id
+          assign vt_title = v.alt
+          if v.preview_image != blank
+            assign vt_image = v.preview_image | image_url: width: 720
+          endif
+          if v.sources.size > 0
+            assign vt_native_src = v.sources[0].url
+            for s in v.sources
+              if s.format == 'mp4' and s.height >= 720
+                assign vt_native_src = s.url
+                break
+              endif
+            endfor
           endif
         endif
-      -%}
+      elsif vs_source == 'blocks'
+        assign block_url_raw = v.settings.url | default: ''
+        assign block_url = block_url_raw | downcase
+        assign vt_title = v.settings.title
+        if v.settings.image != blank
+          assign vt_image = v.settings.image | image_url: width: 720
+        endif
+        assign vt_cta_url = v.settings.cta_url
+        assign vt_cta_label = v.settings.cta_label | default: vs_cta_default
 
-      {%- if vt_id != '' or vt_native_src != '' -%}
+        if block_url contains 'youtube.com/watch'
+          assign vt_type = 'external'
+          assign vt_host = 'youtube'
+          assign vt_id = block_url_raw | split: 'v=' | last | split: '&' | first
+        elsif block_url contains 'youtu.be/'
+          assign vt_type = 'external'
+          assign vt_host = 'youtube'
+          assign vt_id = block_url_raw | split: 'youtu.be/' | last | split: '?' | first
+        elsif block_url contains 'youtube.com/shorts/'
+          assign vt_type = 'external'
+          assign vt_host = 'youtube'
+          assign vt_id = block_url_raw | split: 'shorts/' | last | split: '?' | first
+        elsif block_url contains 'vimeo.com/'
+          assign vt_type = 'external'
+          assign vt_host = 'vimeo'
+          assign vt_id = block_url_raw | split: 'vimeo.com/' | last | split: '?' | first
+        endif
+
+        if vt_image == '' and vt_type == 'external' and vt_host == 'youtube' and vt_id != ''
+          assign vt_image = 'https://img.youtube.com/vi/' | append: vt_id | append: '/hqdefault.jpg'
+        endif
+      endif
+    -%}
+
+    {%- if vt_id != '' or vt_native_src != '' -%}
+      {%- if vs_format == 'spotlight' -%}
+        <div
+          class="ame-vs__spot-card"
+          data-vs-spot-card
+          data-vs-type="{{ vt_type }}"
+          data-vs-id="{{ vt_id }}"
+          data-vs-host="{{ vt_host }}"
+          data-vs-src="{{ vt_native_src | escape }}"
+          data-vs-title="{{ vt_title | escape }}"
+          data-vs-cta-url="{{ vt_cta_url | escape }}"
+          data-vs-cta-label="{{ vt_cta_label | escape }}"
+        >
+          <div class="ame-vs__spot-media">
+            <div class="ame-vs__spot-thumb"{% if vt_image != '' %} style="background-image:url('{{ vt_image }}')"{% endif %}></div>
+            <div class="ame-vs__spot-vid" data-vs-spot-vid></div>
+            <div class="ame-vs__spot-gradient"></div>
+            <div class="ame-vs__spot-play" aria-hidden="true">
+              <span class="material-symbols-outlined">play_arrow</span>
+            </div>
+            <button
+              type="button"
+              class="ame-vs__spot-click"
+              data-vs-open
+              data-vs-type="{{ vt_type }}"
+              data-vs-id="{{ vt_id }}"
+              data-vs-host="{{ vt_host }}"
+              data-vs-src="{{ vt_native_src | escape }}"
+              data-vs-title="{{ vt_title | escape }}"
+              data-vs-cta-url="{{ vt_cta_url | escape }}"
+              data-vs-cta-label="{{ vt_cta_label | escape }}"
+              aria-label="Reproduzir {{ vt_title | default: 'vídeo' | escape }}"
+            ></button>
+          </div>
+          {%- assign cta_text = vt_cta_label | default: vt_title | default: vs_cta_default -%}
+          {%- if vt_cta_url != blank and vt_cta_url != '' -%}
+            <a class="ame-vs__spot-cta" href="{{ vt_cta_url }}">{{ cta_text }}</a>
+          {%- else -%}
+            <button
+              type="button"
+              class="ame-vs__spot-cta"
+              data-vs-open
+              data-vs-type="{{ vt_type }}"
+              data-vs-id="{{ vt_id }}"
+              data-vs-host="{{ vt_host }}"
+              data-vs-src="{{ vt_native_src | escape }}"
+              data-vs-title="{{ vt_title | escape }}"
+              data-vs-cta-url="{{ vt_cta_url | escape }}"
+              data-vs-cta-label="{{ vt_cta_label | escape }}"
+            >{{ cta_text }}</button>
+          {%- endif -%}
+        </div>
+      {%- else -%}
         <button
           class="ame-vs__item"
           type="button"
@@ -156,7 +210,6 @@
           data-vs-cta-url="{{ vt_cta_url | escape }}"
           data-vs-cta-label="{{ vt_cta_label | escape }}"
           aria-label="Reproduzir {{ vt_title | default: 'vídeo' | escape }}"
-          {%- if v.shopify_attributes %} {{ v.shopify_attributes }}{% endif %}
         >
           <div class="ame-vs__ring">
             <div class="ame-vs__media">
@@ -177,9 +230,9 @@
           {%- endif -%}
         </button>
       {%- endif -%}
-    {%- endfor -%}
-  </div>
-</div>
+    {%- endif -%}
+  {%- endfor -%}
+</template>
 
 <style>
   .ame-vs {
@@ -189,6 +242,8 @@
     --vs-espacamento: 12px;
     margin: 1.5rem 0;
   }
+
+  /* ── Stories / Carrossel: track horizontal ── */
   .ame-vs__track {
     display: flex;
     gap: var(--vs-espacamento);
@@ -298,19 +353,29 @@
     -webkit-box-orient: vertical;
   }
 
-  /* ── Stories (círculos) ─────────────────── */
+  /* ── Stories (círculos com anel branco interno tipo Instagram) ── */
   .ame-vs--stories .ame-vs__ring,
-  .ame-vs--stories .ame-vs__media {
-    border-radius: 50%;
-  }
+  .ame-vs--stories .ame-vs__media { border-radius: 50%; }
   .ame-vs--stories .ame-vs__media {
     aspect-ratio: 1 / 1;
+    background: #fff;
+    padding: 3px;
+    box-sizing: border-box;
+  }
+  .ame-vs--stories .ame-vs__media img {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ame-vs--stories .ame-vs__media-fallback,
+  .ame-vs--stories .ame-vs__play {
+    border-radius: 50%;
+    inset: 3px;
   }
 
-  /* ── Carrossel (cards 9:16) ────────────── */
-  .ame-vs--carrossel .ame-vs__ring {
-    border-radius: var(--radius-md, 0.375rem);
-  }
+  /* ── Carrossel (cards 9:16) ── */
+  .ame-vs--carrossel .ame-vs__ring { border-radius: var(--radius-md, 0.375rem); }
   .ame-vs--carrossel .ame-vs__media {
     aspect-ratio: 9 / 16;
     width: calc(var(--vs-tamanho) * 1.4);
@@ -321,37 +386,203 @@
     text-align: left;
   }
 
-  /* ── Spotlight (card 16:9 grande) ──────── */
-  .ame-vs--spotlight .ame-vs__track {
+  /* ──────────────────────────────────────────── */
+  /* SPOTLIGHT — loop infinito tipo Waltz         */
+  /* ──────────────────────────────────────────── */
+  .ame-vs--spotlight {
+    position: relative;
+  }
+  .ame-vs__spot-outer {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding: 25px 0 20px;
+    touch-action: pan-y;
+  }
+  .ame-vs__spot-track {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    will-change: transform;
+  }
+  .ame-vs__spot-card {
+    flex-shrink: 0;
+    background: transparent;
+    transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.6s ease;
+    opacity: 0.6;
+    transform: scale(0.88);
+    position: relative;
+    display: flex;
     flex-direction: column;
-    overflow: visible;
+    align-items: center;
   }
-  .ame-vs--spotlight .ame-vs__item {
-    width: 100%;
-    align-items: stretch;
-  }
-  .ame-vs--spotlight .ame-vs__ring {
-    border-radius: var(--radius-lg, 0.5rem);
-    width: 100%;
-  }
-  .ame-vs--spotlight .ame-vs__media {
-    aspect-ratio: 16 / 9;
-    width: 100%;
-    min-height: 240px;
-    border-radius: var(--radius-md, 0.375rem);
-  }
-  .ame-vs--spotlight .ame-vs__title {
-    width: 100%;
-    text-align: left;
-    font-size: 0.9375rem;
-    margin-top: 0.5rem;
-    -webkit-line-clamp: 1;
-  }
-  .ame-vs--spotlight .ame-vs__play .material-symbols-outlined {
-    font-size: 4rem !important;
+  .ame-vs__spot-card.is-spot-active {
+    opacity: 1;
+    transform: scale(1.02);
+    z-index: 2;
   }
 
-  /* ── Modal player ──────────────────────── */
+  .ame-vs__spot-media {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+  }
+  .ame-vs__spot-thumb {
+    position: absolute;
+    inset: 0;
+    background-color: #111;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+    transition: opacity 0.5s;
+  }
+  .ame-vs__spot-card.is-spot-active .ame-vs__spot-thumb {
+    opacity: 0;
+    transition-delay: 1.5s;
+  }
+  .ame-vs__spot-vid {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.8s;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .ame-vs__spot-card.is-spot-active .ame-vs__spot-vid { opacity: 1; }
+  .ame-vs__spot-vid iframe,
+  .ame-vs__spot-vid video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 170%;
+    height: 170%;
+    transform: translate(-50%, -50%);
+    border: 0;
+    pointer-events: none;
+    object-fit: cover;
+  }
+  .ame-vs__spot-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 30%, transparent 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .ame-vs__spot-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+    z-index: 2;
+    pointer-events: none;
+    color: #fff;
+  }
+  .ame-vs__spot-play .material-symbols-outlined {
+    font-size: 2.75rem !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    font-variation-settings: 'FILL' 1;
+  }
+  .ame-vs__spot-card.is-spot-active .ame-vs__spot-play { opacity: 0 !important; }
+  .ame-vs__spot-card:hover .ame-vs__spot-play { opacity: 0.7; }
+  .ame-vs__spot-click {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .ame-vs__spot-cta {
+    display: block;
+    margin: 8px 0 0;
+    padding: 12px 18px;
+    background: var(--color-background, #fff);
+    color: var(--color-on-background, #111);
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--color-outline-variant, #e5e5e5);
+    border-radius: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 94%;
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .ame-vs__spot-cta:hover {
+    background: var(--color-surface-container, #f8ece0);
+    border-color: var(--color-primary, #5a4742);
+    transform: scale(1.02);
+  }
+
+  .ame-vs__spot-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: #333;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    padding: 0;
+  }
+  .ame-vs__spot-nav:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+  .ame-vs__spot-nav .material-symbols-outlined {
+    font-size: 1.25rem !important;
+    font-variation-settings: 'wght' 400;
+  }
+  .ame-vs__spot-prev { left: 12px; }
+  .ame-vs__spot-next { right: 12px; }
+
+  .ame-vs__spot-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .ame-vs__spot-dots:empty { display: none; }
+  .ame-vs__spot-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-outline-variant, #d1d5db);
+    transition: background 0.3s, width 0.3s;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+  }
+  .ame-vs__spot-dot.is-active {
+    background: var(--color-on-background, #111);
+    width: 22px;
+    border-radius: 3px;
+  }
+
+  /* ── Modal player (story viewer estilo Instagram) ── */
   .ame-vs-modal {
     position: fixed;
     inset: 0;
@@ -360,7 +591,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
-    background: rgba(32, 27, 20, 0.85);
+    background: rgba(0, 0, 0, 0.92);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     opacity: 0;
@@ -372,11 +603,12 @@
     opacity: 1;
     pointer-events: auto;
   }
-
   .ame-vs-modal__box {
     position: relative;
     width: 100%;
-    max-width: 32rem;
+    max-width: 26rem;
+    aspect-ratio: 9 / 16;
+    max-height: calc(100vh - 2rem);
     background: #000;
     border-radius: var(--radius-lg, 0.5rem);
     overflow: hidden;
@@ -386,17 +618,48 @@
   }
   .ame-vs-modal.is-open .ame-vs-modal__box { transform: scale(1); }
 
-  .ame-vs-modal__close {
+  .ame-vs-modal__header {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.18);
+    padding: 0.625rem 0.75rem 0;
+    pointer-events: none;
+  }
+  .ame-vs-modal__bars {
+    display: flex;
+    gap: 4px;
+    pointer-events: auto;
+  }
+  .ame-vs-modal__bars:empty { display: none; }
+  .ame-vs-modal__bar {
+    flex: 1;
+    height: 2.5px;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .ame-vs-modal__bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #fff;
+    border-radius: 2px;
+  }
+  .ame-vs-modal__top-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 0.625rem;
+    pointer-events: auto;
+  }
+  .ame-vs-modal__close {
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: none;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
     color: #fff;
     cursor: pointer;
@@ -405,20 +668,14 @@
     justify-content: center;
     transition: background 0.2s ease;
   }
-  .ame-vs-modal__close:hover { background: rgba(255, 255, 255, 0.3); }
-  .ame-vs-modal__close .material-symbols-outlined {
-    font-size: 1.25rem !important;
-  }
+  .ame-vs-modal__close:hover { background: rgba(0, 0, 0, 0.7); }
+  .ame-vs-modal__close .material-symbols-outlined { font-size: 1.125rem !important; }
 
   .ame-vs-modal__player {
-    position: relative;
-    aspect-ratio: 9 / 16;
-    width: 100%;
+    position: absolute;
+    inset: 0;
     background: #000;
     overflow: hidden;
-  }
-  @media (min-width: 768px) {
-    .ame-vs-modal__box { max-width: 24rem; }
   }
   .ame-vs-modal__player iframe,
   .ame-vs-modal__player video {
@@ -427,9 +684,22 @@
     width: 100%;
     height: 100%;
     border: 0;
-    object-fit: contain;
+    object-fit: cover;
     background: #000;
   }
+
+  .ame-vs-modal__zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 35%;
+    z-index: 5;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+  }
+  .ame-vs-modal__zone--prev { left: 0; }
+  .ame-vs-modal__zone--next { right: 0; }
 
   .ame-vs-modal__cta {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
@@ -438,7 +708,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 5;
+    z-index: 6;
     pointer-events: none;
     opacity: 0;
     transform: translateY(8px);
@@ -474,143 +744,443 @@
     transition: transform 0.2s ease;
   }
   .ame-vs-modal__cta-btn:hover { transform: scale(1.03); }
-  .ame-vs-modal__cta-btn .material-symbols-outlined {
-    font-size: 1rem !important;
-  }
+  .ame-vs-modal__cta-btn .material-symbols-outlined { font-size: 1rem !important; }
 </style>
 
 <script>
   (() => {
-    if (window.AmeVideoStories) {
-      window.AmeVideoStories.bindAll();
-      return;
-    }
+    if (!window.AmeVideoStories) {
+      const AUTOPLAY_DEFAULT = {{ vs_autoplay | json }};
+      const STORY_DURATION = 30000;
 
-    const AUTOPLAY_DEFAULT = {{ vs_autoplay | json }};
+      const state = {
+        videos: [],
+        idx: 0,
+        progressFrame: null,
+        progressStart: 0,
+      };
 
-    function ensureModal() {
-      let modal = document.getElementById('ame-vs-modal');
-      if (modal) return modal;
-
-      modal = document.createElement('div');
-      modal.id = 'ame-vs-modal';
-      modal.className = 'ame-vs-modal';
-      modal.hidden = true;
-      modal.setAttribute('role', 'dialog');
-      modal.setAttribute('aria-modal', 'true');
-      modal.setAttribute('aria-label', 'Reprodutor de vídeo');
-      modal.innerHTML = `
-        <div class="ame-vs-modal__box" data-vs-modal-box>
-          <button type="button" class="ame-vs-modal__close" data-vs-modal-close aria-label="Fechar">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-          <div class="ame-vs-modal__player" data-vs-modal-player></div>
-          <div class="ame-vs-modal__cta" data-vs-modal-cta>
-            <p class="ame-vs-modal__cta-title" data-vs-modal-cta-title></p>
-            <a class="ame-vs-modal__cta-btn" data-vs-modal-cta-link>
-              <span data-vs-modal-cta-label></span>
-              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            </a>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target.closest('[data-vs-modal-close]')) {
-          closeModal();
-        }
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
-      });
-      return modal;
-    }
-
-    function buildPlayer(data) {
-      const autoplay = AUTOPLAY_DEFAULT ? '1' : '0';
-      const muted = AUTOPLAY_DEFAULT ? '1' : '0';
-      if (data.type === 'external' && data.host === 'youtube') {
-        return `<iframe
-          src="https://www.youtube.com/embed/${encodeURIComponent(data.id)}?autoplay=${autoplay}&mute=${muted}&rel=0&playsinline=1&modestbranding=1"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen></iframe>`;
-      }
-      if (data.type === 'external' && data.host === 'vimeo') {
-        return `<iframe
-          src="https://player.vimeo.com/video/${encodeURIComponent(data.id)}?autoplay=${autoplay}&muted=${muted}&playsinline=1"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen></iframe>`;
-      }
-      if (data.type === 'native' && data.src) {
-        return `<video
-          src="${data.src.replace(/"/g, '&quot;')}"
-          ${AUTOPLAY_DEFAULT ? 'autoplay muted' : ''}
-          controls
-          playsinline></video>`;
-      }
-      return '<p style="color:#fff;text-align:center;padding:2rem;">Vídeo indisponível.</p>';
-    }
-
-    function openModal(data) {
-      const modal = ensureModal();
-      const player = modal.querySelector('[data-vs-modal-player]');
-      const cta = modal.querySelector('[data-vs-modal-cta]');
-      const ctaLink = modal.querySelector('[data-vs-modal-cta-link]');
-      const ctaLabel = modal.querySelector('[data-vs-modal-cta-label]');
-      const ctaTitle = modal.querySelector('[data-vs-modal-cta-title]');
-
-      player.innerHTML = buildPlayer(data);
-
-      if (data.ctaUrl) {
-        ctaLink.href = data.ctaUrl;
-        ctaLabel.textContent = data.ctaLabel || 'Ver mais';
-        ctaTitle.textContent = data.title || '';
-        ctaTitle.style.display = data.title ? '' : 'none';
-        cta.classList.add('is-visible');
-      } else {
-        cta.classList.remove('is-visible');
-      }
-
-      modal.hidden = false;
-      requestAnimationFrame(() => modal.classList.add('is-open'));
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('ame-vs-modal');
-      if (!modal) return;
-      const player = modal.querySelector('[data-vs-modal-player]');
-      modal.classList.remove('is-open');
-      document.body.style.overflow = '';
-      setTimeout(() => {
-        if (player) player.innerHTML = '';
+      function ensureModal() {
+        let modal = document.getElementById('ame-vs-modal');
+        if (modal) return modal;
+        modal = document.createElement('div');
+        modal.id = 'ame-vs-modal';
+        modal.className = 'ame-vs-modal';
         modal.hidden = true;
-      }, 250);
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-label', 'Reprodutor de vídeo');
+        modal.innerHTML = `
+          <div class="ame-vs-modal__box">
+            <div class="ame-vs-modal__header">
+              <div class="ame-vs-modal__bars" data-vs-modal-bars></div>
+              <div class="ame-vs-modal__top-row">
+                <button type="button" class="ame-vs-modal__close" data-vs-modal-close aria-label="Fechar">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>
+            <div class="ame-vs-modal__player" data-vs-modal-player></div>
+            <button type="button" class="ame-vs-modal__zone ame-vs-modal__zone--prev" data-vs-modal-prev aria-label="Anterior"></button>
+            <button type="button" class="ame-vs-modal__zone ame-vs-modal__zone--next" data-vs-modal-next aria-label="Próximo"></button>
+            <div class="ame-vs-modal__cta" data-vs-modal-cta>
+              <p class="ame-vs-modal__cta-title" data-vs-modal-cta-title></p>
+              <a class="ame-vs-modal__cta-btn" data-vs-modal-cta-link>
+                <span data-vs-modal-cta-label></span>
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal || e.target.closest('[data-vs-modal-close]')) closeModal();
+        });
+        modal.querySelector('[data-vs-modal-prev]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigate(-1);
+        });
+        modal.querySelector('[data-vs-modal-next]').addEventListener('click', (e) => {
+          e.stopPropagation();
+          navigate(1);
+        });
+        document.addEventListener('keydown', (e) => {
+          if (!modal.classList.contains('is-open')) return;
+          if (e.key === 'Escape') closeModal();
+          else if (e.key === 'ArrowLeft') navigate(-1);
+          else if (e.key === 'ArrowRight') navigate(1);
+        });
+        return modal;
+      }
+
+      function buildPlayer(data) {
+        const autoplay = AUTOPLAY_DEFAULT ? '1' : '0';
+        const muted = AUTOPLAY_DEFAULT ? '1' : '0';
+        if (data.type === 'external' && data.host === 'youtube') {
+          return `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(data.id)}?autoplay=${autoplay}&mute=${muted}&controls=0&rel=0&playsinline=1&modestbranding=1&disablekb=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        }
+        if (data.type === 'external' && data.host === 'vimeo') {
+          return `<iframe src="https://player.vimeo.com/video/${encodeURIComponent(data.id)}?autoplay=${autoplay}&muted=${muted}&playsinline=1&controls=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        }
+        if (data.type === 'native' && data.src) {
+          return `<video src="${data.src.replace(/"/g, '&quot;')}" ${AUTOPLAY_DEFAULT ? 'autoplay muted' : ''} playsinline></video>`;
+        }
+        return '<p style="color:#fff;text-align:center;padding:2rem;">Vídeo indisponível.</p>';
+      }
+
+      function buildBars(modal) {
+        const bars = modal.querySelector('[data-vs-modal-bars]');
+        bars.innerHTML = '';
+        if (state.videos.length <= 1) return;
+        for (let i = 0; i < state.videos.length; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'ame-vs-modal__bar';
+          const fill = document.createElement('div');
+          fill.className = 'ame-vs-modal__bar-fill';
+          fill.dataset.vsBarFill = String(i);
+          bar.appendChild(fill);
+          bars.appendChild(bar);
+        }
+      }
+
+      function startProgress(modal) {
+        cancelAnimationFrame(state.progressFrame);
+        state.progressStart = Date.now();
+        const fills = modal.querySelectorAll('[data-vs-bar-fill]');
+        fills.forEach((fill, i) => {
+          fill.style.transition = 'none';
+          fill.style.width = i < state.idx ? '100%' : '0%';
+        });
+        function tick() {
+          const elapsed = Date.now() - state.progressStart;
+          const pct = Math.min((elapsed / STORY_DURATION) * 100, 100);
+          const fill = modal.querySelector(`[data-vs-bar-fill="${state.idx}"]`);
+          if (fill) {
+            fill.style.transition = 'none';
+            fill.style.width = pct + '%';
+          }
+          if (pct >= 100) {
+            navigate(1);
+          } else {
+            state.progressFrame = requestAnimationFrame(tick);
+          }
+        }
+        tick();
+      }
+
+      function loadCurrent() {
+        const modal = ensureModal();
+        const data = state.videos[state.idx];
+        if (!data) return closeModal();
+
+        const player = modal.querySelector('[data-vs-modal-player]');
+        const cta = modal.querySelector('[data-vs-modal-cta]');
+        const ctaLink = modal.querySelector('[data-vs-modal-cta-link]');
+        const ctaLabel = modal.querySelector('[data-vs-modal-cta-label]');
+        const ctaTitle = modal.querySelector('[data-vs-modal-cta-title]');
+
+        player.innerHTML = buildPlayer(data);
+
+        if (data.ctaUrl) {
+          ctaLink.href = data.ctaUrl;
+          ctaLabel.textContent = data.ctaLabel || 'Ver mais';
+          ctaTitle.textContent = data.title || '';
+          ctaTitle.style.display = data.title ? '' : 'none';
+          cta.classList.add('is-visible');
+        } else {
+          cta.classList.remove('is-visible');
+        }
+
+        startProgress(modal);
+      }
+
+      function navigate(delta) {
+        cancelAnimationFrame(state.progressFrame);
+        const next = state.idx + delta;
+        if (next < 0 || next >= state.videos.length) {
+          closeModal();
+          return;
+        }
+        state.idx = next;
+        loadCurrent();
+      }
+
+      function openModal(videos, startIdx) {
+        const list = Array.isArray(videos) ? videos : [videos];
+        state.videos = list;
+        state.idx = Math.max(0, Math.min(startIdx || 0, list.length - 1));
+        const modal = ensureModal();
+        buildBars(modal);
+        loadCurrent();
+        modal.hidden = false;
+        requestAnimationFrame(() => modal.classList.add('is-open'));
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        const modal = document.getElementById('ame-vs-modal');
+        if (!modal) return;
+        cancelAnimationFrame(state.progressFrame);
+        const player = modal.querySelector('[data-vs-modal-player]');
+        modal.classList.remove('is-open');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+          if (player) player.innerHTML = '';
+          modal.hidden = true;
+        }, 250);
+      }
+
+      function bindOpenLinks(root) {
+        const buttons = Array.from(root.querySelectorAll('[data-vs-open]'));
+        const videoMap = new Map();
+        buttons.forEach((btn) => {
+          const key = btn.dataset.vsType + ':' + btn.dataset.vsHost + ':' + btn.dataset.vsId + ':' + (btn.dataset.vsSrc || '');
+          if (!videoMap.has(key)) {
+            videoMap.set(key, {
+              type: btn.dataset.vsType,
+              id: btn.dataset.vsId,
+              host: btn.dataset.vsHost,
+              src: btn.dataset.vsSrc,
+              title: btn.dataset.vsTitle,
+              ctaUrl: btn.dataset.vsCtaUrl,
+              ctaLabel: btn.dataset.vsCtaLabel,
+            });
+          }
+        });
+        const videos = Array.from(videoMap.values());
+        const keyToIdx = new Map(Array.from(videoMap.keys()).map((k, i) => [k, i]));
+
+        buttons.forEach((btn) => {
+          if (btn.dataset.vsBound) return;
+          btn.dataset.vsBound = '1';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const key = btn.dataset.vsType + ':' + btn.dataset.vsHost + ':' + btn.dataset.vsId + ':' + (btn.dataset.vsSrc || '');
+            const idx = keyToIdx.get(key) || 0;
+            openModal(videos, idx);
+          });
+        });
+      }
+
+      window.AmeVideoStories = { open: openModal, close: closeModal, navigate, bindOpenLinks };
     }
 
-    function bindOne(btn) {
-      if (btn.dataset.vsBound) return;
-      btn.dataset.vsBound = '1';
-      btn.addEventListener('click', () => {
-        openModal({
-          type: btn.dataset.vsType,
-          id: btn.dataset.vsId,
-          host: btn.dataset.vsHost,
-          src: btn.dataset.vsSrc,
-          title: btn.dataset.vsTitle,
-          ctaUrl: btn.dataset.vsCtaUrl,
-          ctaLabel: btn.dataset.vsCtaLabel,
+    /* ── Hidrata templates: copia conteúdo para o slot apropriado ── */
+    document.querySelectorAll('[data-vs-template-for]').forEach(tpl => {
+      const widgetId = tpl.dataset.vsTemplateFor;
+      const widget = document.querySelector(`[data-vs-widget="${widgetId}"]`);
+      if (!widget) return;
+      const cardsHTML = tpl.innerHTML;
+      tpl.remove();
+
+      if (widget.dataset.vsSpotlight !== undefined) {
+        const track = widget.querySelector('[data-vs-spot-track]');
+        if (track) track.innerHTML = cardsHTML;
+        initSpotlight(widget);
+      } else {
+        const track = widget.querySelector('[data-vs-track]');
+        if (track) track.innerHTML = cardsHTML;
+        window.AmeVideoStories.bindOpenLinks(widget);
+      }
+    });
+
+    /* ──────────────────────────────────────── */
+    /* Spotlight: loop infinito + autoplay     */
+    /* ──────────────────────────────────────── */
+    function initSpotlight(widget) {
+      const outer = widget.querySelector('[data-vs-spot-outer]');
+      const track = widget.querySelector('[data-vs-spot-track]');
+      const dotsRow = widget.querySelector('[data-vs-spot-dots]');
+      if (!outer || !track) return;
+
+      const originals = Array.from(track.children);
+      const origLen = originals.length;
+      if (origLen === 0) return;
+
+      const GAP = 6;
+      const ROTATE_INTERVAL = 9000;
+
+      function getCardWidth() {
+        if (window.innerWidth <= 600) return Math.round(window.innerWidth * 0.68);
+        return 240;
+      }
+      let currentCardWidth = getCardWidth();
+
+      /* Clona originais N vezes para criar a "esteira" infinita */
+      const numCopias = Math.max(5, Math.ceil(15 / origLen));
+      track.innerHTML = '';
+      const displayCards = [];
+      for (let copy = 0; copy < numCopias; copy++) {
+        originals.forEach((orig, i) => {
+          const cloned = orig.cloneNode(true);
+          cloned.style.width = currentCardWidth + 'px';
+          track.appendChild(cloned);
+          displayCards.push({ el: cloned, origIdx: i });
         });
+      }
+
+      let activeIdx = Math.floor(numCopias / 2) * origLen;
+      const startIndex = activeIdx;
+      let timer = null;
+      let isTransitioning = false;
+
+      /* Dots (apenas para os originais) */
+      if (dotsRow && origLen > 1) {
+        dotsRow.innerHTML = '';
+        for (let i = 0; i < origLen; i++) {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'ame-vs__spot-dot';
+          dot.setAttribute('aria-label', `Ir para vídeo ${i + 1}`);
+          dot.addEventListener('click', () => {
+            const cycleStart = activeIdx - (((activeIdx % origLen) + origLen) % origLen);
+            goTo(cycleStart + i, true);
+            resetTimer();
+          });
+          dotsRow.appendChild(dot);
+        }
+      }
+
+      function loadVideoIntoCard(card) {
+        const vid = card.querySelector('[data-vs-spot-vid]');
+        if (!vid || vid.innerHTML) return;
+        const type = card.dataset.vsType;
+        const host = card.dataset.vsHost;
+        const id = card.dataset.vsId;
+        const src = card.dataset.vsSrc;
+        if (type === 'external' && host === 'youtube' && id) {
+          vid.innerHTML = `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(id)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${encodeURIComponent(id)}&playsinline=1&modestbranding=1&rel=0&disablekb=1" frameborder="0" allow="autoplay; encrypted-media" tabindex="-1"></iframe>`;
+        } else if (type === 'external' && host === 'vimeo' && id) {
+          vid.innerHTML = `<iframe src="https://player.vimeo.com/video/${encodeURIComponent(id)}?autoplay=1&muted=1&loop=1&background=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" tabindex="-1"></iframe>`;
+        } else if (type === 'native' && src) {
+          vid.innerHTML = `<video src="${src.replace(/"/g, '&quot;')}" autoplay muted loop playsinline></video>`;
+        }
+      }
+
+      function unloadVideoInCard(card) {
+        const vid = card.querySelector('[data-vs-spot-vid]');
+        if (vid) vid.innerHTML = '';
+      }
+
+      function goTo(idx, animated) {
+        if (isTransitioning && animated) return;
+        activeIdx = idx;
+        const origI = ((activeIdx % origLen) + origLen) % origLen;
+
+        displayCards.forEach((d, i) => {
+          const isActive = (i === activeIdx);
+          const isNear = Math.abs(i - activeIdx) <= 1;
+          d.el.classList.toggle('is-spot-active', isActive);
+          if (isNear) {
+            setTimeout(() => loadVideoIntoCard(d.el), isActive ? 350 : 600);
+          } else {
+            setTimeout(() => {
+              if (Math.abs(i - activeIdx) > 1) unloadVideoInCard(d.el);
+            }, 600);
+          }
+        });
+
+        if (dotsRow) {
+          Array.from(dotsRow.children).forEach((dot, i) => {
+            dot.classList.toggle('is-active', i === origI);
+          });
+        }
+
+        const outerW = outer.offsetWidth || window.innerWidth;
+        const step = currentCardWidth + GAP;
+        const tx = Math.round(outerW / 2 - (activeIdx * step + currentCardWidth / 2));
+
+        if (!animated) {
+          track.style.transition = 'none';
+          track.style.transform = `translateX(${tx}px)`;
+          // force reflow
+          void track.offsetHeight;
+          track.style.transition = '';
+        } else {
+          track.style.transition = 'transform 0.6s cubic-bezier(0.3, 0, 0.2, 1)';
+          track.style.transform = `translateX(${tx}px)`;
+          isTransitioning = true;
+          setTimeout(() => {
+            isTransitioning = false;
+            /* Quando chegar perto das bordas, salta de volta para o ciclo central sem animação */
+            if (activeIdx <= origLen || activeIdx >= displayCards.length - origLen - 1) {
+              goTo(startIndex + origI, false);
+            }
+          }, 600);
+        }
+      }
+
+      function resetTimer() {
+        clearInterval(timer);
+        if (origLen > 1) {
+          timer = setInterval(() => goTo(activeIdx + 1, true), ROTATE_INTERVAL);
+        }
+      }
+
+      /* Touch swipe */
+      let touchStartX = 0;
+      let isDragging = false;
+      outer.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        isDragging = true;
+        clearInterval(timer);
+      }, { passive: true });
+      outer.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (diff > 50) goTo(activeIdx + 1, true);
+        else if (diff < -50) goTo(activeIdx - 1, true);
+        isDragging = false;
+        resetTimer();
+      }, { passive: true });
+
+      /* Resize */
+      window.addEventListener('resize', () => {
+        const newWidth = getCardWidth();
+        if (newWidth !== currentCardWidth) {
+          currentCardWidth = newWidth;
+          displayCards.forEach(d => { d.el.style.width = currentCardWidth + 'px'; });
+        }
+        goTo(activeIdx, false);
+      });
+
+      /* Pausa em hover */
+      outer.addEventListener('mouseenter', () => clearInterval(timer));
+      outer.addEventListener('mouseleave', resetTimer);
+
+      /* Setas */
+      const prevBtn = widget.querySelector('[data-vs-spot-prev]');
+      const nextBtn = widget.querySelector('[data-vs-spot-next]');
+      prevBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearInterval(timer);
+        goTo(activeIdx - 1, true);
+        resetTimer();
+      });
+      nextBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearInterval(timer);
+        goTo(activeIdx + 1, true);
+        resetTimer();
+      });
+      if (origLen <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+      }
+
+      /* Re-bind clicks abrindo modal nos cards clonados */
+      window.AmeVideoStories.bindOpenLinks(widget);
+
+      /* Init */
+      requestAnimationFrame(() => {
+        goTo(startIndex, false);
+        resetTimer();
       });
     }
-
-    function bindAll() {
-      document.querySelectorAll('[data-vs-open]').forEach(bindOne);
-    }
-
-    window.AmeVideoStories = { open: openModal, close: closeModal, bindAll };
-    bindAll();
   })();
 </script>
 {%- endif -%}

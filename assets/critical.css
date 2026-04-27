@@ -11,7 +11,15 @@
 html,
 body {
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+@supports not (overflow-x: clip) {
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
 }
 
 body {
@@ -1221,6 +1229,7 @@ body::after {
   justify-content: flex-start;
   overflow: hidden;
 }
+
 .ame-announce__slide.is-marquee .ame-announce__inner {
   flex-shrink: 0;
   white-space: nowrap;
@@ -1228,9 +1237,36 @@ body::after {
   animation: ame-announce-marquee 14s linear forwards;
   will-change: transform;
 }
+
 @keyframes ame-announce-marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* Fade mask no canto direito — esconde o texto antes que ele alcance os dots */
+.ame-announce__slide.is-marquee::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 5rem;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--color-announce-bg, var(--color-primary, #5a4742)) 60%,
+    var(--color-announce-bg, var(--color-primary, #5a4742)) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.ame-announce__dots {
+  z-index: 2;
 }
 
 .ame-announce__link {
@@ -1769,14 +1805,7 @@ shopify-account {
     position: sticky;
     top: 6.5rem;
     align-self: start;
-    max-height: calc(100vh - 7rem);
-    overflow-y: auto;
-    scrollbar-width: thin;
-  }
-  .pdp__gallery::-webkit-scrollbar { width: 4px; }
-  .pdp__gallery::-webkit-scrollbar-thumb {
-    background: rgba(90, 71, 66, 0.15);
-    border-radius: 2px;
+    height: fit-content;
   }
 
   .pdp__info {
@@ -2341,11 +2370,14 @@ shopify-account {
   --metal-prata: linear-gradient(135deg, #f3f3f3 0%, #c0c0c0 60%, #8e8e8e 100%);
   --metal-rose: linear-gradient(135deg, #f3d3d3 0%, #d49797 60%, #a87070 100%);
 }
+
 .pdp__size-btn--metal {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  justify-content: center;
 }
+
 .pdp__metal-dot {
   display: inline-block;
   width: 0.875rem;
