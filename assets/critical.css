@@ -2583,3 +2583,13 @@ shopify-account {
 .account-button {
   color: var(--color-primary) !important;
 }
+/* Keyboard accessibility: focus rings for interactive elements */
+.pdp__swatch:focus-visible,
+.pdp__size-btn:focus-visible,
+.pdp__qty-btn:focus-visible,
+.pdp__custom-field__radio-btn:focus-visible,
+.pdp__thumb:focus-visible,
+.ame-cart-item__qty-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}

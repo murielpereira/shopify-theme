@@ -12,3 +12,7 @@
 **Vulnerability:** Unsanitized user input (`form.author`, `form.email`, `form.body`) was output directly in `sections/article.liquid`.
 **Learning:** In Shopify Liquid templates, user inputs like form variables are not auto-escaped. Outputting them dynamically back to the user inside HTML tags or attributes can lead to Reflected XSS.
 **Prevention:** Always apply the `escape` filter (e.g., `{{ form.field | escape }}`) when outputting form variables dynamically back to the user to prevent Reflected XSS.
+## 2024-05-25 - [Reflected XSS in Form Variables]
+**Vulnerability:** Unsanitized user input (`form.author`, `form.email`, `form.body`) was being directly outputted back to the user in `sections/article.liquid`.
+**Learning:** If a form submission fails and the form is re-rendered to show validation errors to the user, directly rendering the previous inputs (`value="{{ form.author }}"`) opens the application up to a reflected XSS vulnerability.
+**Prevention:** Always use the `escape` filter when outputting user input dynamically back to the user inside HTML tags or attributes (e.g., `{{ form.author | escape }}`).
