@@ -171,11 +171,11 @@
 
         function emptyHTML() {
           return `<div class="ame-cart-empty" data-cart-empty>
-            <span class="material-symbols-outlined ame-cart-empty__icon">shopping_bag</span>
+            <span class="material-symbols-outlined ame-cart-empty__icon" aria-hidden="true">shopping_bag</span>
             <p class="ame-cart-empty__title">Seu carrinho está vazio</p>
             <p class="ame-cart-empty__sub">Adicione produtos para começar</p>
             <a href="/collections/all" class="ame-cta ame-cart-empty__cta" data-cart-close>
-              Explorar produtos<span class="material-symbols-outlined">arrow_forward</span>
+              Explorar produtos<span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
             </a></div>`;
         }
 

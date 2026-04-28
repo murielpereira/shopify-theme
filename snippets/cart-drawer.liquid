@@ -21,7 +21,7 @@
       </span>
     </div>
     <button class="ame-cart-drawer__close" aria-label="Fechar carrinho" data-cart-close>
-      <span class="material-symbols-outlined">close</span>
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
   </div>
 
@@ -34,12 +34,12 @@
     {%- if cart.item_count == 0 -%}
       <!-- Empty state -->
       <div class="ame-cart-empty" data-cart-empty>
-        <span class="material-symbols-outlined ame-cart-empty__icon">shopping_bag</span>
+        <span class="material-symbols-outlined ame-cart-empty__icon" aria-hidden="true">shopping_bag</span>
         <p class="ame-cart-empty__title">Seu carrinho está vazio</p>
         <p class="ame-cart-empty__sub">Adicione produtos para começar</p>
         <a href="{{ routes.all_products_collection_url }}" class="ame-cta ame-cart-empty__cta" data-cart-close>
           Explorar produtos
-          <span class="material-symbols-outlined">arrow_forward</span>
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         </a>
       </div>
     {%- else -%}
@@ -60,7 +60,7 @@
         </div>
       {%- else -%}
         <div class="ame-cart-shipping-bar ame-cart-shipping-bar--achieved">
-          <span class="material-symbols-outlined">local_shipping</span>
+          <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
           <p>Você ganhou <strong>frete grátis</strong>!</p>
         </div>
       {%- endif -%}
@@ -157,7 +157,7 @@
     <!-- Discount code -->
     <div class="ame-cart-discount">
       <div class="ame-cart-discount__wrap">
-        <span class="material-symbols-outlined ame-cart-discount__icon">sell</span>
+        <span class="material-symbols-outlined ame-cart-discount__icon" aria-hidden="true">sell</span>
         <input
           type="text"
           id="cart-discount-input"
@@ -185,7 +185,7 @@
     <!-- CTA -->
     <a href="/checkout" class="ame-cta ame-cart-drawer__cta" data-cart-checkout>
       Finalizar compra
-      <span class="material-symbols-outlined">arrow_forward</span>
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
     </a>
 
     <a href="#" class="ame-cart-drawer__continue" data-cart-close>
