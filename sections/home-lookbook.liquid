@@ -21,7 +21,7 @@
               {{
                 block.settings.image
                 | image_url: width: 800
-                | image_tag:
+                | image_tag: widths: '400, 800',
                   loading: 'lazy',
                   class: 'ame-lookbook__img',
                   alt: block.settings.image.alt | escape

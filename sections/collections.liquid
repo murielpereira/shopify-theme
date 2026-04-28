@@ -35,7 +35,7 @@
             {{
               collection.image
               | image_url: width: 900
-              | image_tag:
+              | image_tag: widths: '300, 600, 900',
                 loading: 'lazy',
                 class: 'ame-collist__card-img',
                 alt: collection.title | escape
@@ -44,7 +44,7 @@
             {{
               collection.products.first.featured_image
               | image_url: width: 900
-              | image_tag:
+              | image_tag: widths: '300, 600, 900',
                 loading: 'lazy',
                 class: 'ame-collist__card-img',
                 alt: collection.title | escape

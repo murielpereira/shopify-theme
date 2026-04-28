@@ -59,7 +59,7 @@
     <div class="ame-card__image-wrap">
       {%- if card_img != blank -%}
         {%- assign card_img_alt = card_img.alt | default: card_title | escape -%}
-        {{ card_img | image_url: width: 600 | image_tag: loading: 'lazy', class: 'ame-card__img', alt: card_img_alt }}
+        {{ card_img | image_url: width: 600 | image_tag: loading: 'lazy', widths: '200, 400, 600', class: 'ame-card__img', alt: card_img_alt }}
       {%- else -%}
         {{ 'product-1' | placeholder_svg_tag: 'ame-card__img ame-card__img--placeholder' }}
       {%- endif -%}
