@@ -239,6 +239,38 @@
         "cta_default": "Ver mais"
       }
     },
+    "1777459086429d607a": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_24bb258_tYxfVi": {
+          "type": "ai_gen_block_24bb258",
+          "settings": {
+            "title": "Nossos produtos",
+            "subtitle": "Descubra nossa seleção especial",
+            "collection": "coleiras",
+            "products_per_row": 4,
+            "products_per_row_mobile": "2",
+            "initial_rows": 2,
+            "grid_gap": 24,
+            "desktop_width_percent": 100,
+            "button_text": "Ver mais produtos",
+            "button_bg_color": "#5a4742",
+            "button_hover_bg_color": "#735e59",
+            "button_text_color": "#ffffff",
+            "button_border_radius": 4,
+            "title_size": 32,
+            "title_color": "#201b14",
+            "subtitle_size": 16,
+            "subtitle_color": "#4f4442"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_24bb258_tYxfVi"
+      ],
+      "settings": {}
+    },
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
@@ -494,6 +526,7 @@
     "hero",
     "home_ad_bar_6pF6UL",
     "home_video_stories_MErTLy",
+    "1777459086429d607a",
     "home_video_stories_pNn8UU",
     "1777314298a0e78e83",
     "featured-collections",
