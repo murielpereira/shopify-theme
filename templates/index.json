@@ -507,6 +507,7 @@
         "eyebrow": "Nossa Filosofia",
         "title": "<p>Elegância<br/><em>Aerodinámica.</em></p>",
         "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos.</p>",
+        "image": "shopify://shop_images/IMG_9593.jpg",
         "floating_eyebrow": "Satisfação",
         "floating_label": "98.7%",
         "floating_sublabel": "de clientes satisfeitos"
@@ -567,6 +568,54 @@
       "block_order": [
         "ai_gen_block_895b1d1_JXKgXa"
       ],
+      "name": "Linha do Tempo",
+      "settings": {}
+    },
+    "1777459790c63ec612": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_0a852b5_jyFKMF": {
+          "type": "ai_gen_block_0a852b5",
+          "settings": {
+            "feature_image": "shopify://shop_images/atena_-_cavalier_1.png",
+            "feature_category": "Novidades",
+            "feature_title": "Descubra a nova coleção de acessórios para pets",
+            "feature_excerpt": "Conheça os produtos que vão deixar seu pet ainda mais estiloso e confortável nesta temporada.",
+            "feature_link": "",
+            "card_1_image": "shopify://shop_images/dapper-dog-gentleman-with-bowtie-posing-on-black-background.jpg",
+            "card_1_category": "Dicas",
+            "card_1_title": "Como escolher a coleira ideal para seu pet",
+            "card_1_link": "",
+            "card_2_image": "shopify://shop_images/animals-pet-supplies-natural-2.jpg",
+            "card_2_category": "Tendências",
+            "card_2_title": "Cores e estampas em alta para pets",
+            "card_2_link": "",
+            "card_3_image": "shopify://shop_images/real-dog-stuffed-dog.jpg",
+            "card_3_category": "Cuidados",
+            "card_3_title": "Manutenção e limpeza de acessórios",
+            "card_3_link": "",
+            "desktop_width_percent": 100,
+            "background_color": "#fff8f3",
+            "card_background": "#ffffff",
+            "feature_text_color": "#ffffff",
+            "category_color": "#5a4742",
+            "card_text_color": "#201b14",
+            "section_padding": 60,
+            "grid_gap": 20,
+            "border_radius": 8,
+            "content_padding": 40,
+            "feature_title_size": 42,
+            "category_size": 12,
+            "excerpt_size": 16,
+            "card_title_size": 16,
+            "card_category_size": 11
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_0a852b5_jyFKMF"
+      ],
       "settings": {}
     },
     "newsletter": {
@@ -590,6 +639,7 @@
     "lookbook",
     "brand-story",
     "17774596931163eef4",
+    "1777459790c63ec612",
     "newsletter"
   ]
 }
