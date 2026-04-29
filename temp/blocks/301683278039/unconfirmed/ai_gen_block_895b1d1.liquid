@@ -1,6 +1,588 @@
+{% doc %}
+  @prompt
+    Uma linha do tempo vertical interativa que se destaca conforme o usuário rola a página
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-timeline-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: 60px 0;
+  }
+
+  .ai-timeline-container-{{ ai_gen_id }} {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-timeline-line-{{ ai_gen_id }} {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: {{ block.settings.line_width }}px;
+    background-color: {{ block.settings.line_color }};
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  .ai-timeline-progress-{{ ai_gen_id }} {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 0%;
+    background: {{ block.settings.line_active_color }};
+    transition: height 0.3s ease;
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }} {
+    position: relative;
+    margin-bottom: 80px;
+    opacity: 0.3;
+    transition: opacity 0.5s ease;
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }}.active {
+    opacity: 1;
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }}:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-timeline-content-{{ ai_gen_id }} {
+    position: relative;
+    width: calc(50% - 40px);
+    padding: 24px;
+    background-color: {{ block.settings.card_bg_color }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }}:nth-child(odd) .ai-timeline-content-{{ ai_gen_id }} {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }}:nth-child(even) .ai-timeline-content-{{ ai_gen_id }} {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .ai-timeline-marker-{{ ai_gen_id }} {
+    position: absolute;
+    left: 50%;
+    top: 30px;
+    width: {{ block.settings.marker_size }}px;
+    height: {{ block.settings.marker_size }}px;
+    background-color: {{ block.settings.marker_color }};
+    border: {{ block.settings.marker_border_width }}px solid {{ block.settings.marker_border_color }};
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .ai-timeline-item-{{ ai_gen_id }}.active .ai-timeline-marker-{{ ai_gen_id }} {
+    background-color: {{ block.settings.marker_active_color }};
+    border-color: {{ block.settings.marker_active_border_color }};
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  .ai-timeline-date-{{ ai_gen_id }} {
+    font-size: {{ block.settings.date_font_size }}px;
+    color: {{ block.settings.date_color }};
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .ai-timeline-title-{{ ai_gen_id }} {
+    font-size: {{ block.settings.title_font_size }}px;
+    color: {{ block.settings.title_color }};
+    font-weight: 700;
+    margin: 0 0 12px 0;
+  }
+
+  .ai-timeline-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.description_font_size }}px;
+    color: {{ block.settings.description_color }};
+    line-height: 1.6;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-timeline-line-{{ ai_gen_id }} {
+      left: 20px;
+    }
+
+    .ai-timeline-content-{{ ai_gen_id }} {
+      width: calc(100% - 60px);
+      margin-left: 60px !important;
+      margin-right: 0 !important;
+    }
+
+    .ai-timeline-marker-{{ ai_gen_id }} {
+      left: 20px;
+    }
+
+    .ai-timeline-item-{{ ai_gen_id }} {
+      margin-bottom: 60px;
+    }
+  }
+{% endstyle %}
+
+<interactive-timeline-{{ ai_gen_id }} class="ai-timeline-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-timeline-container-{{ ai_gen_id }}">
+    <div class="ai-timeline-line-{{ ai_gen_id }}">
+      <div class="ai-timeline-progress-{{ ai_gen_id }}"></div>
+    </div>
+
+    {% for i in (1..6) %}
+      {% liquid
+        assign date_key = 'item_' | append: i | append: '_date'
+        assign title_key = 'item_' | append: i | append: '_title'
+        assign description_key = 'item_' | append: i | append: '_description'
+        assign enabled_key = 'item_' | append: i | append: '_enabled'
+
+        assign item_date = block.settings[date_key]
+        assign item_title = block.settings[title_key]
+        assign item_description = block.settings[description_key]
+        assign item_enabled = block.settings[enabled_key]
+      %}
+
+      {% if item_enabled %}
+        <div class="ai-timeline-item-{{ ai_gen_id }}" data-timeline-item>
+          <div class="ai-timeline-marker-{{ ai_gen_id }}"></div>
+          <div class="ai-timeline-content-{{ ai_gen_id }}">
+            {% if item_date != blank %}
+              <div class="ai-timeline-date-{{ ai_gen_id }}">{{ item_date }}</div>
+            {% endif %}
+            {% if item_title != blank %}
+              <h3 class="ai-timeline-title-{{ ai_gen_id }}">{{ item_title }}</h3>
+            {% endif %}
+            {% if item_description != blank %}
+              <div class="ai-timeline-description-{{ ai_gen_id }}">{{ item_description }}</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</interactive-timeline-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class InteractiveTimeline{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.items = [];
+        this.progressBar = null;
+        this.timelineLine = null;
+      }
+
+      connectedCallback() {
+        this.items = Array.from(this.querySelectorAll('[data-timeline-item]'));
+        this.progressBar = this.querySelector('.ai-timeline-progress-{{ ai_gen_id }}');
+        this.timelineLine = this.querySelector('.ai-timeline-line-{{ ai_gen_id }}');
+        
+        if (this.items.length === 0) return;
+
+        this.handleScroll = this.handleScroll.bind(this);
+        window.addEventListener('scroll', this.handleScroll);
+        this.handleScroll();
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('scroll', this.handleScroll);
+      }
+
+      handleScroll() {
+        const windowHeight = window.innerHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (!this.timelineLine) return;
+
+        const lineRect = this.timelineLine.getBoundingClientRect();
+        const lineTop = lineRect.top + scrollTop;
+        const lineHeight = lineRect.height;
+
+        let activeCount = 0;
+
+        this.items.forEach((item, index) => {
+          const itemRect = item.getBoundingClientRect();
+          const itemTop = itemRect.top + scrollTop;
+          const itemMiddle = itemTop + (itemRect.height / 2);
+
+          const triggerPoint = scrollTop + (windowHeight * 0.7);
+
+          if (triggerPoint >= itemMiddle) {
+            item.classList.add('active');
+            activeCount = index + 1;
+          } else {
+            item.classList.remove('active');
+          }
+        });
+
+        if (this.items.length > 0 && this.progressBar) {
+          const lastActiveItem = this.items[activeCount - 1];
+          if (lastActiveItem) {
+            const lastItemRect = lastActiveItem.getBoundingClientRect();
+            const lastItemTop = lastItemRect.top + scrollTop;
+            const progressHeight = ((lastItemTop - lineTop) / lineHeight) * 100;
+            this.progressBar.style.height = Math.min(Math.max(progressHeight, 0), 100) + '%';
+          } else {
+            this.progressBar.style.height = '0%';
+          }
+        }
+      }
+    }
+
+    customElements.define('interactive-timeline-{{ ai_gen_id }}', InteractiveTimeline{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Linha do tempo interativa",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Largura no desktop",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Linha central"
+    },
+    {
+      "type": "range",
+      "id": "line_width",
+      "label": "Espessura da linha",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "color",
+      "id": "line_color",
+      "label": "Cor da linha",
+      "default": "#d2c3c0"
+    },
+    {
+      "type": "color",
+      "id": "line_active_color",
+      "label": "Cor da linha ativa",
+      "default": "#5a4742"
+    },
+    {
+      "type": "header",
+      "content": "Marcadores"
+    },
+    {
+      "type": "range",
+      "id": "marker_size",
+      "label": "Tamanho do marcador",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "marker_color",
+      "label": "Cor do marcador",
+      "default": "#f8ece0"
+    },
+    {
+      "type": "color",
+      "id": "marker_border_color",
+      "label": "Cor da borda",
+      "default": "#d2c3c0"
+    },
+    {
+      "type": "range",
+      "id": "marker_border_width",
+      "label": "Espessura da borda",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 3
+    },
+    {
+      "type": "color",
+      "id": "marker_active_color",
+      "label": "Cor do marcador ativo",
+      "default": "#5a4742"
+    },
+    {
+      "type": "color",
+      "id": "marker_active_border_color",
+      "label": "Cor da borda ativa",
+      "default": "#5a4742"
+    },
+    {
+      "type": "header",
+      "content": "Cartões"
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Cor de fundo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Arredondamento",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Tipografia"
+    },
+    {
+      "type": "range",
+      "id": "date_font_size",
+      "label": "Tamanho da data",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "date_color",
+      "label": "Cor da data",
+      "default": "#5a4742"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Tamanho do título",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor do título",
+      "default": "#201b14"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Tamanho da descrição",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Cor da descrição",
+      "default": "#4f4442"
+    },
+    {
+      "type": "header",
+      "content": "Item 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_1_enabled",
+      "label": "Ativar item 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_1_date",
+      "label": "Data",
+      "default": "2020"
+    },
+    {
+      "type": "text",
+      "id": "item_1_title",
+      "label": "Título",
+      "default": "Fundação da empresa"
+    },
+    {
+      "type": "textarea",
+      "id": "item_1_description",
+      "label": "Descrição",
+      "default": "Iniciamos nossa jornada com o objetivo de oferecer os melhores acessórios para pets."
+    },
+    {
+      "type": "header",
+      "content": "Item 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_2_enabled",
+      "label": "Ativar item 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_2_date",
+      "label": "Data",
+      "default": "2021"
+    },
+    {
+      "type": "text",
+      "id": "item_2_title",
+      "label": "Título",
+      "default": "Primeira coleção"
+    },
+    {
+      "type": "textarea",
+      "id": "item_2_description",
+      "label": "Descrição",
+      "default": "Lançamos nossa primeira linha de coleiras personalizadas com grande sucesso."
+    },
+    {
+      "type": "header",
+      "content": "Item 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_3_enabled",
+      "label": "Ativar item 3",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_3_date",
+      "label": "Data",
+      "default": "2022"
+    },
+    {
+      "type": "text",
+      "id": "item_3_title",
+      "label": "Título",
+      "default": "Expansão nacional"
+    },
+    {
+      "type": "textarea",
+      "id": "item_3_description",
+      "label": "Descrição",
+      "default": "Expandimos nossas operações para todo o Brasil, alcançando milhares de pets."
+    },
+    {
+      "type": "header",
+      "content": "Item 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_4_enabled",
+      "label": "Ativar item 4",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_4_date",
+      "label": "Data",
+      "default": "2023"
+    },
+    {
+      "type": "text",
+      "id": "item_4_title",
+      "label": "Título",
+      "default": "Novos produtos"
+    },
+    {
+      "type": "textarea",
+      "id": "item_4_description",
+      "label": "Descrição",
+      "default": "Introduzimos uma linha completa de acessórios premium e sustentáveis."
+    },
+    {
+      "type": "header",
+      "content": "Item 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_5_enabled",
+      "label": "Ativar item 5",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_5_date",
+      "label": "Data",
+      "default": "2024"
+    },
+    {
+      "type": "text",
+      "id": "item_5_title",
+      "label": "Título",
+      "default": "Reconhecimento"
+    },
+    {
+      "type": "textarea",
+      "id": "item_5_description",
+      "label": "Descrição",
+      "default": "Recebemos prêmios de excelência em qualidade e atendimento ao cliente."
+    },
+    {
+      "type": "header",
+      "content": "Item 6"
+    },
+    {
+      "type": "checkbox",
+      "id": "item_6_enabled",
+      "label": "Ativar item 6",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "item_6_date",
+      "label": "Data",
+      "default": "2025"
+    },
+    {
+      "type": "text",
+      "id": "item_6_title",
+      "label": "Título",
+      "default": "Futuro sustentável"
+    },
+    {
+      "type": "textarea",
+      "id": "item_6_description",
+      "label": "Descrição",
+      "default": "Comprometidos com práticas sustentáveis e inovação contínua para o bem-estar dos pets."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Linha do tempo interativa"
+    }
+  ]
+}
 {% endschema %}
