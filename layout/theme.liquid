@@ -130,8 +130,8 @@
             el.textContent   = cart.item_count;
             el.style.display = cart.item_count > 0 ? '' : 'none';
           });
-          /* Count label */
-          document.querySelectorAll('[data-cart-count]').forEach(el => {
+          /* Count label (drawer apenas; o badge do header já foi atualizado acima com só o número) */
+          document.querySelectorAll('[data-cart-count]:not(.ame-header__cart-count)').forEach(el => {
             el.textContent = cart.item_count > 0
               ? `${cart.item_count} ${cart.item_count === 1 ? 'item' : 'itens'}` : '';
           });
