@@ -5,3 +5,6 @@
 ## 2026-05-01 - Add responsive image support via widths in image_tag
 **Learning:** Supplying the `widths` attribute to `image_tag` automatically outputs the `srcset` attribute, which enables the browser to download the most appropriate size based on the user's screen width, saving bandwidth and improving performance.
 **Action:** Always include the `widths` attribute inside `image_tag` to provide responsive image support.
+## 2024-05-14 - Eager Load LCP Images
+**Learning:** Hardcoding `loading: 'lazy'` inside loops for image galleries (like `{% for media in product.media %}`) is a common anti-pattern that causes the Largest Contentful Paint (LCP) element to be delayed, severely impacting Web Vitals. Liquid `forloop.first` can be used to conditionally apply `loading: 'eager'` and `fetchpriority: 'high'` to the first element instead.
+**Action:** Always check image rendering loops to ensure the first item (often the LCP candidate) is eager-loaded while subsequent items remain lazy-loaded.

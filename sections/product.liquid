@@ -61,12 +61,24 @@
           {%- for media in product.media -%}
             <div class="pdp__slide" data-media-id="{{ media.id }}">
               {%- if media.media_type == 'image' -%}
+                {%- liquid
+                  assign img_loading = 'lazy'
+                  assign img_fetchpriority = 'auto'
+
+                  # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+                  # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the product gallery.
+                  # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
+                  # 📊 Impact: Improves LCP Web Vital metric significantly.
+                  if forloop.first
+                    assign img_loading = 'eager'
+                    assign img_fetchpriority = 'high'
+                  endif
+                  assign img_alt = media.alt | default: product.title | escape
+                -%}
                 {{-
                   media
                   | image_url: width: 1200
-                  | image_tag: loading: 'lazy', class: 'pdp__slide-img', alt: media.alt
-                  | default: product.title
-                  | escape
+                  | image_tag: loading: img_loading, fetchpriority: img_fetchpriority, class: 'pdp__slide-img', alt: img_alt
                 -}}
               {%- elsif media.media_type == 'video' -%}
                 {{ media | video_tag: class: 'pdp__slide-img', autoplay: false, loop: true, muted: true }}
