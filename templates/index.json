@@ -269,6 +269,7 @@
       "block_order": [
         "ai_gen_block_24bb258_tYxfVi"
       ],
+      "name": "Grid",
       "settings": {}
     },
     "home_video_stories_pNn8UU": {
@@ -327,7 +328,7 @@
         "video_hXUiAF",
         "video_KBX4NR"
       ],
-      "name": "Vídeos (stories)",
+      "name": "Vídeos (destaques)",
       "settings": {
         "eyebrow": "",
         "title": "Em movimento",
@@ -387,6 +388,7 @@
       "block_order": [
         "ai_gen_block_cbd3f16_FLFUQ3"
       ],
+      "name": "Banners de Categoria",
       "settings": {}
     },
     "featured-collections": {
@@ -432,7 +434,6 @@
         "card-2",
         "card-3"
       ],
-      "disabled": true,
       "settings": {
         "eyebrow": "Coleções em Destaque",
         "title": "Curado para Cada Silhueta.",
@@ -467,7 +468,6 @@
         "img-2",
         "img-3"
       ],
-      "disabled": true,
       "settings": {
         "eyebrow": "Lookbook 2024",
         "title": "O Atelier em Cena."
@@ -512,6 +512,63 @@
         "floating_sublabel": "de clientes satisfeitos"
       }
     },
+    "17774596931163eef4": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_895b1d1_JXKgXa": {
+          "type": "ai_gen_block_895b1d1",
+          "settings": {
+            "desktop_width_percent": 100,
+            "line_width": 4,
+            "line_color": "#d2c3c0",
+            "line_active_color": "#5a4742",
+            "marker_size": 20,
+            "marker_color": "#f8ece0",
+            "marker_border_color": "#d2c3c0",
+            "marker_border_width": 3,
+            "marker_active_color": "#5a4742",
+            "marker_active_border_color": "#5a4742",
+            "card_bg_color": "#ffffff",
+            "card_border_radius": 8,
+            "date_font_size": 14,
+            "date_color": "#5a4742",
+            "title_font_size": 20,
+            "title_color": "#201b14",
+            "description_font_size": 15,
+            "description_color": "#4f4442",
+            "item_1_enabled": true,
+            "item_1_date": "2020",
+            "item_1_title": "Fundação da empresa",
+            "item_1_description": "Iniciamos nossa jornada com o objetivo de oferecer os melhores acessórios para pets.",
+            "item_2_enabled": true,
+            "item_2_date": "2021",
+            "item_2_title": "Primeira coleção",
+            "item_2_description": "Lançamos nossa primeira linha de coleiras personalizadas com grande sucesso.",
+            "item_3_enabled": true,
+            "item_3_date": "2022",
+            "item_3_title": "Expansão nacional",
+            "item_3_description": "Expandimos nossas operações para todo o Brasil, alcançando milhares de pets.",
+            "item_4_enabled": true,
+            "item_4_date": "2023",
+            "item_4_title": "Novos produtos",
+            "item_4_description": "Introduzimos uma linha completa de acessórios premium e sustentáveis.",
+            "item_5_enabled": true,
+            "item_5_date": "2024",
+            "item_5_title": "Reconhecimento",
+            "item_5_description": "Recebemos prêmios de excelência em qualidade e atendimento ao cliente.",
+            "item_6_enabled": true,
+            "item_6_date": "2025",
+            "item_6_title": "Futuro sustentável",
+            "item_6_description": "Comprometidos com práticas sustentáveis e inovação contínua para o bem-estar dos pets."
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_895b1d1_JXKgXa"
+      ],
+      "settings": {}
+    },
     "newsletter": {
       "type": "home-newsletter",
       "settings": {
@@ -532,6 +589,7 @@
     "featured-collections",
     "lookbook",
     "brand-story",
+    "17774596931163eef4",
     "newsletter"
   ]
 }
