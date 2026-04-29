@@ -477,9 +477,9 @@
         const compareCents = p.compare_at_price_min ?? p.compare_at_price ?? 0;
         const hasCompare = compareCents > priceCents;
         return `
-          <a class="ame-predictive__item" href="${url}">
+          <a class="ame-predictive__item" href="${escapeHTML(url)}">
             <div class="ame-predictive__thumb">
-              ${img ? `<img src="${img}" alt="${title}" loading="lazy">` : ''}
+              ${img ? `<img src="${escapeHTML(img)}" alt="${title}" loading="lazy">` : ''}
             </div>
             <div class="ame-predictive__info">
               <p class="ame-predictive__title">${title}</p>
