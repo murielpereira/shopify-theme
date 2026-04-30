@@ -280,7 +280,7 @@
           "settings": {
             "url": "https://www.youtube.com/shorts/4iPWGkeJp3M",
             "title": "",
-            "cta_label": "",
+            "cta_label": "Coleira Sara",
             "cta_url": ""
           }
         },
@@ -331,7 +331,7 @@
       "name": "Vídeos (destaques)",
       "settings": {
         "eyebrow": "",
-        "title": "Em movimento",
+        "title": "",
         "subtitle": "",
         "format": "spotlight",
         "tamanho": 70,
