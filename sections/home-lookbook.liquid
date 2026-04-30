@@ -11,6 +11,7 @@
     </div>
 
     <div class="ame-lookbook__grid">
+    {%- assign has_rendered_first_image = false -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'image' -%}
           <div
@@ -18,15 +19,31 @@
             {{ block.shopify_attributes }}
           >
             {%- if block.settings.image != blank -%}
+            {%- liquid
+              assign img_loading = 'lazy'
+              assign img_fetchpriority = 'auto'
+
+              # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+              # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the lookbook gallery.
+              # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
+              # 📊 Impact: Improves LCP Web Vital metric significantly.
+              if has_rendered_first_image == false
+                assign img_loading = 'eager'
+                assign img_fetchpriority = 'high'
+                assign has_rendered_first_image = true
+              endif
+            -%}
               {{
                 block.settings.image
                 | image_url: width: 800
                 | image_tag: widths: '400, 800',
-                  loading: 'lazy',
+                loading: img_loading,
+                fetchpriority: img_fetchpriority,
                   class: 'ame-lookbook__img',
                   alt: block.settings.image.alt | escape
               }}
             {%- else -%}
+            {%- assign has_rendered_first_image = true -%}
               {{ 'lifestyle-1' | placeholder_svg_tag: 'ame-lookbook__img ame-lookbook__img--placeholder' }}
             {%- endif -%}
             {%- if block.settings.caption != blank -%}
