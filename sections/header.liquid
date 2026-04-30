@@ -63,7 +63,7 @@
             aria-label="Fechar busca"
             data-search-close
           >
-            <span class="material-symbols-outlined">close</span>
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
           </button>
         </form>
       </div>
@@ -78,7 +78,7 @@
       ></div>
 
       <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
-        <span class="material-symbols-outlined">search</span>
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
       </button>
 
       {%- if shop.customer_accounts_enabled -%}
@@ -87,7 +87,7 @@
           class="ame-header__icon-btn"
           aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
         >
-          <span class="material-symbols-outlined">person</span>
+          <span class="material-symbols-outlined" aria-hidden="true">person</span>
         </a>
       {%- endif -%}
 
@@ -96,7 +96,7 @@
         aria-label="Carrinho ({{ cart.item_count }} itens)"
         data-cart-open
       >
-        <span class="material-symbols-outlined">shopping_bag</span>
+        <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
         <span
           class="ame-header__cart-count"
           data-cart-count
@@ -114,7 +114,7 @@
         aria-expanded="false"
         data-mobile-menu-toggle
       >
-        <span class="material-symbols-outlined" data-menu-icon>menu</span>
+        <span class="material-symbols-outlined" aria-hidden="true" data-menu-icon>menu</span>
       </button>
     </div>
   </header>
@@ -150,7 +150,7 @@
       data-predictive-input
     >
     <button type="button" class="ame-search-form__close" aria-label="Fechar busca" data-search-close-mobile>
-      <span class="material-symbols-outlined">close</span>
+      <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
   </form>
   <div
