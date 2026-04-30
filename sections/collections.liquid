@@ -31,12 +31,26 @@
         aria-label="{{ collection.title }}"
       >
         <div class="ame-collist__card-img-wrap">
+          {%- liquid
+            assign img_loading = 'lazy'
+            assign img_fetchpriority = 'auto'
+
+            # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+            # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the collections gallery.
+            # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
+            # 📊 Impact: Improves LCP Web Vital metric significantly.
+            if forloop.first
+              assign img_loading = 'eager'
+              assign img_fetchpriority = 'high'
+            endif
+          -%}
           {%- if collection.image != blank -%}
             {{
               collection.image
               | image_url: width: 900
               | image_tag: widths: '300, 600, 900',
-                loading: 'lazy',
+                loading: img_loading,
+                fetchpriority: img_fetchpriority,
                 class: 'ame-collist__card-img',
                 alt: collection.title | escape
             }}
@@ -45,7 +59,8 @@
               collection.products.first.featured_image
               | image_url: width: 900
               | image_tag: widths: '300, 600, 900',
-                loading: 'lazy',
+                loading: img_loading,
+                fetchpriority: img_fetchpriority,
                 class: 'ame-collist__card-img',
                 alt: collection.title | escape
             }}

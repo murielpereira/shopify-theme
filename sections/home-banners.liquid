@@ -33,11 +33,25 @@
       >
         <div class="ame-banner__img-wrap">
           {%- if block.settings.image != blank -%}
+            {%- liquid
+              assign img_loading = 'lazy'
+              assign img_fetchpriority = 'auto'
+
+              # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+              # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the banner gallery.
+              # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
+              # 📊 Impact: Improves LCP Web Vital metric significantly.
+              if forloop.first
+                assign img_loading = 'eager'
+                assign img_fetchpriority = 'high'
+              endif
+            -%}
             {{
               block.settings.image
               | image_url: width: 1400
               | image_tag:
-                loading: 'lazy',
+                loading: img_loading,
+                fetchpriority: img_fetchpriority,
                 class: 'ame-banner__img',
                 alt: block.settings.title | default: '' | escape
             }}
