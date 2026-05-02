@@ -36,7 +36,7 @@
           <input type="radio" name="ame-pingente-tipo" value="metal" data-pingente-tipo>
           <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
             <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
+              <span class="material-symbols-outlined" aria-hidden="true">image</span>
             </span>
           </div>
           <span class="ame-pingente__tipo-name">Metal</span>
@@ -46,7 +46,7 @@
           <input type="radio" name="ame-pingente-tipo" value="couro" data-pingente-tipo>
           <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
             <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
+              <span class="material-symbols-outlined" aria-hidden="true">image</span>
             </span>
           </div>
           <span class="ame-pingente__tipo-name">Couro</span>
@@ -56,7 +56,7 @@
           <input type="radio" name="ame-pingente-tipo" value="metal-couro" data-pingente-tipo>
           <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
             <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
+              <span class="material-symbols-outlined" aria-hidden="true">image</span>
             </span>
           </div>
           <span class="ame-pingente__tipo-name">Metal com Couro</span>
@@ -558,7 +558,7 @@
               if (priceEl) priceEl.textContent = '';
               if (thumb)
                 thumb.innerHTML =
-                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">block</span></span>';
+                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined" aria-hidden="true">block</span></span>';
               return;
             }
 
@@ -572,7 +572,7 @@
                 )}" loading="lazy">`;
               } else {
                 thumb.innerHTML =
-                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>';
+                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined" aria-hidden="true">image</span></span>';
               }
             }
             if (priceEl && product.price) priceEl.textContent = '+ ' + moneyFmt(product.price);
