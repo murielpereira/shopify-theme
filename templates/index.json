@@ -48,6 +48,7 @@
       "block_order": [
         "ai_gen_block_92c48dc_NCPQcp"
       ],
+      "disabled": true,
       "name": "Banner",
       "settings": {}
     },
