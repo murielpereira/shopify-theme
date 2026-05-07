@@ -44,7 +44,8 @@
       "pingente-de-couro-lilas-candy",
       "pingente-de-couro-branco",
       "pingente-de-couro-allure",
-      "pingente-de-couro-rosa-bebe"
+      "pingente-de-couro-rosa-bebe",
+      "pingente-de-couro-rosa-seco"
     ],
     "pingente_metal_couro_products": [
       "pingente-de-metal-com-couro-off-white",
@@ -53,7 +54,8 @@
       "pingente-de-metal-com-couro-rosa-bebe",
       "pingente-de-metal-com-couro-allure",
       "pingente-de-metal-com-couro-branco",
-      "pingente-de-metal-com-couro-lilas-candy"
+      "pingente-de-metal-com-couro-lilas-candy",
+      "pingente-de-metal-com-couro-rosa-seco"
     ],
     "pingente_size_map": "XPP=P, XPP+=P, PP=P, P=P, M=G, G=G, XPP=XPP, XPP+=XPP, PP=XPP",
     "custom_field_1_enable": true,
