@@ -40,7 +40,11 @@
     "pingente_couro_products": [
       "pingente-de-couro-azul-bebe",
       "pingente-de-couro-nude",
-      "pingente-de-couro-off-white"
+      "pingente-de-couro-off-white",
+      "pingente-de-couro-lilas-candy",
+      "pingente-de-couro-branco",
+      "pingente-de-couro-allure",
+      "pingente-de-couro-rosa-bebe"
     ],
     "pingente_metal_couro_products": [
       "pingente-de-metal-com-couro-off-white",
@@ -75,6 +79,20 @@
     "custom_field_4_name": "Telefone",
     "custom_field_4_title": "Verso 2ª Linha / Telefone do tutor",
     "custom_field_4_required": true,
+    "custom_field_5_enable": true,
+    "custom_field_5_tag": "customizacao_data",
+    "custom_field_5_name": "Data:",
+    "custom_field_5_title": "Data",
+    "custom_field_5_placeholder": "Escolha a data do evento:",
+    "custom_field_5_type": "date",
+    "custom_field_5_required": true,
+    "custom_field_6_enable": true,
+    "custom_field_6_tag": "customizacao_iniciais",
+    "custom_field_6_name": "Iniciais",
+    "custom_field_6_title": "Iniciais",
+    "custom_field_6_placeholder": "Digite as iniciais para gravação",
+    "custom_field_6_limiter": "2",
+    "custom_field_6_required": true,
     "content_for_index": [],
     "blocks": {
       "9741741230116411038": {
