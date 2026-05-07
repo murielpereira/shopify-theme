@@ -38,18 +38,13 @@
     "social_whatsapp": "",
     "pingente_metal_product": "pingente-de-metal",
     "pingente_metal_couro_products": [
-      "pingente-de-metal-com-couro-para-identificacao-pet-allure",
-      "pingente-de-metal-com-couro-para-identificacao-pet-azul-bebe",
-      "pingente-de-metal-com-couro-para-identificacao-pet-branco",
-      "pingente-de-metal-com-couro-para-identificacao-pet-camel",
-      "pingente-de-metal-com-couro-para-identificacao-pet-chiclete",
-      "pingente-de-metal-com-couro-para-identificacao-pet-lilas-candy",
-      "pingente-de-metal-com-couro-para-identificacao-pet-nude",
-      "pingente-de-metal-com-couro-para-identificacao-pet-off-white",
-      "pingente-de-metal-com-couro-para-identificacao-pet-rosa-bebe",
-      "pingente-de-metal-com-couro-para-identificacao-pet-rosa-seco",
-      "pingente-de-metal-com-couro-para-identificacao-pet-sepia",
-      "pingente-metal-couro-pet-off-white"
+      "pingente-de-metal-com-couro-off-white",
+      "pingente-de-metal-com-couro-azul-bebe",
+      "pingente-de-metal-com-couro-nude",
+      "pingente-de-metal-com-couro-rosa-bebe",
+      "pingente-de-metal-com-couro-allure",
+      "pingente-de-metal-com-couro-branco",
+      "pingente-de-metal-com-couro-lilas-candy"
     ],
     "pingente_size_map": "XPP=P, XPP+=P, PP=P, P=P, M=G, G=G, XPP=XPP, XPP+=XPP, PP=XPP",
     "custom_field_1_enable": true,
@@ -75,6 +70,13 @@
     "custom_field_4_name": "Telefone",
     "custom_field_4_title": "Verso 2ª Linha / Telefone do tutor",
     "custom_field_4_required": true,
-    "content_for_index": []
+    "content_for_index": [],
+    "blocks": {
+      "9741741230116411038": {
+        "type": "shopify://apps/optis-color-swatch/blocks/bss-se-script/ad128d8f-5ebd-45ad-954a-7dd4c4226109",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   }
 }
