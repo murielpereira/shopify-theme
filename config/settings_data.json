@@ -37,6 +37,11 @@
     "social_facebook": "",
     "social_whatsapp": "",
     "pingente_metal_product": "pingente-de-metal",
+    "pingente_couro_products": [
+      "pingente-de-couro-azul-bebe",
+      "pingente-de-couro-nude",
+      "pingente-de-couro-off-white"
+    ],
     "pingente_metal_couro_products": [
       "pingente-de-metal-com-couro-off-white",
       "pingente-de-metal-com-couro-azul-bebe",
