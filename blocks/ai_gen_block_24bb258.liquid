@@ -231,7 +231,7 @@
       <div class="ai-product-grid__grid-{{ ai_gen_id }}">
         {% for product in products %}
           <div class="ai-product-grid__item-{{ ai_gen_id }} {% if forloop.index <= initial_count %}visible{% endif %}" data-index="{{ forloop.index }}">
-            {% render 'product-card', card_product: product %}
+            {% render 'product-card', card_product: product, eager_load_image: forloop.first %}
           </div>
         {% endfor %}
       </div>
