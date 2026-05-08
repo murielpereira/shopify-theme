@@ -2497,12 +2497,14 @@ shopify-account {
 .pdp__qty-input::-webkit-outer-spin-button,
 .pdp__qty-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
 /* Firefox */
 .pdp__qty-input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* ── CTAs ── */

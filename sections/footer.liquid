@@ -1,6 +1,5 @@
 <footer class="ame-footer full-width">
   <div class="ame-footer__inner">
-
     <!-- Brand column -->
     <div class="ame-footer__brand">
       <a href="{{ routes.root_url }}" class="ame-footer__logo">{{ shop.name }}</a>
@@ -9,21 +8,40 @@
       {% endif %}
 
       {% if section.settings.social_instagram != blank
-          or section.settings.social_facebook != blank
-          or section.settings.social_whatsapp != blank %}
+        or section.settings.social_facebook != blank
+        or section.settings.social_whatsapp != blank
+      %}
         <div class="ame-footer__social">
           {% if section.settings.social_instagram != blank %}
-            <a href="{{ section.settings.social_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ame-footer__social-link">
+            <a
+              href="{{ section.settings.social_instagram }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              class="ame-footer__social-link"
+            >
               <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
             </a>
           {% endif %}
           {% if section.settings.social_facebook != blank %}
-            <a href="{{ section.settings.social_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ame-footer__social-link">
+            <a
+              href="{{ section.settings.social_facebook }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              class="ame-footer__social-link"
+            >
               <span class="material-symbols-outlined" aria-hidden="true">thumb_up</span>
             </a>
           {% endif %}
           {% if section.settings.social_whatsapp != blank %}
-            <a href="{{ section.settings.social_whatsapp }}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="ame-footer__social-link">
+            <a
+              href="{{ section.settings.social_whatsapp }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              class="ame-footer__social-link"
+            >
               <span class="material-symbols-outlined" aria-hidden="true">chat</span>
             </a>
           {% endif %}
@@ -57,7 +75,8 @@
     <!-- Copyright + payment -->
     <div class="ame-footer__bottom">
       <p class="ame-footer__copyright">
-        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. Todos os direitos reservados.
+        &copy; {{ 'now' | date: '%Y' }}
+        {{ shop.name }}. Todos os direitos reservados.
       </p>
       {% if section.settings.show_payment_icons %}
         <div class="ame-footer__payment">
@@ -67,13 +86,12 @@
         </div>
       {% endif %}
     </div>
-
   </div>
 </footer>
 
 {% stylesheet %}
   .ame-footer {
-    background: var(--color-surface-container, #f8ece0);
+    background: var(--color-primary, #5a4742);
     padding: 5rem var(--page-margin, 2rem);
     margin-top: 0;
   }
@@ -99,7 +117,7 @@
     font-weight: 900;
     letter-spacing: -0.02em;
     text-transform: uppercase;
-    color: var(--color-primary, #5a4742);
+    color: var(--color-on-primary, #ffffff);
     text-decoration: none;
     display: block;
     margin-bottom: 1rem;
@@ -157,7 +175,9 @@
     text-decoration: none;
     transition: opacity 0.25s ease;
   }
-  .ame-footer__nav-link:hover { opacity: 0.7; }
+  .ame-footer__nav-link:hover {
+    opacity: 0.7;
+  }
 
   /* Bottom row — spans all columns */
   .ame-footer__bottom {
@@ -198,7 +218,9 @@
     opacity: 0.4;
     transition: opacity 0.2s ease;
   }
-  .ame-footer__payment-icon:hover { opacity: 0.7; }
+  .ame-footer__payment-icon:hover {
+    opacity: 0.7;
+  }
 {% endstylesheet %}
 
 {% schema %}
