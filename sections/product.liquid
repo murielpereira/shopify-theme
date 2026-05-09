@@ -212,22 +212,24 @@
     <!-- Badge de coleção / heritage -->
     {%- liquid
       assign show_meta = false
-      for tag in product.tags
-        if tag == 'heritage' or tag == 'Heritage'
-          assign show_meta = true
-        endif
-      endfor
+      if product.tags contains 'heritage' or product.tags contains 'Heritage'
+        assign show_meta = true
+      endif
       if product.available == false
         assign show_meta = true
       endif
     -%}
     {%- if show_meta -%}
       <div class="pdp__meta">
-        {%- for tag in product.tags -%}
-          {%- if tag == 'heritage' or tag == 'Heritage' -%}
-            <span class="ame-chip">Heritage Series</span>
-          {%- endif -%}
-        {%- endfor -%}
+        {%- comment -%}
+          ⚡ Bolt: Optimize heritage tag check
+          💡 What: Replaced `for tag in product.tags` loop with `product.tags contains` array check.
+          🎯 Why: Iterating over `product.tags` to find a specific tag causes O(N) rendering overhead. Native `contains` provides O(N) internal C++ lookup without the Liquid loop scoping overhead.
+          📊 Impact: Reduces template compilation overhead and improves server response time for products with many tags.
+        {%- endcomment -%}
+        {%- if product.tags contains 'heritage' or product.tags contains 'Heritage' -%}
+          <span class="ame-chip">Heritage Series</span>
+        {%- endif -%}
         {%- if product.available == false -%}
           <span class="ame-chip">Esgotado</span>
         {%- endif -%}
