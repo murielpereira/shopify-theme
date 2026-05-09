@@ -4,3 +4,6 @@
 ## 2024-05-07 - Add aria-hidden to decorative icons
 **Learning:** Found instances where material symbols (like `expand_more` in select dropdowns) were missing `aria-hidden="true"`, causing screen readers to improperly announce them as the ligature text.
 **Action:** Ensure all decorative `<span class="material-symbols-outlined">` elements are accompanied by `aria-hidden="true"` when placed next to visually meaningful text or inputs.
+## 2024-05-18 - Missing native tooltips on icon-only buttons
+**Learning:** Found that while icon-only buttons correctly utilized `aria-label` for screen reader accessibility, they lacked `title` attributes. This meant sighted users relying on a mouse would not get visual tooltip feedback on hover, potentially causing confusion regarding the button's action.
+**Action:** Always add native `title` tooltips matching the `aria-label` text to icon-only buttons or interactive elements to ensure visual clarity for all users.
