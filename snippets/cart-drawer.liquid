@@ -20,7 +20,7 @@
         {%- if cart.item_count > 0 -%}{{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}itens{% endif %}{%- endif -%}
       </span>
     </div>
-    <button class="ame-cart-drawer__close" aria-label="Fechar carrinho" data-cart-close>
+    <button type="button" class="ame-cart-drawer__close" aria-label="Fechar carrinho" title="Fechar carrinho" data-cart-close>
       <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
   </div>

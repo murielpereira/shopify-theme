@@ -78,7 +78,7 @@
         hidden
       ></div>
 
-      <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
+      <button type="button" class="ame-header__icon-btn" aria-label="Buscar" title="Buscar" data-search-toggle>
         <span class="material-symbols-outlined" aria-hidden="true">search</span>
       </button>
 
@@ -86,7 +86,7 @@
         <a
           href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
           class="ame-header__icon-btn"
-          aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
+          aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}" title="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
         >
           <span class="material-symbols-outlined" aria-hidden="true">person</span>
         </a>
@@ -94,7 +94,7 @@
 
       <button
         class="ame-header__icon-btn ame-header__cart"
-        aria-label="Carrinho ({{ cart.item_count }} itens)"
+        aria-label="Carrinho ({{ cart.item_count }} itens)" title="Carrinho"
         data-cart-open
       >
         <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
@@ -111,7 +111,7 @@
 
       <button
         class="ame-header__icon-btn ame-header__mobile-menu-btn"
-        aria-label="Menu"
+        aria-label="Menu" title="Menu"
         aria-expanded="false"
         data-mobile-menu-toggle
       >
