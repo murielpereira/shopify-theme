@@ -62,6 +62,7 @@
             type="button"
             class="ame-header__icon-btn ame-header__search-close"
             aria-label="Fechar busca"
+            title="Fechar busca"
             data-search-close
           >
             <span class="material-symbols-outlined" aria-hidden="true">close</span>
@@ -78,7 +79,7 @@
         hidden
       ></div>
 
-      <button class="ame-header__icon-btn" aria-label="Buscar" data-search-toggle>
+      <button class="ame-header__icon-btn" aria-label="Buscar" title="Buscar" data-search-toggle>
         <span class="material-symbols-outlined" aria-hidden="true">search</span>
       </button>
 
@@ -87,6 +88,7 @@
           href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
           class="ame-header__icon-btn"
           aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
+          title="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
         >
           <span class="material-symbols-outlined" aria-hidden="true">person</span>
         </a>
@@ -95,6 +97,7 @@
       <button
         class="ame-header__icon-btn ame-header__cart"
         aria-label="Carrinho ({{ cart.item_count }} itens)"
+        title="Carrinho ({{ cart.item_count }} itens)"
         data-cart-open
       >
         <span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span>
@@ -112,6 +115,7 @@
       <button
         class="ame-header__icon-btn ame-header__mobile-menu-btn"
         aria-label="Menu"
+        title="Menu"
         aria-expanded="false"
         data-mobile-menu-toggle
       >
@@ -150,7 +154,7 @@
       aria-label="Buscar"
       data-predictive-input
     >
-    <button type="button" class="ame-search-form__close" aria-label="Fechar busca" data-search-close-mobile>
+    <button type="button" class="ame-search-form__close" aria-label="Fechar busca" title="Fechar busca" data-search-close-mobile>
       <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
   </form>

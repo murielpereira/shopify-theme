@@ -20,7 +20,7 @@
         {%- if cart.item_count > 0 -%}{{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}itens{% endif %}{%- endif -%}
       </span>
     </div>
-    <button class="ame-cart-drawer__close" aria-label="Fechar carrinho" data-cart-close>
+    <button class="ame-cart-drawer__close" aria-label="Fechar carrinho" title="Fechar carrinho" data-cart-close>
       <span class="material-symbols-outlined" aria-hidden="true">close</span>
     </button>
   </div>
@@ -120,6 +120,7 @@
                     type="button"
                     class="ame-cart-item__qty-btn"
                     aria-label="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
+                    title="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
                     data-qty-minus="{{ item.key }}"
                     {% if item.quantity <= 1 %}data-remove="{{ item.key }}"{% endif %}
                   >
@@ -132,6 +133,7 @@
                     type="button"
                     class="ame-cart-item__qty-btn"
                     aria-label="Aumentar quantidade"
+                    title="Aumentar quantidade"
                     data-qty-plus="{{ item.key }}"
                   >
                     <span class="material-symbols-outlined" aria-hidden="true">add</span>
