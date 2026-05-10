@@ -11,3 +11,6 @@
 ## 2026-05-18 - Optimize nested loops with contains operator
 **Learning:** When matching items from a large array (like `product.tags`) against dynamic settings, using a nested loop (`{% for tag in product.tags %} {% for i in (1..10) %}`) results in O(M*N) iteration overhead. Liquid's `contains` operator (`product.tags contains setting_val`) provides a much faster O(N) lookup.
 **Action:** Replace nested loops that merely check for array membership with a single loop and the native `contains` array operator to reduce iteration overhead.
+## 2024-05-18 - Optimize nested loops with contains operator
+**Learning:** When matching items from a large array (like `product.tags`) against dynamic settings, using a nested loop (`{% for tag in product.tags %} {% for i in (1..10) %}`) results in O(M*N) iteration overhead. Liquid's `contains` operator (`product.tags contains setting_val`) provides a much faster O(N) lookup.
+**Action:** Replace nested loops that merely check for array membership with a single loop and the native `contains` array operator to reduce iteration overhead.
