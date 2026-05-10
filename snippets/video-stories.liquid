@@ -415,10 +415,9 @@
   .ame-vs--spotlight {
     position: relative;
     /* Full-bleed: ignora padding do container e ocupa 100vw */
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    width: auto;
+    margin-left: calc(-1 * var(--page-margin, 2rem));
+    margin-right: calc(-1 * var(--page-margin, 2rem));
   }
   .ame-vs__spot-outer {
     position: relative;
