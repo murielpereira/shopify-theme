@@ -174,29 +174,23 @@
       swarm.setAttribute('aria-hidden', 'true');
       document.body.appendChild(swarm);
 
-      // Clona o shape do <defs> pra cada borboleta — assim cada uma tem fill próprio
-      // sem conflito de shadow DOM do <use> (que não propaga CSS de forma consistente).
+      // Pega o conteúdo do shape como string template; cada borboleta recebe sua
+      // cor via simples substituição no HTML (sem <use>, sem clone do DOM — assim
+      // cada SVG é completamente independente, sem chance de conflito de fill).
       const shapeTemplate = document.getElementById('ame-shape-moth');
-      const SVG_NS = 'http://www.w3.org/2000/svg';
+      const shapeInnerHTML = shapeTemplate ? shapeTemplate.innerHTML : '';
       function buildWingSVG(color) {
-        if (!shapeTemplate) return '';
-        const clone = shapeTemplate.cloneNode(true);
-        clone.removeAttribute('id');
-        // Atualiza só o path principal; sombras (gray) e contorno (preto) ficam fixos
-        const mainPath = clone.querySelector('#ame-moth-main');
-        if (mainPath) {
-          mainPath.setAttribute('fill', color);
-          mainPath.removeAttribute('id');
-        }
-        const svgEl = document.createElementNS(SVG_NS, 'svg');
-        svgEl.setAttribute('viewBox', '0 0 119.744 148.477');
-        svgEl.appendChild(clone);
-        return svgEl.outerHTML;
+        // O path principal no <defs> tem fill="currentColor" — substituímos pela cor.
+        // Sombras e contorno preto ficam fixos.
+        const colored = shapeInnerHTML.replace(/fill="currentColor"/g, 'fill="' + color + '"');
+        return '<svg viewBox="0 0 119.744 148.477">' + colored + '</svg>';
       }
 
+      const usedColors = [];
       const animations = [];
       for (let i = 0; i < count; i++) {
         const color = palette[Math.floor(Math.random() * palette.length)];
+        usedColors.push(color);
         const wingSVG = buildWingSVG(color);
         const b = document.createElement('div');
         b.className = 'ame-butterfly-svg';
@@ -235,6 +229,8 @@
         );
         animations.push(anim.finished.catch(() => {}));
       }
+
+      console.info('[ame-butterflies-svg] cores aplicadas:', usedColors, '— template?', !!shapeTemplate, 'tem fill="currentColor"?', shapeInnerHTML.includes('fill="currentColor"'));
 
       Promise.all(animations).finally(() => swarm.remove());
 
