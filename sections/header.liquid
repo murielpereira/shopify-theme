@@ -123,15 +123,42 @@
   <!-- Nav bar secundária (desktop) -->
   <nav class="ame-header__nav-bar" aria-label="Menu principal" data-nav-bar>
     {%- for link in section.settings.menu.links -%}
-      <a
-        href="{{ link.url }}"
-        class="ame-header__nav-link{% if link.active %} ame-header__nav-link--active{% endif %}"
-        {% if link.current %}
-          aria-current="page"
-        {% endif %}
-      >
-        {{- link.title -}}
-      </a>
+      {%- if link.links.size > 0 -%}
+        <div class="ame-header__nav-item ame-header__nav-item--has-children">
+          <a
+            href="{{ link.url }}"
+            class="ame-header__nav-link{% if link.active %} ame-header__nav-link--active{% endif %}"
+            aria-haspopup="true"
+            aria-expanded="false"
+            {% if link.current %}aria-current="page"{% endif %}
+          >
+            {{- link.title -}}
+            <span class="ame-header__nav-caret material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </a>
+          <ul class="ame-header__nav-dropdown" role="menu">
+            {%- for sublink in link.links -%}
+              <li role="none">
+                <a
+                  href="{{ sublink.url }}"
+                  class="ame-header__nav-dropdown-link{% if sublink.active %} is-active{% endif %}"
+                  role="menuitem"
+                  {% if sublink.current %}aria-current="page"{% endif %}
+                >
+                  {{- sublink.title -}}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- else -%}
+        <a
+          href="{{ link.url }}"
+          class="ame-header__nav-link{% if link.active %} ame-header__nav-link--active{% endif %}"
+          {% if link.current %}aria-current="page"{% endif %}
+        >
+          {{- link.title -}}
+        </a>
+      {%- endif -%}
     {%- endfor -%}
   </nav>
 </div>
@@ -165,12 +192,40 @@
 <!-- Mobile nav drawer (fora do grupo fixed) -->
 <nav class="ame-mobile-nav" id="mobile-nav" aria-hidden="true" data-mobile-nav>
   {%- for link in section.settings.menu.links -%}
-    <a
-      href="{{ link.url }}"
-      class="ame-mobile-nav__link{% if link.active %} ame-mobile-nav__link--active{% endif %}"
-    >
-      {{- link.title -}}
-    </a>
+    {%- if link.links.size > 0 -%}
+      <div class="ame-mobile-nav__group">
+        <button
+          type="button"
+          class="ame-mobile-nav__link ame-mobile-nav__toggle{% if link.active %} ame-mobile-nav__link--active{% endif %}"
+          aria-expanded="false"
+          data-mobile-submenu-toggle
+        >
+          <span>{{ link.title }}</span>
+          <span class="material-symbols-outlined ame-mobile-nav__caret" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="ame-mobile-nav__submenu" hidden>
+          <a
+            href="{{ link.url }}"
+            class="ame-mobile-nav__sublink ame-mobile-nav__sublink--parent"
+          >Ver tudo em {{ link.title }}</a>
+          {%- for sublink in link.links -%}
+            <a
+              href="{{ sublink.url }}"
+              class="ame-mobile-nav__sublink{% if sublink.active %} ame-mobile-nav__sublink--active{% endif %}"
+            >
+              {{- sublink.title -}}
+            </a>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- else -%}
+      <a
+        href="{{ link.url }}"
+        class="ame-mobile-nav__link{% if link.active %} ame-mobile-nav__link--active{% endif %}"
+      >
+        {{- link.title -}}
+      </a>
+    {%- endif -%}
   {%- endfor -%}
 </nav>
 
@@ -586,6 +641,19 @@
         menuIcon.textContent = open ? 'close' : 'menu';
       });
     }
+
+    /* ── Mobile submenu (acordeão das sub-coleções) ── */
+    document.querySelectorAll('[data-mobile-submenu-toggle]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        const submenu = btn.nextElementSibling;
+        if (submenu) {
+          if (expanded) submenu.setAttribute('hidden', '');
+          else submenu.removeAttribute('hidden');
+        }
+      });
+    });
   })();
 </script>
 

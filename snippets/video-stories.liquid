@@ -274,11 +274,14 @@
     width: 100%;
     box-sizing: border-box;
     cursor: grab;
-    user-select: none;
+    /* touch-action: garante que o navegador permita pan horizontal nativo no mobile.
+       user-select fica só durante drag de mouse pra não bloquear o touch scrolling. */
+    touch-action: pan-x;
   }
   .ame-vs__track.is-dragging {
     cursor: grabbing;
     scroll-snap-type: none;
+    user-select: none;
   }
   .ame-vs__track.is-dragging .ame-vs__item {
     pointer-events: none;

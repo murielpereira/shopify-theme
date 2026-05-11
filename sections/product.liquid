@@ -394,7 +394,9 @@
 
     <!-- ── Descrição curta (metafield custom.descricao_curta) ── -->
     {%- if product.metafields.custom.descricao_curta != blank -%}
-      <div class="pdp__desc pdp__desc--short">{{ product.metafields.custom.descricao_curta }}</div>
+      <div class="pdp__desc pdp__desc--short">
+        {{- product.metafields.custom.descricao_curta | metafield_tag -}}
+      </div>
     {%- endif -%}
 
     <!-- ── Características do produto (metafield custom.caracteristicas — lista de strings) ── -->
@@ -769,6 +771,9 @@
             type="submit"
             class="ame-cta pdp__add-btn"
             id="pdp-add-btn"
+            {% if product.tags contains 'efeito_borboletas' %}
+              data-fly-effect="butterflies"
+            {% endif %}
             {% if cta_sold_out %}
               disabled
             {% endif %}
@@ -808,6 +813,10 @@
   <!-- /pdp__info -->
 </div>
 <!-- /pdp -->
+
+{%- if product.tags contains 'efeito_borboletas' -%}
+  {%- render 'cart-flying-butterflies' -%}
+{%- endif -%}
 
 <!-- Acordeões de detalhes foram movidos pra section própria: sections/product-accordions.liquid -->
 
@@ -1255,6 +1264,14 @@
         /* Busca carrinho atualizado e repassa ao drawer */
         const cartData = await (await fetch('/cart.js')).json();
         window.AmeCart?.refresh(cartData);
+
+        /* Efeito de borboletas (produtos com tag `efeito_borboletas`).
+           Aguarda o efeito chegar no carrinho antes de abrir o drawer pro cliente
+           ter o feedback visual completo. */
+        if (btn.dataset.flyEffect === 'butterflies' && window.AmeButterflies?.fly) {
+          await window.AmeButterflies.fly(btn);
+        }
+
         window.AmeCart?.open();
 
         /* Feedback no botão */

@@ -30,7 +30,7 @@
       <button
         class="ame-accordion__btn"
         type="button"
-        aria-expanded="false"
+        aria-expanded="true"
         aria-controls="pdp-acc-{{ section.id }}-default"
       >
         <span>Detalhes do Produto</span>
@@ -41,7 +41,11 @@
           >add</span
         >
       </button>
-      <div id="pdp-acc-{{ section.id }}-default" class="ame-accordion__content" hidden>
+      <div
+        id="pdp-acc-{{ section.id }}-default"
+        class="ame-accordion__content"
+        style="max-height: 60rem;"
+      >
         <div class="ame-accordion__body">{{ product.description }}</div>
       </div>
     </div>

@@ -1,0 +1,152 @@
+{% comment %}
+  Âme — Borboletas voadoras pro carrinho
+  Cria N borboletas saindo de um elemento de origem (CTA "Adicionar ao Carrinho")
+  e voando até o ícone da sacola no header.
+
+  API global:
+    window.AmeButterflies.fly(originEl, { count, color, onArrive })
+
+  Uso: chamar `window.AmeButterflies.fly(addBtn)` após sucesso do cart/add.
+  Ativação típica: produtos com a tag `efeito_borboletas`.
+{% endcomment %}
+
+<style>
+  /* Container fixed que cobre a tela; pointer-events: none pra não bloquear clicks */
+  .ame-butterfly-swarm {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: visible;
+  }
+
+  /* Cada borboleta: posicionada via JS (left/top), animada via WAAPI */
+  .ame-butterfly {
+    position: absolute;
+    width: 28px;
+    height: 22px;
+    transform: translate(-50%, -50%);
+    will-change: transform, opacity;
+  }
+
+  /* Asas: usa o mesmo princípio do CSS original (radial gradient pra cada asa) */
+  .ame-butterfly__wings {
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(closest-side at 50% 50%, var(--bf-color, #fff) 50%, rgba(255,255,255,0) 50%),
+      radial-gradient(closest-side at 50% 50%, var(--bf-color, #fff) 50%, rgba(255,255,255,0) 50%);
+    background-repeat: no-repeat;
+    background-size: 90% 70%, 100% 70%;
+    background-position: 20% -40%, 0 40%;
+    filter: drop-shadow(0 2px 4px rgba(32, 27, 20, 0.25));
+    animation: ame-butterfly-flap 140ms ease-in-out infinite alternate;
+  }
+
+  @keyframes ame-butterfly-flap {
+    0%   { transform: scale(1, 1.2) rotate(35deg); }
+    100% { transform: scale(0.7, -1) rotate(-35deg); }
+  }
+
+  /* Pulse no ícone do carrinho quando as borboletas chegam */
+  .ame-cart-pulse {
+    animation: ame-cart-pulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes ame-cart-pulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    65%  { transform: scale(0.92); }
+    100% { transform: scale(1); }
+  }
+
+  /* Respeita preferências de acessibilidade */
+  @media (prefers-reduced-motion: reduce) {
+    .ame-butterfly-swarm { display: none; }
+    .ame-cart-pulse { animation: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    if (window.AmeButterflies) return;
+
+    const DEFAULT_COUNT = 7;
+    const DEFAULT_DURATION = 950;
+
+    function fly(originEl, opts) {
+      if (!originEl) return Promise.resolve();
+      const cartIcon = document.querySelector('[data-cart-open]');
+      if (!cartIcon) return Promise.resolve();
+
+      const count = (opts && opts.count) || DEFAULT_COUNT;
+      const baseDuration = (opts && opts.duration) || DEFAULT_DURATION;
+      const color = (opts && opts.color) || '#ffffff';
+      const onArrive = opts && opts.onArrive;
+
+      const origin = originEl.getBoundingClientRect();
+      const target = cartIcon.getBoundingClientRect();
+      const startX = origin.left + origin.width / 2;
+      const startY = origin.top + origin.height / 2;
+      const endX = target.left + target.width / 2;
+      const endY = target.top + target.height / 2;
+      const dx = endX - startX;
+      const dy = endY - startY;
+
+      const swarm = document.createElement('div');
+      swarm.className = 'ame-butterfly-swarm';
+      swarm.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(swarm);
+
+      // Constrói cada borboleta e dispara a animação
+      const animations = [];
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'ame-butterfly';
+        b.style.setProperty('--bf-color', color);
+        b.style.left = startX + 'px';
+        b.style.top = startY + 'px';
+        b.innerHTML = '<div class="ame-butterfly__wings"></div>';
+        swarm.appendChild(b);
+
+        // Cada borboleta tem um pequeno desvio aleatório no meio do caminho (parábola)
+        const wobble = (Math.random() - 0.5) * 60;
+        const arcHeight = -Math.abs(dx) * 0.35 - 80;
+        const startRot = (Math.random() - 0.5) * 30;
+        const midRot = (Math.random() - 0.5) * 60;
+        const delay = i * 70;
+        const duration = baseDuration + i * 40;
+
+        const anim = b.animate(
+          [
+            { transform: 'translate(-50%, -50%) rotate(' + startRot + 'deg) scale(1)', opacity: 1 },
+            {
+              transform:
+                'translate(calc(' + dx * 0.5 + 'px - 50%), calc(' + arcHeight + 'px + ' + wobble + 'px - 50%)) rotate(' + midRot + 'deg) scale(1.1)',
+              offset: 0.55,
+              opacity: 1,
+            },
+            {
+              transform: 'translate(calc(' + dx + 'px - 50%), calc(' + dy + 'px - 50%)) rotate(0deg) scale(0.25)',
+              opacity: 0,
+            },
+          ],
+          { duration: duration, delay: delay, easing: 'cubic-bezier(0.42, 0, 0.55, 1)', fill: 'forwards' }
+        );
+        animations.push(anim.finished.catch(() => {}));
+      }
+
+      // Quando a primeira borboleta chegar (~ duração média), pulse no ícone
+      setTimeout(() => {
+        cartIcon.classList.add('ame-cart-pulse');
+        setTimeout(() => cartIcon.classList.remove('ame-cart-pulse'), 600);
+        if (onArrive) onArrive();
+      }, baseDuration);
+
+      return Promise.all(animations).finally(() => {
+        swarm.remove();
+      });
+    }
+
+    window.AmeButterflies = { fly };
+  })();
+</script>
