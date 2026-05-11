@@ -9,6 +9,13 @@
   endif
   assign media_size = product.media.size
 
+  # Quando o produto é um "produto principal" do agrupador de cores, oculta o sufixo " - <cor>" no nome visível.
+  # Ex: "Coleira Atena - Azul" → "Coleira Atena". O title original continua sendo usado em meta tags e propriedades.
+  assign display_title = product.title
+  if product.tags contains 'produto_principal'
+    assign display_title = display_title | split: ' - ' | first
+  endif
+
   assign pdp_videos_show = false
   assign pdp_videos_count = 0
   if section.settings.videos_enabled
@@ -64,7 +71,7 @@
     <a href="{{ collection.url }}">{{ collection.title }}</a>
     <span aria-hidden="true">/</span>
   {%- endif -%}
-  <span aria-current="page">{{ product.title }}</span>
+  <span aria-current="page">{{ display_title }}</span>
 </nav>
 
 <div class="pdp full-width">
@@ -147,7 +154,7 @@
           {%- endif -%}
         </div>
 
-        {%- if product.tags contains 'customizacao_pingente' -%}
+        {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
           <div class="pdp__pingente-overlay" data-pingente-overlay hidden aria-hidden="true">
             {%- comment -%} theme-check-disable AssetUrl {%- endcomment -%}
             <img
@@ -238,8 +245,18 @@
 
     {%- if pdp_videos_pos == 'above-title' -%}{{ pdp_videos_widget }}{%- endif -%}
 
+    {%- comment -%} Slot pra apps: antes do título {%- endcomment -%}
+    <div class="pdp__app-slot pdp__app-slot--before-title">
+      {% content_for 'block', type: '@app', id: 'pdp-app-before-title' %}
+    </div>
+
     <!-- Título -->
-    <h1 class="pdp__title">{{ product.title }}</h1>
+    <h1 class="pdp__title">{{ display_title }}</h1>
+
+    {%- comment -%} Slot pra apps: depois do título {%- endcomment -%}
+    <div class="pdp__app-slot pdp__app-slot--after-title">
+      {% content_for 'block', type: '@app', id: 'pdp-app-after-title' %}
+    </div>
 
     {%- if pdp_videos_pos == 'below-title' -%}{{ pdp_videos_widget }}{%- endif -%}
 
@@ -273,6 +290,11 @@
         >
       </div>
       <span class="pdp__rating-text">4.8 · 32 avaliações</span>
+    </div>
+
+    {%- comment -%} Slot pra apps: antes do preço {%- endcomment -%}
+    <div class="pdp__app-slot pdp__app-slot--before-price">
+      {% content_for 'block', type: '@app', id: 'pdp-app-before-price' %}
     </div>
 
     <!-- ── Bloco de preços ── -->
@@ -355,6 +377,11 @@
       </div>
     </div>
 
+    {%- comment -%} Slot pra apps: depois do preço {%- endcomment -%}
+    <div class="pdp__app-slot pdp__app-slot--after-price">
+      {% content_for 'block', type: '@app', id: 'pdp-app-after-price' %}
+    </div>
+
     {%- if pdp_videos_pos == 'below-price' -%}{{ pdp_videos_widget }}{%- endif -%}
 
     <!-- ── Descrição curta (metafield custom.descricao_curta) ── -->
@@ -371,6 +398,11 @@
         id="pdp-variant-id"
         data-media-id="{{ cv.featured_media.id | default: cv.featured_image.id }}"
       >
+
+      {%- comment -%} Slot pra apps: antes das variantes {%- endcomment -%}
+      <div class="pdp__app-slot pdp__app-slot--before-variants">
+        {% content_for 'block', type: '@app', id: 'pdp-app-before-variants' %}
+      </div>
 
       <!-- Opções (Cor, Tamanho...) — renderizadas sob demanda via Section Rendering API -->
       <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
@@ -489,6 +521,11 @@
         {%- endfor -%}
       </div>
 
+      {%- comment -%} Slot pra apps: depois das variantes {%- endcomment -%}
+      <div class="pdp__app-slot pdp__app-slot--after-variants">
+        {% content_for 'block', type: '@app', id: 'pdp-app-after-variants' %}
+      </div>
+
       {%- render 'pingente-customization', product: product -%}
 
       <!-- ── Campos Personalizados ── -->
@@ -525,7 +562,25 @@
             assign cf_req = settings[cf_rq_key]
           -%}
           <div class="pdp__custom-field">
-            {%- if cf_type == 'text' or cf_type == 'date' -%}
+            {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
+              {%- liquid
+                # Mapeia o tipo do campo pro input HTML correspondente
+                assign input_type = 'text'
+                if cf_type == 'date'
+                  assign input_type = 'date'
+                elsif cf_type == 'phone'
+                  assign input_type = 'tel'
+                endif
+                # Phone: placeholder e maxlength default quando não configurados
+                assign phone_placeholder = cf_placeholder
+                if cf_type == 'phone' and cf_placeholder == cf_title
+                  assign phone_placeholder = '11 99999-9999'
+                endif
+                assign phone_maxlength = cf_limiter
+                if cf_type == 'phone' and cf_limiter == blank
+                  assign phone_maxlength = 13
+                endif
+              -%}
               <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
                 {{- cf_title -}}
                 {%- if cf_req -%}
@@ -534,14 +589,18 @@
               </label>
               <input
                 id="cf-{{ cf_name | handle }}"
-                type="text"
+                type="{{ input_type }}"
                 name="properties[{{ cf_name }}]"
-                placeholder="{{ cf_placeholder }}"
-                class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}"
+                placeholder="{% if cf_type == 'phone' %}{{ phone_placeholder }}{% else %}{{ cf_placeholder }}{% endif %}"
+                class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}{% if cf_type == 'phone' %} pdp__custom-field__input--phone{% endif %}"
                 {%- if cf_req %}
                   data-cf-required="true"
                 {% endif %}
-                {%- if cf_limiter != blank %}
+                {%- if cf_type == 'phone' %}
+                  data-cf-phone="true"
+                  inputmode="numeric"
+                  maxlength="{{ phone_maxlength }}"
+                {%- elsif cf_limiter != blank %}
                   maxlength="{{ cf_limiter }}"
                 {% endif %}
               >
@@ -664,6 +723,11 @@
 
       {%- if pdp_videos_pos == 'above-cta' -%}{{ pdp_videos_widget }}{%- endif -%}
 
+      {%- comment -%} Slot pra apps: antes do CTA {%- endcomment -%}
+      <div class="pdp__app-slot pdp__app-slot--before-cta">
+        {% content_for 'block', type: '@app', id: 'pdp-app-before-cta' %}
+      </div>
+
       <!-- CTAs -->
       <div class="pdp__ctas">
         <div id="pdp-add-btn-wrap" style="display:contents">
@@ -700,6 +764,11 @@
             >favorite</span
           >
         </button>
+      </div>
+
+      {%- comment -%} Slot pra apps: depois do CTA {%- endcomment -%}
+      <div class="pdp__app-slot pdp__app-slot--after-cta">
+        {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
     {%- endform -%}
   </div>
@@ -1045,6 +1114,20 @@
       update();
     });
 
+    /* ── Máscara de telefone nos custom fields tipo "phone" ── */
+    document.querySelectorAll('[data-cf-phone]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+        let formatted = digits;
+        if (digits.length > 7) {
+          formatted = `${digits.slice(0, 2)} ${digits.slice(2, 7)}-${digits.slice(7)}`;
+        } else if (digits.length > 2) {
+          formatted = `${digits.slice(0, 2)} ${digits.slice(2)}`;
+        }
+        e.target.value = formatted;
+      });
+    });
+
     document.getElementById('pdp-form')?.addEventListener('input', e => {
       if (e.target.dataset.cfRequired) {
         e.target.closest('.pdp__custom-field')?.classList.remove('pdp__custom-field--error');
@@ -1102,6 +1185,16 @@
           const key = el.name.replace(/^properties\[/, '').replace(/\]$/, '');
           coleiraProps[key] = el.value.trim();
         });
+
+        /* Vincula coleira+pingente via _coleira_key — usado pelo cart drawer
+           pra remover o par junto quando o cliente remove a coleira. */
+        const willAddPingente = window.amePingente?.isActive() && window.amePingente.getCartItem;
+        let coleiraKey = '';
+        if (willAddPingente) {
+          coleiraKey = 'ck-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+          coleiraProps['_coleira_key'] = coleiraKey;
+        }
+
         const items = [{
           id: coleiraId,
           quantity: coleiraQty,
@@ -1110,8 +1203,8 @@
 
         /* Adiciona pingente como item separado, se aplicável.
            Passa a quantidade da coleira pra manter 1 pingente por coleira. */
-        if (window.amePingente?.isActive()) {
-          const pingenteItem = window.amePingente.getCartItem(coleiraQty);
+        if (willAddPingente) {
+          const pingenteItem = window.amePingente.getCartItem(coleiraQty, coleiraKey);
           if (pingenteItem) items.push(pingenteItem);
         }
 
@@ -1517,6 +1610,14 @@
   }
   .pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info .pdp__selection-info__label {
     color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* ── Slots pra apps de terceiros (cores, CEP, etc) ── */
+  .pdp__app-slot:empty {
+    display: none;
+  }
+  .pdp__app-slot:not(:empty) {
+    margin: 0.875rem 0;
   }
 
   /* ── Validação: opções não selecionadas no clique do CTA ── */

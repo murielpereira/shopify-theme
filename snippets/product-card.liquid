@@ -9,6 +9,10 @@
 {%- liquid
   assign card_url = card_product.url
   assign card_title = card_product.title
+  # Quando o produto é "principal" do agrupador de cores, oculta o sufixo " - <cor>" no nome.
+  if card_product.tags contains 'produto_principal'
+    assign card_title = card_title | split: ' - ' | first
+  endif
   assign card_img = card_product.featured_image
   # Segunda imagem (hover desktop) — só renderiza se for diferente da primeira
   assign card_img_alt_src = blank
@@ -404,6 +408,13 @@
     color: var(--color-on-background, #201b14);
     line-height: 1.3;
     margin-bottom: 0.125rem;
+    /* Reserva sempre 2 linhas pra alinhar preços/CTA entre cards de nomes diferentes.
+       Títulos com mais de 2 linhas são truncados com reticências. */
+    min-height: calc(1.3em * 2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .ame-card__title a {
     color: inherit;

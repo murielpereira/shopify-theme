@@ -1,7 +1,12 @@
-## 2025-04-21 - Added Skip to Content Link
-**Learning:** For a custom built Shopify theme, adding a 'skip to content' link via `layout/theme.liquid` requires placing it as the very first interactive element in the body, which requires manual integration with the custom styling and `#main-content` structure.
-**Action:** When working on themes with custom headers and sections, remember to include skip links and implement visual focus management for accessibility.
-
-## 2024-05-05 - Add to Cart Loading State Accessibility
-**Learning:** In the product page (`sections/product.liquid`), the "Add to Cart" button logic entirely overwrote the button's inner HTML with an icon during an asynchronous network request. Because the icon was `aria-hidden="true"` and the text was removed, screen reader users lost all context about the button's state and purpose during loading.
-**Action:** When creating asynchronous button loading states (like adding to cart), preserve the textual context or use an `aria-live` region, rather than solely replacing the entire content with a decorative loading spinner.
+## 2024-05-17 - Missing button type attributes
+**Learning:** Found that custom navigation buttons without explicit `type="button"` declarations (e.g., in `.pdp__nav` components) are present in the codebase. By default, buttons act as submit buttons, which can lead to unwanted form submissions if they are later wrapped in a form element.
+**Action:** Always ensure that interactive UI elements meant purely for navigation or triggering JS logic explicitly declare `type="button"` to avoid potential conflicts.
+## 2024-05-07 - Add aria-hidden to decorative icons
+**Learning:** Found instances where material symbols (like `expand_more` in select dropdowns) were missing `aria-hidden="true"`, causing screen readers to improperly announce them as the ligature text.
+**Action:** Ensure all decorative `<span class="material-symbols-outlined">` elements are accompanied by `aria-hidden="true"` when placed next to visually meaningful text or inputs.
+## 2024-05-18 - Missing native tooltips on icon-only buttons
+**Learning:** Found that while icon-only buttons correctly utilized `aria-label` for screen reader accessibility, they lacked `title` attributes. This meant sighted users relying on a mouse would not get visual tooltip feedback on hover, potentially causing confusion regarding the button's action.
+**Action:** Always add native `title` tooltips matching the `aria-label` text to icon-only buttons or interactive elements to ensure visual clarity for all users.
+## 2024-05-14 - Icon-only buttons lacking native tooltips
+**Learning:** Icon-only buttons had `aria-label` for screen readers but lacked a native visual `title` tooltip. This caused sighted mouse users to have to guess the action of certain icons (e.g., '+' or '-' for quantities, or 'close' icons).
+**Action:** Always mirror `aria-label` content into a native `title` attribute for purely icon-based interactive elements to ensure both screen reader and sighted mouse users can identify the action.

@@ -6,8 +6,13 @@
   junto da coleira como um item separado.
 {% endcomment %}
 
-{%- if product.tags contains 'customizacao_pingente' -%}
+{%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
   {%- liquid
+    assign pingente_obrigatorio = false
+    if product.tags contains 'customizacao_pingente_obrigatorio'
+      assign pingente_obrigatorio = true
+    endif
+
     capture pingente_metal_handle
       if settings.pingente_metal_product != blank
         echo settings.pingente_metal_product.handle
@@ -41,30 +46,43 @@
     data-couro-handles="{{ pingente_couro_handles | strip }}"
     data-metal-couro-handles="{{ pingente_metal_couro_handles | strip }}"
     data-size-map="{{ settings.pingente_size_map | default: '' | escape }}"
+    data-ignore-terms="{{ settings.pingente_ignore_terms | default: '' | escape }}"
+    data-obrigatorio="{% if pingente_obrigatorio %}true{% else %}false{% endif %}"
   >
     <header class="ame-pingente__header">
       <p class="ame-pingente__eyebrow">Personalização</p>
       <h3 class="ame-pingente__title">Pingente de identificação</h3>
     </header>
 
-    <!-- Passo 1: Sim / Não -->
+    <!-- Passo 1: Sim / Não (modo opcional) OU botão "Customizar" (modo obrigatório) -->
     <div class="ame-pingente__step" data-pingente-step="1">
-      {%- if settings.pingente_optin_message != blank -%}
-        <p class="ame-pingente__optin-msg" data-pingente-optin-msg>
-          {{- settings.pingente_optin_message -}}
+      {%- if pingente_obrigatorio -%}
+        <p class="ame-pingente__cortesia-msg">
+          <span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>
+          <span>O pingente está incluso na sua coleira como cortesia. Personalize com os dados do seu pet.</span>
         </p>
+        <button type="button" class="ame-pingente__custom-btn" data-pingente-custom-btn>
+          Customizar meu pingente
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+      {%- else -%}
+        {%- if settings.pingente_optin_message != blank -%}
+          <p class="ame-pingente__optin-msg" data-pingente-optin-msg>
+            {{- settings.pingente_optin_message -}}
+          </p>
+        {%- endif -%}
+        <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado?</p>
+        <div class="ame-pingente__opt-row">
+          <label class="ame-pingente__opt">
+            <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
+            <span>Sim</span>
+          </label>
+          <label class="ame-pingente__opt">
+            <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt checked>
+            <span>Não</span>
+          </label>
+        </div>
       {%- endif -%}
-      <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado?</p>
-      <div class="ame-pingente__opt-row">
-        <label class="ame-pingente__opt">
-          <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
-          <span>Sim</span>
-        </label>
-        <label class="ame-pingente__opt">
-          <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt checked>
-          <span>Não</span>
-        </label>
-      </div>
     </div>
 
     <!-- Passo 2: Tipo -->
@@ -202,6 +220,57 @@
       letter-spacing: -0.01em;
       color: var(--color-on-background, #201b14);
       margin: 0;
+    }
+
+    /* Modo obrigatório: mensagem de cortesia + botão de abrir */
+    .ame-pingente__cortesia-msg {
+      display: flex;
+      gap: 0.625rem;
+      align-items: flex-start;
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      color: var(--color-on-background, #201b14);
+      margin: 0 0 1rem;
+      padding: 0.75rem 0.875rem;
+      background: rgba(90, 71, 66, 0.05);
+      border-left: 2px solid var(--color-primary, #5a4742);
+      border-radius: 0 var(--radius-sm, 2px) var(--radius-sm, 2px) 0;
+    }
+    .ame-pingente__cortesia-msg .material-symbols-outlined {
+      font-size: 1.125rem !important;
+      color: var(--color-primary, #5a4742);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .ame-pingente__custom-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.875rem 1.25rem;
+      background: var(--color-primary, #5a4742);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md, 4px);
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .ame-pingente__custom-btn:hover {
+      transform: translateY(-1px);
+      background: var(--color-on-background, #201b14);
+    }
+    .ame-pingente__custom-btn .material-symbols-outlined {
+      font-size: 1rem !important;
+    }
+    .ame-pingente__custom-btn.is-open {
+      display: none;
     }
 
     .ame-pingente__optin-msg {
@@ -648,13 +717,28 @@
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-+|-+$/g, '');
       }
+      // Termos que, quando aparecem após "com", indicam acabamento/ornamento — não nova cor.
+      // Ex: "Allure com pedras cristal" → cor é "Allure" (não "pedras cristal").
+      const IGNORE_AFTER_COM = (root.dataset.ignoreTerms || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
       function extractLastColor(cor) {
         if (!cor) return '';
         const parts = cor
           .split(/\s+com\s+/i)
           .map((s) => s.trim())
           .filter(Boolean);
-        return parts[parts.length - 1] || '';
+        if (parts.length === 0) return '';
+        // Percorre do fim pro começo, pulando partes que começam com termos da blacklist
+        for (let i = parts.length - 1; i >= 0; i--) {
+          const lower = parts[i].toLowerCase();
+          const isIgnored = IGNORE_AFTER_COM.some((term) => term && lower.startsWith(term));
+          if (!isIgnored) return parts[i];
+        }
+        // Se tudo foi ignorado (caso atípico), volta pra primeira parte
+        return parts[0];
       }
       function buildHandle(tipo, corDoCouro) {
         const scope = CONFIGURED_HANDLES[tipo] || [];
@@ -699,8 +783,10 @@
       }
 
       /* ── State ── */
+      const OBRIGATORIO = root.dataset.obrigatorio === 'true';
       const state = {
-        opted: false,
+        // No modo obrigatório o cliente já está "opted" por padrão (o pingente é cortesia obrigatória).
+        opted: OBRIGATORIO,
         tipo: null,
         formato: null,
         product: null,
@@ -865,7 +951,7 @@
         statusEl.classList.toggle('is-error', !!isError);
       }
 
-      /* ── Passo 1: Opt-in ── */
+      /* ── Passo 1: Opt-in (modo opcional) ── */
       root.querySelectorAll('[data-pingente-opt]').forEach((r) => {
         r.addEventListener('change', (e) => {
           state.opted = e.target.value === 'sim';
@@ -885,6 +971,22 @@
           }
         });
       });
+
+      /* ── Modo obrigatório: botão "Customizar meu pingente" abre os passos ── */
+      const customBtn = root.querySelector('[data-pingente-custom-btn]');
+      if (OBRIGATORIO) {
+        // Mostra passo 2 imediatamente quando o cliente clica
+        customBtn?.addEventListener('click', () => {
+          customBtn.classList.add('is-open');
+          step2.hidden = false;
+          loadTipoThumbs();
+          if (state.tipo) handleTipoChange(state.tipo);
+          // Scroll suave até o passo 2
+          const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
+          const top = step2.getBoundingClientRect().top + window.scrollY - headerH - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+        });
+      }
 
       /* ── Passo 2: Tipo ── */
       root.querySelectorAll('[data-pingente-tipo]').forEach((r) => {
@@ -1155,6 +1257,12 @@
         validate() {
           if (!state.opted) return { ok: true };
 
+          // Modo obrigatório: se o cliente nem clicou em "Customizar", abre o fluxo automaticamente
+          if (OBRIGATORIO && !state.tipo && customBtn && !customBtn.classList.contains('is-open')) {
+            customBtn.click();
+            return { ok: false, msg: 'Personalize seu pingente para continuar.' };
+          }
+
           const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
           const scrollTo = (el) => {
             if (!el) return;
@@ -1191,7 +1299,7 @@
           }
           return { ok: true };
         },
-        getCartItem(quantity) {
+        getCartItem(quantity, coleiraKey) {
           if (!state.opted || !state.variant) return null;
           const qty = Math.max(1, parseInt(quantity, 10) || 1);
           const pet = petInput?.value.trim() || '';
@@ -1212,7 +1320,16 @@
           properties['Nome do pet'] = pet;
           if (tutor) properties['Nome do tutor'] = tutor;
           if (tel) properties['Telefone do tutor'] = tel;
+          // Vincula este pingente à coleira correspondente: o cart JS usa essa chave
+          // pra remover o pingente junto quando o cliente remove a coleira do carrinho.
+          if (coleiraKey) properties['_coleira_key'] = coleiraKey;
+          // No modo obrigatório, o pingente é cortesia — marcamos visualmente
+          // (a regra de discount automático no admin do Shopify zera o preço).
+          if (OBRIGATORIO) properties['Brinde'] = 'Pingente cortesia incluso';
           return { id: state.variant.id, quantity: qty, properties };
+        },
+        isObrigatorio() {
+          return OBRIGATORIO;
         },
       };
     })();

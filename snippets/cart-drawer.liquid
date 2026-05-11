@@ -68,7 +68,13 @@
       <!-- Lista de itens -->
       <ul class="ame-cart-items" data-cart-items>
         {%- for item in cart.items -%}
-          <li class="ame-cart-item" data-item-key="{{ item.key }}">
+          {%- assign coleira_key = item.properties._coleira_key | default: '' -%}
+          {%- assign is_brinde = item.properties.Brinde | default: '' -%}
+          <li
+            class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}"
+            data-item-key="{{ item.key }}"
+            {% if coleira_key != '' %}data-coleira-key="{{ coleira_key }}"{% endif %}
+          >
             <a href="{{ item.url }}" class="ame-cart-item__img-link">
               <div class="ame-cart-item__img-wrap">
                 {{
@@ -85,6 +91,12 @@
 
             <div class="ame-cart-item__info">
               <a href="{{ item.url }}" class="ame-cart-item__name">{{ item.product.title }}</a>
+              {%- if is_brinde != '' -%}
+                <span class="ame-cart-item__brinde-chip">
+                  <span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>
+                  Brinde
+                </span>
+              {%- endif -%}
               {%- unless item.product.has_only_default_variant -%}
                 <p class="ame-cart-item__variant">{{ item.variant.title }}</p>
               {%- endunless -%}

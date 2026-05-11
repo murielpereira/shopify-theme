@@ -12,7 +12,8 @@
       "Bash(python -c ' *)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('OK — JSON válido'\\)\")",
       "Bash(node -e ' *)",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('settings_schema.json OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('settings_schema.json OK'\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('OK'\\)\")"
     ]
   }
 }

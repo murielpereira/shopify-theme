@@ -167,14 +167,38 @@
           const btns = item?.querySelectorAll('.ame-cart-item__qty-btn');
           if (btns) btns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
 
+          // Sincroniza itens pareados (coleira ↔ pingente brinde):
+          // - Remoção (quantity=0): zera todos da mesma _coleira_key
+          // - Mudança de quantidade: aplica a mesma quantidade nos pareados
+          const coleiraKey = item?.dataset.coleiraKey;
+          const pairedKeys = coleiraKey
+            ? Array.from(drawer().querySelectorAll(`[data-coleira-key="${coleiraKey}"]`))
+                .map(el => el.dataset.itemKey)
+                .filter(k => k && k !== key)
+            : [];
+
           try {
-            const res  = await fetch('/cart/change.js', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-              body: JSON.stringify({ id: key, quantity })
-            });
-            if (!res.ok) throw new Error('cart/change failed');
-            refreshDrawer(await res.json());
+            let cartData;
+            if (pairedKeys.length) {
+              const updates = { [key]: quantity };
+              pairedKeys.forEach(k => { updates[k] = quantity; });
+              const res = await fetch('/cart/update.js', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ updates })
+              });
+              if (!res.ok) throw new Error('cart/update failed');
+              cartData = await res.json();
+            } else {
+              const res = await fetch('/cart/change.js', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ id: key, quantity })
+              });
+              if (!res.ok) throw new Error('cart/change failed');
+              cartData = await res.json();
+            }
+            refreshDrawer(cartData);
           } catch (err) {
             console.error('[Cart]', err);
             if (btns) btns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
@@ -244,17 +268,23 @@
           const v    = item.variant_title && item.variant_title !== 'Default Title';
           const disc = item.original_line_price !== item.final_line_price
             ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>` : '';
-          const propEntries = Object.entries(item.properties || {})
-            .filter(([k, val]) => k && val && !k.startsWith('_'));
+          const props = item.properties || {};
+          const coleiraKey = props._coleira_key || '';
+          const isBrinde = !!props.Brinde;
+          const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
           const propsHTML = propEntries.length
             ? `<ul class="ame-cart-item__props">${propEntries.map(([k, val]) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`).join('')}</ul>`
             : '';
-          return `<li class="ame-cart-item" data-item-key="${esc(item.key)}">
+          const brindeChip = isBrinde
+            ? `<span class="ame-cart-item__brinde-chip"><span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>Brinde</span>`
+            : '';
+          return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(item.key)}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
             <a href="${esc(item.url)}" class="ame-cart-item__img-link">
               <div class="ame-cart-item__img-wrap">${img ? `<img src="${esc(img)}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">` : ''}</div>
             </a>
             <div class="ame-cart-item__info">
               <a href="${esc(item.url)}" class="ame-cart-item__name">${esc(item.product_title)}</a>
+              ${brindeChip}
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
               ${propsHTML}
               <div class="ame-cart-item__bottom">
