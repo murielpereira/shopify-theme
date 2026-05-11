@@ -771,7 +771,9 @@
             type="submit"
             class="ame-cta pdp__add-btn"
             id="pdp-add-btn"
-            {% if product.tags contains 'efeito_borboletas' %}
+            {% if product.tags contains 'efeito_borboletas_svg' %}
+              data-fly-effect="butterflies-svg"
+            {% elsif product.tags contains 'efeito_borboletas' %}
               data-fly-effect="butterflies"
             {% endif %}
             {% if cta_sold_out %}
@@ -816,6 +818,9 @@
 
 {%- if product.tags contains 'efeito_borboletas' -%}
   {%- render 'cart-flying-butterflies' -%}
+{%- endif -%}
+{%- if product.tags contains 'efeito_borboletas_svg' -%}
+  {%- render 'cart-flying-butterflies-svg' -%}
 {%- endif -%}
 
 <!-- Acordeões de detalhes foram movidos pra section própria: sections/product-accordions.liquid -->
@@ -1265,16 +1270,15 @@
         const cartData = await (await fetch('/cart.js')).json();
         window.AmeCart?.refresh(cartData);
 
-        /* Efeito de borboletas (produtos com tag `efeito_borboletas`).
-           Aguarda o efeito chegar no carrinho antes de abrir o drawer pro cliente
-           ter o feedback visual completo. */
-        console.info('[ame-butterflies] check', {
-          flyEffect: btn.dataset.flyEffect,
-          hasAmeButterflies: !!window.AmeButterflies,
-        });
-        if (btn.dataset.flyEffect === 'butterflies' && window.AmeButterflies?.fly) {
-          console.info('[ame-butterflies] disparando animação');
-          await window.AmeButterflies.fly(btn);
+        /* Efeito de borboletas — duas variantes pra comparar:
+           - tag `efeito_borboletas`     → modelo simples (CSS radial gradient)
+           - tag `efeito_borboletas_svg` → modelo SVG 3D detalhado */
+        const flyEffect = btn.dataset.flyEffect;
+        const flyApi = flyEffect === 'butterflies-svg' ? window.AmeButterfliesSvg
+                     : flyEffect === 'butterflies'     ? window.AmeButterflies
+                     : null;
+        if (flyApi?.fly) {
+          await flyApi.fly(btn);
         }
 
         window.AmeCart?.open();

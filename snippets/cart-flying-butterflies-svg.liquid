@@ -1,0 +1,234 @@
+{% comment %}
+  Âme — Borboletas voadoras (modelo SVG 3D)
+  Versão alternativa do `cart-flying-butterflies.liquid`. Usa SVG real
+  (asas detalhadas com animação 3D rotateY) em vez de gradient simples.
+
+  API global: window.AmeButterfliesSvg.fly(originEl, opts?)
+  Ativação típica: produtos com a tag `efeito_borboletas_svg`.
+{% endcomment %}
+
+<!-- SVG defs globais (uma vez por página). SVG original: freepik.com -->
+<svg
+  class="ame-butterfly-svg-defs"
+  xmlns="http://www.w3.org/2000/svg"
+  width="0"
+  height="0"
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <g id="ame-shape-moth">
+      <path
+        id="ame-moth-main"
+        fill="currentColor"
+        d="M2.457,32.759c6.752,15.757,12.862,9.004,19.615,31.513c4.96,16.533,12.703,21.434,25.763,19.562c-8.291,5.666-11.245,14.512-2.29,30.097c10.611,18.467,29.262,32.338,38.587,34.268s19.615-6.431,21.866-18.328c2.251-11.898,3.216-13.185,11.255-50.485V66.202v-8.039c0,0-44.054-38.266-73.637-42.767C14.033,10.894-4.296,17.003,2.457,32.759z"
+      />
+      <path
+        opacity="0.25"
+        fill="#231F20"
+        d="M117.253,66.202v-8.039c0,0-18.092-15.715-38.874-28.188c-0.713,0.005-1.426,0.019-2.138,0.05c-0.845,0.037-1.785,0.136-2.336,0.776c-1.082,1.255,0.241,3.104,1.484,4.2c-4.664-1.523-9.341-3.008-14.03-4.454c-1.262-0.389-2.927-0.643-3.646,0.465c-0.371,0.571-0.322,1.319-0.153,1.979c0.788,3.075,3.667,5.073,6.336,6.792c-5.27-1.066-10.64-1.636-16.017-1.699c1.343,2.093,3.594,3.397,5.774,4.592c4.539,2.487,9.149,4.844,13.822,7.068c-1.256,0.657-2.719,0.767-4.077,1.175c-1.358,0.408-2.751,1.292-3.027,2.682c-0.142,0.715,0.038,1.456,0.289,2.141c1.25,3.41,4.231,5.957,7.526,7.483s6.92,2.161,10.498,2.781c-4.233,0.646-8.466,1.291-12.698,1.936c-1.283,0.195-2.896,0.742-2.924,2.04c-0.013,0.59,0.345,1.123,0.742,1.56c3.252,3.581,8.933,3.011,13.693,2.153c6.792-1.224,13.584-2.448,20.377-3.672C109.057,67.539,117.253,66.202,117.253,66.202z"
+      />
+      <path
+        opacity="0.25"
+        fill="#231F20"
+        d="M112.228,67.787c-2.598-0.367-5.221,0.297-7.739,1.031c-7.427,2.165-14.659,4.994-21.583,8.444c-1.494,0.744-3.216,1.968-2.936,3.613c-1.226,3.942,15.291-3.223,22.495-6.209c-7.234,3.414-14.403,7.708-18.865,14.346c-0.658,0.979-1.243,2.321-0.531,3.262c0.523,0.691,1.508,0.802,2.375,0.781c6.148-0.141,11.579-3.836,16.54-7.471c-3.057,2.861-5.321,6.561-6.478,10.584c-0.418,1.455-0.608,3.244,0.496,4.279c1.373,1.287,3.636,0.439,5.126-0.711c2.406-1.856,4.297-4.375,5.408-7.204c-0.626,2.171-2.066,6.066-0.944,6.688c1.771,1.537,3.293-1.535,4.463-2.938c4.365-5.225,6.148-12.076,7.745-18.695c0.418-1.735,0.831-3.565,0.336-5.28C117.41,69.788,114.825,68.153,112.228,67.787z"
+      />
+      <path
+        fill="#2A0E07"
+        d="M119.744,44.906c-0.432,0-0.834,0.038-1.212,0.105C111.203,25.333,94.966,3.371,94.218,2.517c-0.767-0.877-1.425-3.234-2.521-2.302c-1.096,0.932,1.37,2.138,1.37,2.138S92.929,3.372,94,3.503c0,0,5.938,7.827,10.25,14.964c6.474,10.715,11.965,22.628,13.779,26.68c-3.596,0.985-4.503,5.059-3.919,8.202l-2.333-1.103C98.575,41.592,67.056,17.901,43.774,14.358c-6.339-0.964-12.222-1.454-17.484-1.454c-12.627,0-21.129,2.773-24.588,8.019c-2.196,3.33-2.266,7.452-0.209,12.25c3.013,7.032,5.939,9.746,8.77,12.371c0.7,0.648,1.392,1.292,2.08,1.995c0.094,0.257,0.285,0.479,0.555,0.6c0.009,0.004,0.019,0.007,0.027,0.011c1.989,2.152,3.956,4.984,5.989,10.133c0.001,0.003,0.002,0.005,0.003,0.008c0.708,1.792,1.423,3.858,2.15,6.283c4.352,14.506,10.892,20.695,21.869,20.696c0,0,0.001,0,0.001,0c0.481,0,0.975-0.017,1.477-0.04c-2.246,2.095-3.779,4.438-4.62,7.069c-1.897,5.936-0.312,13.184,4.842,22.155c1.815,3.158,3.898,6.22,6.15,9.136c0.008,0.014,0.021,0.024,0.029,0.037c10.451,13.517,24.587,23.839,33.105,25.601c0.958,0.198,1.948,0.299,2.94,0.299c9.246,0,18.105-8.548,20.169-19.461c1.029-5.438,1.804-8.716,3.087-14.144c1.128-4.771,2.685-11.36,5.195-22.707c0.665,10.199,2.016,24.19,4.432,24.19V44.906z"
+      />
+    </g>
+  </defs>
+</svg>
+
+<style>
+  .ame-butterfly-svg-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .ame-butterfly-svg-swarm {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: visible;
+  }
+
+  /* Cada borboleta: container 60×60 com perspectiva 3D pras asas */
+  .ame-butterfly-svg {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+    /* color é herdado pelo fill="currentColor" do path principal */
+    color: var(--bf-color, #5a4742);
+    filter: drop-shadow(0 4px 8px rgba(32, 27, 20, 0.3));
+  }
+
+  .ame-butterfly-svg__fig {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    transform-style: preserve-3d;
+    transform: rotate3d(1, 0.5, 0, 30deg);
+  }
+
+  .ame-butterfly-svg__wing {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+  .ame-butterfly-svg__wing--left {
+    left: 0;
+    transform-origin: 100% 50%;
+    animation: ame-bf-svg-left-flap 320ms ease-in-out infinite;
+  }
+  .ame-butterfly-svg__wing--right {
+    left: 50%;
+    transform-origin: 0 50%;
+    animation: ame-bf-svg-right-flap 320ms ease-in-out infinite;
+  }
+  .ame-butterfly-svg__wing svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .ame-butterfly-svg__wing--right svg {
+    transform: scaleX(-1);
+  }
+
+  /* Asas batem (rotação 3D em Y, de aberta até quase fechada) */
+  @keyframes ame-bf-svg-left-flap {
+    0%, 100% { transform: rotate3d(0, 1, 0, 55deg); }
+    50%      { transform: rotate3d(0, 1, 0, -65deg); }
+  }
+  @keyframes ame-bf-svg-right-flap {
+    0%, 100% { transform: rotate3d(0, 1, 0, -55deg); }
+    50%      { transform: rotate3d(0, 1, 0, 65deg); }
+  }
+
+  /* Pulse no ícone do carrinho quando as borboletas chegam (reusa) */
+  .ame-cart-pulse {
+    animation: ame-cart-pulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes ame-cart-pulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    65%  { transform: scale(0.92); }
+    100% { transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ame-butterfly-svg-swarm { display: none; }
+    .ame-cart-pulse { animation: none; }
+  }
+</style>
+
+<script>
+  (() => {
+    if (window.AmeButterfliesSvg) return;
+
+    const DEFAULT_COUNT = 8;
+    const DEFAULT_DURATION = 1800;
+    const DEFAULT_PALETTE = [
+      '#fbcfe8', // rosa claro
+      '#f5d4a8', // dourado claro
+      '#d4b4e0', // lilás
+      '#a8d4c4', // verde menta
+      '#f0a8a8', // coral
+      '#735e59', // marrom da marca
+      '#1cb1f2', // azul (original do SVG)
+      '#ff9ec7', // pink vivo
+      '#9b59b6', // roxo
+    ];
+
+    function fly(originEl, opts) {
+      if (!originEl) return Promise.resolve();
+      const cartIcon = document.querySelector('[data-cart-open]');
+      if (!cartIcon) return Promise.resolve();
+
+      const count = (opts && opts.count) || DEFAULT_COUNT;
+      const baseDuration = (opts && opts.duration) || DEFAULT_DURATION;
+      const palette = (opts && opts.colors) || DEFAULT_PALETTE;
+      const onArrive = opts && opts.onArrive;
+
+      const origin = originEl.getBoundingClientRect();
+      const target = cartIcon.getBoundingClientRect();
+      const startX = origin.left + origin.width / 2;
+      const startY = origin.top + origin.height / 2;
+      const endX = target.left + target.width / 2;
+      const endY = target.top + target.height / 2;
+      const dx = endX - startX;
+      const dy = endY - startY;
+
+      const swarm = document.createElement('div');
+      swarm.className = 'ame-butterfly-svg-swarm';
+      swarm.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(swarm);
+
+      const wingSVG =
+        '<svg viewBox="0 0 119.744 148.477"><use href="#ame-shape-moth"></use></svg>';
+
+      const animations = [];
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'ame-butterfly-svg';
+        b.style.setProperty('--bf-color', palette[Math.floor(Math.random() * palette.length)]);
+        b.style.left = startX + 'px';
+        b.style.top = startY + 'px';
+        b.innerHTML =
+          '<figure class="ame-butterfly-svg__fig">' +
+          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--left">' + wingSVG + '</div>' +
+          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--right">' + wingSVG + '</div>' +
+          '</figure>';
+        swarm.appendChild(b);
+
+        const wobble = (Math.random() - 0.5) * 120;
+        const arcHeight = -Math.abs(dx) * 0.4 - 120;
+        const startRot = (Math.random() - 0.5) * 40;
+        const midRot = (Math.random() - 0.5) * 80;
+        const delay = i * 140;
+        const duration = baseDuration + (Math.random() - 0.5) * 400;
+
+        const anim = b.animate(
+          [
+            { transform: 'translate(-50%, -50%) rotate(' + startRot + 'deg) scale(1)', opacity: 1 },
+            {
+              transform:
+                'translate(calc(' + dx * 0.5 + 'px - 50%), calc(' + arcHeight + 'px + ' + wobble + 'px - 50%)) rotate(' + midRot + 'deg) scale(1.1)',
+              offset: 0.55,
+              opacity: 1,
+            },
+            {
+              transform: 'translate(calc(' + dx + 'px - 50%), calc(' + dy + 'px - 50%)) rotate(0deg) scale(0.25)',
+              opacity: 0,
+            },
+          ],
+          { duration: duration, delay: delay, easing: 'cubic-bezier(0.42, 0, 0.55, 1)', fill: 'forwards' }
+        );
+        animations.push(anim.finished.catch(() => {}));
+      }
+
+      Promise.all(animations).finally(() => swarm.remove());
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          cartIcon.classList.add('ame-cart-pulse');
+          setTimeout(() => cartIcon.classList.remove('ame-cart-pulse'), 600);
+          if (onArrive) onArrive();
+          resolve();
+        }, baseDuration);
+      });
+    }
+
+    window.AmeButterfliesSvg = { fly };
+    console.info('[ame-butterflies-svg] snippet carregado');
+  })();
+</script>
