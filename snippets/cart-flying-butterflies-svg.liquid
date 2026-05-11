@@ -138,15 +138,16 @@
     const DEFAULT_COUNT = 8;
     const DEFAULT_DURATION = 1800;
     const DEFAULT_PALETTE = [
-      '#fbcfe8', // rosa claro
-      '#f5d4a8', // dourado claro
-      '#d4b4e0', // lilás
-      '#a8d4c4', // verde menta
-      '#f0a8a8', // coral
-      '#735e59', // marrom da marca
-      '#1cb1f2', // azul (original do SVG)
-      '#ff9ec7', // pink vivo
+      '#ff6b9d', // pink vibrante
+      '#ffb84d', // laranja dourado
       '#9b59b6', // roxo
+      '#1cb1f2', // azul ciano
+      '#2ecc71', // verde
+      '#e74c3c', // vermelho coral
+      '#f1c40f', // amarelo
+      '#5a4742', // marrom marca
+      '#d4b4e0', // lilás claro
+      '#26d0ce', // turquesa
     ];
 
     function fly(originEl, opts) {
@@ -173,14 +174,17 @@
       swarm.setAttribute('aria-hidden', 'true');
       document.body.appendChild(swarm);
 
-      const wingSVG =
-        '<svg viewBox="0 0 119.744 148.477"><use href="#ame-shape-moth"></use></svg>';
-
       const animations = [];
       for (let i = 0; i < count; i++) {
+        const color = palette[Math.floor(Math.random() * palette.length)];
+        // `color` aplicado direto no <svg> resolve `currentColor` do path principal
+        // mesmo dentro do shadow DOM do <use> (alguns browsers não herdam via ancestor).
+        const wingSVG =
+          '<svg viewBox="0 0 119.744 148.477" style="color:' + color + ';">' +
+          '<use href="#ame-shape-moth"></use></svg>';
         const b = document.createElement('div');
         b.className = 'ame-butterfly-svg';
-        b.style.setProperty('--bf-color', palette[Math.floor(Math.random() * palette.length)]);
+        b.style.setProperty('--bf-color', color);
         b.style.left = startX + 'px';
         b.style.top = startY + 'px';
         b.innerHTML =
