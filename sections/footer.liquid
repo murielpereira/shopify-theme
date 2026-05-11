@@ -110,34 +110,28 @@
 
     <!-- Coluna automática: páginas cadastradas em Loja Virtual > Páginas -->
     {% if section.settings.show_pages and pages.size > 0 %}
-      {%- assign pages_exclude = section.settings.pages_exclude | downcase | split: ',' -%}
-      {%- assign visible_pages = '' -%}
-      {%- for p in pages -%}
-        {%- assign excluded = false -%}
-        {%- for handle in pages_exclude -%}
-          {%- if handle | strip == p.handle -%}
-            {%- assign excluded = true -%}
-            {%- break -%}
-          {%- endif -%}
-        {%- endfor -%}
-        {%- unless excluded -%}
-          {%- assign visible_pages = visible_pages | append: ',' | append: p.handle -%}
-        {%- endunless -%}
-      {%- endfor -%}
-      {%- if visible_pages != '' -%}
+      {%- liquid
+        # Constrói uma string ",handle1,handle2," pra usar com `contains` (sem espaços)
+        assign exclude_raw = section.settings.pages_exclude | default: '' | downcase | replace: ' ', ''
+        assign exclude_str = ',' | append: exclude_raw | append: ','
+
+        # Conta quantas páginas vão aparecer (não-excluídas) pra esconder a coluna inteira se zero
+        assign visible_count = 0
+        for p in pages
+          assign needle = ',' | append: p.handle | append: ','
+          unless exclude_str contains needle
+            assign visible_count = visible_count | plus: 1
+          endunless
+        endfor
+      -%}
+      {%- if visible_count > 0 -%}
         <div class="ame-footer__nav">
           {% if section.settings.pages_title != blank %}
             <p class="ame-footer__nav-title">{{ section.settings.pages_title }}</p>
           {% endif %}
           {%- for p in pages -%}
-            {%- assign excluded = false -%}
-            {%- for handle in pages_exclude -%}
-              {%- if handle | strip == p.handle -%}
-                {%- assign excluded = true -%}
-                {%- break -%}
-              {%- endif -%}
-            {%- endfor -%}
-            {%- unless excluded -%}
+            {%- assign needle = ',' | append: p.handle | append: ',' -%}
+            {%- unless exclude_str contains needle -%}
               <a href="{{ p.url }}" class="ame-footer__nav-link">{{ p.title }}</a>
             {%- endunless -%}
           {%- endfor -%}

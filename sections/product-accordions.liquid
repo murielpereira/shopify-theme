@@ -1,0 +1,109 @@
+{% comment %} Âme — Acordeões de detalhes do produto (extraído de product.liquid) {% endcomment %}
+
+<div class="pdp-accordions full-width" data-pdp-accordions>
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'accordion' -%}
+      <div class="ame-accordion" {{ block.shopify_attributes }}>
+        <button
+          class="ame-accordion__btn"
+          type="button"
+          aria-expanded="false"
+          aria-controls="pdp-acc-{{ section.id }}-{{ forloop.index }}"
+        >
+          <span>{{ block.settings.title }}</span>
+          <span
+            class="material-symbols-outlined ame-accordion__icon"
+            style="font-variation-settings:'wght' 300;"
+            aria-hidden="true"
+            >add</span
+          >
+        </button>
+        <div id="pdp-acc-{{ section.id }}-{{ forloop.index }}" class="ame-accordion__content" hidden>
+          <div class="ame-accordion__body">{{ block.settings.body }}</div>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if section.blocks.size == 0 and product.description != blank -%}
+    <div class="ame-accordion">
+      <button
+        class="ame-accordion__btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="pdp-acc-{{ section.id }}-default"
+      >
+        <span>Detalhes do Produto</span>
+        <span
+          class="material-symbols-outlined ame-accordion__icon"
+          style="font-variation-settings:'wght' 300;"
+          aria-hidden="true"
+          >add</span
+        >
+      </button>
+      <div id="pdp-acc-{{ section.id }}-default" class="ame-accordion__content" hidden>
+        <div class="ame-accordion__body">{{ product.description }}</div>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+<script>
+  (() => {
+    /* Toggle dos acordeões — limitado a esta section pra não conflitar com outras */
+    const root = document.querySelector('[data-pdp-accordions]');
+    if (!root) return;
+    root.querySelectorAll('.ame-accordion__btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const open = btn.getAttribute('aria-expanded') === 'true';
+        root.querySelectorAll('.ame-accordion__btn').forEach((b) => {
+          b.setAttribute('aria-expanded', 'false');
+          b.nextElementSibling.setAttribute('hidden', '');
+          b.nextElementSibling.style.maxHeight = '0';
+        });
+        if (!open) {
+          btn.setAttribute('aria-expanded', 'true');
+          btn.nextElementSibling.removeAttribute('hidden');
+          btn.nextElementSibling.style.maxHeight = '600px';
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Detalhes do Produto",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Acordeões exibidos na página do produto, abaixo da imagem e do botão Adicionar ao Carrinho. Adicione blocos abaixo. Se não houver blocos cadastrados, o tema exibe automaticamente um acordeão único com a descrição do produto."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "accordion",
+      "name": "Acordeão",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Título", "default": "Materiais & Craft" },
+        { "type": "richtext", "id": "body", "label": "Conteúdo", "default": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Detalhes do Produto",
+      "blocks": [
+        { "type": "accordion", "settings": { "title": "Materiais & Craft" } },
+        { "type": "accordion", "settings": { "title": "Guia de Tamanhos" } },
+        { "type": "accordion", "settings": { "title": "Cuidados & Manutenção" } },
+        { "type": "accordion", "settings": { "title": "Envio & Embalagem" } }
+      ]
+    }
+  ],
+  "enabled_on": { "templates": ["product"] },
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

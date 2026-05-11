@@ -1,1 +1,12 @@
 extends: theme-check:recommended
+
+# Falso positivo: o linter local não reconhece o identificador especial '@app'
+# usado em `content_for 'block', type: '@app'`. O Shopify reconhece corretamente.
+ValidStaticBlockType:
+  enabled: false
+
+# locales/pt-BR.json é intencionalmente vazio — todas as strings da UI estão
+# hardcoded em PT-BR no template (CLAUDE.md). Desabilitar evita 32+ erros falsos.
+MatchingTranslations:
+  enabled: false
+

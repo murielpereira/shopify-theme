@@ -30,9 +30,25 @@
         "videos_angulo": 135,
         "videos_autoplay": true
       }
+    },
+    "product_accordions": {
+      "type": "product-accordions",
+      "blocks": {
+        "acc_materiais": { "type": "accordion", "settings": { "title": "Materiais & Craft" } },
+        "acc_tamanhos":  { "type": "accordion", "settings": { "title": "Guia de Tamanhos" } },
+        "acc_cuidados":  { "type": "accordion", "settings": { "title": "Cuidados & Manutenção" } },
+        "acc_envio":     { "type": "accordion", "settings": { "title": "Envio & Embalagem" } }
+      },
+      "block_order": [
+        "acc_materiais",
+        "acc_tamanhos",
+        "acc_cuidados",
+        "acc_envio"
+      ]
     }
   },
   "order": [
-    "main"
+    "main",
+    "product_accordions"
   ]
 }
