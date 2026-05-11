@@ -1268,7 +1268,12 @@
         /* Efeito de borboletas (produtos com tag `efeito_borboletas`).
            Aguarda o efeito chegar no carrinho antes de abrir o drawer pro cliente
            ter o feedback visual completo. */
+        console.info('[ame-butterflies] check', {
+          flyEffect: btn.dataset.flyEffect,
+          hasAmeButterflies: !!window.AmeButterflies,
+        });
         if (btn.dataset.flyEffect === 'butterflies' && window.AmeButterflies?.fly) {
+          console.info('[ame-butterflies] disparando animação');
           await window.AmeButterflies.fly(btn);
         }
 
