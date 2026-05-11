@@ -23,8 +23,8 @@
   /* Cada borboleta: posicionada via JS (left/top), animada via WAAPI */
   .ame-butterfly {
     position: absolute;
-    width: 28px;
-    height: 22px;
+    width: 38px;
+    height: 30px;
     transform: translate(-50%, -50%);
     will-change: transform, opacity;
   }
@@ -39,8 +39,8 @@
     background-repeat: no-repeat;
     background-size: 90% 70%, 100% 70%;
     background-position: 20% -40%, 0 40%;
-    filter: drop-shadow(0 2px 4px rgba(32, 27, 20, 0.25));
-    animation: ame-butterfly-flap 140ms ease-in-out infinite alternate;
+    filter: drop-shadow(0 3px 6px rgba(32, 27, 20, 0.35));
+    animation: ame-butterfly-flap 180ms ease-in-out infinite alternate;
   }
 
   @keyframes ame-butterfly-flap {
@@ -70,8 +70,19 @@
   (() => {
     if (window.AmeButterflies) return;
 
-    const DEFAULT_COUNT = 7;
-    const DEFAULT_DURATION = 950;
+    const DEFAULT_COUNT = 8;
+    const DEFAULT_DURATION = 1800;
+    // Paleta combinando com a identidade Âme (cream/brown) + tons pastel
+    const DEFAULT_PALETTE = [
+      '#ffffff',  // branco
+      '#fbcfe8',  // rosa claro
+      '#f5d4a8',  // dourado claro
+      '#d4b4e0',  // lilás
+      '#a8d4c4',  // verde menta
+      '#f0a8a8',  // coral
+      '#735e59',  // marrom da marca
+      '#dcc1ba',  // bege rosado
+    ];
 
     function fly(originEl, opts) {
       if (!originEl) return Promise.resolve();
@@ -80,7 +91,7 @@
 
       const count = (opts && opts.count) || DEFAULT_COUNT;
       const baseDuration = (opts && opts.duration) || DEFAULT_DURATION;
-      const color = (opts && opts.color) || '#ffffff';
+      const palette = (opts && opts.colors) || DEFAULT_PALETTE;
       const onArrive = opts && opts.onArrive;
 
       const origin = originEl.getBoundingClientRect();
@@ -102,19 +113,22 @@
       for (let i = 0; i < count; i++) {
         const b = document.createElement('div');
         b.className = 'ame-butterfly';
+        // Cor aleatória da paleta — cada borboleta com tom diferente
+        const color = palette[Math.floor(Math.random() * palette.length)];
         b.style.setProperty('--bf-color', color);
         b.style.left = startX + 'px';
         b.style.top = startY + 'px';
         b.innerHTML = '<div class="ame-butterfly__wings"></div>';
         swarm.appendChild(b);
 
-        // Cada borboleta tem um pequeno desvio aleatório no meio do caminho (parábola)
-        const wobble = (Math.random() - 0.5) * 60;
-        const arcHeight = -Math.abs(dx) * 0.35 - 80;
-        const startRot = (Math.random() - 0.5) * 30;
-        const midRot = (Math.random() - 0.5) * 60;
-        const delay = i * 70;
-        const duration = baseDuration + i * 40;
+        // Cada borboleta tem um desvio aleatório no meio do caminho (parábola)
+        const wobble = (Math.random() - 0.5) * 120;
+        const arcHeight = -Math.abs(dx) * 0.4 - 120;
+        const startRot = (Math.random() - 0.5) * 40;
+        const midRot = (Math.random() - 0.5) * 80;
+        // Delay maior pra espalhar o enxame e dar tempo de ver cada borboleta
+        const delay = i * 140;
+        const duration = baseDuration + (Math.random() - 0.5) * 400;
 
         const anim = b.animate(
           [
@@ -135,15 +149,19 @@
         animations.push(anim.finished.catch(() => {}));
       }
 
-      // Quando a primeira borboleta chegar (~ duração média), pulse no ícone
-      setTimeout(() => {
-        cartIcon.classList.add('ame-cart-pulse');
-        setTimeout(() => cartIcon.classList.remove('ame-cart-pulse'), 600);
-        if (onArrive) onArrive();
-      }, baseDuration);
+      // Mantém o swarm vivo até a última borboleta terminar; remove em background.
+      Promise.all(animations).finally(() => swarm.remove());
 
-      return Promise.all(animations).finally(() => {
-        swarm.remove();
+      // Retorna uma promise que resolve quando a primeira borboleta chega (~ baseDuration).
+      // Assim o drawer abre nesse momento e as borboletas restantes continuam voando
+      // sem bloquear o cliente.
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          cartIcon.classList.add('ame-cart-pulse');
+          setTimeout(() => cartIcon.classList.remove('ame-cart-pulse'), 600);
+          if (onArrive) onArrive();
+          resolve();
+        }, baseDuration);
       });
     }
 
