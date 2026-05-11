@@ -90,25 +90,26 @@
               {%- endunless -%}
 
               {%- if item.properties != blank -%}
-                {%- assign has_visible_props = false -%}
-                {%- for p in item.properties -%}
-                  {%- if p.last != blank and p.first != blank -%}
-                    {%- assign first_char = p.first | slice: 0 -%}
-                    {%- if first_char != '_' -%}
-                      {%- assign has_visible_props = true -%}
+                {% comment %}
+                  ⚡ Bolt: Optimize cart item properties rendering by using a single pass with {% capture %}.
+                  💡 What: Avoids iterating over `item.properties` twice. Instead of looping once to check for visible properties and a second time to render them, we loop once and capture the output.
+                  🎯 Why: Reduces template processing overhead in Liquid by eliminating duplicate loops.
+                  📊 Impact: Speeds up cart drawer rendering, especially when multiple items with properties are present.
+                  🔬 Measurement: Profile the Server Response time on the cart drawer with multiple configured items.
+                {% endcomment %}
+                {%- capture properties_html -%}
+                  {%- for p in item.properties -%}
+                    {%- if p.last != blank and p.first != blank -%}
+                      {%- assign first_char = p.first | slice: 0 -%}
+                      {%- unless first_char == '_' -%}
+                        <li><span class="ame-cart-item__prop-key">{{ p.first }}:</span> {{ p.last }}</li>
+                      {%- endunless -%}
                     {%- endif -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                {%- if has_visible_props -%}
+                  {%- endfor -%}
+                {%- endcapture -%}
+                {%- if properties_html != blank -%}
                   <ul class="ame-cart-item__props">
-                    {%- for p in item.properties -%}
-                      {%- if p.last != blank and p.first != blank -%}
-                        {%- assign first_char = p.first | slice: 0 -%}
-                        {%- unless first_char == '_' -%}
-                          <li><span class="ame-cart-item__prop-key">{{ p.first }}:</span> {{ p.last }}</li>
-                        {%- endunless -%}
-                      {%- endif -%}
-                    {%- endfor -%}
+                    {{ properties_html }}
                   </ul>
                 {%- endif -%}
               {%- endif -%}
