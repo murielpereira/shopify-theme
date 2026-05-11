@@ -259,11 +259,11 @@
               ${propsHTML}
               <div class="ame-cart-item__bottom">
                 <div class="ame-cart-item__qty">
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`}>
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" title="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`}>
                     <span class="material-symbols-outlined" aria-hidden="true">${item.quantity <= 1 ? 'delete' : 'remove'}</span>
                   </button>
                   <span class="ame-cart-item__qty-val" data-qty-val="${esc(item.key)}">${item.quantity}</span>
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" data-qty-plus="${esc(item.key)}">
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" title="Aumentar quantidade" data-qty-plus="${esc(item.key)}">
                     <span class="material-symbols-outlined" aria-hidden="true">add</span>
                   </button>
                 </div>
