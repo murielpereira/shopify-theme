@@ -57,17 +57,16 @@
     overflow: visible;
   }
 
-  /* Cada borboleta: container 60×60 com perspectiva 3D pras asas */
+  /* Cada borboleta: container maior pra cor ser visível entre o contorno preto */
   .ame-butterfly-svg {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 90px;
+    height: 90px;
     transform: translate(-50%, -50%);
     transform-style: preserve-3d;
     will-change: transform, opacity;
-    /* color é herdado pelo fill="currentColor" do path principal */
-    color: var(--bf-color, #5a4742);
-    filter: drop-shadow(0 4px 8px rgba(32, 27, 20, 0.3));
+    color: var(--bf-color, #ff6b9d);
+    filter: drop-shadow(0 3px 5px rgba(32, 27, 20, 0.2));
   }
 
   .ame-butterfly-svg__fig {
@@ -137,15 +136,17 @@
 
     const DEFAULT_COUNT = 8;
     const DEFAULT_DURATION = 1800;
+    // Paleta com cores vibrantes/saturadas — evita tons escuros (camuflam no
+    // contorno preto e sombras do SVG).
     const DEFAULT_PALETTE = [
       '#ff6b9d', // pink vibrante
       '#ffb84d', // laranja dourado
-      '#9b59b6', // roxo
+      '#c084fc', // roxo claro
       '#1cb1f2', // azul ciano
-      '#2ecc71', // verde
-      '#e74c3c', // vermelho coral
-      '#f1c40f', // amarelo
-      '#5a4742', // marrom marca
+      '#34d399', // verde menta
+      '#fb7185', // coral
+      '#fde047', // amarelo
+      '#f0abfc', // rosa pink
       '#d4b4e0', // lilás claro
       '#26d0ce', // turquesa
     ];
@@ -180,9 +181,11 @@
       const shapeTemplate = document.getElementById('ame-shape-moth');
       const shapeInnerHTML = shapeTemplate ? shapeTemplate.innerHTML : '';
       function buildWingSVG(color) {
-        // O path principal no <defs> tem fill="currentColor" — substituímos pela cor.
-        // Sombras e contorno preto ficam fixos.
-        const colored = shapeInnerHTML.replace(/fill="currentColor"/g, 'fill="' + color + '"');
+        // Substitui o fill do path principal pela cor da borboleta.
+        // Também suaviza as sombras (opacity 0.25 → 0.12) pra cor base aparecer mais.
+        const colored = shapeInnerHTML
+          .replace(/fill="currentColor"/g, 'fill="' + color + '"')
+          .replace(/opacity="0\.25"/g, 'opacity="0.12"');
         return '<svg viewBox="0 0 119.744 148.477">' + colored + '</svg>';
       }
 
