@@ -174,14 +174,30 @@
       swarm.setAttribute('aria-hidden', 'true');
       document.body.appendChild(swarm);
 
+      // Clona o shape do <defs> pra cada borboleta — assim cada uma tem fill próprio
+      // sem conflito de shadow DOM do <use> (que não propaga CSS de forma consistente).
+      const shapeTemplate = document.getElementById('ame-shape-moth');
+      const SVG_NS = 'http://www.w3.org/2000/svg';
+      function buildWingSVG(color) {
+        if (!shapeTemplate) return '';
+        const clone = shapeTemplate.cloneNode(true);
+        clone.removeAttribute('id');
+        // Atualiza só o path principal; sombras (gray) e contorno (preto) ficam fixos
+        const mainPath = clone.querySelector('#ame-moth-main');
+        if (mainPath) {
+          mainPath.setAttribute('fill', color);
+          mainPath.removeAttribute('id');
+        }
+        const svgEl = document.createElementNS(SVG_NS, 'svg');
+        svgEl.setAttribute('viewBox', '0 0 119.744 148.477');
+        svgEl.appendChild(clone);
+        return svgEl.outerHTML;
+      }
+
       const animations = [];
       for (let i = 0; i < count; i++) {
         const color = palette[Math.floor(Math.random() * palette.length)];
-        // `color` aplicado direto no <svg> resolve `currentColor` do path principal
-        // mesmo dentro do shadow DOM do <use> (alguns browsers não herdam via ancestor).
-        const wingSVG =
-          '<svg viewBox="0 0 119.744 148.477" style="color:' + color + ';">' +
-          '<use href="#ame-shape-moth"></use></svg>';
+        const wingSVG = buildWingSVG(color);
         const b = document.createElement('div');
         b.className = 'ame-butterfly-svg';
         b.style.setProperty('--bf-color', color);
