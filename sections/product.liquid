@@ -1131,17 +1131,21 @@
     });
 
     /* ── Texto sobreposto à imagem (customizacao_jogoamericano) ──
-       Pega o primeiro campo personalizado de texto/long-text e espelha o valor digitado
-       como overlay sobre a imagem principal. */
+       Pega o primeiro campo de propriedade do form (texto/long-text, ignorando phone/date/hidden)
+       e espelha o valor digitado como overlay sobre a imagem principal. */
     (() => {
       const overlay = document.querySelector('[data-text-overlay]');
       if (!overlay) return;
       const textEl = overlay.querySelector('[data-text-overlay-text]');
-      // Procura o primeiro input/textarea de texto puro dentro dos custom fields
-      const source = document.querySelector(
-        '.pdp__custom-field input[type="text"]:not([data-cf-phone]), .pdp__custom-field textarea'
+      if (!textEl) return;
+      // Aceita qualquer input/textarea com name="properties[...]" no form da PDP,
+      // exceto telefone, data e campos ocultos. Robusto pra diferentes estruturas de markup.
+      const form = document.getElementById('pdp-form') || document;
+      const source = form.querySelector(
+        'input[name^="properties["]:not([data-cf-phone]):not([type="date"]):not([type="hidden"]),'
+        + ' textarea[name^="properties["]'
       );
-      if (!source || !textEl) return;
+      if (!source) return;
       const update = () => {
         const v = source.value.trim();
         textEl.textContent = v;
@@ -1648,13 +1652,13 @@
     display: none;
   }
   .pdp__text-overlay__text {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Marker Felt', cursive;
     font-weight: 700;
     font-size: clamp(1.5rem, 7vw, 5rem);
     color: #1a1a1a;
     text-align: center;
     line-height: 1.1;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
     word-break: break-word;
     /* Sombra sutil pra legibilidade em fundos claros/médios */
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
