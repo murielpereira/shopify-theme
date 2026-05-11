@@ -941,6 +941,9 @@
           state.product = null;
           state.variant = null;
           updateOverlay();
+        } else if (OBRIGATORIO) {
+          // No modo obrigatório, o pingente é sempre opted=true quando a coleira está completa
+          state.opted = true;
         }
       }
       syncVisibility();

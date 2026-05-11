@@ -587,38 +587,36 @@
                   <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
                 {%- endif -%}
               </label>
-              <input
-                id="cf-{{ cf_name | handle }}"
-                type="{{ input_type }}"
-                name="properties[{{ cf_name }}]"
-                placeholder="{% if cf_type == 'phone' %}{{ phone_placeholder }}{% else %}{{ cf_placeholder }}{% endif %}"
-                class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}{% if cf_type == 'phone' %} pdp__custom-field__input--phone{% endif %}"
-                {%- if cf_req %}
-                  data-cf-required="true"
-                {% endif %}
-                {%- if cf_type == 'phone' %}
-                  data-cf-phone="true"
-                  inputmode="numeric"
-                  maxlength="{{ phone_maxlength }}"
-                {%- elsif cf_limiter != blank %}
-                  maxlength="{{ cf_limiter }}"
-                {% endif %}
-              >
-              {%- if cf_helper != blank or cf_limiter != blank -%}
-                <div class="pdp__custom-field__footer">
-                  {%- if cf_helper != blank -%}
-                    <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
-                  {%- endif -%}
-                  {%- if cf_limiter != blank -%}
-                    <span
-                      class="pdp__custom-field__counter"
-                      data-cf-counter
-                      data-cf-max="{{ cf_limiter }}"
-                      aria-live="polite"
-                      >0 / {{ cf_limiter -}}
-                    </span>
-                  {%- endif -%}
-                </div>
+              <div class="pdp__custom-field__input-wrap{% if cf_limiter != blank %} pdp__custom-field__input-wrap--has-counter{% endif %}">
+                <input
+                  id="cf-{{ cf_name | handle }}"
+                  type="{{ input_type }}"
+                  name="properties[{{ cf_name }}]"
+                  placeholder="{% if cf_type == 'phone' %}{{ phone_placeholder }}{% else %}{{ cf_placeholder }}{% endif %}"
+                  class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}{% if cf_type == 'phone' %} pdp__custom-field__input--phone{% endif %}"
+                  {%- if cf_req %}
+                    data-cf-required="true"
+                  {% endif %}
+                  {%- if cf_type == 'phone' %}
+                    data-cf-phone="true"
+                    inputmode="numeric"
+                    maxlength="{{ phone_maxlength }}"
+                  {%- elsif cf_limiter != blank %}
+                    maxlength="{{ cf_limiter }}"
+                  {% endif %}
+                >
+                {%- if cf_limiter != blank -%}
+                  <span
+                    class="pdp__custom-field__counter pdp__custom-field__counter--inline"
+                    data-cf-counter
+                    data-cf-max="{{ cf_limiter }}"
+                    aria-live="polite"
+                    >0 / {{ cf_limiter -}}
+                  </span>
+                {%- endif -%}
+              </div>
+              {%- if cf_helper != blank -%}
+                <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
               {%- endif -%}
               {%- if cf_req -%}
                 <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
@@ -630,34 +628,32 @@
                   <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
                 {%- endif -%}
               </label>
-              <textarea
-                id="cf-{{ cf_name | handle }}"
-                name="properties[{{ cf_name }}]"
-                placeholder="{{ cf_placeholder }}"
-                class="pdp__custom-field__textarea"
-                {%- if cf_req %}
-                  data-cf-required="true"
-                {% endif %}
-                {%- if cf_limiter != blank %}
-                  maxlength="{{ cf_limiter }}"
-                {% endif %}
-                rows="3"
-              ></textarea>
-              {%- if cf_helper != blank or cf_limiter != blank -%}
-                <div class="pdp__custom-field__footer">
-                  {%- if cf_helper != blank -%}
-                    <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
-                  {%- endif -%}
-                  {%- if cf_limiter != blank -%}
-                    <span
-                      class="pdp__custom-field__counter"
-                      data-cf-counter
-                      data-cf-max="{{ cf_limiter }}"
-                      aria-live="polite"
-                      >0 / {{ cf_limiter -}}
-                    </span>
-                  {%- endif -%}
-                </div>
+              <div class="pdp__custom-field__input-wrap pdp__custom-field__input-wrap--textarea">
+                <textarea
+                  id="cf-{{ cf_name | handle }}"
+                  name="properties[{{ cf_name }}]"
+                  placeholder="{{ cf_placeholder }}"
+                  class="pdp__custom-field__textarea"
+                  {%- if cf_req %}
+                    data-cf-required="true"
+                  {% endif %}
+                  {%- if cf_limiter != blank %}
+                    maxlength="{{ cf_limiter }}"
+                  {% endif %}
+                  rows="3"
+                ></textarea>
+                {%- if cf_limiter != blank -%}
+                  <span
+                    class="pdp__custom-field__counter pdp__custom-field__counter--inline pdp__custom-field__counter--textarea"
+                    data-cf-counter
+                    data-cf-max="{{ cf_limiter }}"
+                    aria-live="polite"
+                    >0 / {{ cf_limiter -}}
+                  </span>
+                {%- endif -%}
+              </div>
+              {%- if cf_helper != blank -%}
+                <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
               {%- endif -%}
               {%- if cf_req -%}
                 <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
@@ -1158,6 +1154,27 @@
       });
       if (!cfValid) return;
 
+      /* Validate phone custom fields: telefone só aceita números completos (10 ou 11 dígitos) */
+      let phoneIncomplete = false;
+      let firstIncompletePhone = null;
+      e.target.querySelectorAll('[data-cf-phone]').forEach(field => {
+        const digits = field.value.replace(/\D/g, '');
+        const wrap = field.closest('.pdp__custom-field');
+        // Vazio: deixa o "required" cuidar (já validado acima); aqui só pega preenchido-mas-incompleto
+        if (digits.length > 0 && digits.length < 10) {
+          phoneIncomplete = true;
+          wrap?.classList.add('pdp__custom-field--error');
+          if (!firstIncompletePhone) firstIncompletePhone = field;
+        } else {
+          wrap?.classList.remove('pdp__custom-field--error');
+        }
+      });
+      if (phoneIncomplete) {
+        (window.AmePdpToast || ((m) => alert(m)))('Telefone incompleto. Digite o número completo (DDD + 8 ou 9 dígitos).');
+        firstIncompletePhone?.focus();
+        return;
+      }
+
       /* Validate pingente (se cliente optou por adicionar) */
       if (window.amePingente?.isActive()) {
         const pv = window.amePingente.validate();
@@ -1420,6 +1437,17 @@
     flex: 1;
   }
 
+  /* Wrapper relativo pra o counter ficar dentro do input/textarea como overlay */
+  .pdp__custom-field__input-wrap {
+    position: relative;
+  }
+  .pdp__custom-field__input-wrap--has-counter .pdp__custom-field__input {
+    padding-right: 4rem; /* reserva espaço pro contador */
+  }
+  .pdp__custom-field__input-wrap--textarea .pdp__custom-field__textarea {
+    padding-bottom: 1.75rem; /* reserva espaço pro contador no canto inferior */
+  }
+
   .pdp__custom-field__counter {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.6875rem;
@@ -1429,6 +1457,21 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     transition: color 0.2s ease, opacity 0.2s ease;
+  }
+  /* Counter como overlay dentro do input (canto direito, centralizado verticalmente) */
+  .pdp__custom-field__counter--inline {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    margin-left: 0;
+  }
+  /* Counter em textarea: canto inferior direito */
+  .pdp__custom-field__counter--textarea {
+    top: auto;
+    bottom: 0.5rem;
+    transform: none;
   }
   .pdp__custom-field__counter.is-near {
     opacity: 1;

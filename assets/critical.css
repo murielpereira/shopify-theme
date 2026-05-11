@@ -470,7 +470,7 @@ body::after {
 
 .ame-cashback__text {
   font-family: var(--font-primary--family, 'Lexend', sans-serif);
-  font-size: 0.8125rem;
+  font-size: 0.55rem;
   color: var(--cashback-color, var(--color-primary, #5a4742));
   display: flex;
   align-items: baseline;
@@ -829,6 +829,7 @@ body::after {
   text-transform: uppercase;
   border-radius: 999px;
 }
+
 .ame-cart-item__brinde-chip .material-symbols-outlined {
   font-size: 0.75rem !important;
 }
