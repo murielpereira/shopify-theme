@@ -154,7 +154,9 @@
           {%- endif -%}
         </div>
 
-        {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+        {%- if product.tags contains 'customizacao_pingente'
+          or product.tags contains 'customizacao_pingente_obrigatorio'
+        -%}
           <div class="pdp__pingente-overlay" data-pingente-overlay hidden aria-hidden="true">
             {%- comment -%} theme-check-disable AssetUrl {%- endcomment -%}
             <img
@@ -395,6 +397,18 @@
       <div class="pdp__desc pdp__desc--short">{{ product.metafields.custom.descricao_curta }}</div>
     {%- endif -%}
 
+    <!-- ── Características do produto (metafield custom.caracteristicas — lista de strings) ── -->
+    {%- assign caracteristicas = product.metafields.custom.caracteristicas.value -%}
+    {%- if caracteristicas and caracteristicas.size > 0 -%}
+      <ul class="pdp__features" aria-label="Características do produto">
+        {%- for feature in caracteristicas -%}
+          {%- if feature != blank -%}
+            <li class="pdp__features__chip">{{ feature }}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
     <!-- ── Formulário de produto ── -->
     {%- form 'product', product, id: 'pdp-form', novalidate: true -%}
       <input
@@ -593,7 +607,15 @@
                   <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
                 {%- endif -%}
               </label>
-              <div class="pdp__custom-field__input-wrap{% if cf_limiter != blank %} pdp__custom-field__input-wrap--has-counter{% endif %}">
+              {%- liquid
+                # Define o max do contador: usa o limiter cadastrado pra qualquer tipo,
+                # ou 13 (máscara completa) como default pro telefone.
+                assign counter_max = cf_limiter
+                if cf_type == 'phone' and cf_limiter == blank
+                  assign counter_max = 13
+                endif
+              -%}
+              <div class="pdp__custom-field__input-wrap{% if counter_max != blank %} pdp__custom-field__input-wrap--has-counter{% endif %}">
                 <input
                   id="cf-{{ cf_name | handle }}"
                   type="{{ input_type }}"
@@ -611,13 +633,13 @@
                     maxlength="{{ cf_limiter }}"
                   {% endif %}
                 >
-                {%- if cf_limiter != blank -%}
+                {%- if counter_max != blank -%}
                   <span
                     class="pdp__custom-field__counter pdp__custom-field__counter--inline"
                     data-cf-counter
-                    data-cf-max="{{ cf_limiter }}"
+                    data-cf-max="{{ counter_max }}"
                     aria-live="polite"
-                    >0 / {{ cf_limiter -}}
+                    >0 / {{ counter_max -}}
                   </span>
                 {%- endif -%}
               </div>
@@ -709,7 +731,9 @@
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
         <div class="pdp__qty-ctrl">
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir">−</button>
+          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir">
+            −
+          </button>
           <input
             type="number"
             name="quantity"
@@ -758,7 +782,14 @@
           </button>
         </div>
 
-        <button type="button" class="pdp__wishlist-btn" aria-label="Favoritar" title="Favoritar" id="pdp-wishlist" aria-pressed="false">
+        <button
+          type="button"
+          class="pdp__wishlist-btn"
+          aria-label="Favoritar"
+          title="Favoritar"
+          id="pdp-wishlist"
+          aria-pressed="false"
+        >
           <span
             class="material-symbols-outlined"
             style="font-size:1.25rem;font-variation-settings:'FILL' 0;"
@@ -1344,6 +1375,30 @@
 </script>
 
 {% stylesheet %}
+  /* ── Características do produto (chips) ── */
+  .pdp__features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 1.25rem;
+  }
+  .pdp__features__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: rgba(90, 71, 66, 0.05);
+    border: 1px solid rgba(210, 195, 192, 0.5);
+    border-radius: 999px;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    color: var(--color-on-background, #201b14);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
   .pdp__custom-field {
     display: flex;
     flex-direction: column;
@@ -1578,6 +1633,7 @@
   /* ── Texto sobreposto à imagem (customizacao_jogoamericano) ── */
   .pdp__text-overlay {
     position: absolute;
+    top: 120px;
     inset: 0;
     z-index: 3;
     display: flex;
@@ -1603,6 +1659,15 @@
     max-width: 100%;
   }
 
+  @media (min-width: 1300px) {
+    .pdp__text-overlay {
+      top: 125px;
+    }
+
+    .pdp__text-overlay__text {
+      font-size: 2.5rem;
+    }
+  }
   /* ── Resumo das variações escolhidas (abaixo da imagem, mobile) ── */
   .pdp__selection-info {
     padding: 0.625rem 1rem;

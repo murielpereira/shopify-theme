@@ -1300,6 +1300,22 @@
             setTimeout(() => petInput?.focus({ preventScroll: true }), 350);
             return { ok: false, msg: 'Informe o nome do pet.' };
           }
+
+          // Telefone: se preenchido, deve estar completo (10 ou 11 dígitos)
+          const telValue = phoneInput?.value.trim() || '';
+          if (telValue) {
+            const digits = telValue.replace(/\D/g, '');
+            if (digits.length < 10) {
+              const field = phoneInput?.closest('.ame-pingente__field');
+              field?.classList.add('is-invalid');
+              scrollTo(field);
+              setTimeout(() => phoneInput?.focus({ preventScroll: true }), 350);
+              return {
+                ok: false,
+                msg: 'Telefone do tutor incompleto. Digite o número completo (DDD + 8 ou 9 dígitos).',
+              };
+            }
+          }
           return { ok: true };
         },
         getCartItem(quantity, coleiraKey) {
