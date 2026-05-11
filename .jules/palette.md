@@ -7,3 +7,6 @@
 ## 2024-05-18 - Missing native tooltips on icon-only buttons
 **Learning:** Found that while icon-only buttons correctly utilized `aria-label` for screen reader accessibility, they lacked `title` attributes. This meant sighted users relying on a mouse would not get visual tooltip feedback on hover, potentially causing confusion regarding the button's action.
 **Action:** Always add native `title` tooltips matching the `aria-label` text to icon-only buttons or interactive elements to ensure visual clarity for all users.
+## 2024-05-14 - Icon-only buttons lacking native tooltips
+**Learning:** Icon-only buttons had `aria-label` for screen readers but lacked a native visual `title` tooltip. This caused sighted mouse users to have to guess the action of certain icons (e.g., '+' or '-' for quantities, or 'close' icons).
+**Action:** Always mirror `aria-label` content into a native `title` attribute for purely icon-based interactive elements to ensure both screen reader and sighted mouse users can identify the action.

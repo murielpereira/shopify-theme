@@ -112,10 +112,10 @@
           <!-- contador -->
           <div class="pdp__counter" aria-live="polite"><span id="pdp-current">1</span> / {{ media_size }}</div>
           <!-- botões de navegação -->
-          <button type="button" class="pdp__nav pdp__nav--prev" id="pdp-prev" aria-label="Anterior">
+          <button type="button" class="pdp__nav pdp__nav--prev" id="pdp-prev" aria-label="Anterior" title="Anterior">
             <span class="material-symbols-outlined" aria-hidden="true">arrow_back_ios</span>
           </button>
-          <button type="button" class="pdp__nav pdp__nav--next" id="pdp-next" aria-label="Próximo">
+          <button type="button" class="pdp__nav pdp__nav--next" id="pdp-next" aria-label="Próximo" title="Próximo">
             <span class="material-symbols-outlined" aria-hidden="true">arrow_forward_ios</span>
           </button>
         {%- else -%}
@@ -648,7 +648,7 @@
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
         <div class="pdp__qty-ctrl">
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir">−</button>
+          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir">−</button>
           <input
             type="number"
             name="quantity"
@@ -658,7 +658,7 @@
             class="pdp__qty-input"
             aria-label="Quantidade"
           >
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar">+</button>
+          <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar" title="Aumentar">+</button>
         </div>
       </div>
 
