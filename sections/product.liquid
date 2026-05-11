@@ -169,6 +169,12 @@
           </div>
         {%- endif -%}
 
+        {%- if product.tags contains 'customizacao_jogoamericano' -%}
+          <div class="pdp__text-overlay" data-text-overlay hidden aria-hidden="true">
+            <span class="pdp__text-overlay__text" data-text-overlay-text></span>
+          </div>
+        {%- endif -%}
+
         {%- if selection_pos == 'over' -%}
           <!-- Resumo sobre a imagem (overlay no topo) -->
           <div class="pdp__selection-info" data-selection-info hidden aria-live="polite">
@@ -1124,6 +1130,27 @@
       });
     });
 
+    /* ── Texto sobreposto à imagem (customizacao_jogoamericano) ──
+       Pega o primeiro campo personalizado de texto/long-text e espelha o valor digitado
+       como overlay sobre a imagem principal. */
+    (() => {
+      const overlay = document.querySelector('[data-text-overlay]');
+      if (!overlay) return;
+      const textEl = overlay.querySelector('[data-text-overlay-text]');
+      // Procura o primeiro input/textarea de texto puro dentro dos custom fields
+      const source = document.querySelector(
+        '.pdp__custom-field input[type="text"]:not([data-cf-phone]), .pdp__custom-field textarea'
+      );
+      if (!source || !textEl) return;
+      const update = () => {
+        const v = source.value.trim();
+        textEl.textContent = v;
+        overlay.hidden = !v;
+      };
+      source.addEventListener('input', update);
+      update();
+    })();
+
     document.getElementById('pdp-form')?.addEventListener('input', e => {
       if (e.target.dataset.cfRequired) {
         e.target.closest('.pdp__custom-field')?.classList.remove('pdp__custom-field--error');
@@ -1604,6 +1631,34 @@
     display: block;
     /* transform: scale(1.6); */
     /*margin-top: 10px;*/
+  }
+
+  /* ── Texto sobreposto à imagem (customizacao_jogoamericano) ── */
+  .pdp__text-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding: 8% 12%;
+  }
+  .pdp__text-overlay[hidden] {
+    display: none;
+  }
+  .pdp__text-overlay__text {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 7vw, 5rem);
+    color: #1a1a1a;
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+    /* Sombra sutil pra legibilidade em fundos claros/médios */
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+    max-width: 100%;
   }
 
   /* ── Resumo das variações escolhidas (abaixo da imagem, mobile) ── */

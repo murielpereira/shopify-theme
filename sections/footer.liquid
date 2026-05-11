@@ -72,6 +72,43 @@
       </div>
     {% endif %}
 
+    <!-- Coluna automática: páginas cadastradas em Loja Virtual > Páginas -->
+    {% if section.settings.show_pages and pages.size > 0 %}
+      {%- assign pages_exclude = section.settings.pages_exclude | downcase | split: ',' -%}
+      {%- assign visible_pages = '' -%}
+      {%- for p in pages -%}
+        {%- assign excluded = false -%}
+        {%- for handle in pages_exclude -%}
+          {%- if handle | strip == p.handle -%}
+            {%- assign excluded = true -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- unless excluded -%}
+          {%- assign visible_pages = visible_pages | append: ',' | append: p.handle -%}
+        {%- endunless -%}
+      {%- endfor -%}
+      {%- if visible_pages != '' -%}
+        <div class="ame-footer__nav">
+          {% if section.settings.pages_title != blank %}
+            <p class="ame-footer__nav-title">{{ section.settings.pages_title }}</p>
+          {% endif %}
+          {%- for p in pages -%}
+            {%- assign excluded = false -%}
+            {%- for handle in pages_exclude -%}
+              {%- if handle | strip == p.handle -%}
+                {%- assign excluded = true -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- unless excluded -%}
+              <a href="{{ p.url }}" class="ame-footer__nav-link">{{ p.title }}</a>
+            {%- endunless -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {% endif %}
+
     <!-- Copyright + payment -->
     <div class="ame-footer__bottom">
       <p class="ame-footer__copyright">
@@ -106,9 +143,14 @@
   }
   @media (min-width: 768px) {
     .ame-footer__inner {
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 3rem 5rem;
+      grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+      gap: 3rem;
       align-items: start;
+    }
+  }
+  @media (min-width: 1280px) {
+    .ame-footer__inner {
+      gap: 3rem 4rem;
     }
   }
 
@@ -254,6 +296,32 @@
       "type": "link_list",
       "id": "menu_2",
       "label": "Menu coluna 2"
+    },
+    {
+      "type": "header",
+      "content": "Páginas (automático)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Lista automaticamente todas as páginas cadastradas em Loja Virtual → Páginas. Pra ocultar uma página específica, adicione o handle dela no campo de exclusões."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pages",
+      "label": "Exibir lista de páginas",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "pages_title",
+      "label": "Título da coluna",
+      "default": "Páginas"
+    },
+    {
+      "type": "text",
+      "id": "pages_exclude",
+      "label": "Handles a ocultar (separados por vírgula)",
+      "info": "Ex: politica-de-privacidade, termos-de-uso"
     },
     {
       "type": "header",
