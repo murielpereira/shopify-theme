@@ -14,7 +14,14 @@
     "footer": {
       "type": "footer",
       "settings": {
-        "menu": "",
+        "tagline": "Feito com amor.",
+        "menu_1_title": "Empresa",
+        "menu_1": "footer",
+        "menu_2_title": "Loja",
+        "menu_2": "",
+        "social_instagram": "",
+        "social_facebook": "",
+        "social_whatsapp": "",
         "show_payment_icons": true
       }
     }
