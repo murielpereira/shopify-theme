@@ -181,11 +181,13 @@
       const shapeTemplate = document.getElementById('ame-shape-moth');
       const shapeInnerHTML = shapeTemplate ? shapeTemplate.innerHTML : '';
       function buildWingSVG(color) {
-        // Substitui o fill do path principal pela cor da borboleta.
-        // Também suaviza as sombras (opacity 0.25 → 0.12) pra cor base aparecer mais.
+        // Substitui o fill do path principal pela cor.
+        // Sombras gray quase invisíveis (0.25 → 0.06).
+        // Contorno preto vira marrom muito translúcido pra não dominar a cor base.
         const colored = shapeInnerHTML
           .replace(/fill="currentColor"/g, 'fill="' + color + '"')
-          .replace(/opacity="0\.25"/g, 'opacity="0.12"');
+          .replace(/opacity="0\.25"/g, 'opacity="0.06"')
+          .replace(/fill="#2A0E07"/g, 'fill="#3a2419" fill-opacity="0.3"');
         return '<svg viewBox="0 0 119.744 148.477">' + colored + '</svg>';
       }
 
