@@ -114,27 +114,28 @@
         # Constrói uma string ",handle1,handle2," pra usar com `contains` (sem espaços)
         assign exclude_raw = section.settings.pages_exclude | default: '' | downcase | replace: ' ', ''
         assign exclude_str = ',' | append: exclude_raw | append: ','
-
-        # Conta quantas páginas vão aparecer (não-excluídas) pra esconder a coluna inteira se zero
-        assign visible_count = 0
-        for p in pages
-          assign needle = ',' | append: p.handle | append: ','
-          unless exclude_str contains needle
-            assign visible_count = visible_count | plus: 1
-          endunless
-        endfor
       -%}
-      {%- if visible_count > 0 -%}
+      {%- capture pages_html -%}
+        {%- liquid
+          # ⚡ Bolt: Single pass page filtering.
+          # 💡 What: Use `capture` instead of iterating through `pages` twice (once to count, once to render).
+          # 🎯 Why: Iterating over collections multiple times adds unnecessary template processing overhead in Liquid.
+          # 📊 Impact: Reduces array iterations by 50% for page rendering in the footer.
+        -%}
+        {%- for p in pages -%}
+          {%- assign needle = ',' | append: p.handle | append: ',' -%}
+          {%- unless exclude_str contains needle -%}
+            <a href="{{ p.url }}" class="ame-footer__nav-link">{{ p.title }}</a>
+          {%- endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {%- assign pages_html_stripped = pages_html | strip -%}
+      {%- if pages_html_stripped != blank -%}
         <div class="ame-footer__nav">
           {% if section.settings.pages_title != blank %}
             <p class="ame-footer__nav-title">{{ section.settings.pages_title }}</p>
           {% endif %}
-          {%- for p in pages -%}
-            {%- assign needle = ',' | append: p.handle | append: ',' -%}
-            {%- unless exclude_str contains needle -%}
-              <a href="{{ p.url }}" class="ame-footer__nav-link">{{ p.title }}</a>
-            {%- endunless -%}
-          {%- endfor -%}
+          {{ pages_html }}
         </div>
       {%- endif -%}
     {% endif %}
