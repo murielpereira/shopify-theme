@@ -2766,7 +2766,7 @@ shopify-account {
   margin: 0 auto;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 768px) {
   .pdp-accordions {
     padding: 0 var(--page-margin, 20px) 3rem;
   }
