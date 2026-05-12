@@ -12,14 +12,40 @@ html,
 body {
   max-width: 100%;
   overflow-x: clip;
+  /* Garante scroll vertical sempre disponível (não bloqueado por containers
+     filhos com overflow customizado). */
+  overflow-y: auto;
+  /* Scrollbar com cor da marca (Firefox + Edge moderno). */
+  scrollbar-color: var(--color-primary, #5a4742) transparent;
+  scrollbar-width: thin;
 }
 
 @supports not (overflow-x: clip) {
-
   html,
   body {
     overflow-x: hidden;
   }
+}
+
+/* Scrollbar global da página com cor da marca (Chrome/Safari/Edge). */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--color-primary, #5a4742);
+  border-radius: 999px;
+  border: 2px solid var(--color-background, #f7f5f2);
+}
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-on-background, #201b14);
 }
 
 body {

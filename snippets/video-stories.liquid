@@ -1072,46 +1072,18 @@
         }, 250);
       }
 
-      // Bind direto nos botões — mais robusto que delegate em casos onde
-      // outros scripts (apps Shopify) interceptam clicks no nível do document.
-      function bindOpenLinks(root) {
-        if (!root) return;
-        root.querySelectorAll('[data-vs-open]').forEach((btn) => {
-          if (btn.dataset.vsBound) return;
-          btn.dataset.vsBound = '1';
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('[ame-vs] click direto no botao', btn);
-            const widget = btn.closest('[data-vs-widget]') || root;
-            const all = Array.from(widget.querySelectorAll('[data-vs-open]'));
-            const videos = all.map(b => ({
-              type: b.dataset.vsType,
-              id: b.dataset.vsId,
-              host: b.dataset.vsHost,
-              src: b.dataset.vsSrc,
-              title: b.dataset.vsTitle,
-              ctaUrl: b.dataset.vsCtaUrl,
-              ctaLabel: b.dataset.vsCtaLabel,
-            }));
-            const idx = all.indexOf(btn);
-            openModal(videos, idx >= 0 ? idx : 0);
-          });
-        });
-      }
+      // No-op (compatibilidade com chamadas legadas). Cliques são tratados
+      // pelo delegate global abaixo.
+      function bindOpenLinks(_root) { /* no-op */ }
 
       window.AmeVideoStories = { open: openModal, close: closeModal, navigate, bindOpenLinks };
 
-      /* Delegate global em PHASE CAPTURE pra rodar antes de qualquer outro
-         handler que possa engolir o clique (drag suppression, navegação custom).
-         Pega tanto clicks de mouse quanto taps de touch. */
-      function handleOpenClick(e) {
-        const btn = e.target.closest('[data-vs-open]');
-        if (!btn) return;
-        console.log('[ame-vs] click captured, opening modal', btn);
-        e.preventDefault();
-        e.stopPropagation();
-
+      /* Delegate global. Ouve em BUBBLE phase (default) para que stopPropagation
+         de outros handlers individuais não impeça a chegada do evento aqui.
+         Em vez disso, registramos em BOTH capture E bubble pra cobrir todos os
+         casos onde apps externos podem tentar engolir o evento. */
+      function openFromButton(btn) {
+        console.log('[ame-vs] opening modal from', btn);
         const widget = btn.closest('[data-vs-widget]');
         const all = widget
           ? Array.from(widget.querySelectorAll('[data-vs-open]'))
@@ -1128,7 +1100,20 @@
         const idx = all.indexOf(btn);
         openModal(videos, idx >= 0 ? idx : 0);
       }
-      document.addEventListener('click', handleOpenClick, true); // capture: roda antes de qualquer outro handler
+
+      let lastOpenedAt = 0;
+      function handleOpenClick(e) {
+        const btn = e.target.closest('[data-vs-open]');
+        if (!btn) return;
+        // Debounce: evita disparo duplo se ambos handlers (capture + bubble) chamam.
+        const now = Date.now();
+        if (now - lastOpenedAt < 500) { e.preventDefault(); return; }
+        lastOpenedAt = now;
+        e.preventDefault();
+        openFromButton(btn);
+      }
+      document.addEventListener('click', handleOpenClick, true);  // capture (roda primeiro)
+      document.addEventListener('click', handleOpenClick, false); // bubble (fallback)
     }
 
     /* ── Hidrata templates: copia conteúdo para o slot apropriado ── */
