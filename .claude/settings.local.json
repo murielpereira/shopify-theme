@@ -28,7 +28,12 @@
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 --stat)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 -- snippets/video-stories.liquid)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -8 -- sections/collection.liquid sections/home-featured-collections.liquid snippets/product-card.liquid)",
-      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 -- sections/collection.liquid snippets/product-card.liquid)"
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 -- sections/collection.liquid snippets/product-card.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" status)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" add assets/critical.css blocks/ai_gen_block_24bb258.liquid sections/footer-group.json sections/footer.liquid snippets/video-stories.liquid)",
+      "Bash(git -C 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme' commit -m ' *)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" push)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" add sections/footer.liquid sections/product-accordions.liquid)"
     ]
   }
 }

@@ -2760,9 +2760,16 @@ shopify-account {
 
 /* ── Acordeões ── */
 .pdp-accordions {
-  padding: 0 var(--page-margin, 20px) 3rem;
-  max-width: var(--page-width, 120rem);
+  /*padding: 0 var(--page-margin, 20px) 3rem;*/
+  padding: 10px 20rem;
+  max-width: 100%;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .pdp-accordions {
+    padding: 0 var(--page-margin, 20px) 3rem;
+  }
 }
 
 .ame-accordion {
@@ -2831,16 +2838,19 @@ shopify-account {
   overflow-x: hidden;
   max-width: 100%;
 }
+
 .ame-accordion__body *,
 .ame-accordion__body table {
   max-width: 100% !important;
 }
+
 .ame-accordion__body img,
 .ame-accordion__body video,
 .ame-accordion__body iframe,
 .ame-accordion__body svg {
   height: auto;
 }
+
 .ame-accordion__body table {
   display: block;
   overflow-x: auto;
