@@ -1013,12 +1013,13 @@
 
       window.AmeVideoStories = { open: openModal, close: closeModal, navigate, bindOpenLinks };
 
-      /* Delegate global: qualquer clique em [data-vs-open] abre o modal.
-         Se um widget tem múltiplos vídeos, monta a lista lendo todos os irmãos
-         com o mesmo widget pai pra permitir navegação prev/next. */
-      document.addEventListener('click', (e) => {
+      /* Delegate global em PHASE CAPTURE pra rodar antes de qualquer outro
+         handler que possa engolir o clique (drag suppression, navegação custom).
+         Pega tanto clicks de mouse quanto taps de touch. */
+      function handleOpenClick(e) {
         const btn = e.target.closest('[data-vs-open]');
         if (!btn) return;
+        console.log('[ame-vs] click captured, opening modal', btn);
         e.preventDefault();
         e.stopPropagation();
 
@@ -1037,7 +1038,8 @@
         }));
         const idx = all.indexOf(btn);
         openModal(videos, idx >= 0 ? idx : 0);
-      });
+      }
+      document.addEventListener('click', handleOpenClick, true); // capture: roda antes de qualquer outro handler
     }
 
     /* ── Hidrata templates: copia conteúdo para o slot apropriado ── */
