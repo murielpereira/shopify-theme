@@ -134,8 +134,12 @@
 {% style %}
   .ai-product-grid-{{ ai_gen_id }} {
     display: block;
-    width: {{ block.settings.desktop_width_percent }}%;
-    max-width: 100%;
+    width: 100%;
+    max-width: var(--page-width, 120rem);
+    padding-left: var(--page-margin, 1.5rem);
+    padding-right: var(--page-margin, 1.5rem);
+    margin: 0 auto;
+    box-sizing: border-box;
   }
 
   .ai-product-grid__header-{{ ai_gen_id }} {

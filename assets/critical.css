@@ -2826,10 +2826,20 @@ shopify-account {
 .ame-accordion__body {
   overflow-wrap: break-word;
   word-break: break-word;
-}
-.ame-accordion__body > *,
-.ame-accordion__body table {
+  /* Container clipa qualquer conteúdo HTML colado no admin que tente estourar
+     (divs com width fixo inline, imagens com width inline, etc.). */
+  overflow-x: hidden;
   max-width: 100%;
+}
+.ame-accordion__body *,
+.ame-accordion__body table {
+  max-width: 100% !important;
+}
+.ame-accordion__body img,
+.ame-accordion__body video,
+.ame-accordion__body iframe,
+.ame-accordion__body svg {
+  height: auto;
 }
 .ame-accordion__body table {
   display: block;

@@ -270,15 +270,12 @@
     padding: 0.25rem 0.125rem 0.5rem;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    /* No mobile, scroll-snap pode "prender" o gesto. Tiramos o snap por padrão
-       e deixamos o browser controlar inteiramente o pan horizontal. */
     width: 100%;
     box-sizing: border-box;
     cursor: grab;
-    /* touch-action: pan-x autoriza pan horizontal mas bloqueia vertical no track
-       inteiro — no mobile, isso pode atrapalhar o scroll da página se o usuário
-       começar o gesto sobre o track. Deixamos auto, que permite ambos. */
-    touch-action: auto;
+    /* touch-action: pan-x autoriza pan horizontal no track e pan vertical no
+       resto da página (porque o gesto vertical não é capturado pelo track). */
+    touch-action: pan-x;
   }
   .ame-vs__track.is-dragging {
     cursor: grabbing;
@@ -1010,61 +1007,36 @@
         }, 250);
       }
 
-      function bindOpenLinks(root) {
-        const buttons = Array.from(root.querySelectorAll('[data-vs-open]'));
-        const videoMap = new Map();
-        buttons.forEach((btn) => {
-          const key = btn.dataset.vsType + ':' + btn.dataset.vsHost + ':' + btn.dataset.vsId + ':' + (btn.dataset.vsSrc || '');
-          if (!videoMap.has(key)) {
-            videoMap.set(key, {
-              type: btn.dataset.vsType,
-              id: btn.dataset.vsId,
-              host: btn.dataset.vsHost,
-              src: btn.dataset.vsSrc,
-              title: btn.dataset.vsTitle,
-              ctaUrl: btn.dataset.vsCtaUrl,
-              ctaLabel: btn.dataset.vsCtaLabel,
-            });
-          }
-        });
-        const videos = Array.from(videoMap.values());
-        const keyToIdx = new Map(Array.from(videoMap.keys()).map((k, i) => [k, i]));
-
-        buttons.forEach((btn) => {
-          if (btn.dataset.vsBound) return;
-          btn.dataset.vsBound = '1';
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const key = btn.dataset.vsType + ':' + btn.dataset.vsHost + ':' + btn.dataset.vsId + ':' + (btn.dataset.vsSrc || '');
-            const idx = keyToIdx.get(key) || 0;
-            openModal(videos, idx);
-          });
-        });
-      }
+      // Cliques são tratados pelo delegate global abaixo. Mantemos a function
+      // exposta como no-op por compatibilidade.
+      function bindOpenLinks(_root) { /* no-op */ }
 
       window.AmeVideoStories = { open: openModal, close: closeModal, navigate, bindOpenLinks };
 
-      /* Delegate global: garante que qualquer clique em [data-vs-open] abra o modal
-         mesmo que o bindOpenLinks do widget não tenha rodado (DOM trocado por
-         Section Rendering API, ou hidratação que falhou). */
+      /* Delegate global: qualquer clique em [data-vs-open] abre o modal.
+         Se um widget tem múltiplos vídeos, monta a lista lendo todos os irmãos
+         com o mesmo widget pai pra permitir navegação prev/next. */
       document.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-vs-open]');
         if (!btn) return;
-        // Se o bind individual já cuidou, ignore (evita abrir duas vezes).
-        if (btn.dataset.vsBound) return;
         e.preventDefault();
         e.stopPropagation();
-        const data = {
-          type: btn.dataset.vsType,
-          id: btn.dataset.vsId,
-          host: btn.dataset.vsHost,
-          src: btn.dataset.vsSrc,
-          title: btn.dataset.vsTitle,
-          ctaUrl: btn.dataset.vsCtaUrl,
-          ctaLabel: btn.dataset.vsCtaLabel,
-        };
-        openModal([data], 0);
+
+        const widget = btn.closest('[data-vs-widget]');
+        const all = widget
+          ? Array.from(widget.querySelectorAll('[data-vs-open]'))
+          : [btn];
+        const videos = all.map(b => ({
+          type: b.dataset.vsType,
+          id: b.dataset.vsId,
+          host: b.dataset.vsHost,
+          src: b.dataset.vsSrc,
+          title: b.dataset.vsTitle,
+          ctaUrl: b.dataset.vsCtaUrl,
+          ctaLabel: b.dataset.vsCtaLabel,
+        }));
+        const idx = all.indexOf(btn);
+        openModal(videos, idx >= 0 ? idx : 0);
       });
     }
 
