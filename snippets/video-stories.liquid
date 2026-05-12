@@ -1105,15 +1105,20 @@
       function handleOpenClick(e) {
         const btn = e.target.closest('[data-vs-open]');
         if (!btn) return;
-        // Debounce: evita disparo duplo se ambos handlers (capture + bubble) chamam.
+        // Debounce: evita disparo duplo se múltiplos eventos (pointerdown +
+        // click capture + click bubble) dispararem na sequência.
         const now = Date.now();
         if (now - lastOpenedAt < 500) { e.preventDefault(); return; }
         lastOpenedAt = now;
         e.preventDefault();
         openFromButton(btn);
       }
-      document.addEventListener('click', handleOpenClick, true);  // capture (roda primeiro)
-      document.addEventListener('click', handleOpenClick, false); // bubble (fallback)
+      // pointerdown roda ANTES de mousedown/click — apps externos que
+      // interceptam click não conseguem barrar o pointerdown.
+      document.addEventListener('pointerdown', handleOpenClick, true);
+      // Fallbacks pra cobrir navegadores antigos e outros casos.
+      document.addEventListener('click', handleOpenClick, true);
+      document.addEventListener('click', handleOpenClick, false);
     }
 
     /* ── Hidrata templates: copia conteúdo para o slot apropriado ── */
