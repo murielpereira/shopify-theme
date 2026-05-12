@@ -10,6 +10,7 @@
 {
   "current": {
     "type_primary_font": "assistant_n4",
+    "favicon": "shopify://shop_images/favicon.png",
     "max_page_width": "120rem",
     "min_page_margin": 160,
     "section_gap": 120,
@@ -80,6 +81,7 @@
     "custom_field_4_tag": "customizacao_telefone",
     "custom_field_4_name": "Telefone",
     "custom_field_4_title": "Verso 2ª Linha / Telefone do tutor",
+    "custom_field_4_type": "phone",
     "custom_field_4_required": true,
     "custom_field_5_enable": true,
     "custom_field_5_tag": "customizacao_data",
@@ -95,12 +97,26 @@
     "custom_field_6_placeholder": "Digite as iniciais para gravação",
     "custom_field_6_limiter": "2",
     "custom_field_6_required": true,
+    "custom_field_7_enable": true,
+    "custom_field_7_tag": "customizacao_jogoamericano",
+    "custom_field_7_name": "Nome",
+    "custom_field_7_title": "Nome",
+    "custom_field_7_placeholder": "Digite o nome para gravação",
+    "custom_field_7_limiter": "20",
+    "custom_field_7_required": true,
     "content_for_index": [],
     "blocks": {
       "9741741230116411038": {
         "type": "shopify://apps/optis-color-swatch/blocks/bss-se-script/ad128d8f-5ebd-45ad-954a-7dd4c4226109",
         "disabled": false,
         "settings": {}
+      },
+      "316487575649303945": {
+        "type": "shopify://apps/easify-options/blocks/app-embed-block/d2288b18-c1ba-42f5-b3b3-26c75c8820bf",
+        "disabled": false,
+        "settings": {
+          "theme_app_version": "none"
+        }
       }
     }
   }
