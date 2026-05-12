@@ -67,8 +67,8 @@
 -%}
 
 <div class="ame-card" data-product-card>
-  <a href="{{ card_url }}" class="ame-card__link" tabindex="-1" aria-hidden="true">
-    <div class="ame-card__image-wrap">
+  <div class="ame-card__image-wrap">
+    <a href="{{ card_url }}" class="ame-card__link" tabindex="-1" aria-hidden="true"></a>
       {%- if card_img != blank -%}
         {%- assign card_img_alt = card_img.alt | default: card_title | escape -%}
         {%- liquid
@@ -128,26 +128,26 @@
           {{ card_rating }}
         </span>
       {%- endif -%}
-    </div>
-  </a>
 
-  <!-- Favorito bottom-right (fora do <a> pra não disparar navegação) -->
-  <button
-    class="ame-wishlist ame-card__wishlist"
-    aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos"
-    data-wishlist-btn="{{ card_product.id }}"
-    data-wishlist-handle="{{ card_product.handle }}"
-    data-wishlist-title="{{ card_title | escape }}"
-    type="button"
-    aria-pressed="false"
-  >
-    <span
-      class="material-symbols-outlined"
-      style="font-size:1.125rem; font-variation-settings:'FILL' 0;"
-      aria-hidden="true"
-      >favorite</span
-    >
-  </button>
+      <!-- Favorito bottom-right (sobre a imagem, acima do link clicável) -->
+      <button
+        class="ame-wishlist ame-card__wishlist"
+        aria-label="Adicionar aos favoritos"
+        title="Adicionar aos favoritos"
+        data-wishlist-btn="{{ card_product.id }}"
+        data-wishlist-handle="{{ card_product.handle }}"
+        data-wishlist-title="{{ card_title | escape }}"
+        type="button"
+        aria-pressed="false"
+      >
+        <span
+          class="material-symbols-outlined"
+          style="font-size:1.125rem; font-variation-settings:'FILL' 0;"
+          aria-hidden="true"
+          >favorite</span
+        >
+      </button>
+    </div>
 
   <div class="ame-card__info">
     <!--
@@ -244,7 +244,11 @@
     display: flex;
     flex-direction: column;
   }
+  /* Link clicável sobre a imagem (z-index baixo pra deixar o botão de favorito acessível) */
   .ame-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     display: block;
   }
 
@@ -357,12 +361,12 @@
     color: #f5a623;
   }
 
-  /* Wishlist — bottom-right */
+  /* Wishlist — bottom-right (sobre a imagem, acima do link clicável). */
   .ame-card__wishlist {
     position: absolute;
     bottom: 0.75rem;
     right: 0.75rem;
-    z-index: 2;
+    z-index: 3;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(8px);
     border: none;
@@ -528,8 +532,11 @@
     const STORAGE_KEY = 'ame:wishlist';
 
     function readList() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-      catch { return []; }
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
     }
     function writeList(list) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
@@ -551,17 +558,25 @@
         if (btn.dataset.wishlistBound) return;
         btn.dataset.wishlistBound = '1';
         const handle = btn.dataset.wishlistHandle;
-        syncButton(btn, list.some(p => p.handle === handle));
+        syncButton(
+          btn,
+          list.some((p) => p.handle === handle)
+        );
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           const current = readList();
-          const exists = current.some(p => p.handle === handle);
+          const exists = current.some((p) => p.handle === handle);
           const next = exists
-            ? current.filter(p => p.handle !== handle)
-            : [...current, { id: btn.dataset.wishlistBtn, handle, title: btn.dataset.wishlistTitle, addedAt: Date.now() }];
+            ? current.filter((p) => p.handle !== handle)
+            : [
+                ...current,
+                { id: btn.dataset.wishlistBtn, handle, title: btn.dataset.wishlistTitle, addedAt: Date.now() },
+              ];
           writeList(next);
-          document.querySelectorAll(`[data-wishlist-handle="${CSS.escape(handle)}"]`).forEach(b => syncButton(b, !exists));
+          document
+            .querySelectorAll(`[data-wishlist-handle="${CSS.escape(handle)}"]`)
+            .forEach((b) => syncButton(b, !exists));
         });
       });
     }
@@ -570,7 +585,10 @@
     document.addEventListener('ame:wishlist-changed', () => {
       const list = readList();
       document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
-        syncButton(btn, list.some(p => p.handle === btn.dataset.wishlistHandle));
+        syncButton(
+          btn,
+          list.some((p) => p.handle === btn.dataset.wishlistHandle)
+        );
       });
     });
     // Re-bind para cards adicionados dinamicamente (search predictivo, paginação ajax)

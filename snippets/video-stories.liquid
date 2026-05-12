@@ -270,13 +270,15 @@
     padding: 0.25rem 0.125rem 0.5rem;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
+    /* No mobile, scroll-snap pode "prender" o gesto. Tiramos o snap por padrão
+       e deixamos o browser controlar inteiramente o pan horizontal. */
     width: 100%;
     box-sizing: border-box;
     cursor: grab;
-    /* touch-action: garante que o navegador permita pan horizontal nativo no mobile.
-       user-select fica só durante drag de mouse pra não bloquear o touch scrolling. */
-    touch-action: pan-x;
+    /* touch-action: pan-x autoriza pan horizontal mas bloqueia vertical no track
+       inteiro — no mobile, isso pode atrapalhar o scroll da página se o usuário
+       começar o gesto sobre o track. Deixamos auto, que permite ambos. */
+    touch-action: auto;
   }
   .ame-vs__track.is-dragging {
     cursor: grabbing;
