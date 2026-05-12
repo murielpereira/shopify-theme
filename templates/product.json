@@ -31,50 +31,17 @@
         "videos_autoplay": true
       }
     },
-    "product_accordions_T9d3BD": {
+    "product_accordions_87ARfi": {
       "type": "product-accordions",
-      "blocks": {
-        "accordion_dha9CR": {
-          "type": "accordion",
-          "settings": {
-            "title": "Materiais & Craft",
-            "body": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>"
-          }
-        },
-        "accordion_Jgkj4R": {
-          "type": "accordion",
-          "settings": {
-            "title": "Guia de Tamanhos",
-            "body": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>"
-          }
-        },
-        "accordion_ix8xmy": {
-          "type": "accordion",
-          "settings": {
-            "title": "Cuidados & Manutenção",
-            "body": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>"
-          }
-        },
-        "accordion_jb4rie": {
-          "type": "accordion",
-          "settings": {
-            "title": "Envio & Embalagem",
-            "body": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>"
-          }
-        }
-      },
-      "block_order": [
-        "accordion_dha9CR",
-        "accordion_Jgkj4R",
-        "accordion_ix8xmy",
-        "accordion_jb4rie"
-      ],
       "name": "Detalhes do Produto",
-      "settings": {}
+      "settings": {
+        "show_description": false,
+        "description_title": "Descrição"
+      }
     }
   },
   "order": [
     "main",
-    "product_accordions_T9d3BD"
+    "product_accordions_87ARfi"
   ]
 }
