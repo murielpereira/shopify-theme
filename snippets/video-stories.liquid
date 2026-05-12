@@ -428,12 +428,11 @@
   /* ──────────────────────────────────────────── */
   .ame-vs--spotlight {
     position: relative;
-    /* Full-bleed: ignora padding do container e ocupa 100vw.
-       O <body> tem overflow-x: clip, então não há risco de overflow lateral. */
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    /* Compensa o padding lateral do container pai pra ocupar a largura disponível
+       sem estourar a viewport (que provocava overflow horizontal no mobile). */
+    width: auto;
+    margin-left: calc(-1 * var(--page-margin, 2rem));
+    margin-right: calc(-1 * var(--page-margin, 2rem));
   }
   .ame-vs__spot-outer {
     position: relative;
