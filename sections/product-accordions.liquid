@@ -1,6 +1,32 @@
 {% comment %} Âme — Acordeões de detalhes do produto (extraído de product.liquid) {% endcomment %}
 
 <div class="pdp-accordions full-width" data-pdp-accordions>
+  {%- if section.settings.show_description and product.description != blank -%}
+    <div class="ame-accordion">
+      <button
+        class="ame-accordion__btn"
+        type="button"
+        aria-expanded="true"
+        aria-controls="pdp-acc-{{ section.id }}-desc"
+      >
+        <span>{{ section.settings.description_title | default: 'Descrição' }}</span>
+        <span
+          class="material-symbols-outlined ame-accordion__icon"
+          style="font-variation-settings:'wght' 300;"
+          aria-hidden="true"
+          >add</span
+        >
+      </button>
+      <div
+        id="pdp-acc-{{ section.id }}-desc"
+        class="ame-accordion__content"
+        style="max-height: 60rem;"
+      >
+        <div class="ame-accordion__body">{{ product.description }}</div>
+      </div>
+    </div>
+  {%- endif -%}
+
   {%- for block in section.blocks -%}
     {%- if block.type == 'accordion' -%}
       <div class="ame-accordion" {{ block.shopify_attributes }}>
@@ -83,6 +109,23 @@
     {
       "type": "paragraph",
       "content": "Acordeões exibidos na página do produto, abaixo da imagem e do botão Adicionar ao Carrinho. Adicione blocos abaixo. Se não houver blocos cadastrados, o tema exibe automaticamente um acordeão único com a descrição do produto."
+    },
+    {
+      "type": "header",
+      "content": "Descrição do produto"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Incluir um acordeão com a descrição completa do produto",
+      "info": "Renderiza o campo Descrição cadastrado em Produtos → [produto].",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "description_title",
+      "label": "Título do acordeão de descrição",
+      "default": "Descrição"
     }
   ],
   "blocks": [

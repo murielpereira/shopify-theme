@@ -244,11 +244,12 @@
     display: flex;
     flex-direction: column;
   }
-  /* Link clicável sobre a imagem (z-index baixo pra deixar o botão de favorito acessível) */
+  /* Link clicável sobre a imagem. Z-index acima das imagens (que vão até 2 no
+     hover swap) e abaixo do botão de favorito (z-index 5). */
   .ame-card__link {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 4;
     display: block;
   }
 
@@ -366,7 +367,7 @@
     position: absolute;
     bottom: 0.75rem;
     right: 0.75rem;
-    z-index: 3;
+    z-index: 5;
     background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(8px);
     border: none;

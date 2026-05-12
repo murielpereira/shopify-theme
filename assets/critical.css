@@ -2761,7 +2761,7 @@ shopify-account {
 /* ── Acordeões ── */
 .pdp-accordions {
   padding: 0 var(--page-margin, 20px) 3rem;
-  max-width: min(52rem, var(--page-width, 120rem));
+  max-width: var(--page-width, 120rem);
   margin: 0 auto;
 }
 
