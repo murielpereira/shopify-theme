@@ -486,13 +486,13 @@ body::after {
 }
 
 .ame-cashback__cifra {
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 500;
 }
 
 .ame-cashback__value {
-  font-weight: 700;
-  font-size: 0.9375rem;
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 /* PDP variant */
@@ -1971,6 +1971,16 @@ shopify-account {
   min-width: 0;
 }
 
+/* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
+   tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
+   conteúdo intrinsicamente largo empurra a coluna do grid pra fora. */
+.pdp__gallery,
+.pdp__sticky-wrap {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 @media (min-width: 1024px) {
   .pdp {
     grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
@@ -1982,7 +1992,6 @@ shopify-account {
 
   .pdp__gallery {
     grid-column: 1;
-    min-width: 0;
     position: sticky;
     top: 6.5rem;
     align-self: start;
@@ -2000,11 +2009,13 @@ shopify-account {
 .pdp__main-img-wrap {
   position: relative;
   width: 100%;
+  max-width: 100%;
   aspect-ratio: 1 / 1;
   background: var(--color-surface-container-highest, #ece1d5);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 0.5rem;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
@@ -2457,6 +2468,8 @@ shopify-account {
   display: flex;
   flex-wrap: wrap;
   gap: 0.450rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (min-width: 1024px) {
@@ -2468,7 +2481,9 @@ shopify-account {
 }
 
 .pdp__swatch {
-  width: calc(16.666% - 0.375rem);
+  /* Cálculo correto pra 6 colunas com gap fixo (5 gaps entre 6 itens).
+     Compatível com produtos que têm muitas variantes (100+). */
+  width: calc((100% - 5 * 0.450rem) / 6);
   aspect-ratio: 1 / 1;
   border-radius: 8px;
   border: none;
@@ -2479,6 +2494,8 @@ shopify-account {
   transition: transform 0.25s ease, outline 0.2s ease;
   flex-shrink: 0;
   border: 1px solid rgba(210, 195, 192, .25);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @media (min-width: 1024px) {
