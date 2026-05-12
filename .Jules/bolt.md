@@ -17,3 +17,6 @@
 ## 2024-05-11 - Liquid Loop Optimization via {% capture %}
 **Learning:** Liquid templates suffer from processing overhead when iterating over the same array multiple times to check conditions before rendering. This anti-pattern existed in `snippets/cart-drawer.liquid` for `item.properties`.
 **Action:** Replace multi-pass loops with a single loop using `{% capture %}`. Capture the output in the first pass and then check if the captured variable is `!= blank` before rendering the surrounding markup.
+## 2024-05-12 - Single pass rendering in Liquid
+**Learning:** Liquid templates often use a double loop anti-pattern (loop once to check condition/count, loop again to render) because variables like `loop.first` or list sizes can't account for complex condition-based filtering. This causes unnecessary O(n) rendering overhead.
+**Action:** Replace double loops with a single loop inside `{% capture %}`. Evaluate the captured string with `if string != blank` to conditionally render wrappers, reducing iterations by 50%.
