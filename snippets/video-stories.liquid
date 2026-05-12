@@ -1007,9 +1007,33 @@
         }, 250);
       }
 
-      // Cliques são tratados pelo delegate global abaixo. Mantemos a function
-      // exposta como no-op por compatibilidade.
-      function bindOpenLinks(_root) { /* no-op */ }
+      // Bind direto nos botões — mais robusto que delegate em casos onde
+      // outros scripts (apps Shopify) interceptam clicks no nível do document.
+      function bindOpenLinks(root) {
+        if (!root) return;
+        root.querySelectorAll('[data-vs-open]').forEach((btn) => {
+          if (btn.dataset.vsBound) return;
+          btn.dataset.vsBound = '1';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('[ame-vs] click direto no botao', btn);
+            const widget = btn.closest('[data-vs-widget]') || root;
+            const all = Array.from(widget.querySelectorAll('[data-vs-open]'));
+            const videos = all.map(b => ({
+              type: b.dataset.vsType,
+              id: b.dataset.vsId,
+              host: b.dataset.vsHost,
+              src: b.dataset.vsSrc,
+              title: b.dataset.vsTitle,
+              ctaUrl: b.dataset.vsCtaUrl,
+              ctaLabel: b.dataset.vsCtaLabel,
+            }));
+            const idx = all.indexOf(btn);
+            openModal(videos, idx >= 0 ? idx : 0);
+          });
+        });
+      }
 
       window.AmeVideoStories = { open: openModal, close: closeModal, navigate, bindOpenLinks };
 
