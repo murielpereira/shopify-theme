@@ -243,6 +243,16 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    /* Sem isso, conteúdo longo (títulos, preços formatados) pode estourar o
+       grid-track no mobile e empurrar o card pra fora da viewport. */
+    min-width: 0;
+  }
+  .ame-card__title,
+  .ame-card__price-main,
+  .ame-card__installments,
+  .ame-card__pix {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   /* Link clicável sobre a imagem. Z-index acima das imagens (que vão até 2 no
      hover swap) e abaixo do botão de favorito (z-index 5). */
@@ -543,6 +553,9 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
       document.dispatchEvent(new CustomEvent('ame:wishlist-changed', { detail: { list } }));
     }
+    function isInList(list, handle) {
+      return list.some((p) => p.handle === handle);
+    }
 
     function syncButton(btn, isActive) {
       btn.classList.toggle('is-active', isActive);
@@ -553,47 +566,37 @@
       if (icon) icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
     }
 
-    function bindAllButtons() {
+    /* Hidrata visualmente os botões existentes (sem bind individual — delegation faz isso) */
+    function hydrateVisualState() {
       const list = readList();
       document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
-        if (btn.dataset.wishlistBound) return;
-        btn.dataset.wishlistBound = '1';
-        const handle = btn.dataset.wishlistHandle;
-        syncButton(
-          btn,
-          list.some((p) => p.handle === handle)
-        );
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const current = readList();
-          const exists = current.some((p) => p.handle === handle);
-          const next = exists
-            ? current.filter((p) => p.handle !== handle)
-            : [
-                ...current,
-                { id: btn.dataset.wishlistBtn, handle, title: btn.dataset.wishlistTitle, addedAt: Date.now() },
-              ];
-          writeList(next);
-          document
-            .querySelectorAll(`[data-wishlist-handle="${CSS.escape(handle)}"]`)
-            .forEach((b) => syncButton(b, !exists));
-        });
+        syncButton(btn, isInList(list, btn.dataset.wishlistHandle));
       });
     }
 
-    bindAllButtons();
-    document.addEventListener('ame:wishlist-changed', () => {
-      const list = readList();
-      document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
-        syncButton(
-          btn,
-          list.some((p) => p.handle === btn.dataset.wishlistHandle)
-        );
-      });
+    /* Event delegation: um único listener no document cuida de todos os botões,
+       inclusive os adicionados dinamicamente depois (search predictivo, paginação ajax).
+       Sem MutationObserver pesado. */
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-wishlist-btn]');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const handle = btn.dataset.wishlistHandle;
+      const current = readList();
+      const exists = isInList(current, handle);
+      const next = exists
+        ? current.filter((p) => p.handle !== handle)
+        : [
+            ...current,
+            { id: btn.dataset.wishlistBtn, handle, title: btn.dataset.wishlistTitle, addedAt: Date.now() },
+          ];
+      writeList(next);
     });
-    // Re-bind para cards adicionados dinamicamente (search predictivo, paginação ajax)
-    const observer = new MutationObserver(bindAllButtons);
-    observer.observe(document.body, { childList: true, subtree: true });
+
+    hydrateVisualState();
+    document.addEventListener('ame:wishlist-changed', hydrateVisualState);
+    /* Re-hidrata só quando algum input/output relevante mudar (paginação ajax dispara isso) */
+    window.addEventListener('pageshow', hydrateVisualState);
   })();
 </script>

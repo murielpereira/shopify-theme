@@ -22,7 +22,13 @@
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline --since=\"2026-05-08\" -- assets/critical.css)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline --since=\"2026-05-01\" --all)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 03db1d6 --stat)",
-      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 03db1d6 -- snippets/video-stories.liquid)"
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 03db1d6 -- snippets/video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -10 -- snippets/video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show cf89479 -- snippets/video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 --stat)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 -- snippets/video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -8 -- sections/collection.liquid sections/home-featured-collections.liquid snippets/product-card.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 365e5b3 -- sections/collection.liquid snippets/product-card.liquid)"
     ]
   }
 }

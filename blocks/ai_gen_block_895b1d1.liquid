@@ -192,7 +192,7 @@
         if (this.items.length === 0) return;
 
         this.handleScroll = this.handleScroll.bind(this);
-        window.addEventListener('scroll', this.handleScroll);
+        window.addEventListener('scroll', this.handleScroll, { passive: true });
         this.handleScroll();
       }
 
