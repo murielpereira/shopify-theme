@@ -13,7 +13,16 @@
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('OK — JSON válido'\\)\")",
       "Bash(node -e ' *)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('settings_schema.json OK'\\)\")",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "WebSearch",
+      "WebFetch(domain:ajuda.olist.com)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -20 -- snippets/video-stories.liquid sections/home-video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show --stat 3b29b09)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 3b29b09 -- snippets/video-stories.liquid)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline --since=\"2026-05-08\" -- assets/critical.css)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline --since=\"2026-05-01\" --all)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 03db1d6 --stat)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 03db1d6 -- snippets/video-stories.liquid)"
     ]
   }
 }

@@ -19,6 +19,17 @@
     ]
   },
   {
+    "name": "Favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Imagem quadrada (ex: 32×32 ou 64×64 px). Aparece na aba do navegador."
+      }
+    ]
+  },
+  {
     "name": "Layout",
     "settings": [
       {

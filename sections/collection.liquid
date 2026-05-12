@@ -1,7 +1,7 @@
 {% comment %} Âme — Coleção: banner + header editorial + sidebar + grid {% endcomment %}
 
 {%- assign banner_video = collection.metafields.custom.banner_video.value -%}
-{%- assign banner_img   = collection.featured_image -%}
+{%- assign banner_img = collection.featured_image -%}
 {%- assign has_banner = false -%}
 {%- if section.settings.show_banner -%}
   {%- if banner_video != blank or banner_img != blank -%}
@@ -49,7 +49,8 @@
     <div class="ame-fade-up ame-delay-1">
       <p class="ame-label-sm">Coleções</p>
       <h1 class="ame-col-header__title">
-        {{ collection.title }}<br>
+        {{ collection.title -}}
+        <br>
         <em>Curado.</em>
       </h1>
     </div>
@@ -59,12 +60,16 @@
   </div>
 
   <div class="ame-col-header__tabs ame-fade-up ame-delay-3">
-    <a href="{{ collection.url }}" class="ame-col-tab{% unless current_tags %} ame-col-tab--active{% endunless %}">Tudo</a>
+    <a href="{{ collection.url }}" class="ame-col-tab{% unless current_tags %} ame-col-tab--active{% endunless %}"
+      >Tudo</a
+    >
     {%- for tag in collection.all_tags -%}
       <a
         href="{{ collection.url }}/{{ tag | handle }}"
         class="ame-col-tab{% if current_tags contains tag %} ame-col-tab--active{% endif %}"
-      >{{ tag }}</a>
+      >
+        {{- tag -}}
+      </a>
     {%- endfor -%}
   </div>
 
@@ -72,17 +77,51 @@
 </header>
 
 <div class="ame-col-layout full-width">
-
   <aside class="ame-col-sidebar">
     <div class="ame-col-filter-group">
       <p class="ame-col-filter-title">Ordenar</p>
       <div class="ame-col-select-wrap">
         <select class="ame-col-select" onchange="window.location.href=this.value" aria-label="Ordenar por">
-          <option value="{{ collection.url }}?sort_by=manual"             {% if collection.sort_by == 'manual' %}selected{% endif %}>Em Destaque</option>
-          <option value="{{ collection.url }}?sort_by=created-descending" {% if collection.sort_by == 'created-descending' %}selected{% endif %}>Mais Recentes</option>
-          <option value="{{ collection.url }}?sort_by=price-ascending"    {% if collection.sort_by == 'price-ascending' %}selected{% endif %}>Preço ↑</option>
-          <option value="{{ collection.url }}?sort_by=price-descending"   {% if collection.sort_by == 'price-descending' %}selected{% endif %}>Preço ↓</option>
-          <option value="{{ collection.url }}?sort_by=best-selling"       {% if collection.sort_by == 'best-selling' %}selected{% endif %}>Mais Vendidos</option>
+          <option
+            value="{{ collection.url }}?sort_by=manual"
+            {% if collection.sort_by == 'manual' %}
+              selected
+            {% endif %}
+          >
+            Em Destaque
+          </option>
+          <option
+            value="{{ collection.url }}?sort_by=created-descending"
+            {% if collection.sort_by == 'created-descending' %}
+              selected
+            {% endif %}
+          >
+            Mais Recentes
+          </option>
+          <option
+            value="{{ collection.url }}?sort_by=price-ascending"
+            {% if collection.sort_by == 'price-ascending' %}
+              selected
+            {% endif %}
+          >
+            Preço ↑
+          </option>
+          <option
+            value="{{ collection.url }}?sort_by=price-descending"
+            {% if collection.sort_by == 'price-descending' %}
+              selected
+            {% endif %}
+          >
+            Preço ↓
+          </option>
+          <option
+            value="{{ collection.url }}?sort_by=best-selling"
+            {% if collection.sort_by == 'best-selling' %}
+              selected
+            {% endif %}
+          >
+            Mais Vendidos
+          </option>
         </select>
         <span class="material-symbols-outlined ame-col-select-icon" aria-hidden="true">expand_more</span>
       </div>
@@ -108,7 +147,10 @@
 
   <div class="ame-col-main">
     <div class="ame-col-bar">
-      <p class="ame-col-count">{{ collection.products_count }} {% if collection.products_count == 1 %}peça{% else %}peças{% endif %}</p>
+      <p class="ame-col-count">
+        {{ collection.products_count }}
+        {% if collection.products_count == 1 %}peça{% else %}peças{% endif %}
+      </p>
     </div>
 
     {%- paginate collection.products by section.settings.products_per_page -%}
@@ -123,7 +165,10 @@
             📊 Impact: Eliminates N+1 rendering overhead, dramatically reducing template compilation time for large collections.
             🔬 Measurement: Profile the Server Response time on large collection pages.
           {% endcomment %}
-          {%- render 'product-card' for collection.products as card_product, card_btn_label: section.settings.card_btn_label -%}
+          {%- render 'product-card'
+            for collection.products as card_product,
+            card_btn_label: section.settings.card_btn_label
+          -%}
         </div>
 
         {%- if paginate.pages > 1 -%}
@@ -196,7 +241,11 @@
     margin-bottom: 3.5rem;
   }
   @media (min-width: 768px) {
-    .ame-col-header__inner { flex-direction: row; justify-content: space-between; align-items: flex-end; }
+    .ame-col-header__inner {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
   }
   .ame-col-header__title {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
@@ -206,25 +255,36 @@
     line-height: 0.92;
     color: var(--color-on-background, #201b14);
   }
-  .ame-col-header__title em { font-style: italic; font-weight: 300; color: var(--color-primary, #5a4742); }
+  .ame-col-header__title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-primary, #5a4742);
+  }
   .ame-col-header__desc {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.875rem; line-height: 1.7;
+    font-size: 0.875rem;
+    line-height: 1.7;
     color: var(--color-on-surface-variant, #4f4442);
-    max-width: 22rem; align-self: flex-end;
+    max-width: 22rem;
+    align-self: flex-end;
   }
 
   .ame-col-header__tabs {
     max-width: var(--page-width, 120rem);
     margin: 0 auto;
-    display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem;
+    /*display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem;*/
+    display: none;
     scrollbar-width: none;
   }
-  .ame-col-header__tabs::-webkit-scrollbar { display: none; }
+  .ame-col-header__tabs::-webkit-scrollbar {
+    display: none;
+  }
   .ame-col-tab {
     flex-shrink: 0;
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     padding: 0.625rem 1.25rem;
     border-radius: var(--radius-full, 0.75rem);
     background: var(--color-surface-container, #f8ece0);
@@ -232,68 +292,120 @@
     text-decoration: none;
     transition: background 0.25s ease, color 0.25s ease;
   }
-  .ame-col-tab:hover { background: var(--color-surface-container-high, #f2e6da); }
-  .ame-col-tab--active { background: var(--color-primary, #5a4742); color: #ffffff; }
+  .ame-col-tab:hover {
+    background: var(--color-surface-container-high, #f2e6da);
+  }
+  .ame-col-tab--active {
+    background: var(--color-primary, #5a4742);
+    color: #ffffff;
+  }
 
   .ame-col-header__divider {
     max-width: var(--page-width, 120rem);
     margin: 1.5rem auto 0;
     height: 1px;
-    background: rgba(210,195,192,0.2);
+    background: rgba(210, 195, 192, 0.2);
   }
 
   /* ── Layout ── */
   .ame-col-layout {
-    display: flex; flex-direction: column; gap: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
     padding: 3rem var(--page-margin, 2rem) var(--section-gap, 7.5rem);
     width: 100%;
     box-sizing: border-box;
   }
-  @media (min-width: 1024px) { .ame-col-layout { flex-direction: row; } }
+  @media (min-width: 1024px) {
+    .ame-col-layout {
+      flex-direction: row;
+    }
+  }
 
   /* ── Sidebar ── */
   .ame-col-sidebar {
-    flex-shrink: 0; width: 100%;
-    display: flex; flex-wrap: wrap; gap: 2rem;
+    flex-shrink: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
   }
   @media (min-width: 1024px) {
     .ame-col-sidebar {
-      width: 15rem; flex-direction: column; flex-wrap: nowrap;
-      position: sticky; top: 6.5rem; align-self: flex-start;
+      width: 15rem;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      position: sticky;
+      top: 6.5rem;
+      align-self: flex-start;
     }
   }
   .ame-col-filter-title {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.625rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: rgba(90,71,66,0.5); margin-bottom: 0.875rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    margin-bottom: 0.875rem;
   }
-  .ame-col-select-wrap { position: relative; }
+  .ame-col-select-wrap {
+    position: relative;
+  }
   .ame-col-select {
-    width: 100%; background: transparent; border: none;
-    border-bottom: 1px solid rgba(210,195,192,0.3); border-radius: 0;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(210, 195, 192, 0.3);
+    border-radius: 0;
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.875rem; color: var(--color-on-background, #201b14);
+    font-size: 0.875rem;
+    color: var(--color-on-background, #201b14);
     padding: 0.5rem 1.5rem 0.5rem 0;
-    cursor: pointer; appearance: none; outline: none;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
     transition: border-color 0.25s ease;
   }
-  .ame-col-select:focus { border-bottom-color: var(--color-primary, #5a4742); }
+  .ame-col-select:focus {
+    border-bottom-color: var(--color-primary, #5a4742);
+  }
   .ame-col-select-icon {
-    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-    color: var(--color-on-surface-variant, #4f4442); pointer-events: none; font-size: 1.125rem;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-on-surface-variant, #4f4442);
+    pointer-events: none;
+    font-size: 1.125rem;
   }
-  .ame-col-filter-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ame-col-filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
   .ame-col-filter-check {
-    display: flex; align-items: center; gap: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.875rem; color: var(--color-on-surface-variant, #4f4442);
-    text-decoration: none; cursor: pointer; transition: color 0.2s ease;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
   }
-  .ame-col-filter-check:hover { color: var(--color-on-background, #201b14); }
+  .ame-col-filter-check:hover {
+    color: var(--color-on-background, #201b14);
+  }
   .ame-col-filter-box {
-    width: 1rem; height: 1rem; border-radius: var(--radius-sm, 0.125rem);
-    border: 1px solid rgba(210,195,192,0.4); flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border-radius: var(--radius-sm, 0.125rem);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: background 0.2s ease, border-color 0.2s ease;
   }
   .ame-col-filter-check--active .ame-col-filter-box {
@@ -301,17 +413,30 @@
     border-color: var(--color-primary, #5a4742);
   }
   .ame-col-filter-check--active .ame-col-filter-box::after {
-    content: ''; width: 6px; height: 6px; background: #fff;
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #fff;
     border-radius: 1px;
     clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
   }
 
   /* ── Grid ── */
-  .ame-col-main { flex: 1; min-width: 0; }
-  .ame-col-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .ame-col-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .ame-col-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
   .ame-col-count {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.6875rem; letter-spacing: 0.18em; text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     color: var(--color-on-surface-variant, #4f4442);
   }
   .ame-col-grid {
@@ -320,37 +445,59 @@
     gap: 1.5rem 0.75rem;
   }
   @media (min-width: 768px) {
-    .ame-col-grid { gap: 2rem 1.5rem; }
+    .ame-col-grid {
+      gap: 2rem 1.5rem;
+    }
   }
   @media (min-width: 1024px) {
-    .ame-col-grid { grid-template-columns: repeat(3, 1fr); }
+    .ame-col-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
   @media (min-width: 1280px) {
-    .ame-col-grid { grid-template-columns: repeat(var(--grid-cols, 3), 1fr); }
+    .ame-col-grid {
+      grid-template-columns: repeat(var(--grid-cols, 3), 1fr);
+    }
   }
   .ame-col-empty {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1rem; color: var(--color-on-surface-variant, #4f4442);
-    padding: 4rem 0; text-align: center;
+    font-size: 1rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    padding: 4rem 0;
+    text-align: center;
   }
   .ame-col-pagination {
-    display: flex; justify-content: center; gap: 0.5rem; margin-top: 4rem;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.875rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 4rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.875rem;
   }
-  .ame-col-pagination a, .ame-col-pagination span {
-    padding: 0.5rem 1rem; border-radius: var(--radius-md, 0.25rem);
-    color: var(--color-on-surface-variant, #4f4442); text-decoration: none;
+  .ame-col-pagination a,
+  .ame-col-pagination span {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md, 0.25rem);
+    color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none;
     transition: background 0.2s ease;
   }
-  .ame-col-pagination a:hover { background: var(--color-surface-container, #f8ece0); }
+  .ame-col-pagination a:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
   .ame-col-pagination .current {
-    background: var(--color-primary, #5a4742); color: #ffffff;
+    background: var(--color-primary, #5a4742);
+    color: #ffffff;
   }
 
   .ame-label-sm {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 0.625rem; letter-spacing: 0.22em; text-transform: uppercase;
-    color: rgba(90,71,66,0.5); display: block; margin-bottom: 0.75rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.5);
+    display: block;
+    margin-bottom: 0.75rem;
   }
 {% endstylesheet %}
 

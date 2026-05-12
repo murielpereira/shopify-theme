@@ -1,0 +1,193 @@
+{% comment %} Âme — Página de Favoritos (renderizada client-side via localStorage) {% endcomment %}
+
+<section class="ame-favoritos" style="padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem); max-width: var(--page-width, 120rem); margin: 0 auto;">
+  <header class="ame-favoritos__header" style="text-align: center; margin-bottom: 3rem;">
+    <h1 style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1; color: var(--color-on-background, #201b14); margin: 0;">
+      {{ section.settings.title | default: 'Seus Favoritos' }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <p style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.9375rem; color: var(--color-on-surface-variant, #4f4442); line-height: 1.6; max-width: 36rem; margin: 1rem auto 0;">{{ section.settings.subtitle }}</p>
+    {%- endif -%}
+  </header>
+
+  <div id="ame-favoritos-grid" class="ame-grid" data-favoritos-grid hidden></div>
+
+  <div id="ame-favoritos-empty" data-favoritos-empty style="text-align: center; padding: 4rem 1rem; color: var(--color-on-surface-variant, #4f4442);">
+    <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 4rem; color: rgba(90, 71, 66, 0.2); margin-bottom: 1rem; display: inline-block;">favorite</span>
+    <p style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 1rem; margin: 0;">{{ section.settings.empty_message | default: 'Você ainda não tem produtos favoritos.' }}</p>
+    {%- if section.settings.empty_cta_url != blank and section.settings.empty_cta_label != blank -%}
+      <a href="{{ section.settings.empty_cta_url }}" class="ame-btn ame-btn--primary" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #5a4742); color: var(--color-on-primary, #fff); border-radius: 999px; font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+        {{ section.settings.empty_cta_label }}
+      </a>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (() => {
+    const STORAGE_KEY = 'ame:wishlist';
+    const grid = document.querySelector('[data-favoritos-grid]');
+    const empty = document.querySelector('[data-favoritos-empty]');
+    if (!grid || !empty) return;
+
+    function readList() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    async function render() {
+      const list = readList();
+      if (list.length === 0) {
+        grid.hidden = true;
+        empty.hidden = false;
+        grid.innerHTML = '';
+        return;
+      }
+      empty.hidden = true;
+      grid.hidden = false;
+      // Busca dados frescos de cada produto via products.json (preço/estoque atualizados)
+      const cards = await Promise.all(list.map(async (item) => {
+        try {
+          const res = await fetch(`/products/${item.handle}.js`);
+          if (!res.ok) return null;
+          const p = await res.json();
+          return { ...p, addedAt: item.addedAt };
+        } catch { return null; }
+      }));
+      const valid = cards.filter(Boolean).sort((a, b) => b.addedAt - a.addedAt);
+      grid.innerHTML = valid.map(p => {
+        const img = p.featured_image ? p.featured_image : (p.images && p.images[0]) || '';
+        const imgUrl = img ? (img.replace(/(\.[a-z]+)(\?|$)/i, '_600x$1$2')) : '';
+        const price = (p.price / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const compare = p.compare_at_price && p.compare_at_price > p.price
+          ? (p.compare_at_price / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : null;
+        return `
+          <div class="ame-fav-card">
+            <a href="/products/${p.handle}" class="ame-fav-card__link">
+              ${imgUrl ? `<img src="${imgUrl}" alt="${p.title.replace(/"/g, '&quot;')}" loading="lazy" class="ame-fav-card__img">` : ''}
+            </a>
+            <button class="ame-wishlist ame-fav-card__remove" type="button"
+              data-wishlist-btn="${p.id}"
+              data-wishlist-handle="${p.handle}"
+              data-wishlist-title="${p.title.replace(/"/g, '&quot;')}"
+              aria-label="Remover dos favoritos"
+              title="Remover dos favoritos"
+              aria-pressed="true">
+              <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 1;" aria-hidden="true">favorite</span>
+            </button>
+            <div class="ame-fav-card__info">
+              <h3 class="ame-fav-card__title"><a href="/products/${p.handle}">${p.title}</a></h3>
+              <div class="ame-fav-card__price">
+                ${compare ? `<del>R$ ${compare}</del>` : ''}
+                <strong>R$ ${price}</strong>
+              </div>
+              <a href="/products/${p.handle}" class="ame-fav-card__cta">Ver produto</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    render();
+    document.addEventListener('ame:wishlist-changed', render);
+  })();
+</script>
+
+<style>
+  .ame-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .ame-fav-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface, #fff);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.25s ease;
+  }
+  .ame-fav-card:hover { transform: translateY(-2px); }
+  .ame-fav-card__link {
+    display: block;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+  }
+  .ame-fav-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ame-fav-card__remove {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: rgba(255, 255, 255, 0.95);
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary, #5a4742);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .ame-fav-card__info { padding: 0.875rem 0.25rem; }
+  .ame-fav-card__title {
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+  .ame-fav-card__title a {
+    color: var(--color-on-background, #201b14);
+    text-decoration: none;
+  }
+  .ame-fav-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 1rem;
+    color: var(--color-on-background, #201b14);
+    margin-bottom: 0.75rem;
+  }
+  .ame-fav-card__price del {
+    color: var(--color-on-surface-variant, #4f4442);
+    font-size: 0.8125rem;
+  }
+  .ame-fav-card__cta {
+    display: inline-block;
+    font-family: var(--font-primary--family, 'Lexend', sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Favoritos",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Título", "default": "Seus Favoritos" },
+    { "type": "textarea", "id": "subtitle", "label": "Subtítulo" },
+    { "type": "text", "id": "empty_message", "label": "Mensagem quando vazio", "default": "Você ainda não tem produtos favoritos." },
+    { "type": "text", "id": "empty_cta_label", "label": "Texto do botão (vazio)", "default": "Ver produtos" },
+    { "type": "url", "id": "empty_cta_url", "label": "Link do botão (vazio)" }
+  ],
+  "presets": [
+    { "name": "Favoritos" }
+  ],
+  "enabled_on": { "templates": ["page"] }
+}
+{% endschema %}

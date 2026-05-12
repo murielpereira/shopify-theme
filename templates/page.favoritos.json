@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "favoritos": {
+      "type": "favoritos",
+      "settings": {
+        "title": "Seus Favoritos",
+        "subtitle": "Os produtos que você marcou com o coração ficam aqui — disponíveis a qualquer momento no seu navegador.",
+        "empty_message": "Você ainda não tem produtos favoritos.",
+        "empty_cta_label": "Explorar produtos",
+        "empty_cta_url": "/collections/all"
+      }
+    }
+  },
+  "order": ["favoritos"]
+}

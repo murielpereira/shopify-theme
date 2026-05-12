@@ -128,24 +128,26 @@
           {{ card_rating }}
         </span>
       {%- endif -%}
-
-      <!-- Favorito bottom-right -->
-      <button
-        class="ame-wishlist ame-card__wishlist"
-        aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos"
-        data-wishlist-btn="{{ card_product.id }}"
-        type="button"
-        aria-pressed="false"
-      >
-        <span
-          class="material-symbols-outlined"
-          style="font-size:1.125rem; font-variation-settings:'FILL' 0;"
-          aria-hidden="true"
-          >favorite</span
-        >
-      </button>
     </div>
   </a>
+
+  <!-- Favorito bottom-right (fora do <a> pra não disparar navegação) -->
+  <button
+    class="ame-wishlist ame-card__wishlist"
+    aria-label="Adicionar aos favoritos" title="Adicionar aos favoritos"
+    data-wishlist-btn="{{ card_product.id }}"
+    data-wishlist-handle="{{ card_product.handle }}"
+    data-wishlist-title="{{ card_title | escape }}"
+    type="button"
+    aria-pressed="false"
+  >
+    <span
+      class="material-symbols-outlined"
+      style="font-size:1.125rem; font-variation-settings:'FILL' 0;"
+      aria-hidden="true"
+      >favorite</span
+    >
+  </button>
 
   <div class="ame-card__info">
     <!--
@@ -520,14 +522,59 @@
 
 <script>
   (() => {
-    document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('is-active');
-        const isActive = btn.classList.contains('is-active');
-        btn.setAttribute('aria-pressed', isActive);
-        const icon = btn.querySelector('.material-symbols-outlined');
-        icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
+    if (window.AmeWishlistCardBound) return;
+    window.AmeWishlistCardBound = true;
+
+    const STORAGE_KEY = 'ame:wishlist';
+
+    function readList() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+    function writeList(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      document.dispatchEvent(new CustomEvent('ame:wishlist-changed', { detail: { list } }));
+    }
+
+    function syncButton(btn, isActive) {
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-pressed', isActive);
+      btn.setAttribute('aria-label', isActive ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+      btn.setAttribute('title', isActive ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (icon) icon.style.fontVariationSettings = isActive ? "'FILL' 1" : "'FILL' 0";
+    }
+
+    function bindAllButtons() {
+      const list = readList();
+      document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
+        if (btn.dataset.wishlistBound) return;
+        btn.dataset.wishlistBound = '1';
+        const handle = btn.dataset.wishlistHandle;
+        syncButton(btn, list.some(p => p.handle === handle));
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const current = readList();
+          const exists = current.some(p => p.handle === handle);
+          const next = exists
+            ? current.filter(p => p.handle !== handle)
+            : [...current, { id: btn.dataset.wishlistBtn, handle, title: btn.dataset.wishlistTitle, addedAt: Date.now() }];
+          writeList(next);
+          document.querySelectorAll(`[data-wishlist-handle="${CSS.escape(handle)}"]`).forEach(b => syncButton(b, !exists));
+        });
+      });
+    }
+
+    bindAllButtons();
+    document.addEventListener('ame:wishlist-changed', () => {
+      const list = readList();
+      document.querySelectorAll('[data-wishlist-btn]').forEach((btn) => {
+        syncButton(btn, list.some(p => p.handle === btn.dataset.wishlistHandle));
       });
     });
+    // Re-bind para cards adicionados dinamicamente (search predictivo, paginação ajax)
+    const observer = new MutationObserver(bindAllButtons);
+    observer.observe(document.body, { childList: true, subtree: true });
   })();
 </script>
