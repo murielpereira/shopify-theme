@@ -29,25 +29,44 @@
 
   {%- for block in section.blocks -%}
     {%- if block.type == 'accordion' -%}
-      <div class="ame-accordion" {{ block.shopify_attributes }}>
-        <button
-          class="ame-accordion__btn"
-          type="button"
-          aria-expanded="false"
-          aria-controls="pdp-acc-{{ section.id }}-{{ forloop.index }}"
-        >
-          <span>{{ block.settings.title }}</span>
-          <span
-            class="material-symbols-outlined ame-accordion__icon"
-            style="font-variation-settings:'wght' 300;"
-            aria-hidden="true"
-            >add</span
+      {%- liquid
+        # Quando o accordion automático de Descrição está ligado, pula blocks que
+        # claramente duplicam essa função (mesmo título ou contendo "descri"/"detalhes")
+        # — evita o problema de aparecer "DESCRIÇÃO" + "DETALHES DO PRODUTO" iguais.
+        assign block_title_dc = block.settings.title | downcase | strip
+        assign desc_title_dc = section.settings.description_title | default: 'Descrição' | downcase | strip
+        assign skip_block = false
+        if section.settings.show_description and product.description != blank
+          if block_title_dc == desc_title_dc
+            assign skip_block = true
+          elsif block_title_dc contains 'descri'
+            assign skip_block = true
+          elsif block_title_dc contains 'detalhes do produto'
+            assign skip_block = true
+          endif
+        endif
+      -%}
+      {%- unless skip_block -%}
+        <div class="ame-accordion" {{ block.shopify_attributes }}>
+          <button
+            class="ame-accordion__btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="pdp-acc-{{ section.id }}-{{ forloop.index }}"
           >
-        </button>
-        <div id="pdp-acc-{{ section.id }}-{{ forloop.index }}" class="ame-accordion__content" hidden>
-          <div class="ame-accordion__body">{{ block.settings.body }}</div>
+            <span>{{ block.settings.title }}</span>
+            <span
+              class="material-symbols-outlined ame-accordion__icon"
+              style="font-variation-settings:'wght' 300;"
+              aria-hidden="true"
+              >add</span
+            >
+          </button>
+          <div id="pdp-acc-{{ section.id }}-{{ forloop.index }}" class="ame-accordion__content" hidden>
+            <div class="ame-accordion__body">{{ block.settings.body }}</div>
+          </div>
         </div>
-      </div>
+      {%- endunless -%}
     {%- endif -%}
   {%- endfor -%}
 
