@@ -1,12 +1,13 @@
 {%- liquid
-  # Lê os links cadastrados em Configurações → Marca do Shopify Admin.
-  # Cada propriedade pode ser nil se o lojista não cadastrou aquela rede.
-  assign social_facebook  = shop.social_facebook_link
-  assign social_instagram = shop.social_instagram_link
-  assign social_twitter   = shop.social_twitter_link
-  assign social_youtube   = shop.social_youtube_link
-  assign social_pinterest = shop.social_pinterest_link
-  assign social_tiktok    = shop.social_tiktok_link
+  # Tenta primeiro ler dos settings do tema (preenchidos no Customize → Footer).
+  # Se vazio, faz fallback pros campos de Configurações → Marca do Shopify Admin
+  # (que em algumas contas demoram a propagar pro storefront via `shop.social_*_link`).
+  assign social_facebook  = section.settings.social_facebook  | default: shop.social_facebook_link
+  assign social_instagram = section.settings.social_instagram | default: shop.social_instagram_link
+  assign social_twitter   = section.settings.social_twitter   | default: shop.social_twitter_link
+  assign social_youtube   = section.settings.social_youtube   | default: shop.social_youtube_link
+  assign social_pinterest = section.settings.social_pinterest | default: shop.social_pinterest_link
+  assign social_tiktok    = section.settings.social_tiktok    | default: shop.social_tiktok_link
   assign social_whatsapp  = section.settings.social_whatsapp
 
   assign has_any_social = false
@@ -14,8 +15,6 @@
     assign has_any_social = true
   endif
 -%}
-
-<!-- DIAG redes sociais (remover depois): instagram="{{ social_instagram }}" facebook="{{ social_facebook }}" tiktok="{{ social_tiktok }}" pinterest="{{ social_pinterest }}" youtube="{{ social_youtube }}" has_any_social={{ has_any_social }} -->
 <footer class="ame-footer full-width">
   <div class="ame-footer__inner">
     <!-- Brand column -->
@@ -368,13 +367,43 @@
     },
     {
       "type": "paragraph",
-      "content": "Os links de Instagram, Facebook, X, YouTube, Pinterest e TikTok são lidos automaticamente das Configurações → Marca do Shopify Admin. WhatsApp continua aqui abaixo (não faz parte do Branding)."
+      "content": "Por padrão o tema lê os links de Configurações → Marca do Shopify Admin. Se preferir, preencha manualmente abaixo (sobrescreve o Branding)."
     },
     {
       "type": "text",
       "id": "social_title",
       "label": "Título da seção",
       "default": "Siga a gente"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook"
+    },
+    {
+      "type": "url",
+      "id": "social_tiktok",
+      "label": "TikTok"
+    },
+    {
+      "type": "url",
+      "id": "social_youtube",
+      "label": "YouTube"
+    },
+    {
+      "type": "url",
+      "id": "social_pinterest",
+      "label": "Pinterest"
+    },
+    {
+      "type": "url",
+      "id": "social_twitter",
+      "label": "X (Twitter)"
     },
     {
       "type": "url",

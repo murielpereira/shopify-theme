@@ -2809,7 +2809,31 @@ shopify-account {
 }
 
 .ame-accordion__content:not([hidden]) {
-  max-height: 600px;
+  /* Suficientemente grande pra descrições ricas (imagens, listas, vídeos).
+     Imagens dentro do body usam max-width:100% pra não overflowar lateralmente. */
+  max-height: none;
+}
+
+.ame-accordion__body img,
+.ame-accordion__body iframe,
+.ame-accordion__body video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Proteção contra overflow lateral em descrições com tabelas, divs com width fixo etc. */
+.ame-accordion__body {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.ame-accordion__body > *,
+.ame-accordion__body table {
+  max-width: 100%;
+}
+.ame-accordion__body table {
+  display: block;
+  overflow-x: auto;
 }
 
 .ame-accordion__body {

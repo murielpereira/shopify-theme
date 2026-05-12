@@ -20,7 +20,7 @@
       <div
         id="pdp-acc-{{ section.id }}-desc"
         class="ame-accordion__content"
-        style="max-height: 60rem;"
+        style="max-height: none;"
       >
         <div class="ame-accordion__body">{{ product.description }}</div>
       </div>
@@ -70,7 +70,7 @@
       <div
         id="pdp-acc-{{ section.id }}-default"
         class="ame-accordion__content"
-        style="max-height: 60rem;"
+        style="max-height: none;"
       >
         <div class="ame-accordion__body">{{ product.description }}</div>
       </div>
@@ -94,7 +94,7 @@
         if (!open) {
           btn.setAttribute('aria-expanded', 'true');
           btn.nextElementSibling.removeAttribute('hidden');
-          btn.nextElementSibling.style.maxHeight = '600px';
+          btn.nextElementSibling.style.maxHeight = 'none';
         }
       });
     });
