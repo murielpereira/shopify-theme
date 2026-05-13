@@ -2,13 +2,13 @@
   # Tenta primeiro ler dos settings do tema (preenchidos no Customize → Footer).
   # Se vazio, faz fallback pros campos de Configurações → Marca do Shopify Admin
   # (que em algumas contas demoram a propagar pro storefront via `shop.social_*_link`).
-  assign social_facebook  = section.settings.social_facebook  | default: shop.social_facebook_link
+  assign social_facebook = section.settings.social_facebook | default: shop.social_facebook_link
   assign social_instagram = section.settings.social_instagram | default: shop.social_instagram_link
-  assign social_twitter   = section.settings.social_twitter   | default: shop.social_twitter_link
-  assign social_youtube   = section.settings.social_youtube   | default: shop.social_youtube_link
+  assign social_twitter = section.settings.social_twitter | default: shop.social_twitter_link
+  assign social_youtube = section.settings.social_youtube | default: shop.social_youtube_link
   assign social_pinterest = section.settings.social_pinterest | default: shop.social_pinterest_link
-  assign social_tiktok    = section.settings.social_tiktok    | default: shop.social_tiktok_link
-  assign social_whatsapp  = section.settings.social_whatsapp
+  assign social_tiktok = section.settings.social_tiktok | default: shop.social_tiktok_link
+  assign social_whatsapp = section.settings.social_whatsapp
 
   assign has_any_social = false
   if social_facebook != blank or social_instagram != blank or social_twitter != blank or social_youtube != blank or social_pinterest != blank or social_tiktok != blank or social_whatsapp != blank
@@ -56,49 +56,99 @@
         {% endif %}
         <div class="ame-footer__social">
           {% if social_instagram != blank %}
-            <a href="{{ social_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="ame-footer__social-link">
-              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <a
+              href="{{ social_instagram }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              class="ame-footer__social-link"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor"/>
               </svg>
             </a>
           {% endif %}
           {% if social_facebook != blank %}
-            <a href="{{ social_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="ame-footer__social-link">
+            <a
+              href="{{ social_facebook }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.7c0-.9.3-1.6 1.6-1.6h1.7V4.2c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.4V14h2.7v8h3.4z"/>
               </svg>
             </a>
           {% endif %}
           {% if social_twitter != blank %}
-            <a href="{{ social_twitter }}" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" class="ame-footer__social-link">
+            <a
+              href="{{ social_twitter }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X (Twitter)"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M17.5 3h3.2l-7 8 8.2 10h-6.4l-5-6.5L4.7 21H1.5l7.5-8.6L1.1 3h6.6l4.5 6 5.3-6zm-1.1 16.2h1.8L7.7 4.7H5.8l10.6 14.5z"/>
               </svg>
             </a>
           {% endif %}
           {% if social_youtube != blank %}
-            <a href="{{ social_youtube }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="ame-footer__social-link">
+            <a
+              href="{{ social_youtube }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="YouTube"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M21.6 7.2s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16 4 12 4 12 4s-4 0-6.8.3c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 8.8 2 10.5v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9 1.7.2 6.7.3 6.7.3s4 0 6.8-.3c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.3-.2-3.3zM10 14.3V8.7l5.3 2.8L10 14.3z"/>
               </svg>
             </a>
           {% endif %}
           {% if social_pinterest != blank %}
-            <a href="{{ social_pinterest }}" target="_blank" rel="noopener noreferrer" aria-label="Pinterest" class="ame-footer__social-link">
+            <a
+              href="{{ social_pinterest }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Pinterest"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M12 2C6.5 2 2 6.5 2 12c0 4.2 2.6 7.8 6.3 9.3-.1-.8-.2-2 0-2.9.2-.8 1.2-5.1 1.2-5.1s-.3-.6-.3-1.5c0-1.4.8-2.4 1.8-2.4.9 0 1.3.7 1.3 1.4 0 .9-.6 2.2-.8 3.4-.2 1 .5 1.9 1.5 1.9 1.8 0 3.2-1.9 3.2-4.7 0-2.4-1.8-4.2-4.3-4.2-3 0-4.7 2.2-4.7 4.5 0 .9.3 1.9.8 2.4.1.1.1.2.1.3l-.3 1.1c-.1.2-.2.2-.4.2-1.4-.6-2.2-2.7-2.2-4.3 0-3.5 2.6-6.8 7.4-6.8 3.9 0 6.9 2.8 6.9 6.5 0 3.9-2.4 7-5.8 7-1.1 0-2.2-.6-2.6-1.3l-.7 2.7c-.3 1-1 2.3-1.5 3.1.9.3 2 .4 3 .4 5.5 0 10-4.5 10-10S17.5 2 12 2z"/>
               </svg>
             </a>
           {% endif %}
           {% if social_tiktok != blank %}
-            <a href="{{ social_tiktok }}" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="ame-footer__social-link">
+            <a
+              href="{{ social_tiktok }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M19.6 6.4c-1.3-.3-2.4-1.1-3-2.2-.3-.6-.5-1.3-.5-2h-3v12.7c0 1.5-1.2 2.7-2.7 2.7s-2.7-1.2-2.7-2.7 1.2-2.7 2.7-2.7c.3 0 .6.1.9.2v-3.1c-.3 0-.6-.1-.9-.1-3.2 0-5.7 2.6-5.7 5.7s2.6 5.7 5.7 5.7 5.7-2.6 5.7-5.7V9.6c1.2.8 2.6 1.3 4.1 1.3v-3c-.2 0-.4 0-.6-.1z"/>
               </svg>
             </a>
           {% endif %}
           {% if social_whatsapp != blank %}
-            <a href="{{ social_whatsapp }}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" class="ame-footer__social-link">
+            <a
+              href="{{ social_whatsapp }}"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              class="ame-footer__social-link"
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
                 <path d="M17.5 6.5C16.1 5 14.1 4.2 12 4.2c-4.3 0-7.8 3.5-7.8 7.8 0 1.4.4 2.7 1 3.9L4 20l4.2-1.1c1.2.6 2.5 1 3.8 1 4.3 0 7.8-3.5 7.8-7.8 0-2.1-.8-4.1-2.3-5.6zM12 18.6c-1.2 0-2.4-.3-3.4-.9l-.2-.1-2.5.7.7-2.4-.2-.3c-.7-1.1-1-2.3-1-3.6 0-3.7 3-6.7 6.7-6.7 1.8 0 3.4.7 4.7 2 1.3 1.3 2 2.9 2 4.7-.1 3.7-3.1 6.6-6.8 6.6zm3.7-5c-.2-.1-1.2-.6-1.4-.7-.2-.1-.3-.1-.5.1s-.5.7-.7.8c-.1.2-.2.2-.5.1-.2-.1-.9-.3-1.7-1-.6-.6-1.1-1.3-1.2-1.5-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4 0-.2 0-.3-.1-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4 0-.6.2-.2.2-.8.8-.8 1.9 0 1.1.8 2.2 1 2.4.1.2 1.6 2.4 3.8 3.4.5.2 1 .4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.1-1-.1-.1-.2-.1-.4-.3z"/>
               </svg>
@@ -161,7 +211,7 @@
   .ame-footer {
     background: var(--color-primary, #5a4742);
     padding: 5rem var(--page-margin, 2rem);
-    margin-top: 0;
+    margin-top: 10px;
     color: var(--color-on-primary, #ffffff);
   }
 
