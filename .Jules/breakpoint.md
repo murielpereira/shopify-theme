@@ -5,3 +5,7 @@
 ## 2024-05-18 - Mobile Grid Squishing in Shopify Theme
 **Learning:** Hardcoding CSS Grid columns (e.g. `grid-template-columns: repeat(4, 1fr)`) without adjusting the count for small screens (max-width: 480px) causes severe content squishing or overflow.
 **Action:** When fixing overflowing mobile CSS grids, adjust the `grid-template-columns` property within an `@media` query (e.g. dropping down to `repeat(2, 1fr)`) rather than rewriting the component's layout engine to Flexbox with manually calculated widths.
+
+## 2024-05-18 - Horizontal overflow from 100vw
+**Learning:** Using `max-width: 100vw` or `width: 100vw` calculates viewport width including the scrollbar, causing horizontal overflow on operating systems with visible vertical scrollbars (like Windows and Linux).
+**Action:** For bounded flexible widths, use `100%` instead of `100vw`.
