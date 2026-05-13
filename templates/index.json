@@ -52,6 +52,10 @@
       "name": "Banner",
       "settings": {}
     },
+    "1778692957ca20f2bd": {
+      "type": "_blocks",
+      "settings": {}
+    },
     "hero": {
       "type": "home-hero",
       "blocks": {
@@ -629,6 +633,7 @@
   },
   "order": [
     "1777297182d3f231ef",
+    "1778692957ca20f2bd",
     "hero",
     "home_ad_bar_6pF6UL",
     "home_video_stories_MErTLy",
