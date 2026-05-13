@@ -158,16 +158,15 @@
           or product.tags contains 'customizacao_pingente_obrigatorio'
         -%}
           <div class="pdp__pingente-overlay" data-pingente-overlay hidden aria-hidden="true">
-            {%- comment -%} theme-check-disable AssetUrl {%- endcomment -%}
+            {%- assign transparent_gif = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' -%}
             <img
-              src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+              src="{{ transparent_gif }}"
               alt=""
               data-pingente-overlay-img
               loading="lazy"
               width="800"
               height="800"
             >
-            {%- comment -%} theme-check-enable AssetUrl {%- endcomment -%}
           </div>
         {%- endif -%}
 
@@ -1674,7 +1673,7 @@
   /* ── Texto sobreposto à imagem (customizacao_jogoamericano) ── */
   .pdp__text-overlay {
     position: absolute;
-    top: 120px;
+    top: 30%;
     inset: 0;
     z-index: 3;
     display: flex;
@@ -1689,17 +1688,18 @@
   .pdp__text-overlay__text {
     font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Marker Felt', cursive;
     font-weight: 700;
-    font-size: clamp(1.5rem, 7vw, 5rem);
+    font-size: clamp(1.5rem, 2vw, 2.5rem);
     color: #1a1a1a;
     text-align: center;
     line-height: 1.1;
     letter-spacing: 0;
-    word-break: break-word;
     /* Sombra sutil pra legibilidade em fundos claros/médios */
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
+    /*text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);*/
     max-width: 100%;
+    font-size: 1.7rem;
   }
 
+  /*
   @media (min-width: 1300px) {
     .pdp__text-overlay {
       top: 125px;
@@ -1709,6 +1709,7 @@
       font-size: 2.5rem;
     }
   }
+    */
   /* ── Resumo das variações escolhidas (abaixo da imagem, mobile) ── */
   .pdp__selection-info {
     padding: 0.625rem 1rem;

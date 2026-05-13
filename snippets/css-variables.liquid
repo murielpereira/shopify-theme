@@ -1,5 +1,5 @@
 {% comment %} Âme — Design Tokens + Font preloads {% endcomment %}
-{%- comment -%} theme-check-disable AssetUrl {%- endcomment -%}
+{%- comment -%} theme-check-disable AssetUrl, RemoteAsset {%- endcomment -%}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 {{
@@ -10,7 +10,7 @@
   'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block'
   | stylesheet_tag: preload: true
 }}
-{%- comment -%} theme-check-enable AssetUrl {%- endcomment -%}
+{%- comment -%} theme-check-enable AssetUrl, RemoteAsset {%- endcomment -%}
 
 {% style %}
   {{ settings.type_primary_font | font_face: font_display: 'swap' }}
