@@ -469,8 +469,9 @@
                     class="pdp__swatch{% if has_variant and option_value.selected %} pdp__swatch--active{% endif %}{% unless option_value.available %} pdp__swatch--disabled{% endunless %}"
                     data-value="{{ option_value | escape }}"
                     data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value }}"
-                    title="{{ option_value }}"
+                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
                     {% if sw_media_id != '' %}
                       data-media-id="{{ sw_media_id }}"
                     {% endif %}
@@ -506,7 +507,9 @@
                     class="pdp__size-btn pdp__size-btn--metal{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
                     data-value="{{ option_value | escape }}"
                     data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value | escape }}"
+                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
                     {% unless option_value.available %}
                       aria-disabled="true"
                     {% endunless %}
@@ -529,7 +532,9 @@
                     class="pdp__size-btn{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
                     data-value="{{ option_value | escape }}"
                     data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value | escape }}"
+                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
                     {% unless option_value.available %}
                       aria-disabled="true"
                     {% endunless %}
@@ -704,6 +709,8 @@
                     class="pdp__custom-field__radio-btn"
                     data-value="{{ opt_val | escape }}"
                     aria-label="{{ opt_val | escape }}"
+                    title="{{ opt_val | escape }}"
+                    aria-pressed="false"
                   >
                     {{- opt_val -}}
                   </button>
@@ -1004,8 +1011,12 @@
         const btns = group.querySelectorAll('.pdp__swatch, .pdp__size-btn');
         btns.forEach(btn => btn.addEventListener('click', () => {
           if (btn.getAttribute('aria-disabled') === 'true') return;
-          btns.forEach(b => b.classList.remove('pdp__swatch--active', 'pdp__size-btn--active'));
+          btns.forEach(b => {
+            b.classList.remove('pdp__swatch--active', 'pdp__size-btn--active');
+            b.setAttribute('aria-pressed', 'false');
+          });
           btn.classList.add(btn.classList.contains('pdp__swatch') ? 'pdp__swatch--active' : 'pdp__size-btn--active');
+          btn.setAttribute('aria-pressed', 'true');
           const valEl = document.getElementById(`pdp-opt-val-${+group.dataset.optionIndex + 1}`);
           if (valEl) valEl.textContent = btn.dataset.value;
 
@@ -1089,8 +1100,12 @@
     document.querySelectorAll('.pdp__custom-field__radio-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const group = btn.closest('.pdp__custom-field');
-        group?.querySelectorAll('.pdp__custom-field__radio-btn').forEach(b => b.classList.remove('is-selected'));
+        group?.querySelectorAll('.pdp__custom-field__radio-btn').forEach(b => {
+          b.classList.remove('is-selected');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('is-selected');
+        btn.setAttribute('aria-pressed', 'true');
         const hidden = group?.querySelector('.pdp__custom-field__radio-val');
         if (hidden) hidden.value = btn.dataset.value;
         group?.classList.remove('pdp__custom-field--error');
