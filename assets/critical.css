@@ -515,6 +515,7 @@ body::after {
   .ame-cashback__text {
     flex-wrap: wrap;
     justify-content: center;
+    line-height: 1;
   }
 
   .ame-cashback {

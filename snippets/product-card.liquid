@@ -419,7 +419,7 @@
 
   .ame-card__title {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1rem;
+    font-size: 0.91rem;
     font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--color-on-background, #201b14);
@@ -429,8 +429,8 @@
        Títulos com mais de 2 linhas são truncados com reticências. */
     min-height: calc(1.3em * 2);
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -476,7 +476,7 @@
 
   .ame-card__price-value {
     font-family: var(--font-primary--family, 'Lexend', sans-serif);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: -0.015em;
     color: var(--color-on-background, #201b14);
@@ -507,6 +507,7 @@
   .ame-cashback--card .ame-cashback__text {
     font-size: 0.6rem;
     /* letter-spacing: 0.04em; */
+    line-height: 0;
   }
 
   /* Botão Comprar */
