@@ -20,3 +20,6 @@
 ## 2024-05-12 - Single pass rendering in Liquid
 **Learning:** Liquid templates often use a double loop anti-pattern (loop once to check condition/count, loop again to render) because variables like `loop.first` or list sizes can't account for complex condition-based filtering. This causes unnecessary O(n) rendering overhead.
 **Action:** Replace double loops with a single loop inside `{% capture %}`. Evaluate the captured string with `if string != blank` to conditionally render wrappers, reducing iterations by 50%.
+## 2024-05-13 - Liquid String Generation Overhead
+**Learning:** Generating comma-separated strings using manual `{% for %}` loops inside `{% capture %}` blocks adds unnecessary template processing overhead in Shopify.
+**Action:** Always use Liquid native filters like `map` and `join` when generating strings from an array of objects. Native filters execute at the C/Rust level, avoiding Liquid loop overhead entirely.

@@ -13,29 +13,13 @@
       assign pingente_obrigatorio = true
     endif
 
-    capture pingente_metal_handle
-      if settings.pingente_metal_product != blank
-        echo settings.pingente_metal_product.handle
-      endif
-    endcapture
-
-    capture pingente_couro_handles
-      for p in settings.pingente_couro_products
-        echo p.handle
-        unless forloop.last
-          echo ','
-        endunless
-      endfor
-    endcapture
-
-    capture pingente_metal_couro_handles
-      for p in settings.pingente_metal_couro_products
-        echo p.handle
-        unless forloop.last
-          echo ','
-        endunless
-      endfor
-    endcapture
+    # ⚡ Bolt: Optimize comma-separated string generation.
+    # 💡 What: Replaced manual `{% for %}` loops with Liquid's native `map` and `join` filters.
+    # 🎯 Why: To generate a string from an array of objects, native filters execute at the C/Rust level, avoiding Liquid template processing and loop overhead.
+    # 📊 Impact: O(N) loop overhead removed, reducing template execution time.
+    assign pingente_metal_handle = settings.pingente_metal_product.handle | default: ''
+    assign pingente_couro_handles = settings.pingente_couro_products | map: 'handle' | join: ','
+    assign pingente_metal_couro_handles = settings.pingente_metal_couro_products | map: 'handle' | join: ','
   -%}
   <section
     class="ame-pingente"
