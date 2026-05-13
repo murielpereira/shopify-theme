@@ -52,47 +52,6 @@
       "name": "Banner",
       "settings": {}
     },
-    "1778692957ca20f2bd": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_9d706b3_WGTykg": {
-          "type": "ai_gen_block_9d706b3",
-          "settings": {
-            "video_desktop_url": "youtube.com/watch?v=ze869tziyg4&t=60s&pp=ygUHZG9ncyA0aw%3D%3D",
-            "video_mobile_url": "",
-            "min_height_desktop": 600,
-            "min_height_mobile": 400,
-            "show_overlay": true,
-            "overlay_color": "#000000",
-            "overlay_opacity": 0.3,
-            "heading": "Descubra nossa coleção",
-            "subheading": "Acessórios exclusivos para seu pet",
-            "content_alignment_vertical": "flex-end",
-            "content_alignment_horizontal": "flex-end",
-            "text_alignment": "center",
-            "heading_color": "#ffffff",
-            "heading_size": 48,
-            "subheading_color": "#ffffff",
-            "subheading_size": 18,
-            "cta_text": "Comprar agora",
-            "cta_link": "",
-            "cta_bg_color": "#5a4742",
-            "cta_text_color": "#ffffff",
-            "cta_hover_bg_color": "#000000",
-            "cta_hover_text_color": "#ffffff",
-            "cta_font_size": 16,
-            "cta_padding_vertical": 14,
-            "cta_padding_horizontal": 32,
-            "cta_border_radius": 6
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_9d706b3_WGTykg"
-      ],
-      "settings": {}
-    },
     "hero": {
       "type": "home-hero",
       "blocks": {
@@ -670,7 +629,6 @@
   },
   "order": [
     "1777297182d3f231ef",
-    "1778692957ca20f2bd",
     "hero",
     "home_ad_bar_6pF6UL",
     "home_video_stories_MErTLy",
