@@ -511,7 +511,7 @@ body::after {
   min-width: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1400px) {
   .ame-cashback__text {
     flex-wrap: wrap;
     justify-content: center;
