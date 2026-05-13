@@ -19,6 +19,25 @@
   <div class="ame-footer__inner">
     <!-- Brand column -->
     <div class="ame-footer__brand">
+      <!-- Logo -->
+      <a href="{{ routes.root_url }}" class="ame-header__logo" aria-label="{{ shop.name }}">
+        {%- if section.settings.logo != blank -%}
+          {{
+            section.settings.logo
+            | image_url: width: 560
+            | image_tag:
+              widths: '200, 400, 560',
+              loading: 'eager',
+              fetchpriority: 'high',
+              class: 'ame-header__logo-img',
+              alt: logo_img_alt,
+              width: logo_w,
+              height: logo_h
+          }}
+        {%- else -%}
+          <span class="ame-header__logo-text">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
       <a href="{{ routes.root_url }}" class="ame-footer__logo">{{ shop.name }}</a>
       {% if section.settings.tagline != blank %}
         <p class="ame-footer__tagline">{{ section.settings.tagline }}</p>

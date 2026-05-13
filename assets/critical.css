@@ -511,6 +511,17 @@ body::after {
   min-width: 0;
 }
 
+@media (max-width: 767px) {
+  .ame-cashback__text {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .ame-cashback {
+    width: 90%;
+  }
+}
+
 .ame-cashback__text>* {
   flex-shrink: 0;
 }
@@ -588,6 +599,7 @@ body::after {
     border-radius: 1.25rem 1.25rem 0 0;
     transform: translateY(105%);
     box-shadow: 0 -24px 64px rgba(32, 27, 20, 0.12);
+    padding: 0 20px;
   }
 
   .ame-cart-drawer.is-open {
