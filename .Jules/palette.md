@@ -10,3 +10,6 @@
 ## 2024-05-14 - Icon-only buttons lacking native tooltips
 **Learning:** Icon-only buttons had `aria-label` for screen readers but lacked a native visual `title` tooltip. This caused sighted mouse users to have to guess the action of certain icons (e.g., '+' or '-' for quantities, or 'close' icons).
 **Action:** Always mirror `aria-label` content into a native `title` attribute for purely icon-based interactive elements to ensure both screen reader and sighted mouse users can identify the action.
+## 2024-05-13 - Add aria-pressed to custom selection buttons
+**Learning:** Found that custom selection buttons (like product swatches and size selectors) used CSS classes to indicate active state, but lacked the `aria-pressed` attribute, leaving screen reader users unaware of which option was currently selected. Additionally, disabled options did not clearly announce their unavailable status.
+**Action:** Always add `aria-pressed="true/false"` to custom toggle/selection buttons and ensure the state is kept in sync via JavaScript. For unavailable options, add `aria-disabled="true"` and explicitly append "(Esgotado)" or similar to the `aria-label` and `title` attributes.
