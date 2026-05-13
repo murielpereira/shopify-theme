@@ -12,7 +12,7 @@
     "type_primary_font": "assistant_n4",
     "favicon": "shopify://shop_images/favicon.png",
     "max_page_width": "120rem",
-    "min_page_margin": 160,
+    "min_page_margin": 250,
     "section_gap": 120,
     "border_radius_base": 6,
     "color_primary": "#5a4742",
