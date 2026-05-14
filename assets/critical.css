@@ -11,19 +11,21 @@
 html,
 body {
   max-width: 100%;
-  overflow-x: clip;
-  /* Garante scroll vertical sempre disponível (não bloqueado por containers
-     filhos com overflow customizado). */
-  overflow-y: auto;
   /* Scrollbar com cor da marca (Firefox + Edge moderno). */
   scrollbar-color: var(--color-primary, #5a4742) transparent;
   scrollbar-width: thin;
 }
 
-@supports not (overflow-x: clip) {
+/* overflow-x SÓ no html — NÃO no body.
+   `overflow: clip/hidden` no body cria um novo contexto de scroll e quebra
+   `position: sticky` em descendentes (como a galeria do PDP no desktop).
+   Mantendo no html, ainda contém overflow horizontal mas preserva sticky. */
+html {
+  overflow-x: clip;
+}
 
-  html,
-  body {
+@supports not (overflow-x: clip) {
+  html {
     overflow-x: hidden;
   }
 }
@@ -53,6 +55,10 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 body {
+  /* Font-family declarada UMA vez aqui. Todos os elementos herdam (input, button,
+     textarea e select também — ver reset acima com `font: inherit`).
+     NÃO REMOVER esta linha — sem ela o navegador cai pra Times New Roman. */
+  font-family: var(--font-primary--family, 'Lexend', sans-serif);
   display: flex;
   flex-direction: column;
   min-height: 100svh;
@@ -180,8 +186,8 @@ a {
 .ame-reveal {
   opacity: 0;
   transform: translateY(36px);
-  transition: opacity 0.8s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))),
-    transform 0.8s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+  transition: opacity 0.8s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 0.8s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ame-reveal.is-visible {
@@ -203,7 +209,7 @@ a {
 }
 
 .ame-fade-up {
-  animation: ame-fade-up 0.9s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))) both;
+  animation: ame-fade-up 0.9s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)) both;
 }
 
 .ame-delay-1 {
@@ -241,6 +247,20 @@ a {
   animation: ame-marquee 28s linear infinite;
 }
 
+/* ── Utilities ── */
+
+/* Label pequena (eyebrow) — uppercase + tracking generoso, opacity baixa.
+   Antes era redefinida em 6 sections com o mesmo CSS; agora global. Para
+   override de margem, use `style="margin-bottom: ..."` no markup. */
+.ame-label-sm {
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(90, 71, 66, 0.5);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
 /* ── Cart pulse ──
    Usado pelos snippets de efeito de borboletas (cart-flying-butterflies e
    cart-flying-butterflies-svg) quando as borboletas chegam no ícone do carrinho.
@@ -250,14 +270,27 @@ a {
 }
 
 @keyframes ame-cart-pulse {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.35); }
-  65%  { transform: scale(0.92); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.35);
+  }
+
+  65% {
+    transform: scale(0.92);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ame-cart-pulse { animation: none; }
+  .ame-cart-pulse {
+    animation: none;
+  }
 }
 
 /* ── Grain overlay ── */
@@ -296,7 +329,7 @@ body::after {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 1.125rem 2.5rem;
-  transition: transform 0.3s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))),
+  transition: transform 0.3s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)),
     box-shadow 0.3s ease;
   box-shadow: 0 16px 32px rgba(32, 27, 20, 0.10);
 }
@@ -338,46 +371,16 @@ body::after {
   opacity: 1;
 }
 
-/* ── Product card ── */
-.ame-card {
-  cursor: pointer;
-}
-
-.ame-card__image-wrap {
-  border-radius: var(--radius-lg, 0.5rem);
-  overflow: hidden;
-  background: var(--color-surface-container-highest, #ece1d5);
-}
-
-.ame-card__image-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  mix-blend-mode: multiply;
-  opacity: 0.9;
-  transition: transform 1s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
-}
-
-.ame-card:hover .ame-card__image-wrap img {
-  transform: scale(1.05);
-}
-
-.ame-card__quick-add {
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
-}
-
-.ame-card:hover .ame-card__quick-add {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* ── Product card ──
+   Bloco antigo aqui foi removido em mai/2026 (dead code: tinha .ame-card__quick-add
+   que não existe mais no markup, e duplicava .ame-card__image-wrap).
+   A definição atual vive mais abaixo neste arquivo, sob o cabeçalho "CARDS". */
 
 /* ── Accordion ── */
 .ame-accordion__content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+  transition: max-height 0.4s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ame-accordion__content.is-open {
@@ -395,7 +398,7 @@ body::after {
 /* ── Carousel ── */
 .ame-carousel__track {
   display: flex;
-  transition: transform 800ms var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+  transition: transform 800ms var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   will-change: transform;
 }
 
@@ -551,7 +554,7 @@ body::after {
   height: 100%;
   object-fit: cover;
   mix-blend-mode: multiply;
-  transition: transform 1s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))), opacity 0.4s ease;
+  transition: transform 1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), opacity 0.4s ease;
 }
 
 .ame-card__img--primary {
@@ -583,7 +586,7 @@ body::after {
     opacity: 0;
     visibility: hidden;
     z-index: 2;
-    transition: opacity 0.4s ease, transform 1s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))), visibility 0s 0.4s;
+    transition: opacity 0.4s ease, transform 1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), visibility 0s 0.4s;
   }
 
   .ame-card:hover .ame-card__img--primary {
@@ -594,7 +597,7 @@ body::after {
     opacity: 0.9;
     visibility: visible;
     transform: scale(1.05);
-    transition: opacity 0.4s ease, transform 1s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))), visibility 0s 0s;
+    transition: opacity 0.4s ease, transform 1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), visibility 0s 0s;
   }
 }
 
@@ -799,7 +802,7 @@ body::after {
   border-radius: var(--radius-md, 0.25rem);
   text-align: center;
   text-decoration: none;
-  transition: transform 0.25s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))), box-shadow 0.25s ease;
+  transition: transform 0.25s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), box-shadow 0.25s ease;
   box-shadow: 0 8px 20px rgba(32, 27, 20, 0.08);
   margin-top: auto;
 }
@@ -845,7 +848,7 @@ body::after {
   }
 
   .ame-cashback {
-    width: 90%;
+    /*width: 90%;*/
   }
 }
 
@@ -1581,8 +1584,8 @@ body::after {
   gap: 0.5rem;
   opacity: 0;
   transform: translateY(100%);
-  transition: opacity 0.5s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1))),
-    transform 0.5s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+  transition: opacity 0.5s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 0.5s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   pointer-events: none;
 }
 
@@ -1733,6 +1736,29 @@ body::after {
   border-bottom-color: rgba(210, 195, 192, 0.18);
 }
 
+/* Mobile: encolhe altura mínima do header ao rolar pra liberar área de conteúdo.
+   A transição é controlada pelo transition já existente no .ame-header. */
+@media (max-width: 767px) {
+  .ame-header {
+    min-height: 4rem;
+    transition: background 0.4s ease, box-shadow 0.4s ease,
+      border-color 0.4s ease, min-height 0.25s ease, padding 0.25s ease;
+  }
+  .ame-header.is-scrolled {
+    min-height: 3rem;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  /* Logo também encolhe junto */
+  .ame-header.is-scrolled .ame-header__logo-img {
+    max-height: 1.75rem;
+    transition: max-height 0.25s ease;
+  }
+  .ame-header__logo-img {
+    transition: max-height 0.25s ease;
+  }
+}
+
 /* ── Logo ── */
 .ame-header__logo {
   display: flex;
@@ -1805,7 +1831,7 @@ body::after {
   background: var(--color-primary, #5a4742);
   transform: scaleX(0);
   transform-origin: center;
-  transition: transform 0.3s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+  transition: transform 0.3s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ame-header__nav-link:hover {

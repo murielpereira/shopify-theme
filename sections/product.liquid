@@ -2401,12 +2401,9 @@
     }
   }
 
-  .ame-label-sm {
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.5);
-    display: block;
+  /* .ame-label-sm vive global no critical.css. Aqui só override de margem
+     (0.5rem vs 0.75rem padrão) pra encaixar no layout compacto da PDP. */
+  .pdp .ame-label-sm {
     margin-bottom: 0.5rem;
   }
 
@@ -2663,7 +2660,7 @@
     /* filter: drop-shadow(0 6px 14px rgba(32, 27, 20, 0.28)); */
     opacity: 0;
     transform: translateY(6px) scale(0.9);
-    transition: opacity 0.25s ease, transform 0.25s var(--ease-luxury, var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)));
+    transition: opacity 0.25s ease, transform 0.25s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   }
 
   .pdp__pingente-overlay[hidden] {

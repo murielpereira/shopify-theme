@@ -30,10 +30,13 @@
     /* ── Tipografia ── */
     --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
 
-    /* ── Layout ── */
+    /* ── Layout ──
+       --page-margin progressivo: 24px (mobile) → {{ settings.min_page_margin }}px (desktop)
+       interpolando fluido com a viewport. clamp() garante que nunca fique menor
+       que 24px nem maior que o valor configurado no painel. */
     --page-width:   {{ settings.max_page_width }};
-    --page-margin:  1.5rem;   /* mobile — sobrescrito por media query abaixo */
-    --section-gap:  3rem;   /* mobile — sobrescrito por media query abaixo */
+    --page-margin:  clamp(1.5rem, 4vw, {{ settings.min_page_margin }}px);
+    --section-gap:  clamp(3rem, 6vw, {{ settings.section_gap }}px);
 
     /* ── Cor Principal ── */
     --color-primary:            {{ settings.color_primary }};
@@ -135,12 +138,7 @@
   }
 {% endstyle %}
 
-{% style %}
-  /* Desktop: aplica valores do painel */
-  @media (min-width: 768px) {
-    :root {
-      --page-margin: {{ settings.min_page_margin }}px;
-      --section-gap: {{ settings.section_gap }}px;
-    }
-  }
-{% endstyle %}
+{% comment %}
+  Media query removida: agora --page-margin e --section-gap usam clamp()
+  acima, interpolando suavemente de mobile pra desktop sem breakpoint duro.
+{% endcomment %}

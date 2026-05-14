@@ -127,19 +127,31 @@
 
   /* Asas batem (rotação 3D em Y, de aberta até quase fechada) */
   @keyframes ame-bf-svg-left-flap {
-    0%, 100% { transform: rotate3d(0, 1, 0, 55deg); }
-    50%      { transform: rotate3d(0, 1, 0, -65deg); }
+    0%,
+    100% {
+      transform: rotate3d(0, 1, 0, 55deg);
+    }
+    50% {
+      transform: rotate3d(0, 1, 0, -65deg);
+    }
   }
   @keyframes ame-bf-svg-right-flap {
-    0%, 100% { transform: rotate3d(0, 1, 0, -55deg); }
-    50%      { transform: rotate3d(0, 1, 0, 65deg); }
+    0%,
+    100% {
+      transform: rotate3d(0, 1, 0, -55deg);
+    }
+    50% {
+      transform: rotate3d(0, 1, 0, 65deg);
+    }
   }
 
   /* .ame-cart-pulse + @keyframes vivem no critical.css global — evita duplicidade
      com cart-flying-butterflies (CSS gradient). */
 
   @media (prefers-reduced-motion: reduce) {
-    .ame-butterfly-svg-swarm { display: none; }
+    .ame-butterfly-svg-swarm {
+      display: none;
+    }
   }
 </style>
 
@@ -196,9 +208,11 @@
       function buildWingSVG(color) {
         // Substitui só o fill do path principal pela cor da borboleta.
         // Sombras, brancos (highlights) e contorno preto permanecem como no SVG original.
-        return '<svg viewBox="0 0 119.744 148.477">' +
+        return (
+          '<svg viewBox="0 0 119.744 148.477">' +
           shapeInnerHTML.replace(/fill="currentColor"/g, 'fill="' + color + '"') +
-          '</svg>';
+          '</svg>'
+        );
       }
 
       const usedColors = [];
@@ -214,8 +228,12 @@
         b.style.top = startY + 'px';
         b.innerHTML =
           '<figure class="ame-butterfly-svg__fig">' +
-          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--left">' + wingSVG + '</div>' +
-          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--right">' + wingSVG + '</div>' +
+          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--left">' +
+          wingSVG +
+          '</div>' +
+          '<div class="ame-butterfly-svg__wing ame-butterfly-svg__wing--right">' +
+          wingSVG +
+          '</div>' +
           '</figure>';
         swarm.appendChild(b);
 
@@ -231,7 +249,15 @@
             { transform: 'translate(-50%, -50%) rotate(' + startRot + 'deg) scale(1)', opacity: 1 },
             {
               transform:
-                'translate(calc(' + dx * 0.5 + 'px - 50%), calc(' + arcHeight + 'px + ' + wobble + 'px - 50%)) rotate(' + midRot + 'deg) scale(1.1)',
+                'translate(calc(' +
+                dx * 0.5 +
+                'px - 50%), calc(' +
+                arcHeight +
+                'px + ' +
+                wobble +
+                'px - 50%)) rotate(' +
+                midRot +
+                'deg) scale(1.1)',
               offset: 0.55,
               opacity: 1,
             },
@@ -245,7 +271,7 @@
         animations.push(anim.finished.catch(() => {}));
       }
 
-      console.info('[ame-butterflies-svg] cores aplicadas:', usedColors, '— template?', !!shapeTemplate, 'tem fill="currentColor"?', shapeInnerHTML.includes('fill="currentColor"'));
+      /*console.info('[ame-butterflies-svg] cores aplicadas:', usedColors, '— template?', !!shapeTemplate, 'tem fill="currentColor"?', shapeInnerHTML.includes('fill="currentColor"'));*/
 
       Promise.all(animations).finally(() => swarm.remove());
 

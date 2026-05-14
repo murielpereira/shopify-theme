@@ -127,22 +127,11 @@
       </div>
     </div>
 
-    {%- if collection.all_tags.size > 0 -%}
-      <div class="ame-col-filter-group">
-        <p class="ame-col-filter-title">Categoria</p>
-        <div class="ame-col-filter-list">
-          {%- for tag in collection.all_tags -%}
-            <a
-              href="{% if current_tags contains tag %}{{ collection.url }}{% else %}{{ collection.url }}/{{ tag | handle }}{% endif %}"
-              class="ame-col-filter-check{% if current_tags contains tag %} ame-col-filter-check--active{% endif %}"
-            >
-              <span class="ame-col-filter-box" aria-hidden="true"></span>
-              {{ tag }}
-            </a>
-          {%- endfor -%}
-        </div>
-      </div>
-    {%- endif -%}
+    {%- comment -%}
+      Filtro de Categoria (tags) removido conforme decisão de UI — as tags do
+      catálogo são internas (ex: customizacao_*) e não fazem sentido pro cliente.
+      Se um dia precisarmos reativar, é só restaurar o bloco {% if collection.all_tags.size > 0 %}.
+    {%- endcomment -%}
   </aside>
 
   <div class="ame-col-main">
@@ -430,6 +419,11 @@
     text-transform: uppercase;
     color: var(--color-on-surface-variant, #4f4442);
   }
+  /* Grid responsivo idêntico ao da home (consistência visual):
+     - mobile: 2 colunas, gap apertado
+     - tablet (≥768): 2 colunas, gap maior
+     - desktop (≥1024): 3 colunas (já considerando sidebar à esquerda)
+     - desktop wide (≥1280): segue --grid-cols configurado no painel (padrão 3) */
   .ame-col-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -438,11 +432,7 @@
   @media (min-width: 768px) {
     .ame-col-grid {
       gap: 2rem 1.5rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    .ame-col-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
   @media (min-width: 1280px) {
@@ -479,14 +469,7 @@
     color: #ffffff;
   }
 
-  .ame-label-sm {
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.5);
-    display: block;
-    margin-bottom: 0.75rem;
-  }
+  /* .ame-label-sm vive global no critical.css */
 {% endstylesheet %}
 
 {% schema %}

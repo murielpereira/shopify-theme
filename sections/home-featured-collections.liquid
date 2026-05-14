@@ -116,13 +116,21 @@
     color: var(--color-on-background, #201b14);
   }
 
-  /* Asymmetric 12-col grid */
+  /* Grid responsivo em 3 fases:
+     - mobile: 1 coluna
+     - tablet (≥768): 2 colunas simétricas, mesma altura
+     - desktop (≥1024): 12-col assimétrico (5 + 7) com alturas hardcoded */
   .ame-feat-col__grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   @media (min-width: 768px) {
+    .ame-feat-col__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
     .ame-feat-col__grid {
       grid-template-columns: repeat(12, 1fr);
     }
@@ -137,18 +145,24 @@
     border-radius: var(--radius-lg, 0.5rem);
     overflow: hidden;
     background: var(--color-surface-container, #f8ece0);
+    /* min-width:0 evita que conteúdo intrínseco estoure a coluna do grid. */
+    min-width: 0;
   }
 
+  /* Aspect-ratio em todas as fases, exceto desktop wide onde fixamos altura. */
   .ame-feat-col__card-img-wrap {
     aspect-ratio: 4 / 5;
     overflow: hidden;
   }
-  .ame-feat-col__card--large .ame-feat-col__card-img-wrap {
-    aspect-ratio: 4 / 5;
-  }
-  @media (min-width: 768px) {
-    .ame-feat-col__card--large .ame-feat-col__card-img-wrap { height: 680px; aspect-ratio: unset; }
-    .ame-feat-col__card:not(.ame-feat-col__card--large) .ame-feat-col__card-img-wrap { height: 320px; aspect-ratio: unset; }
+  @media (min-width: 1024px) {
+    .ame-feat-col__card--large .ame-feat-col__card-img-wrap {
+      height: 680px;
+      aspect-ratio: unset;
+    }
+    .ame-feat-col__card:not(.ame-feat-col__card--large) .ame-feat-col__card-img-wrap {
+      height: 320px;
+      aspect-ratio: unset;
+    }
   }
 
   .ame-feat-col__card-img {
@@ -192,14 +206,7 @@
     color: rgba(255,255,255,0.85);
   }
 
-  .ame-label-sm {
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.5);
-    display: block;
-    margin-bottom: 0.75rem;
-  }
+  /* .ame-label-sm vive global no critical.css */
 {% endstylesheet %}
 
 {% schema %}

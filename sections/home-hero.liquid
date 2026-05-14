@@ -27,14 +27,15 @@
 -%}
 
 <section class="ame-hero full-width">
-
   <!-- Fundo (lado direito): vídeo ou imagem -->
   <div class="ame-hero__bg">
     {%- if hero_native_src != '' -%}
       <video
         class="ame-hero__bg-video"
         src="{{ hero_native_src }}"
-        {%- if hero_native_video.preview_image != blank %} poster="{{ hero_native_video.preview_image | image_url: width: 1600 }}"{% endif -%}
+        {%- if hero_native_video.preview_image != blank %}
+          poster="{{ hero_native_video.preview_image | image_url: width: 1600 }}"
+        {% endif -%}
         autoplay
         muted
         loop
@@ -120,7 +121,6 @@
       {%- endif -%}
     {%- endfor -%}
   </div>
-
 </section>
 
 {% stylesheet %}
@@ -134,7 +134,9 @@
     overflow: hidden;
   }
   @media (min-width: 768px) {
-    .ame-hero { min-height: calc(100svh - 5rem); }
+    .ame-hero {
+      min-height: calc(100svh - 5rem);
+    }
   }
 
   /* Background — full width, fade cobre o lado esquerdo */
@@ -155,7 +157,9 @@
     mix-blend-mode: multiply;
     opacity: 0.8;
   }
-  .ame-hero__bg-img--placeholder { opacity: 0.3; }
+  .ame-hero__bg-img--placeholder {
+    opacity: 0.3;
+  }
 
   .ame-hero__bg-video {
     position: absolute;
@@ -191,7 +195,9 @@
     pointer-events: none;
   }
   @media (max-width: 767px) {
-    .ame-hero__bg::before { height: 3.25rem; }
+    .ame-hero__bg::before {
+      height: 3.25rem;
+    }
   }
 
   /* Fade cobre o lado esquerdo (conteúdo) de forma opaca e suave */
@@ -226,10 +232,13 @@
     z-index: 2;
     padding: 4rem var(--page-margin, 20px);
     width: 100%;
-    max-width: min(calc(var(--page-width, 120rem) / 2), 42rem);
+    /*max-width: min(calc(var(--page-width, 120rem) / 2), 42rem);*/
   }
   @media (max-width: 767px) {
-    .ame-hero__content { max-width: 100%; padding: 3rem 20px 5rem; }
+    .ame-hero__content {
+      max-width: 100%;
+      padding: 3rem 20px 5rem;
+    }
   }
 
   .ame-hero__eyebrow {
@@ -249,7 +258,10 @@
     margin-bottom: 1.5rem;
   }
   @media (min-width: 768px) {
-    .ame-hero__title { margin-bottom: 2.5rem; line-height: 0.92; }
+    .ame-hero__title {
+      margin-bottom: 2.5rem;
+      line-height: 0.92;
+    }
   }
   .ame-hero__title em {
     font-style: italic;
@@ -265,7 +277,10 @@
     margin-bottom: 2.5rem;
   }
   @media (min-width: 768px) {
-    .ame-hero__subtitle { font-size: 1rem; margin-bottom: 3.5rem; }
+    .ame-hero__subtitle {
+      font-size: 1rem;
+      margin-bottom: 3.5rem;
+    }
   }
 
   .ame-hero__ctas {
@@ -287,7 +302,9 @@
     color: rgba(90, 71, 66, 0.35);
   }
   @media (max-width: 767px) {
-    .ame-hero__scroll-indicator { display: none; }
+    .ame-hero__scroll-indicator {
+      display: none;
+    }
   }
   .ame-hero__scroll-line {
     width: 1px;
@@ -311,7 +328,9 @@
     z-index: 1;
   }
   @media (max-width: 767px) {
-    .ame-hero__stats { display: none; }
+    .ame-hero__stats {
+      display: none;
+    }
   }
 
   .ame-hero__stat {
