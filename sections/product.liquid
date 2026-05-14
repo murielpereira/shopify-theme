@@ -1346,7 +1346,9 @@
     function measureHeader() {
       const header = document.querySelector('.ame-header-group');
       headerOffset = header ? header.getBoundingClientRect().height : 0;
-      wrap.style.setProperty('--pdp-pinned-top', headerOffset + 'px');
+      // Aplicar no <html> pra que tanto o sticky-wrap quanto o breadcrumb
+      // (que vive fora do wrap) consigam ler --pdp-pinned-top.
+      document.documentElement.style.setProperty('--pdp-pinned-top', headerOffset + 'px');
     }
 
     function pin() {
@@ -2856,21 +2858,22 @@
   }
 
   @media (max-width: 1023px) {
+    /* Altura do breadcrumb fixo, usada pra empurrar o sticky-wrap pra baixo. */
     .pdp__sticky-wrap.is-pinned {
+      --pdp-bc-h: 2rem;
       position: fixed;
-      top: var(--pdp-pinned-top, 0px);
+      top: calc(var(--pdp-pinned-top, 0px) + var(--pdp-bc-h));
       left: 0;
       right: 0;
       width: 100%;
       margin: 0;
-      /* Espaço pro breadcrumb que vamos fixar logo acima via JS. */
-      padding: 1.75rem 0.75rem 0;
+      padding: 0.25rem 0.75rem 0;
       z-index: 50;
       will-change: transform;
       background: var(--color-surface, #fff8f3);
     }
-    /* Breadcrumb acompanha o sticky: fica fixo no topo do bloco pinned.
-       O JS adiciona .is-pinned-bc no <nav> quando a imagem está fixada. */
+    /* Breadcrumb acompanha o sticky: fica fixo logo abaixo do header,
+       acima da imagem pinada. O JS adiciona .is-pinned-bc no <nav>. */
     .pdp-breadcrumb.is-pinned-bc {
       position: fixed;
       top: var(--pdp-pinned-top, 0px);
@@ -2881,6 +2884,7 @@
       padding: 0.5rem 0.75rem;
       margin: 0;
       max-width: none;
+      box-shadow: 0 1px 0 rgba(32, 27, 20, 0.06);
     }
     /* Imagem fica quadrada com borda lateral + sombra (efeito de flutuar) */
     .pdp__sticky-wrap.is-pinned .pdp__main-img-wrap {

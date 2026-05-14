@@ -1746,8 +1746,6 @@ body::after {
 @media (max-width: 767px) {
   .ame-header {
     min-height: 4rem;
-    /* Position relative pra ancorar o logo absolute centralizado. */
-    position: relative;
     transition: background 0.4s ease, box-shadow 0.4s ease,
       border-color 0.4s ease, min-height 0.25s ease, padding 0.25s ease;
   }
@@ -1764,28 +1762,15 @@ body::after {
   .ame-header__logo-img {
     transition: max-height 0.25s ease;
   }
-  /* Logo centralizado no mobile (independente de quantos botões existem à
-     esquerda/direita). Os botões de ação ficam à direita; o lado esquerdo
-     fica vazio. Visualmente fica equilibrado e o logo nunca desloca.
-     Limitado a 40% da viewport pra nunca passar por cima dos ícones. */
+  /* Logo à esquerda no mobile, ícones à direita (layout natural do flex
+     space-between do .ame-header). Limitamos a largura/altura pra nunca
+     espremer o espaço dos ícones. */
   .ame-header__logo {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    pointer-events: auto;
-    max-width: 40vw;
+    max-width: 45vw;
   }
   .ame-header__logo-img {
     max-width: 100%;
     max-height: 2.25rem;
-  }
-  .ame-header__actions {
-    margin-left: auto;
-    /* Acima do logo pra cliques nos ícones nunca caírem no <a> do logo. */
-    position: relative;
-    z-index: 1;
   }
 }
 
