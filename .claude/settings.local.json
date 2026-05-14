@@ -55,7 +55,12 @@
       "Bash(sed -i \"s/cubic-bezier\\(0\\\\.22,\\\\s*1,\\\\s*0\\\\.36,\\\\s*1\\)/var\\(--ease-luxury, cubic-bezier\\(0.22, 1, 0.36, 1\\)\\)/g\" snippets/cart-flying-butterflies.liquid)",
       "Bash(grep -v \";\\\\s*$\")",
       "Bash(git diff *)",
-      "Bash(git -c core.autocrlf=false diff --stat sections/product.liquid)"
+      "Bash(git -c core.autocrlf=false diff --stat sections/product.liquid)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json', 'utf8'\\)\\); console.log\\('JSON ok'\\)\")",
+      "Bash(node -e \"try { const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('VALID JSON'\\); console.log\\('groups:', j.length\\); } catch\\(e\\) { console.log\\('INVALID:', e.message\\); }\")",
+      "Bash(node -e \"try { const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('VALID. groups:', j.length\\); const ccount = j.filter\\(g => g.name && g.name.startsWith\\('Campo Personalizado'\\)\\).length; console.log\\('Custom field groups:', ccount\\); } catch\\(e\\) { console.log\\('INVALID:', e.message\\); }\")",
+      "Bash(shopify theme *)",
+      "Bash(grep -B1 -A2 \"LiquidHTMLSyntaxError\\\\|sections.product.liquid\\\\|sections\\\\\\\\\\\\\\\\product\\\\.liquid\")"
     ]
   }
 }

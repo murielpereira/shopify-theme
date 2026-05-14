@@ -1364,18 +1364,24 @@
       /* Re-bind clicks abrindo modal nos cards clonados */
       window.AmeVideoStories.bindOpenLinks(widget);
 
-      /* Init — esperamos o outer ter largura real (offsetWidth > 0) antes de
-         calcular o transform. Sem isso, o primeiro goTo pode usar outerWidth=0
-         (caindo no fallback window.innerWidth) e centralizar mal o card. */
-      function tryInit(attempts) {
-        if (outer.offsetWidth > 0 || attempts <= 0) {
+      /* Init — usa ResizeObserver pra reagir a QUALQUER mudança de largura do
+         outer (inclusive a primeira pintura, fonts loading, layout shift de apps
+         externos etc.). Recalcula o transform pra manter o card central centralizado.
+         Sem isso, o primeiro goTo pode usar outerWidth=0 e o card 'central' fica
+         fora do viewport visível, dando a impressão de que nenhum tem destaque. */
+      let initialized = false;
+      const ro = new ResizeObserver(() => {
+        if (outer.offsetWidth === 0) return;
+        if (!initialized) {
+          initialized = true;
           goTo(startIndex, false);
           resetTimer();
-          return;
+        } else {
+          // Re-centraliza sem trocar o slide ativo (resize do viewport, fonts etc.)
+          goTo(activeIdx, false);
         }
-        requestAnimationFrame(() => tryInit(attempts - 1));
-      }
-      tryInit(30);
+      });
+      ro.observe(outer);
 
       /* Re-init quando imagens da thumbnail terminam de carregar (mudam altura
          do outer e podem invalidar o cálculo inicial). */

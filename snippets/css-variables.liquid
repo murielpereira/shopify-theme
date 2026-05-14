@@ -31,11 +31,12 @@
     --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
 
     /* ── Layout ──
-       --page-margin progressivo: 24px (mobile) → {{ settings.min_page_margin }}px (desktop)
-       interpolando fluido com a viewport. clamp() garante que nunca fique menor
-       que 24px nem maior que o valor configurado no painel. */
+       --page-margin progressivo: 24px (mobile) → 250px (desktop largo).
+       A curva 18vw garante que em ~1389px de viewport já estamos em 250px (laptops
+       comuns ficam num intermediário ~180-250px). O painel não controla mais este
+       valor (setting `min_page_margin` foi removido). */
     --page-width:   {{ settings.max_page_width }};
-    --page-margin:  clamp(1.5rem, 4vw, {{ settings.min_page_margin }}px);
+    --page-margin:  clamp(1.5rem, 18vw, 250px);
     --section-gap:  clamp(3rem, 6vw, {{ settings.section_gap }}px);
 
     /* ── Cor Principal ── */

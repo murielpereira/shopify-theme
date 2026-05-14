@@ -1553,6 +1553,7 @@ body::after {
   right: 0;
   z-index: 200;
   width: 100%;
+  max-width: 100vw;
   background: var(--color-announce-bg, var(--color-primary, #5a4742));
   overflow: hidden;
   height: 2.5rem;
@@ -1706,6 +1707,10 @@ body::after {
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 100vw;
+  /* Sem isto, conteúdo intrinsicamente largo (logo grande, badge contador)
+     pode estourar a viewport no mobile e provocar scroll lateral. */
+  overflow-x: clip;
   transition: box-shadow 0.3s ease, top 0.35s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
 }
 

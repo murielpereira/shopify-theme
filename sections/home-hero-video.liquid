@@ -1,0 +1,234 @@
+{% comment %} Home Hero (Vídeo) — versão minimalista: vídeo de fundo + título + CTA {% endcomment %}
+
+{%- liquid
+  # Prioridade: vídeo nativo (Shopify-hosted) → URL YouTube → imagem fallback.
+  # Mesma escolha do home-hero.liquid pra manter consistência de assets.
+  assign hv_native = section.settings.video
+  assign hv_native_src = ''
+  if hv_native != blank and hv_native.sources.size > 0
+    assign hv_native_src = hv_native.sources[0].url
+    for s in hv_native.sources
+      if s.format == 'mp4' and s.height >= 720
+        assign hv_native_src = s.url
+        break
+      endif
+    endfor
+  endif
+
+  assign hv_yt_id = ''
+  assign hv_yt_url = section.settings.video_url
+  if hv_native_src == '' and hv_yt_url != blank
+    assign hv_yt_str = hv_yt_url | downcase
+    if hv_yt_str contains 'youtube.com/watch'
+      assign hv_yt_id = hv_yt_url | split: 'v=' | last | split: '&' | first
+    elsif hv_yt_str contains 'youtu.be/'
+      assign hv_yt_id = hv_yt_url | split: 'youtu.be/' | last | split: '?' | first
+    endif
+  endif
+-%}
+
+<section class="ame-hero-simple full-width" data-overlay="{{ section.settings.overlay_strength }}">
+  <div class="ame-hero-simple__bg">
+    {%- if hv_native_src != '' -%}
+      <video
+        class="ame-hero-simple__bg-video"
+        src="{{ hv_native_src }}"
+        {%- if hv_native.preview_image != blank %}
+          poster="{{ hv_native.preview_image | image_url: width: 1600 }}"
+        {% endif -%}
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        aria-hidden="true"
+      ></video>
+    {%- elsif hv_yt_id != '' -%}
+      <iframe
+        class="ame-hero-simple__bg-video"
+        src="https://www.youtube-nocookie.com/embed/{{ hv_yt_id }}?autoplay=1&mute=1&loop=1&playlist={{ hv_yt_id }}&controls=0&disablekb=1&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3&fs=0"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        aria-hidden="true"
+        title=""
+      ></iframe>
+    {%- elsif section.settings.image != blank -%}
+      {%- assign hv_alt = section.settings.image.alt | escape -%}
+      {{
+        section.settings.image
+        | image_url: width: 1600
+        | image_tag:
+          widths: '600, 1200, 1600',
+          loading: 'eager',
+          fetchpriority: 'high',
+          class: 'ame-hero-simple__bg-img',
+          alt: hv_alt
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'ame-hero-simple__bg-img ame-hero-simple__bg-img--placeholder' }}
+    {%- endif -%}
+    <div class="ame-hero-simple__overlay" aria-hidden="true"></div>
+  </div>
+
+  <div class="ame-hero-simple__content">
+    {%- if section.settings.title != blank -%}
+      <h2 class="ame-hero-simple__title ame-fade-up ame-delay-1">
+        {{ section.settings.title }}
+      </h2>
+    {%- endif -%}
+
+    {%- if section.settings.cta_label != blank -%}
+      <a href="{{ section.settings.cta_url | default: '#' }}" class="ame-cta ame-fade-up ame-delay-2">
+        {{ section.settings.cta_label }}
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-hero-simple {
+    position: relative;
+    width: 100%;
+    min-height: 60svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-align: center;
+  }
+  @media (min-width: 768px) {
+    .ame-hero-simple {
+      min-height: 80svh;
+    }
+  }
+
+  .ame-hero-simple__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--color-background, #fff8f3);
+  }
+
+  .ame-hero-simple__bg-img,
+  .ame-hero-simple__bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    pointer-events: none;
+  }
+  .ame-hero-simple__bg-video {
+    aspect-ratio: 16 / 9;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+  }
+  .ame-hero-simple__bg-img--placeholder { opacity: 0.4; }
+
+  /* Overlay escuro controla legibilidade do texto.
+     Força via data-overlay (0..100) traduzida em alpha. */
+  .ame-hero-simple__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(32, 27, 20, 0.35);
+    z-index: 1;
+  }
+  .ame-hero-simple[data-overlay="0"] .ame-hero-simple__overlay { background: transparent; }
+  .ame-hero-simple[data-overlay="20"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.20); }
+  .ame-hero-simple[data-overlay="40"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.40); }
+  .ame-hero-simple[data-overlay="60"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.60); }
+  .ame-hero-simple[data-overlay="80"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.80); }
+
+  .ame-hero-simple__content {
+    position: relative;
+    z-index: 2;
+    padding: 4rem var(--page-margin, 1.5rem);
+    max-width: 60rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .ame-hero-simple__title {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+  }
+  .ame-hero-simple__title em {
+    font-style: italic;
+    font-weight: 300;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hero Vídeo (simples)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Vídeo de fundo (Shopify)",
+      "info": "MP4, ≤ 50MB, ≥ 720p. Tem prioridade sobre o YouTube."
+    },
+    {
+      "type": "text",
+      "id": "video_url",
+      "label": "URL do YouTube (fallback)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagem de fundo (fallback)"
+    },
+    {
+      "type": "select",
+      "id": "overlay_strength",
+      "label": "Intensidade do escurecimento",
+      "info": "Aumenta a legibilidade do texto sobre o vídeo.",
+      "default": "40",
+      "options": [
+        { "value": "0",  "label": "Sem overlay" },
+        { "value": "20", "label": "Leve (20%)" },
+        { "value": "40", "label": "Médio (40%)" },
+        { "value": "60", "label": "Forte (60%)" },
+        { "value": "80", "label": "Muito forte (80%)" }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "title",
+      "label": "Título",
+      "default": "<p>Feitos para acompanhar <em>cada passo</em>.</p>"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Texto do botão",
+      "default": "Conheça as coleções"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Link do botão"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Vídeo (simples)"
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}
