@@ -388,6 +388,7 @@
     }
 
     .ame-pingente__tipo-thumb {
+      display: none;
       width: clamp(72px, 70%, 110px);
       aspect-ratio: 1 / 1;
       border-radius: var(--radius-sm, 2px);
@@ -727,7 +728,11 @@
           result = result.replace(new RegExp(escaped, 'gi'), '');
         }
         // Limpa espaços extras e conectivos órfãos no fim ("Azul Bebê com Off White  " etc).
-        return result.replace(/\s+/g, ' ').replace(/\s+$/, '').replace(/\s+(com|e)\s*$/i, '').trim();
+        return result
+          .replace(/\s+/g, ' ')
+          .replace(/\s+$/, '')
+          .replace(/\s+(com|e)\s*$/i, '')
+          .trim();
       }
 
       function extractLastColor(cor) {
