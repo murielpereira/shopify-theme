@@ -299,7 +299,9 @@
       }
     }
 
-    customElements.define('product-grid-{{ ai_gen_id }}', ProductGrid{{ ai_gen_id }});
+    if (!customElements.get('product-grid-{{ ai_gen_id }}')) {
+      customElements.define('product-grid-{{ ai_gen_id }}', ProductGrid{{ ai_gen_id }});
+    }
   })();
 </script>
 

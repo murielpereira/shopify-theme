@@ -405,6 +405,7 @@
     }
 
     .ame-vs__title {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
       font-size: 0.6875rem;
       font-weight: 500;
       color: var(--color-on-background, #201b14);
@@ -459,19 +460,17 @@
     /* ──────────────────────────────────────────── */
     .ame-vs--spotlight {
       position: relative;
-      width: 100%;
-      /* Não usa margin negativa: o grid da .shopify-section pai já está
-         em "full-width" via .ame-vs-section, então o spotlight pode ocupar
-         100% sem precisar compensar padding nenhum. Margin negativa com
-         --page-margin grande estourava a viewport no mobile (P8). */
+      /* Compensa o padding lateral do container pai pra ocupar a largura disponível
+       sem estourar a viewport (que provocava overflow horizontal no mobile). */
+      width: auto;
+      margin-left: calc(-1 * var(--page-margin, 2rem));
+      margin-right: calc(-1 * var(--page-margin, 2rem));
     }
     .ame-vs__spot-outer {
       position: relative;
       overflow: hidden;
       width: 100%;
-      /* Padding vertical extra pra acomodar o scale(1.2) do card central
-         sem cortar topo/base. */
-      padding: 50px 0 40px;
+      padding: 25px 0 20px;
       touch-action: pan-y;
     }
     .ame-vs__spot-track {
@@ -484,17 +483,16 @@
       flex-shrink: 0;
       background: transparent;
       transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.6s ease;
-      opacity: 0.4;
-      transform: scale(0.75);
+      opacity: 0.6;
+      transform: scale(0.88);
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      transform-origin: center center;
     }
     .ame-vs__spot-card.is-spot-active {
       opacity: 1;
-      transform: scale(1.2);
+      transform: scale(1.02);
       z-index: 2;
     }
 
@@ -589,6 +587,7 @@
       padding: 12px 18px;
       background: var(--color-background, #fff);
       color: var(--color-on-background, #111);
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.04em;
@@ -821,6 +820,7 @@
       pointer-events: auto;
     }
     .ame-vs-modal__cta-title {
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
       font-size: 0.875rem;
       color: #fff;
       margin: 0 0 0.625rem;
@@ -835,6 +835,7 @@
       border: none;
       border-radius: var(--radius-full, 999px);
       padding: 0.625rem 1.125rem;
+      font-family: var(--font-primary--family, 'Lexend', sans-serif);
       font-size: 0.6875rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -1195,12 +1196,8 @@
       const ROTATE_INTERVAL = 9000;
 
       function getCardWidth() {
-        const w = window.innerWidth;
-        if (w <= 600) return Math.round(w * 0.6);
-        if (w <= 1024) return 280;
-        // Desktop: card mais largo pra o destaque (scale 1.2) ser visível.
-        // Antes era fixo 240, indistinguível em viewports de 1400+.
-        return 360;
+        if (window.innerWidth <= 600) return Math.round(window.innerWidth * 0.68);
+        return 240;
       }
       let currentCardWidth = getCardWidth();
 
@@ -1371,24 +1368,18 @@
       /* Re-bind clicks abrindo modal nos cards clonados */
       window.AmeVideoStories.bindOpenLinks(widget);
 
-      /* Init — usa ResizeObserver pra reagir a QUALQUER mudança de largura do
-         outer (inclusive a primeira pintura, fonts loading, layout shift de apps
-         externos etc.). Recalcula o transform pra manter o card central centralizado.
-         Sem isso, o primeiro goTo pode usar outerWidth=0 e o card 'central' fica
-         fora do viewport visível, dando a impressão de que nenhum tem destaque. */
-      let initialized = false;
-      const ro = new ResizeObserver(() => {
-        if (outer.offsetWidth === 0) return;
-        if (!initialized) {
-          initialized = true;
+      /* Init — esperamos o outer ter largura real (offsetWidth > 0) antes de
+         calcular o transform. Sem isso, o primeiro goTo pode usar outerWidth=0
+         (caindo no fallback window.innerWidth) e centralizar mal o card. */
+      function tryInit(attempts) {
+        if (outer.offsetWidth > 0 || attempts <= 0) {
           goTo(startIndex, false);
           resetTimer();
-        } else {
-          // Re-centraliza sem trocar o slide ativo (resize do viewport, fonts etc.)
-          goTo(activeIdx, false);
+          return;
         }
-      });
-      ro.observe(outer);
+        requestAnimationFrame(() => tryInit(attempts - 1));
+      }
+      tryInit(30);
 
       /* Re-init quando imagens da thumbnail terminam de carregar (mudam altura
          do outer e podem invalidar o cálculo inicial). */

@@ -14,18 +14,18 @@
   .ai-dual-banners__container-{{ ai_gen_id }} {
     display: grid;
     gap: {{ block.settings.gap }}px;
+    grid-template-columns: 1fr;
   }
-
-  @media screen and (min-width: 750px) {
+  /* Quebra pra 2 colunas só com tela larga o suficiente pra caber
+     duas vezes a min-height sem distorcer (era 750px — em telas perto
+     do breakpoint as imagens se sobrepunham por causa do aspect-ratio). */
+  @media screen and (min-width: 900px) {
     .ai-dual-banners__container-{{ ai_gen_id }} {
       grid-template-columns: 1fr 1fr;
     }
   }
-
-  @media screen and (max-width: 749px) {
-    .ai-dual-banners__container-{{ ai_gen_id }} {
-      grid-template-columns: 1fr;
-    }
+  .ai-dual-banners__banner-{{ ai_gen_id }} {
+    min-width: 0;
   }
 
   .ai-dual-banners__banner-{{ ai_gen_id }} {
@@ -38,13 +38,13 @@
     min-height: 300px;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 900px) {
     .ai-dual-banners__banner-{{ ai_gen_id }} {
       aspect-ratio: {{ block.settings.desktop_aspect_ratio }};
     }
   }
 
-  @media screen and (max-width: 749px) {
+  @media screen and (max-width: 899px) {
     .ai-dual-banners__banner-{{ ai_gen_id }} {
       aspect-ratio: {{ block.settings.mobile_aspect_ratio }};
     }
@@ -205,7 +205,9 @@
       }
     }
 
-    customElements.define('dual-banners-{{ ai_gen_id }}', DualBanners{{ ai_gen_id }});
+    if (!customElements.get('dual-banners-{{ ai_gen_id }}')) {
+      customElements.define('dual-banners-{{ ai_gen_id }}', DualBanners{{ ai_gen_id }});
+    }
   })();
 </script>
 

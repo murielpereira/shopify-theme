@@ -848,7 +848,7 @@ body::after {
   }
 
   .ame-cashback {
-    /*width: 90%;*/
+    width: 90%;
   }
 }
 
@@ -1722,8 +1722,10 @@ body::after {
 .ame-header {
   width: 100%;
   min-height: 5rem;
-  /* Estende o background até a safe-area (Dynamic Island / notch do iPhone) */
-  padding: env(safe-area-inset-top, 0) var(--page-margin, 20px) 0;
+  /* Padding lateral mínimo de 16px pra logo/ícones nunca colarem na borda,
+     respeitando --page-margin no desktop onde queremos respiro maior.
+     Estende o background até a safe-area (Dynamic Island / notch do iPhone) */
+  padding: env(safe-area-inset-top, 0) max(16px, var(--page-margin, 20px)) 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1749,25 +1751,30 @@ body::after {
     transition: background 0.4s ease, box-shadow 0.4s ease,
       border-color 0.4s ease, min-height 0.25s ease, padding 0.25s ease;
   }
+
   .ame-header.is-scrolled {
     min-height: 3rem;
     padding-top: 0;
     padding-bottom: 0;
   }
+
   /* Logo também encolhe junto */
   .ame-header.is-scrolled .ame-header__logo-img {
     max-height: 1.75rem;
     transition: max-height 0.25s ease;
   }
+
   .ame-header__logo-img {
     transition: max-height 0.25s ease;
   }
+
   /* Logo à esquerda no mobile, ícones à direita (layout natural do flex
      space-between do .ame-header). Limitamos a largura/altura pra nunca
      espremer o espaço dos ícones. */
   .ame-header__logo {
     max-width: 45vw;
   }
+
   .ame-header__logo-img {
     max-width: 100%;
     max-height: 2.25rem;

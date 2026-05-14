@@ -242,7 +242,9 @@
       }
     }
 
-    customElements.define('video-banner-{{ ai_gen_id }}', VideoBanner{{ ai_gen_id }});
+    if (!customElements.get('video-banner-{{ ai_gen_id }}')) {
+      customElements.define('video-banner-{{ ai_gen_id }}', VideoBanner{{ ai_gen_id }});
+    }
   })();
 </script>
 

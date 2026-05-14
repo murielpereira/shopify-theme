@@ -241,7 +241,13 @@
       }
     }
 
-    customElements.define('interactive-timeline-{{ ai_gen_id }}', InteractiveTimeline{{ ai_gen_id }});
+    // Guard contra dupla definição: no editor da Shopify (e em hot-reload)
+    // o script roda mais de uma vez. Sem o guard, customElements.define
+    // lança "this name has already been used" e o script morre — animação
+    // nunca dispara.
+    if (!customElements.get('interactive-timeline-{{ ai_gen_id }}')) {
+      customElements.define('interactive-timeline-{{ ai_gen_id }}', InteractiveTimeline{{ ai_gen_id }});
+    }
   })();
 </script>
 

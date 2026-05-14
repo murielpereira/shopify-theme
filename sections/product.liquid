@@ -1326,9 +1326,6 @@
     // O wrapper sticky inclui imagem + barra "Você selecionou: ..." — vira fixed juntos
     const wrap = document.querySelector('.pdp__sticky-wrap');
     if (!wrap) return;
-    // Breadcrumb fica fixo junto com a imagem no mobile (P12). Pode não existir
-    // em todas as páginas (algumas estruturas omitem) — usamos optional chain.
-    const breadcrumb = document.querySelector('.pdp-breadcrumb');
 
     // O CTA é re-buscado a cada update porque a Section Rendering API substitui o
     // nó do botão (#pdp-add-btn-wrap) ao trocar variante — referência cacheada vira órfã.
@@ -1355,13 +1352,11 @@
       if (pinned) return;
       spacer.style.height = wrap.offsetHeight + 'px';
       wrap.classList.add('is-pinned');
-      breadcrumb?.classList.add('is-pinned-bc');
       pinned = true;
     }
     function unpin() {
       if (!pinned) return;
       wrap.classList.remove('is-pinned');
-      breadcrumb?.classList.remove('is-pinned-bc');
       wrap.style.transform = '';
       spacer.style.height = '';
       pinned = false;
@@ -1390,17 +1385,16 @@
         return;
       }
 
-      pin();
-      // Empurra a imagem pra cima quando o CTA se aproxima da base, evitando sobreposição
-      const pinnedHeight = wrap.offsetHeight;
-      const pinnedBottom = headerOffset + pinnedHeight;
-      const overlap = pinnedBottom + 16 - ctaRect.top;
-      if (overlap > 0) {
-        const ty = Math.min(overlap, pinnedHeight + 16);
-        wrap.style.transform = `translateY(-${ty}px)`;
-      } else {
-        wrap.style.transform = '';
+      // Se o CTA já entrou no viewport, desfixa a imagem — ela não pode
+      // ficar cobrindo o botão "Adicionar ao Carrinho". Threshold de
+      // viewport bottom (CTA está visível na tela).
+      if (ctaRect.top < window.innerHeight) {
+        unpin();
+        return;
       }
+
+      pin();
+      wrap.style.transform = '';
     }
 
     let ticking = false;
@@ -2858,33 +2852,17 @@
   }
 
   @media (max-width: 1023px) {
-    /* Altura do breadcrumb fixo, usada pra empurrar o sticky-wrap pra baixo. */
     .pdp__sticky-wrap.is-pinned {
-      --pdp-bc-h: 2rem;
-      position: fixed;
-      top: calc(var(--pdp-pinned-top, 0px) + var(--pdp-bc-h));
-      left: 0;
-      right: 0;
-      width: 100%;
-      margin: 0;
-      padding: 0.25rem 0.75rem 0;
-      z-index: 50;
-      will-change: transform;
-      background: var(--color-surface, #fff8f3);
-    }
-    /* Breadcrumb acompanha o sticky: fica fixo logo abaixo do header,
-       acima da imagem pinada. O JS adiciona .is-pinned-bc no <nav>. */
-    .pdp-breadcrumb.is-pinned-bc {
       position: fixed;
       top: var(--pdp-pinned-top, 0px);
       left: 0;
       right: 0;
-      z-index: 51;
-      background: var(--color-surface, #fff8f3);
-      padding: 0.5rem 0.75rem;
+      width: 100%;
       margin: 0;
-      max-width: none;
-      box-shadow: 0 1px 0 rgba(32, 27, 20, 0.06);
+      padding: 0 0.75rem 0;
+      z-index: 50;
+      will-change: transform;
+      background: var(--color-surface, #fff8f3);
     }
     /* Imagem fica quadrada com borda lateral + sombra (efeito de flutuar) */
     .pdp__sticky-wrap.is-pinned .pdp__main-img-wrap {
