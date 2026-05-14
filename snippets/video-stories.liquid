@@ -480,9 +480,14 @@
     .ame-vs__spot-track {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 6px;
       will-change: transform;
       transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* Quando o JS faz o salto invisível do loop (clones nas pontas),
+       desabilita a transição pra não ver o pulo. */
+    .ame-vs__spot-track.is-no-transition {
+      transition: none !important;
     }
 
     .ame-vs__spot-card {
@@ -1161,9 +1166,10 @@
     }
 
     /* ──────────────────────────────────────── */
-    /* Spotlight — card central destacado, setas movem 1 card.
-       Sem loop infinito, sem autoplay. JS controla activeIdx e aplica
-       translateX no track pra centralizar o ativo dentro do outer.
+    /* Spotlight — card central destacado, loop infinito + autoplay.
+       Loop é implementado clonando o último card no início e o primeiro
+       no fim. Quando a navegação chega num clone, o JS faz um salto
+       invisível (sem transition) pro original equivalente.
     /* ──────────────────────────────────────── */
     function initSpotlight(widget) {
       const outer = widget.querySelector('[data-vs-spot-outer]');
@@ -1172,15 +1178,35 @@
       const nextBtn = widget.querySelector('[data-vs-spot-next]');
       if (!outer || !track) return;
 
-      const cards = Array.from(track.querySelectorAll('[data-vs-spot-card]'));
-      if (cards.length === 0) return;
+      const originals = Array.from(track.querySelectorAll('[data-vs-spot-card]'));
+      const origLen = originals.length;
+      if (origLen === 0) return;
 
-      let activeIdx = 0;
+      // Loop infinito: precisa de ≥3 originais (com 1-2 fica ridículo).
+      const enableLoop = origLen >= 3;
+      const AUTOPLAY_INTERVAL = 5000;
 
-      if (cards.length <= 1) {
+      if (origLen <= 1) {
         if (prevBtn) prevBtn.style.display = 'none';
         if (nextBtn) nextBtn.style.display = 'none';
       }
+
+      // Monta a esteira: [clone-último, ...originais, clone-primeiro] quando loop ON.
+      // displayCards[0] = clone-último; displayCards[origLen+1] = clone-primeiro.
+      let displayCards = originals;
+      if (enableLoop) {
+        const firstClone = originals[0].cloneNode(true);
+        const lastClone = originals[origLen - 1].cloneNode(true);
+        firstClone.setAttribute('data-vs-clone', '1');
+        lastClone.setAttribute('data-vs-clone', '1');
+        track.insertBefore(lastClone, originals[0]);
+        track.appendChild(firstClone);
+        displayCards = [lastClone, ...originals, firstClone];
+      }
+
+      // activeIdx é o índice em displayCards. Começa no primeiro ORIGINAL
+      // (índice 1 quando loop ON, 0 quando OFF).
+      let activeIdx = enableLoop ? 1 : 0;
 
       function loadVideoIntoCard(card) {
         const vid = card.querySelector('[data-vs-spot-vid]');
@@ -1205,51 +1231,102 @@
         card.classList.remove('is-vid-loaded');
       }
 
-      // Calcula o transform pra centralizar o card ativo dentro do outer.
-      // offsetLeft é relativo ao pai (track), e como o track e o outer
-      // partilham a mesma origem (track filho direto), o transform é
-      // simplesmente "metade-do-outer - centro-do-card-no-track".
-      function centerActive() {
-        const card = cards[activeIdx];
+      function centerActive(animated) {
+        const card = displayCards[activeIdx];
         if (!card) return;
         const outerW = outer.offsetWidth;
         const cardCenter = card.offsetLeft + card.offsetWidth / 2;
         const tx = Math.round(outerW / 2 - cardCenter);
-        track.style.transform = `translateX(${tx}px)`;
 
-        // Atualiza classes ativas + lazy load do vídeo central.
-        cards.forEach((c, i) => {
+        if (!animated) {
+          track.classList.add('is-no-transition');
+          track.style.transform = `translateX(${tx}px)`;
+          void track.offsetHeight; // força reflow pra browser aplicar antes
+          track.classList.remove('is-no-transition');
+        } else {
+          track.style.transform = `translateX(${tx}px)`;
+        }
+
+        displayCards.forEach((c, i) => {
           c.classList.toggle('is-spot-active', i === activeIdx);
           if (i !== activeIdx) unloadVideoInCard(c);
         });
         loadVideoIntoCard(card);
 
-        // Estado das setas.
-        if (prevBtn) prevBtn.disabled = activeIdx === 0;
-        if (nextBtn) nextBtn.disabled = activeIdx === cards.length - 1;
+        // Setas só ficam disabled quando loop está OFF.
+        if (!enableLoop) {
+          if (prevBtn) prevBtn.disabled = activeIdx === 0;
+          if (nextBtn) nextBtn.disabled = activeIdx === displayCards.length - 1;
+        }
       }
 
-      function goTo(idx) {
-        activeIdx = Math.max(0, Math.min(cards.length - 1, idx));
-        centerActive();
+      let isTransitioning = false;
+      function goTo(idx, animated = true) {
+        if (isTransitioning && animated) return;
+        activeIdx = idx;
+
+        if (animated) isTransitioning = true;
+        centerActive(animated);
+
+        if (!animated) {
+          isTransitioning = false;
+          return;
+        }
+
+        // Após a transição, se caímos num clone, faz salto invisível
+        // pro original equivalente.
+        setTimeout(() => {
+          isTransitioning = false;
+          if (!enableLoop) return;
+          if (activeIdx === 0) {
+            // Clone do último → pula pro último original (índice origLen).
+            activeIdx = origLen;
+            centerActive(false);
+          } else if (activeIdx === displayCards.length - 1) {
+            // Clone do primeiro → pula pro primeiro original (índice 1).
+            activeIdx = 1;
+            centerActive(false);
+          }
+        }, 520); // > duração do transition (0.5s)
       }
+
+      // Autoplay: avança 1 card a cada AUTOPLAY_INTERVAL. Pausa em hover
+      // e em interação manual (clique nas setas, swipe).
+      let autoplayTimer = null;
+      function startAutoplay() {
+        if (origLen <= 1) return;
+        clearInterval(autoplayTimer);
+        autoplayTimer = setInterval(() => goTo(activeIdx + 1, true), AUTOPLAY_INTERVAL);
+      }
+      function stopAutoplay() {
+        clearInterval(autoplayTimer);
+      }
+      function resetAutoplay() {
+        stopAutoplay();
+        startAutoplay();
+      }
+      outer.addEventListener('mouseenter', stopAutoplay);
+      outer.addEventListener('mouseleave', startAutoplay);
 
       prevBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         goTo(activeIdx - 1);
+        resetAutoplay();
       });
       nextBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         goTo(activeIdx + 1);
+        resetAutoplay();
       });
 
-      // Clicar num card lateral o traz pro centro.
-      cards.forEach((card, i) => {
+      // Clique num card lateral o traz pro centro.
+      displayCards.forEach((card, i) => {
         card.addEventListener('click', (e) => {
-          if (i === activeIdx) return; // central: deixa o handler de open modal agir
+          if (i === activeIdx) return;
           e.preventDefault();
           e.stopPropagation();
           goTo(i);
+          resetAutoplay();
         }, true);
       });
 
@@ -1257,34 +1334,33 @@
       let touchStartX = 0;
       outer.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
+        stopAutoplay();
       }, { passive: true });
       outer.addEventListener('touchend', (e) => {
         const diff = touchStartX - e.changedTouches[0].clientX;
-        if (Math.abs(diff) < 50) return;
-        goTo(activeIdx + (diff > 0 ? 1 : -1));
+        if (Math.abs(diff) >= 50) goTo(activeIdx + (diff > 0 ? 1 : -1));
+        startAutoplay();
       }, { passive: true });
 
-      // Recentraliza em resize (largura do card muda no breakpoint mobile).
       let resizeRaf = null;
       window.addEventListener('resize', () => {
         cancelAnimationFrame(resizeRaf);
-        resizeRaf = requestAnimationFrame(centerActive);
+        resizeRaf = requestAnimationFrame(() => centerActive(false));
       });
 
       window.AmeVideoStories.bindOpenLinks(widget);
 
-      // Init — espera o outer ter largura real (offsetWidth > 0). Sem isso,
-      // o primeiro centerActive calcula tx baseado em 0 e o ativo fica fora
-      // da tela. ResizeObserver dispara assim que o layout estabiliza.
+      // Init — espera o outer ter largura real antes do primeiro centerActive.
       let initialized = false;
       const ro = new ResizeObserver(() => {
         if (outer.offsetWidth === 0) return;
         if (!initialized) {
           initialized = true;
-          // Começa no card do meio pra ter laterais visíveis dos dois lados.
-          activeIdx = Math.floor(cards.length / 2);
+          centerActive(false);
+          startAutoplay();
+        } else {
+          centerActive(false);
         }
-        centerActive();
       });
       ro.observe(outer);
     }
