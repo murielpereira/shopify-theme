@@ -456,44 +456,50 @@
     }
 
     /* ──────────────────────────────────────────── */
-    /* SPOTLIGHT — loop infinito tipo Waltz         */
+    /* SPOTLIGHT — carrossel simples, full-width    */
     /* ──────────────────────────────────────────── */
+    /* Decisão: nada de loop infinito, scale de destaque ou autoplay aqui.
+       Apenas cards 9:16 lado a lado com scroll-snap nativo + setas que
+       rolam por uma página. A complexidade anterior estava quebrando o
+       layout. Comportamento espelha o do commit 318d950 (último que
+       funcionava conforme o usuário). */
     .ame-vs--spotlight {
       position: relative;
       width: 100%;
-      /* A section pai (home-video-stories) recebe .full-width quando o format
-         é spotlight, então já está de borda a borda. Não precisa mais
-         de margin negativa (que não funcionava dentro do grid-column). */
     }
     .ame-vs__spot-outer {
       position: relative;
-      overflow: hidden;
       width: 100%;
-      padding: 25px 0 20px;
-      touch-action: pan-y;
+      padding-block: 20px;
     }
     .ame-vs__spot-track {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      will-change: transform;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      padding-inline: var(--page-margin, 16px);
+      /* Mais espaço pro final do scroll equivaler ao começo (estética). */
+      scroll-padding-inline: var(--page-margin, 16px);
     }
+    .ame-vs__spot-track::-webkit-scrollbar { display: none; }
+
     .ame-vs__spot-card {
-      flex-shrink: 0;
-      background: transparent;
-      transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.6s ease;
-      opacity: 0.55;
-      transform: scale(0.78);
+      flex: 0 0 auto;
+      /* Larguras responsivas: ~3 cards visíveis no desktop, 2 no tablet,
+         ~1.4 no mobile (pra mostrar que há mais à direita pra scrollar). */
+      width: clamp(220px, 28vw, 360px);
+      scroll-snap-align: start;
       position: relative;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      transform-origin: center center;
+      gap: 8px;
     }
-    .ame-vs__spot-card.is-spot-active {
-      opacity: 1;
-      transform: scale(1);
-      z-index: 2;
+    @media (max-width: 767px) {
+      .ame-vs__spot-card {
+        width: 68vw;
+      }
     }
 
     .ame-vs__spot-media {
@@ -502,7 +508,7 @@
       background: #111;
       position: relative;
       overflow: hidden;
-      border-radius: 18px;
+      border-radius: 14px;
     }
     .ame-vs__spot-thumb {
       position: absolute;
@@ -512,24 +518,18 @@
       background-position: center;
       background-repeat: no-repeat;
       z-index: 0;
-      transition: opacity 0.5s;
     }
-    .ame-vs__spot-card.is-spot-active .ame-vs__spot-thumb {
-      opacity: 0;
-      transition-delay: 1.5s;
-    }
+    /* Vídeo lazy-loaded via JS quando o card entra na viewport. */
     .ame-vs__spot-vid {
       position: absolute;
       inset: 0;
       z-index: 1;
       opacity: 0;
-      transition: opacity 0.8s;
+      transition: opacity 0.4s;
       pointer-events: none;
       overflow: hidden;
     }
-    .ame-vs__spot-card.is-spot-active .ame-vs__spot-vid {
-      opacity: 1;
-    }
+    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-vid { opacity: 1; }
     .ame-vs__spot-vid iframe,
     .ame-vs__spot-vid video {
       position: absolute;
@@ -545,31 +545,26 @@
     .ame-vs__spot-gradient {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 30%, transparent 100%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.35) 0%, transparent 35%);
       pointer-events: none;
       z-index: 2;
     }
     .ame-vs__spot-play {
       position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.2s;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 2;
       pointer-events: none;
       color: #fff;
+      opacity: 0.85;
+      transition: opacity 0.2s;
     }
+    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-play { opacity: 0; }
     .ame-vs__spot-play .material-symbols-outlined {
-      font-size: 2.75rem !important;
+      font-size: 2.5rem !important;
       text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
       font-variation-settings: 'FILL' 1;
-    }
-    .ame-vs__spot-card.is-spot-active .ame-vs__spot-play {
-      opacity: 0 !important;
-    }
-    .ame-vs__spot-card:hover .ame-vs__spot-play {
-      opacity: 0.7;
     }
     .ame-vs__spot-click {
       position: absolute;
@@ -583,8 +578,7 @@
 
     .ame-vs__spot-cta {
       display: block;
-      margin: 8px 0 0;
-      padding: 12px 18px;
+      padding: 10px 16px;
       background: var(--color-background, #fff);
       color: var(--color-on-background, #111);
       font-family: var(--font-primary--family, 'Lexend', sans-serif);
@@ -599,22 +593,21 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 94%;
-      transition: transform 0.2s, background 0.2s, border-color 0.2s;
+      width: 100%;
+      transition: background 0.2s, border-color 0.2s;
     }
     .ame-vs__spot-cta:hover {
       background: var(--color-surface-container, #f8ece0);
       border-color: var(--color-primary, #5a4742);
-      transform: scale(1.02);
     }
 
     .ame-vs__spot-nav {
       position: absolute;
-      top: 50%;
+      top: calc(50% - 18px);
       transform: translateY(-50%);
-      width: 36px;
-      height: 36px;
-      background: rgba(255, 255, 255, 0.9);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.95);
       border: 0;
       border-radius: 50%;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -624,49 +617,27 @@
       cursor: pointer;
       z-index: 10;
       color: #333;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
       padding: 0;
     }
     .ame-vs__spot-nav:hover {
       background: #fff;
-      transform: translateY(-50%) scale(1.08);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
+    .ame-vs__spot-nav[disabled] {
+      opacity: 0;
+      pointer-events: none;
+    }
     .ame-vs__spot-nav .material-symbols-outlined {
-      font-size: 1.25rem !important;
+      font-size: 1.5rem !important;
       font-variation-settings: 'wght' 400;
     }
-    .ame-vs__spot-prev {
-      left: 12px;
-    }
-    .ame-vs__spot-next {
-      right: 12px;
-    }
+    .ame-vs__spot-prev { left: 12px; }
+    .ame-vs__spot-next { right: 12px; }
 
-    .ame-vs__spot-dots {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 10px;
-    }
-    .ame-vs__spot-dots:empty {
-      display: none;
-    }
-    .ame-vs__spot-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-outline-variant, #d1d5db);
-      transition: background 0.3s, width 0.3s;
-      cursor: pointer;
-      border: 0;
-      padding: 0;
-    }
-    .ame-vs__spot-dot.is-active {
-      background: var(--color-on-background, #111);
-      width: 22px;
-      border-radius: 3px;
-    }
+    /* Dots removidos: scroll horizontal nativo já provê affordance.
+       Mantém o seletor pra esconder caso o template ainda renderize. */
+    .ame-vs__spot-dots { display: none; }
 
     /* ── Modal player (story viewer estilo Instagram) ── */
     .ame-vs-modal {
@@ -1131,7 +1102,10 @@
 
       if (widget.dataset.vsSpotlight !== undefined) {
         const track = widget.querySelector('[data-vs-spot-track]');
-        if (track) track.innerHTML = cardsHTML;
+        if (track) {
+          track.innerHTML = cardsHTML;
+          enableHorizontalDrag(track);
+        }
         initSpotlight(widget);
       } else {
         const track = widget.querySelector('[data-vs-track]');
@@ -1180,62 +1154,49 @@
     }
 
     /* ──────────────────────────────────────── */
-    /* Spotlight: loop infinito + autoplay     */
+    /* Spotlight — carrossel simples (scroll-snap nativo + setas)
+       Sem loop infinito, sem clones, sem destaque de scale, sem autoplay.
+       Versões anteriores com esses recursos estavam quebrando reiteradamente.
     /* ──────────────────────────────────────── */
     function initSpotlight(widget) {
-      const outer = widget.querySelector('[data-vs-spot-outer]');
       const track = widget.querySelector('[data-vs-spot-track]');
-      const dotsRow = widget.querySelector('[data-vs-spot-dots]');
-      if (!outer || !track) return;
+      const prevBtn = widget.querySelector('[data-vs-spot-prev]');
+      const nextBtn = widget.querySelector('[data-vs-spot-next]');
+      if (!track) return;
 
-      const originals = Array.from(track.children);
-      const origLen = originals.length;
-      if (origLen === 0) return;
+      const cards = Array.from(track.querySelectorAll('[data-vs-spot-card]'));
+      if (cards.length === 0) return;
 
-      const GAP = 6;
-      const ROTATE_INTERVAL = 9000;
-
-      function getCardWidth() {
-        if (window.innerWidth <= 600) return Math.round(window.innerWidth * 0.68);
-        return 240;
-      }
-      let currentCardWidth = getCardWidth();
-
-      /* Clona originais N vezes para criar a "esteira" infinita */
-      const numCopias = Math.max(5, Math.ceil(15 / origLen));
-      track.innerHTML = '';
-      const displayCards = [];
-      for (let copy = 0; copy < numCopias; copy++) {
-        originals.forEach((orig, i) => {
-          const cloned = orig.cloneNode(true);
-          cloned.style.width = currentCardWidth + 'px';
-          track.appendChild(cloned);
-          displayCards.push({ el: cloned, origIdx: i });
-        });
+      // Esconde setas se só tem 1 card (sem o que rolar).
+      if (cards.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
       }
 
-      let activeIdx = Math.floor(numCopias / 2) * origLen;
-      const startIndex = activeIdx;
-      let timer = null;
-      let isTransitioning = false;
-
-      /* Dots (apenas para os originais) */
-      if (dotsRow && origLen > 1) {
-        dotsRow.innerHTML = '';
-        for (let i = 0; i < origLen; i++) {
-          const dot = document.createElement('button');
-          dot.type = 'button';
-          dot.className = 'ame-vs__spot-dot';
-          dot.setAttribute('aria-label', `Ir para vídeo ${i + 1}`);
-          dot.addEventListener('click', () => {
-            const cycleStart = activeIdx - (((activeIdx % origLen) + origLen) % origLen);
-            goTo(cycleStart + i, true);
-            resetTimer();
-          });
-          dotsRow.appendChild(dot);
-        }
+      // Atualiza estado das setas (disabled nas pontas).
+      function updateNavState() {
+        if (!prevBtn || !nextBtn) return;
+        const maxScroll = track.scrollWidth - track.clientWidth;
+        prevBtn.disabled = track.scrollLeft <= 2;
+        nextBtn.disabled = track.scrollLeft >= maxScroll - 2;
       }
+      track.addEventListener('scroll', updateNavState, { passive: true });
 
+      // Setas: rola uma "página" (largura do track) por clique.
+      function scrollByPage(dir) {
+        track.scrollBy({ left: dir * track.clientWidth * 0.8, behavior: 'smooth' });
+      }
+      prevBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollByPage(-1);
+      });
+      nextBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        scrollByPage(1);
+      });
+
+      // Lazy load do vídeo quando o card está visível ≥60% no viewport
+      // do track. Mantém o consumo de rede baixo (só carrega o que tá vendo).
       function loadVideoIntoCard(card) {
         const vid = card.querySelector('[data-vs-spot-vid]');
         if (!vid || vid.innerHTML) return;
@@ -1250,143 +1211,23 @@
         } else if (type === 'native' && src) {
           vid.innerHTML = `<video src="${escapeHTML(src)}" autoplay muted loop playsinline></video>`;
         }
+        card.classList.add('is-vid-loaded');
       }
 
-      function unloadVideoInCard(card) {
-        const vid = card.querySelector('[data-vs-spot-vid]');
-        if (vid) vid.innerHTML = '';
-      }
-
-      function goTo(idx, animated) {
-        if (isTransitioning && animated) return;
-        activeIdx = idx;
-        const origI = ((activeIdx % origLen) + origLen) % origLen;
-
-        displayCards.forEach((d, i) => {
-          const isActive = (i === activeIdx);
-          const isNear = Math.abs(i - activeIdx) <= 1;
-          d.el.classList.toggle('is-spot-active', isActive);
-          if (isNear) {
-            setTimeout(() => loadVideoIntoCard(d.el), isActive ? 350 : 600);
-          } else {
-            setTimeout(() => {
-              if (Math.abs(i - activeIdx) > 1) unloadVideoInCard(d.el);
-            }, 600);
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            loadVideoIntoCard(entry.target);
           }
         });
+      }, { root: track, threshold: [0, 0.6, 1] });
+      cards.forEach((card) => io.observe(card));
 
-        if (dotsRow) {
-          Array.from(dotsRow.children).forEach((dot, i) => {
-            dot.classList.toggle('is-active', i === origI);
-          });
-        }
-
-        const outerW = outer.offsetWidth || window.innerWidth;
-        const step = currentCardWidth + GAP;
-        const tx = Math.round(outerW / 2 - (activeIdx * step + currentCardWidth / 2));
-
-        if (!animated) {
-          track.style.transition = 'none';
-          track.style.transform = `translateX(${tx}px)`;
-          // force reflow
-          void track.offsetHeight;
-          track.style.transition = '';
-        } else {
-          track.style.transition = 'transform 0.6s cubic-bezier(0.3, 0, 0.2, 1)';
-          track.style.transform = `translateX(${tx}px)`;
-          isTransitioning = true;
-          setTimeout(() => {
-            isTransitioning = false;
-            /* Quando chegar perto das bordas, salta de volta para o ciclo central sem animação */
-            if (activeIdx <= origLen || activeIdx >= displayCards.length - origLen - 1) {
-              goTo(startIndex + origI, false);
-            }
-          }, 600);
-        }
-      }
-
-      function resetTimer() {
-        clearInterval(timer);
-        if (origLen > 1) {
-          timer = setInterval(() => goTo(activeIdx + 1, true), ROTATE_INTERVAL);
-        }
-      }
-
-      /* Touch swipe */
-      let touchStartX = 0;
-      let isDragging = false;
-      outer.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        isDragging = true;
-        clearInterval(timer);
-      }, { passive: true });
-      outer.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        const diff = touchStartX - e.changedTouches[0].clientX;
-        if (diff > 50) goTo(activeIdx + 1, true);
-        else if (diff < -50) goTo(activeIdx - 1, true);
-        isDragging = false;
-        resetTimer();
-      }, { passive: true });
-
-      /* Resize */
-      window.addEventListener('resize', () => {
-        const newWidth = getCardWidth();
-        if (newWidth !== currentCardWidth) {
-          currentCardWidth = newWidth;
-          displayCards.forEach(d => { d.el.style.width = currentCardWidth + 'px'; });
-        }
-        goTo(activeIdx, false);
-      });
-
-      /* Pausa em hover */
-      outer.addEventListener('mouseenter', () => clearInterval(timer));
-      outer.addEventListener('mouseleave', resetTimer);
-
-      /* Setas */
-      const prevBtn = widget.querySelector('[data-vs-spot-prev]');
-      const nextBtn = widget.querySelector('[data-vs-spot-next]');
-      prevBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        clearInterval(timer);
-        goTo(activeIdx - 1, true);
-        resetTimer();
-      });
-      nextBtn?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        clearInterval(timer);
-        goTo(activeIdx + 1, true);
-        resetTimer();
-      });
-      if (origLen <= 1) {
-        if (prevBtn) prevBtn.style.display = 'none';
-        if (nextBtn) nextBtn.style.display = 'none';
-      }
-
-      /* Re-bind clicks abrindo modal nos cards clonados */
+      // Re-binda o click dos cards para abrir modal (helper externo).
       window.AmeVideoStories.bindOpenLinks(widget);
 
-      /* Init — esperamos o outer ter largura real (offsetWidth > 0) antes de
-         calcular o transform. Sem isso, o primeiro goTo pode usar outerWidth=0
-         (caindo no fallback window.innerWidth) e centralizar mal o card. */
-      function tryInit(attempts) {
-        if (outer.offsetWidth > 0 || attempts <= 0) {
-          goTo(startIndex, false);
-          resetTimer();
-          return;
-        }
-        requestAnimationFrame(() => tryInit(attempts - 1));
-      }
-      tryInit(30);
-
-      /* Re-init quando imagens da thumbnail terminam de carregar (mudam altura
-         do outer e podem invalidar o cálculo inicial). */
-      widget.querySelectorAll('img').forEach(img => {
-        if (img.complete) return;
-        img.addEventListener('load', () => goTo(activeIdx, false), { once: true });
-      });
+      // Estado inicial das setas.
+      updateNavState();
     }
   })();
   </script>
