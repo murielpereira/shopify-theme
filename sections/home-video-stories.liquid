@@ -1,6 +1,6 @@
 {% comment %} Âme — Video Stories (configurável via blocks) {% endcomment %}
 
-<section class="ame-vs-section">
+<section class="ame-vs-section{% if section.settings.format == 'spotlight' %} full-width ame-vs-section--full{% endif %}">
   {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
     <header class="ame-vs-section__header ame-reveal">
       {%- if section.settings.eyebrow != blank -%}
@@ -42,6 +42,12 @@
   .ame-vs-section {
     padding: 10px 0;
     margin: 0 auto;
+  }
+  /* Quando spotlight, a section vai de borda a borda da viewport (.full-width
+     no grid global). O header com texto precisa de padding lateral pra não
+     colar nas bordas. */
+  .ame-vs-section--full > .ame-vs-section__header {
+    padding-inline: var(--page-margin, 16px);
   }
   .ame-vs-section__header {
     text-align: center;

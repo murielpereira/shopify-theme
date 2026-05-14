@@ -460,11 +460,10 @@
     /* ──────────────────────────────────────────── */
     .ame-vs--spotlight {
       position: relative;
-      /* Compensa o padding lateral do container pai pra ocupar a largura disponível
-       sem estourar a viewport (que provocava overflow horizontal no mobile). */
-      width: auto;
-      margin-left: calc(-1 * var(--page-margin, 2rem));
-      margin-right: calc(-1 * var(--page-margin, 2rem));
+      width: 100%;
+      /* A section pai (home-video-stories) recebe .full-width quando o format
+         é spotlight, então já está de borda a borda. Não precisa mais
+         de margin negativa (que não funcionava dentro do grid-column). */
     }
     .ame-vs__spot-outer {
       position: relative;
@@ -483,16 +482,17 @@
       flex-shrink: 0;
       background: transparent;
       transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.6s ease;
-      opacity: 0.6;
-      transform: scale(0.88);
+      opacity: 0.55;
+      transform: scale(0.78);
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
+      transform-origin: center center;
     }
     .ame-vs__spot-card.is-spot-active {
       opacity: 1;
-      transform: scale(1.02);
+      transform: scale(1);
       z-index: 2;
     }
 
