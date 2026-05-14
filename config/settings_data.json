@@ -12,7 +12,6 @@
     "type_primary_font": "assistant_n4",
     "favicon": "shopify://shop_images/favicon.png",
     "max_page_width": "120rem",
-    "min_page_margin": 250,
     "section_gap": 120,
     "border_radius_base": 6,
     "color_primary": "#5a4742",
@@ -58,6 +57,7 @@
       "pingente-de-metal-com-couro-lilas-candy",
       "pingente-de-metal-com-couro-rosa-seco"
     ],
+    "pingente_ignore_terms": "e pedras Crystal, e pedras Light Sapphire, e pedras Light Peach, e pedras Vintage Rose, e pedras Violet, e pedras Montana, e pedras Emerald, e pedras Crysolite",
     "pingente_size_map": "XPP=P, XPP+=P, PP=P, P=P, M=G, G=G, XPP=XPP, XPP+=XPP, PP=XPP",
     "custom_field_1_enable": true,
     "custom_field_1_tag": "customizacao_raca",
@@ -125,6 +125,7 @@
     "custom_field_10_placeholder": "Informe o número do telefone",
     "custom_field_10_type": "phone",
     "custom_field_10_required": true,
+    "min_page_margin": 250,
     "content_for_index": [],
     "blocks": {
       "9741741230116411038": {
