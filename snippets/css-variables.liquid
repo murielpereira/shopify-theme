@@ -31,12 +31,16 @@
     --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
 
     /* ── Layout ──
-       --page-margin progressivo: 24px (mobile) → 250px (desktop largo).
-       A curva 18vw garante que em ~1389px de viewport já estamos em 250px (laptops
-       comuns ficam num intermediário ~180-250px). O painel não controla mais este
-       valor (setting `min_page_margin` foi removido). */
+       --page-margin progressivo: 16px (mobile) → ~80px (desktop largo).
+       A curva 5vw é suave: ~19px em 375px (mobile), ~38px em 768px (tablet),
+       ~72px em 1440px (desktop), capada em 96px em telas ultra-largas.
+       Atenção: o grid global da .shopify-section em [assets/critical.css]
+       já reserva --page-margin em cada lado da viewport. Sections internas
+       NÃO devem aplicar `padding: ... var(--page-margin)` — isso duplica
+       a margem (foi a causa do layout quebrado depois do refactor anterior).
+       Use apenas `padding-block` nas sections; o lateral vem do grid. */
     --page-width:   {{ settings.max_page_width }};
-    --page-margin:  clamp(1.5rem, 18vw, 250px);
+    --page-margin:  clamp(1rem, 5vw, 96px);
     --section-gap:  clamp(3rem, 6vw, {{ settings.section_gap }}px);
 
     /* ── Cor Principal ── */

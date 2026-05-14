@@ -1326,6 +1326,9 @@
     // O wrapper sticky inclui imagem + barra "Você selecionou: ..." — vira fixed juntos
     const wrap = document.querySelector('.pdp__sticky-wrap');
     if (!wrap) return;
+    // Breadcrumb fica fixo junto com a imagem no mobile (P12). Pode não existir
+    // em todas as páginas (algumas estruturas omitem) — usamos optional chain.
+    const breadcrumb = document.querySelector('.pdp-breadcrumb');
 
     // O CTA é re-buscado a cada update porque a Section Rendering API substitui o
     // nó do botão (#pdp-add-btn-wrap) ao trocar variante — referência cacheada vira órfã.
@@ -1350,11 +1353,13 @@
       if (pinned) return;
       spacer.style.height = wrap.offsetHeight + 'px';
       wrap.classList.add('is-pinned');
+      breadcrumb?.classList.add('is-pinned-bc');
       pinned = true;
     }
     function unpin() {
       if (!pinned) return;
       wrap.classList.remove('is-pinned');
+      breadcrumb?.classList.remove('is-pinned-bc');
       wrap.style.transform = '';
       spacer.style.height = '';
       pinned = false;
@@ -1370,6 +1375,10 @@
         unpin();
         return;
       }
+      // Re-medir o header a cada scroll: o header.is-scrolled colapsa de 4rem
+      // pra 3rem ao rolar, e a imagem fixa precisa subir junto pra não deixar
+      // gap visível (que mostraria o conteúdo passando atrás).
+      measureHeader();
       const ctaRect = cta.getBoundingClientRect();
       const refRect = pinned ? spacer.getBoundingClientRect() : wrap.getBoundingClientRect();
       const scrolledPastImage = refRect.top < headerOffset;
@@ -2854,12 +2863,24 @@
       right: 0;
       width: 100%;
       margin: 0;
-      /*padding: 0.625rem 0.75rem 0;*/
-      padding: 0 0.75rem 0;
+      /* Espaço pro breadcrumb que vamos fixar logo acima via JS. */
+      padding: 1.75rem 0.75rem 0;
       z-index: 50;
       will-change: transform;
       background: var(--color-surface, #fff8f3);
-      /*box-shadow: 0 8px 16px rgba(32, 27, 20, 0.08);*/
+    }
+    /* Breadcrumb acompanha o sticky: fica fixo no topo do bloco pinned.
+       O JS adiciona .is-pinned-bc no <nav> quando a imagem está fixada. */
+    .pdp-breadcrumb.is-pinned-bc {
+      position: fixed;
+      top: var(--pdp-pinned-top, 0px);
+      left: 0;
+      right: 0;
+      z-index: 51;
+      background: var(--color-surface, #fff8f3);
+      padding: 0.5rem 0.75rem;
+      margin: 0;
+      max-width: none;
     }
     /* Imagem fica quadrada com borda lateral + sombra (efeito de flutuar) */
     .pdp__sticky-wrap.is-pinned .pdp__main-img-wrap {

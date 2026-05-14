@@ -459,11 +459,11 @@
     /* ──────────────────────────────────────────── */
     .ame-vs--spotlight {
       position: relative;
-      /* Compensa o padding lateral do container pai pra ocupar a largura disponível
-       sem estourar a viewport (que provocava overflow horizontal no mobile). */
-      width: auto;
-      margin-left: calc(-1 * var(--page-margin, 2rem));
-      margin-right: calc(-1 * var(--page-margin, 2rem));
+      width: 100%;
+      /* Não usa margin negativa: o grid da .shopify-section pai já está
+         em "full-width" via .ame-vs-section, então o spotlight pode ocupar
+         100% sem precisar compensar padding nenhum. Margin negativa com
+         --page-margin grande estourava a viewport no mobile (P8). */
     }
     .ame-vs__spot-outer {
       position: relative;
@@ -482,16 +482,17 @@
       flex-shrink: 0;
       background: transparent;
       transition: transform 0.6s cubic-bezier(0.3, 0, 0.2, 1), opacity 0.6s ease;
-      opacity: 0.6;
-      transform: scale(0.88);
+      opacity: 0.5;
+      transform: scale(0.82);
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
+      transform-origin: center center;
     }
     .ame-vs__spot-card.is-spot-active {
       opacity: 1;
-      transform: scale(1.02);
+      transform: scale(1.1);
       z-index: 2;
     }
 

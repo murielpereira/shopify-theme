@@ -58,13 +58,10 @@
 </section>
 
 {% stylesheet %}
-  .ame-lookbook { padding: var(--section-gap, 7.5rem) 0; }
+  /* Lateral vem do grid da .shopify-section. */
+  .ame-lookbook { padding-block: var(--section-gap, 7.5rem); }
 
-  .ame-lookbook__inner {
-    padding: 0 var(--page-margin, 2rem);
-    max-width: var(--page-width, 120rem);
-    margin: 0 auto;
-  }
+  .ame-lookbook__inner { /* sem padding/max-width próprios — herda do grid */ }
 
   .ame-lookbook__header { margin-bottom: 5rem; }
 

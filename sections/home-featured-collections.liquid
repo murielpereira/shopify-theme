@@ -88,10 +88,10 @@
 </section>
 
 {% stylesheet %}
+  /* Padding lateral é responsabilidade do grid da .shopify-section pai
+     (--page-margin nas colunas 1/3). A section interna só controla o vertical. */
   .ame-feat-col {
-    padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem);
-    max-width: var(--page-width, 120rem);
-    margin: 0 auto;
+    padding-block: var(--section-gap, 7.5rem);
   }
 
   .ame-feat-col__header {

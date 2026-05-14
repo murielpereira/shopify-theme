@@ -44,10 +44,9 @@
 </section>
 
 {% stylesheet %}
+  /* Lateral vem do grid da .shopify-section. */
   .ame-newsletter-wrap {
-    padding: 20px 0;
-    max-width: var(--page-width, 120rem);
-    margin: 0 auto;
+    padding-block: 20px;
   }
 
   .ame-newsletter {
@@ -114,7 +113,8 @@
   @media (min-width: 480px) {
     .ame-newsletter__form {
       flex-direction: row;
-      max-width: 28rem;
+      /* Sem max-width: deixa o input crescer com o espaço disponível. O
+         cap antigo de 28rem ficava muito apertado em desktop. */
     }
   }
 
