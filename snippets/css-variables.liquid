@@ -19,7 +19,10 @@
   {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
 
   {%- liquid
-    assign r_base = settings.border_radius_base | default: 4
+    # Valores de layout hardcoded — antes vinham do admin (aba Layout),
+    # removidos pra evitar que mudanças acidentais quebrem o tema.
+    # Para ajustar, edite os defaults aqui em [snippets/css-variables.liquid].
+    assign r_base = 6
     assign r_sm   = r_base | divided_by: 2.0
     assign r_lg   = r_base | times: 2
     assign r_xl   = r_base | times: 4
@@ -38,9 +41,9 @@
        NÃO devem aplicar `padding: ... var(--page-margin)` — isso duplica
        a margem (foi a causa do layout quebrado depois do refactor anterior).
        Use apenas `padding-block` nas sections; o lateral vem do grid. */
-    --page-width:   {{ settings.max_page_width }};
+    --page-width:   120rem;
     --page-margin:  clamp(2rem, 10vw, 160px);
-    --section-gap:  clamp(3rem, 6vw, {{ settings.section_gap }}px);
+    --section-gap:  clamp(3rem, 6vw, 120px);
 
     /* ── Cor Principal ── */
     --color-primary:            {{ settings.color_primary }};

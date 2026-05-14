@@ -30,43 +30,6 @@
     ]
   },
   {
-    "name": "Layout",
-    "settings": [
-      {
-        "type": "select",
-        "id": "max_page_width",
-        "label": "Largura máxima da página",
-        "options": [
-          { "value": "90rem",  "label": "Estreito (90rem)" },
-          { "value": "110rem", "label": "Largo (110rem)" },
-          { "value": "120rem", "label": "Full (120rem)" }
-        ],
-        "default": "120rem"
-      },
-      {
-        "type": "range",
-        "id": "section_gap",
-        "min": 60,
-        "max": 160,
-        "step": 10,
-        "unit": "px",
-        "label": "Espaçamento entre seções",
-        "default": 120
-      },
-      {
-        "type": "range",
-        "id": "border_radius_base",
-        "min": 0,
-        "max": 16,
-        "step": 2,
-        "unit": "px",
-        "label": "Arredondamento base (md)",
-        "info": "Aplica-se a botões, inputs e cards. lg = 2×, sm = 0.5×.",
-        "default": 4
-      }
-    ]
-  },
-  {
     "name": "Cores",
     "settings": [
       {
@@ -436,7 +399,7 @@
         "id": "pingente_strip_terms",
         "label": "Trechos a remover do nome da cor",
         "info": "Separados por vírgula. Cada trecho é removido do nome da cor ANTES da quebra por 'com'. Útil quando a parte ignorada não é uma parte inteira. Ex: para 'Azul Bebê com Off White e pedras Cristal' virar 'Azul Bebê com Off White', adicione 'e pedras Cristal' aqui.",
-        "default": ""
+        "default": "e pedras Crystal, e pedras Light Sapphire, e pedras Light Peach, e pedras Vintage Rose, e pedras Violet, e pedras Montana, e pedras Emerald, e pedras Crysolite"
       },
       {
         "type": "textarea",
