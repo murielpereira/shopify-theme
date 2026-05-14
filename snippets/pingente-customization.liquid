@@ -47,6 +47,7 @@
     data-metal-couro-handles="{{ pingente_metal_couro_handles | strip }}"
     data-size-map="{{ settings.pingente_size_map | default: '' | escape }}"
     data-ignore-terms="{{ settings.pingente_ignore_terms | default: '' | escape }}"
+    data-strip-terms="{{ settings.pingente_strip_terms | default: '' | escape }}"
     data-obrigatorio="{% if pingente_obrigatorio %}true{% else %}false{% endif %}"
   >
     <header class="ame-pingente__header">
@@ -708,9 +709,31 @@
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
 
+      // Trechos a remover do nome da cor ANTES do split. Útil quando a parte
+      // ignorada não é uma parte inteira (ex: "Azul Bebê com Off White e
+      // pedras Cristal" — o trecho "e pedras Cristal" precisa sumir antes do
+      // split, senão a parte "Off White e pedras Cristal" vira a cor toda).
+      const STRIP_TERMS = (root.dataset.stripTerms || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      function stripIgnoredFragments(cor) {
+        if (!cor || STRIP_TERMS.length === 0) return cor;
+        let result = cor;
+        for (const term of STRIP_TERMS) {
+          // Match case-insensitive da substring exata (com escape de regex).
+          const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          result = result.replace(new RegExp(escaped, 'gi'), '');
+        }
+        // Limpa espaços extras e conectivos órfãos no fim ("Azul Bebê com Off White  " etc).
+        return result.replace(/\s+/g, ' ').replace(/\s+$/, '').replace(/\s+(com|e)\s*$/i, '').trim();
+      }
+
       function extractLastColor(cor) {
         if (!cor) return '';
-        const parts = cor
+        const cleaned = stripIgnoredFragments(cor);
+        const parts = cleaned
           .split(/\s+com\s+/i)
           .map((s) => s.trim())
           .filter(Boolean);

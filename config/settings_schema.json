@@ -433,6 +433,13 @@
       },
       {
         "type": "textarea",
+        "id": "pingente_strip_terms",
+        "label": "Trechos a remover do nome da cor",
+        "info": "Separados por vírgula. Cada trecho é removido do nome da cor ANTES da quebra por 'com'. Útil quando a parte ignorada não é uma parte inteira. Ex: para 'Azul Bebê com Off White e pedras Cristal' virar 'Azul Bebê com Off White', adicione 'e pedras Cristal' aqui.",
+        "default": ""
+      },
+      {
+        "type": "textarea",
         "id": "pingente_size_map",
         "label": "Tamanho da coleira → Tamanho do pingente",
         "info": "Um par por linha ou separados por vírgula, no formato 'TamanhoColeira=TamanhoPingente'. Ex: XPP=P, P=P, M=G, G=G",

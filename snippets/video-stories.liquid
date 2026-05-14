@@ -507,7 +507,7 @@
       transform-origin: center center;
     }
     .ame-vs__spot-card.is-spot-active {
-      transform: scale(1);
+      transform: scale(0.9);
       opacity: 1;
       z-index: 2;
     }
@@ -544,7 +544,9 @@
       pointer-events: none;
       overflow: hidden;
     }
-    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-vid { opacity: 1; }
+    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-vid {
+      opacity: 1;
+    }
     .ame-vs__spot-vid iframe,
     .ame-vs__spot-vid video {
       position: absolute;
@@ -575,7 +577,9 @@
       opacity: 0.85;
       transition: opacity 0.2s;
     }
-    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-play { opacity: 0; }
+    .ame-vs__spot-card.is-vid-loaded .ame-vs__spot-play {
+      opacity: 0;
+    }
     .ame-vs__spot-play .material-symbols-outlined {
       font-size: 2.5rem !important;
       text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
@@ -647,12 +651,18 @@
       font-size: 1.5rem !important;
       font-variation-settings: 'wght' 400;
     }
-    .ame-vs__spot-prev { left: 12px; }
-    .ame-vs__spot-next { right: 12px; }
+    .ame-vs__spot-prev {
+      left: 12px;
+    }
+    .ame-vs__spot-next {
+      right: 12px;
+    }
 
     /* Dots removidos: scroll horizontal nativo já provê affordance.
        Mantém o seletor pra esconder caso o template ainda renderize. */
-    .ame-vs__spot-dots { display: none; }
+    .ame-vs__spot-dots {
+      display: none;
+    }
 
     /* ── Modal player (story viewer estilo Instagram) ── */
     .ame-vs-modal {
