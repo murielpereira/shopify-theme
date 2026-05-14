@@ -60,7 +60,13 @@
       "Bash(node -e \"try { const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('VALID JSON'\\); console.log\\('groups:', j.length\\); } catch\\(e\\) { console.log\\('INVALID:', e.message\\); }\")",
       "Bash(node -e \"try { const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\); console.log\\('VALID. groups:', j.length\\); const ccount = j.filter\\(g => g.name && g.name.startsWith\\('Campo Personalizado'\\)\\).length; console.log\\('Custom field groups:', ccount\\); } catch\\(e\\) { console.log\\('INVALID:', e.message\\); }\")",
       "Bash(shopify theme *)",
-      "Bash(grep -B1 -A2 \"LiquidHTMLSyntaxError\\\\|sections.product.liquid\\\\|sections\\\\\\\\\\\\\\\\product\\\\.liquid\")"
+      "Bash(grep -B1 -A2 \"LiquidHTMLSyntaxError\\\\|sections.product.liquid\\\\|sections\\\\\\\\\\\\\\\\product\\\\.liquid\")",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git branch *)",
+      "Bash(node -e \"const j = JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_data.json','utf8'\\)\\); console.log\\('current keys:', Object.keys\\(j.current || {}\\).length\\); console.log\\('presets:', Object.keys\\(j.presets || {}\\)\\);\")",
+      "Bash(git checkout *)",
+      "Bash(git merge *)"
     ]
   }
 }

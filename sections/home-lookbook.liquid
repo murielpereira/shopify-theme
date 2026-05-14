@@ -2,7 +2,6 @@
 
 <section class="ame-lookbook" style="background: var(--color-surface-container, #f8ece0);">
   <div class="ame-lookbook__inner">
-
     <div class="ame-lookbook__header ame-reveal">
       {%- if section.settings.eyebrow != blank -%}
         <p class="ame-label-sm">{{ section.settings.eyebrow }}</p>
@@ -11,7 +10,7 @@
     </div>
 
     <div class="ame-lookbook__grid">
-    {%- assign has_rendered_first_image = false -%}
+      {%- assign has_rendered_first_image = false -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'image' -%}
           <div
@@ -19,31 +18,33 @@
             {{ block.shopify_attributes }}
           >
             {%- if block.settings.image != blank -%}
-            {%- liquid
-              assign img_loading = 'lazy'
-              assign img_fetchpriority = 'auto'
+              {%- liquid
+                assign img_loading = 'lazy'
+                assign img_fetchpriority = 'auto'
 
-              # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
-              # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the lookbook gallery.
-              # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
-              # 📊 Impact: Improves LCP Web Vital metric significantly.
-              if has_rendered_first_image == false
-                assign img_loading = 'eager'
-                assign img_fetchpriority = 'high'
-                assign has_rendered_first_image = true
-              endif
-            -%}
+                # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+                # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the lookbook gallery.
+                # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
+                # 📊 Impact: Improves LCP Web Vital metric significantly.
+                if has_rendered_first_image == false
+                  assign img_loading = 'eager'
+                  assign img_fetchpriority = 'high'
+                  assign has_rendered_first_image = true
+                endif
+              -%}
               {{
                 block.settings.image
                 | image_url: width: 800
-                | image_tag: widths: '400, 800',
-                loading: img_loading,
-                fetchpriority: img_fetchpriority,
+                | image_tag:
+                  widths: '400, 800',
+                  loading: img_loading,
+                  fetchpriority: img_fetchpriority,
                   class: 'ame-lookbook__img',
-                  alt: block.settings.image.alt | escape
+                  alt: block.settings.image.alt
+                | escape
               }}
             {%- else -%}
-            {%- assign has_rendered_first_image = true -%}
+              {%- assign has_rendered_first_image = true -%}
               {{ 'lifestyle-1' | placeholder_svg_tag: 'ame-lookbook__img ame-lookbook__img--placeholder' }}
             {%- endif -%}
             {%- if block.settings.caption != blank -%}
@@ -53,17 +54,15 @@
         {%- endif -%}
       {%- endfor -%}
     </div>
-
   </div>
 </section>
 
 {% stylesheet %}
   /* Lateral vem do grid da .shopify-section. */
-  .ame-lookbook { padding-block: var(--section-gap, 7.5rem); }
-
-  .ame-lookbook__inner { /* sem padding/max-width próprios — herda do grid */ }
-
-  .ame-lookbook__header { margin-bottom: 5rem; }
+  .ame-lookbook {
+    padding: 40px;
+    border-radius: var(--radius-xl);
+  }
 
   .ame-lookbook__title {
     font-size: clamp(2rem, 4vw, 3.5rem);
@@ -79,7 +78,9 @@
     align-items: start;
   }
   @media (min-width: 768px) {
-    .ame-lookbook__grid { grid-template-columns: repeat(3, 1fr); }
+    .ame-lookbook__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   .ame-lookbook__item {
@@ -88,11 +89,15 @@
     background: var(--color-surface-container-highest, #ece1d5);
     aspect-ratio: 3 / 4;
     position: relative;
-    transition: transform 0.6s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+    transition: transform 0.6s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   }
-  .ame-lookbook__item:hover { transform: translateY(-8px); }
+  .ame-lookbook__item:hover {
+    transform: translateY(-8px);
+  }
   @media (min-width: 768px) {
-    .ame-lookbook__item--offset { margin-top: 6rem; }
+    .ame-lookbook__item--offset {
+      margin-top: 6rem;
+    }
   }
 
   .ame-lookbook__img {
@@ -101,17 +106,21 @@
     object-fit: cover;
     mix-blend-mode: multiply;
     opacity: 0.9;
-    transition: transform 1.1s var(--ease-luxury, cubic-bezier(0.22,1,0.36,1));
+    transition: transform 1.1s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   }
-  .ame-lookbook__img--placeholder { opacity: 0.3; }
-  .ame-lookbook__item:hover .ame-lookbook__img { transform: scale(1.04); }
+  .ame-lookbook__img--placeholder {
+    opacity: 0.3;
+  }
+  .ame-lookbook__item:hover .ame-lookbook__img {
+    transform: scale(1.04);
+  }
 
   .ame-lookbook__caption {
     position: absolute;
     bottom: 1.25rem;
     left: 1.25rem;
     font-size: 0.75rem;
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.05em;
   }
 {% endstylesheet %}
@@ -155,11 +164,7 @@
   "presets": [
     {
       "name": "Lookbook",
-      "blocks": [
-        { "type": "image" },
-        { "type": "image" },
-        { "type": "image" }
-      ]
+      "blocks": [{ "type": "image" }, { "type": "image" }, { "type": "image" }]
     }
   ],
   "disabled_on": { "groups": ["header", "footer"] }
