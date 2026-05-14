@@ -1,23 +1,78 @@
 {% comment %}
-  This section is used in the 404 template to render page shown when customers
-  enter an invalid store URL.
-
+  Página 404 — exibida quando o cliente acessa uma URL inválida.
+  Texto em PT-BR hardcoded (locales/pt-BR.json não é usado neste tema).
   https://shopify.dev/docs/storefronts/themes/architecture/templates/404
 {% endcomment %}
 
-<h1>{{ '404.title' | t }}</h1>
+<section class="ame-404">
+  <div class="ame-404__inner">
+    <p class="ame-404__code" aria-hidden="true">404</p>
+    <h1 class="ame-404__title">Página não encontrada</h1>
+    <p class="ame-404__desc">
+      O endereço que você tentou acessar não existe ou foi movido. Que tal continuar explorando nossas coleções?
+    </p>
+    <div class="ame-404__ctas">
+      <a href="{{ routes.root_url }}" class="ame-cta">
+        Voltar ao início
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+      <a href="{{ routes.all_products_collection_url }}" class="ame-btn-secondary">
+        Ver todos os produtos
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+</section>
 
-<p>
-  {{ '404.not_found' | t }}
-</p>
-
-<a href="{{ routes.all_products_collection_url }}">
-  {{ '404.back_to_shopping' | t }}
-</a>
+{% stylesheet %}
+  .ame-404 {
+    padding-block: clamp(3rem, 10vw, 7rem);
+    text-align: center;
+  }
+  .ame-404__inner {
+    max-width: 42rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .ame-404__code {
+    font-size: clamp(4rem, 14vw, 8rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--color-primary, #5a4742);
+    opacity: 0.18;
+    margin: 0;
+  }
+  .ame-404__title {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--color-on-background, #201b14);
+    margin: 0;
+  }
+  .ame-404__desc {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-on-surface-variant, #4f4442);
+    max-width: 32rem;
+    margin: 0;
+  }
+  .ame-404__ctas {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:general.404",
+  "name": "Página 404",
   "settings": []
 }
 {% endschema %}
