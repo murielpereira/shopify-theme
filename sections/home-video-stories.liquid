@@ -45,7 +45,14 @@
   }
   /* Quando spotlight, a section vai de borda a borda da viewport (.full-width
      no grid global). O header com texto precisa de padding lateral pra não
-     colar nas bordas. */
+     colar nas bordas; e a section toda precisa de overflow:hidden pra o
+     scroll horizontal do track nunca estourar a viewport. */
+  .ame-vs-section--full {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    margin: 0;
+  }
   .ame-vs-section--full > .ame-vs-section__header {
     padding-inline: var(--page-margin, 16px);
   }

@@ -466,22 +466,29 @@
     .ame-vs--spotlight {
       position: relative;
       width: 100%;
+      /* Contém o track: sem isso, o overflow-x do track ainda pode estourar
+         o body quando algum ancestral não tem overflow-x clip. */
+      overflow: hidden;
     }
     .ame-vs__spot-outer {
       position: relative;
       width: 100%;
       padding-block: 20px;
+      overflow: hidden;
     }
     .ame-vs__spot-track {
       display: flex;
       gap: 12px;
       overflow-x: auto;
+      overflow-y: hidden;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
       scrollbar-width: none;
       padding-inline: var(--page-margin, 16px);
-      /* Mais espaço pro final do scroll equivaler ao começo (estética). */
       scroll-padding-inline: var(--page-margin, 16px);
+      /* max-width 100% pra nunca crescer além do pai (que tem overflow:hidden). */
+      max-width: 100%;
+      box-sizing: border-box;
     }
     .ame-vs__spot-track::-webkit-scrollbar { display: none; }
 
@@ -1195,8 +1202,6 @@
         scrollByPage(1);
       });
 
-      // Lazy load do vídeo quando o card está visível ≥60% no viewport
-      // do track. Mantém o consumo de rede baixo (só carrega o que tá vendo).
       function loadVideoIntoCard(card) {
         const vid = card.querySelector('[data-vs-spot-vid]');
         if (!vid || vid.innerHTML) return;
@@ -1214,20 +1219,52 @@
         card.classList.add('is-vid-loaded');
       }
 
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-            loadVideoIntoCard(entry.target);
+      function unloadVideoInCard(card) {
+        const vid = card.querySelector('[data-vs-spot-vid]');
+        if (vid) vid.innerHTML = '';
+        card.classList.remove('is-vid-loaded');
+      }
+
+      // Reproduz UM vídeo por vez: o card cujo centro está mais próximo do
+      // centro do track. Outros têm o vídeo descarregado pra não competir
+      // por rede/CPU (8 iframes do YouTube tocando juntos = travamento).
+      let currentlyPlaying = null;
+      function updatePlayback() {
+        const trackRect = track.getBoundingClientRect();
+        const trackCenter = trackRect.left + trackRect.width / 2;
+        let closestCard = null;
+        let closestDist = Infinity;
+        cards.forEach((card) => {
+          const r = card.getBoundingClientRect();
+          const cardCenter = r.left + r.width / 2;
+          const dist = Math.abs(cardCenter - trackCenter);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestCard = card;
           }
         });
-      }, { root: track, threshold: [0, 0.6, 1] });
-      cards.forEach((card) => io.observe(card));
+        if (closestCard && closestCard !== currentlyPlaying) {
+          if (currentlyPlaying) unloadVideoInCard(currentlyPlaying);
+          loadVideoIntoCard(closestCard);
+          currentlyPlaying = closestCard;
+        }
+      }
+
+      // Debounce do scroll: só atualiza playback ~150ms depois do scroll parar,
+      // evita trocar de vídeo a cada frame durante o scroll suave.
+      let scrollTimer = null;
+      track.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(updatePlayback, 150);
+      }, { passive: true });
 
       // Re-binda o click dos cards para abrir modal (helper externo).
       window.AmeVideoStories.bindOpenLinks(widget);
 
-      // Estado inicial das setas.
+      // Estado inicial: navegação + playback do primeiro card visível.
       updateNavState();
+      // Espera um frame pra layout estabilizar antes de medir centros.
+      requestAnimationFrame(updatePlayback);
     }
   })();
   </script>
