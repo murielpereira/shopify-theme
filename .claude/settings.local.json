@@ -46,7 +46,16 @@
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -10 -- snippets/video-stories.liquid sections/home-video-stories.liquid)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 87e1b40 -- sections/home-video-stories.liquid)",
       "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --oneline -5 -- assets/critical.css)",
-      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 9c8bd34 -- assets/critical.css)"
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 9c8bd34 -- assets/critical.css)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 6d47db4 --stat -- assets/critical.css)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" show 264d878 --stat -- assets/critical.css)",
+      "Bash(git -C \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme\" log --all --oneline -20)",
+      "Bash(sed -i \"s/cubic-bezier\\(0\\\\.22,\\\\s*1,\\\\s*0\\\\.36,\\\\s*1\\)/var\\(--ease-luxury, cubic-bezier\\(0.22, 1, 0.36, 1\\)\\)/g\" sections/product.liquid)",
+      "Bash(sed -i \"s/cubic-bezier\\(0\\\\.22,\\\\s*1,\\\\s*0\\\\.36,\\\\s*1\\)/var\\(--ease-luxury, cubic-bezier\\(0.22, 1, 0.36, 1\\)\\)/g\" snippets/cart-flying-butterflies-svg.liquid)",
+      "Bash(sed -i \"s/cubic-bezier\\(0\\\\.22,\\\\s*1,\\\\s*0\\\\.36,\\\\s*1\\)/var\\(--ease-luxury, cubic-bezier\\(0.22, 1, 0.36, 1\\)\\)/g\" snippets/cart-flying-butterflies.liquid)",
+      "Bash(grep -v \";\\\\s*$\")",
+      "Bash(git diff *)",
+      "Bash(git -c core.autocrlf=false diff --stat sections/product.liquid)"
     ]
   }
 }

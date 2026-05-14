@@ -2,11 +2,11 @@
 
 <section class="ame-favoritos" style="padding: var(--section-gap, 7.5rem) var(--page-margin, 2rem); max-width: var(--page-width, 120rem); margin: 0 auto;">
   <header class="ame-favoritos__header" style="text-align: center; margin-bottom: 3rem;">
-    <h1 style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1; color: var(--color-on-background, #201b14); margin: 0;">
+    <h1 style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1; color: var(--color-on-background, #201b14); margin: 0;">
       {{ section.settings.title | default: 'Seus Favoritos' }}
     </h1>
     {%- if section.settings.subtitle != blank -%}
-      <p style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.9375rem; color: var(--color-on-surface-variant, #4f4442); line-height: 1.6; max-width: 36rem; margin: 1rem auto 0;">{{ section.settings.subtitle }}</p>
+      <p style="font-size: 0.9375rem; color: var(--color-on-surface-variant, #4f4442); line-height: 1.6; max-width: 36rem; margin: 1rem auto 0;">{{ section.settings.subtitle }}</p>
     {%- endif -%}
   </header>
 
@@ -14,9 +14,9 @@
 
   <div id="ame-favoritos-empty" data-favoritos-empty style="text-align: center; padding: 4rem 1rem; color: var(--color-on-surface-variant, #4f4442);">
     <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 4rem; color: rgba(90, 71, 66, 0.2); margin-bottom: 1rem; display: inline-block;">favorite</span>
-    <p style="font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 1rem; margin: 0;">{{ section.settings.empty_message | default: 'Você ainda não tem produtos favoritos.' }}</p>
+    <p style="font-size: 1rem; margin: 0;">{{ section.settings.empty_message | default: 'Você ainda não tem produtos favoritos.' }}</p>
     {%- if section.settings.empty_cta_url != blank and section.settings.empty_cta_label != blank -%}
-      <a href="{{ section.settings.empty_cta_url }}" class="ame-btn ame-btn--primary" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #5a4742); color: var(--color-on-primary, #fff); border-radius: 999px; font-family: var(--font-primary--family, 'Lexend', sans-serif); font-size: 0.875rem; font-weight: 600; text-decoration: none;">
+      <a href="{{ section.settings.empty_cta_url }}" class="ame-btn ame-btn--primary" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #5a4742); color: var(--color-on-primary, #fff); border-radius: 999px; font-size: 0.875rem; font-weight: 600; text-decoration: none;">
         {{ section.settings.empty_cta_label }}
       </a>
     {%- endif -%}
@@ -140,7 +140,6 @@
   }
   .ame-fav-card__info { padding: 0.875rem 0.25rem; }
   .ame-fav-card__title {
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.9375rem;
     font-weight: 500;
     margin: 0 0 0.5rem;
@@ -154,7 +153,6 @@
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 1rem;
     color: var(--color-on-background, #201b14);
     margin-bottom: 0.75rem;
@@ -165,7 +163,6 @@
   }
   .ame-fav-card__cta {
     display: inline-block;
-    font-family: var(--font-primary--family, 'Lexend', sans-serif);
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--color-primary, #5a4742);

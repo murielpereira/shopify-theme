@@ -48,21 +48,12 @@
     100% { transform: scale(0.7, -1) rotate(-35deg); }
   }
 
-  /* Pulse no ícone do carrinho quando as borboletas chegam */
-  .ame-cart-pulse {
-    animation: ame-cart-pulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  @keyframes ame-cart-pulse {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.35); }
-    65%  { transform: scale(0.92); }
-    100% { transform: scale(1); }
-  }
+  /* Pulse do ícone do carrinho (.ame-cart-pulse) e seu @keyframes vivem no
+     critical.css global — evita duplicação com cart-flying-butterflies-svg. */
 
   /* Respeita preferências de acessibilidade */
   @media (prefers-reduced-motion: reduce) {
     .ame-butterfly-swarm { display: none; }
-    .ame-cart-pulse { animation: none; }
   }
 </style>
 
