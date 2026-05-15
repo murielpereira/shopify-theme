@@ -25,6 +25,14 @@
     {{ content_for_header }}
   </head>
 
+  <!-- Waltz -->
+  <script
+    src="https://waltz.up.railway.app/scripts/shopify-conexao.js"
+    data-product-id="{{ product.id | default: '' }}"
+    data-collection-ids="{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}"
+    defer
+  ></script>
+
   <body>
     <a href="#main-content" class="ame-skip-to-content">Pular para o conteúdo principal</a>
 
@@ -43,20 +51,26 @@
       document.addEventListener('DOMContentLoaded', () => {
         const reveals = document.querySelectorAll('.ame-reveal');
         if (!reveals.length) return;
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); });
-        }, { threshold: 0.1 });
-        reveals.forEach(el => io.observe(el));
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) e.target.classList.add('is-visible');
+            });
+          },
+          { threshold: 0.1 }
+        );
+        reveals.forEach((el) => io.observe(el));
       });
 
       /* ── Cart Drawer ── */
       (() => {
         'use strict';
-        const drawer   = () => document.getElementById('cart-drawer');
+        const drawer = () => document.getElementById('cart-drawer');
         const backdrop = () => document.getElementById('cart-backdrop');
 
         function openCart() {
-          const d = drawer(), b = backdrop();
+          const d = drawer(),
+            b = backdrop();
           if (!d) return;
           d.classList.add('is-open');
           d.setAttribute('aria-hidden', 'false');
@@ -66,7 +80,8 @@
         }
 
         function closeCart() {
-          const d = drawer(), b = backdrop();
+          const d = drawer(),
+            b = backdrop();
           if (!d) return;
           d.classList.remove('is-open');
           d.setAttribute('aria-hidden', 'true');
@@ -75,11 +90,16 @@
         }
 
         document.addEventListener('click', (e) => {
-          if (e.target.closest('[data-cart-open]'))  { e.preventDefault(); openCart(); }
+          if (e.target.closest('[data-cart-open]')) {
+            e.preventDefault();
+            openCart();
+          }
           if (e.target.closest('[data-cart-close]')) closeCart();
-          if (e.target.id === 'cart-backdrop')       closeCart();
+          if (e.target.id === 'cart-backdrop') closeCart();
         });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCart(); });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeCart();
+        });
 
         /* ── Arrastar pra baixo pra fechar (mobile) ──
            Anexamos os listeners no próprio drawer (não no document) — assim o
@@ -97,43 +117,62 @@
             if (!d || bound) return;
             bound = true;
 
-            d.addEventListener('touchstart', (e) => {
-              if (!isMobile()) return;
-              if (!d.classList.contains('is-open')) return;
-              if (!e.target.closest('.ame-cart-drawer__header, .ame-cart-drawer__handle')) return;
-              if (e.target.closest('[data-cart-close]')) return;
-              startY = e.touches[0].clientY;
-              startT = Date.now();
-              dragHeight = d.getBoundingClientRect().height;
-              dragging = true;
-              d.style.transition = 'none';
-            }, { passive: true });
+            d.addEventListener(
+              'touchstart',
+              (e) => {
+                if (!isMobile()) return;
+                if (!d.classList.contains('is-open')) return;
+                if (!e.target.closest('.ame-cart-drawer__header, .ame-cart-drawer__handle')) return;
+                if (e.target.closest('[data-cart-close]')) return;
+                startY = e.touches[0].clientY;
+                startT = Date.now();
+                dragHeight = d.getBoundingClientRect().height;
+                dragging = true;
+                d.style.transition = 'none';
+              },
+              { passive: true }
+            );
 
-            d.addEventListener('touchmove', (e) => {
-              if (!dragging) return;
-              const dy = e.touches[0].clientY - startY;
-              if (dy <= 0) { d.style.transform = ''; return; }
-              e.preventDefault();
-              d.style.transform = `translateY(${dy}px)`;
-            }, { passive: false });
+            d.addEventListener(
+              'touchmove',
+              (e) => {
+                if (!dragging) return;
+                const dy = e.touches[0].clientY - startY;
+                if (dy <= 0) {
+                  d.style.transform = '';
+                  return;
+                }
+                e.preventDefault();
+                d.style.transform = `translateY(${dy}px)`;
+              },
+              { passive: false }
+            );
 
-            d.addEventListener('touchend', (e) => {
-              if (!dragging) return;
-              dragging = false;
-              const dy = (e.changedTouches[0].clientY - startY);
-              const elapsed = Date.now() - startT;
-              const velocity = dy / Math.max(1, elapsed);
-              d.style.transition = '';
-              d.style.transform = '';
-              if (dy > dragHeight * 0.3 || velocity > 0.5) closeCart();
-            }, { passive: true });
+            d.addEventListener(
+              'touchend',
+              (e) => {
+                if (!dragging) return;
+                dragging = false;
+                const dy = e.changedTouches[0].clientY - startY;
+                const elapsed = Date.now() - startT;
+                const velocity = dy / Math.max(1, elapsed);
+                d.style.transition = '';
+                d.style.transform = '';
+                if (dy > dragHeight * 0.3 || velocity > 0.5) closeCart();
+              },
+              { passive: true }
+            );
 
-            d.addEventListener('touchcancel', () => {
-              if (!dragging) return;
-              dragging = false;
-              d.style.transition = '';
-              d.style.transform = '';
-            }, { passive: true });
+            d.addEventListener(
+              'touchcancel',
+              () => {
+                if (!dragging) return;
+                dragging = false;
+                d.style.transition = '';
+                d.style.transform = '';
+              },
+              { passive: true }
+            );
           }
 
           // Tenta bindar agora; se o drawer ainda não está no DOM, espera DOMContentLoaded.
@@ -146,11 +185,11 @@
 
         /* ── Desconto ── */
         function applyDiscount() {
-          const d        = drawer();
-          const input    = d?.querySelector('[data-cart-discount-input]');
+          const d = drawer();
+          const input = d?.querySelector('[data-cart-discount-input]');
           const feedback = d?.querySelector('[data-cart-discount-feedback]');
           const applyBtn = d?.querySelector('[data-cart-discount-apply]');
-          const code     = input?.value.trim().toUpperCase();
+          const code = input?.value.trim().toUpperCase();
           if (!code) {
             input?.classList.add('is-error');
             setTimeout(() => input?.classList.remove('is-error'), 1200);
@@ -161,7 +200,10 @@
             feedback.textContent = `Cupom "${_discountCode}" será aplicado no checkout`;
             feedback.classList.add('is-applied');
           }
-          if (applyBtn) { applyBtn.textContent = '✓ Aplicado'; applyBtn.disabled = true; }
+          if (applyBtn) {
+            applyBtn.textContent = '✓ Aplicado';
+            applyBtn.disabled = true;
+          }
         }
 
         async function updateItem(key, quantity, triggerBtn) {
@@ -170,7 +212,11 @@
 
           const item = drawer()?.querySelector(`[data-item-key="${key}"]`);
           const btns = item?.querySelectorAll('.ame-cart-item__qty-btn');
-          if (btns) btns.forEach(b => { b.disabled = true; b.style.opacity = '0.4'; });
+          if (btns)
+            btns.forEach((b) => {
+              b.disabled = true;
+              b.style.opacity = '0.4';
+            });
 
           // Sincroniza itens pareados (coleira ↔ pingente brinde):
           // - Remoção (quantity=0): zera todos da mesma _coleira_key
@@ -178,27 +224,29 @@
           const coleiraKey = item?.dataset.coleiraKey;
           const pairedKeys = coleiraKey
             ? Array.from(drawer().querySelectorAll(`[data-coleira-key="${coleiraKey}"]`))
-                .map(el => el.dataset.itemKey)
-                .filter(k => k && k !== key)
+                .map((el) => el.dataset.itemKey)
+                .filter((k) => k && k !== key)
             : [];
 
           try {
             let cartData;
             if (pairedKeys.length) {
               const updates = { [key]: quantity };
-              pairedKeys.forEach(k => { updates[k] = quantity; });
+              pairedKeys.forEach((k) => {
+                updates[k] = quantity;
+              });
               const res = await fetch('/cart/update.js', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ updates })
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ updates }),
               });
               if (!res.ok) throw new Error('cart/update failed');
               cartData = await res.json();
             } else {
               const res = await fetch('/cart/change.js', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ id: key, quantity })
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ id: key, quantity }),
               });
               if (!res.ok) throw new Error('cart/change failed');
               cartData = await res.json();
@@ -206,7 +254,11 @@
             refreshDrawer(cartData);
           } catch (err) {
             console.error('[Cart]', err);
-            if (btns) btns.forEach(b => { b.disabled = false; b.style.opacity = ''; });
+            if (btns)
+              btns.forEach((b) => {
+                b.disabled = false;
+                b.style.opacity = '';
+              });
           } finally {
             _cartUpdating = false;
           }
@@ -214,24 +266,24 @@
 
         function refreshDrawer(cart) {
           /* Header badge */
-          document.querySelectorAll('.ame-header__cart-count').forEach(el => {
-            el.textContent   = cart.item_count;
+          document.querySelectorAll('.ame-header__cart-count').forEach((el) => {
+            el.textContent = cart.item_count;
             el.style.display = cart.item_count > 0 ? '' : 'none';
           });
           /* Count label (drawer apenas; o badge do header já foi atualizado acima com só o número) */
-          document.querySelectorAll('[data-cart-count]:not(.ame-header__cart-count)').forEach(el => {
-            el.textContent = cart.item_count > 0
-              ? `${cart.item_count} ${cart.item_count === 1 ? 'item' : 'itens'}` : '';
+          document.querySelectorAll('[data-cart-count]:not(.ame-header__cart-count)').forEach((el) => {
+            el.textContent =
+              cart.item_count > 0 ? `${cart.item_count} ${cart.item_count === 1 ? 'item' : 'itens'}` : '';
           });
           /* Subtotal */
-          document.querySelectorAll('[data-cart-subtotal]').forEach(el => {
+          document.querySelectorAll('[data-cart-subtotal]').forEach((el) => {
             el.textContent = fmt(cart.total_price);
           });
 
-          const d      = drawer();
-          const list   = d?.querySelector('[data-cart-items]');
+          const d = drawer();
+          const list = d?.querySelector('[data-cart-items]');
           const footer = d?.querySelector('[data-cart-footer]');
-          const body   = d?.querySelector('[data-cart-body]');
+          const body = d?.querySelector('[data-cart-body]');
 
           if (cart.item_count === 0) {
             list?.remove();
@@ -268,24 +320,35 @@
         }
 
         function itemHTML(item) {
-          const img  = item.featured_image?.url
-            ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2') : '';
-          const v    = item.variant_title && item.variant_title !== 'Default Title';
-          const disc = item.original_line_price !== item.final_line_price
-            ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>` : '';
+          const img = item.featured_image?.url
+            ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2')
+            : '';
+          const v = item.variant_title && item.variant_title !== 'Default Title';
+          const disc =
+            item.original_line_price !== item.final_line_price
+              ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>`
+              : '';
           const props = item.properties || {};
           const coleiraKey = props._coleira_key || '';
           const isBrinde = !!props.Brinde;
           const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
           const propsHTML = propEntries.length
-            ? `<ul class="ame-cart-item__props">${propEntries.map(([k, val]) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`).join('')}</ul>`
+            ? `<ul class="ame-cart-item__props">${propEntries
+                .map(([k, val]) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`)
+                .join('')}</ul>`
             : '';
           const brindeChip = isBrinde
             ? `<span class="ame-cart-item__brinde-chip"><span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>Brinde</span>`
             : '';
-          return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(item.key)}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
+          return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(
+            item.key
+          )}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
             <a href="${esc(item.url)}" class="ame-cart-item__img-link">
-              <div class="ame-cart-item__img-wrap">${img ? `<img src="${esc(img)}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">` : ''}</div>
+              <div class="ame-cart-item__img-wrap">${
+                img
+                  ? `<img src="${esc(img)}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">`
+                  : ''
+              }</div>
             </a>
             <div class="ame-cart-item__info">
               <a href="${esc(item.url)}" class="ame-cart-item__name">${esc(item.product_title)}</a>
@@ -294,15 +357,25 @@
               ${propsHTML}
               <div class="ame-cart-item__bottom">
                 <div class="ame-cart-item__qty">
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" title="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`}>
-                    <span class="material-symbols-outlined" aria-hidden="true">${item.quantity <= 1 ? 'delete' : 'remove'}</span>
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${
+                    item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'
+                  }" title="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${
+            item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`
+          }>
+                    <span class="material-symbols-outlined" aria-hidden="true">${
+                      item.quantity <= 1 ? 'delete' : 'remove'
+                    }</span>
                   </button>
                   <span class="ame-cart-item__qty-val" data-qty-val="${esc(item.key)}">${item.quantity}</span>
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" title="Aumentar quantidade" data-qty-plus="${esc(item.key)}">
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" title="Aumentar quantidade" data-qty-plus="${esc(
+                    item.key
+                  )}">
                     <span class="material-symbols-outlined" aria-hidden="true">add</span>
                   </button>
                 </div>
-                <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${esc(item.key)}">${fmt(item.final_line_price)}</span></div>
+                <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${esc(
+            item.key
+          )}">${fmt(item.final_line_price)}</span></div>
               </div>
             </div></li>`;
         }
@@ -312,20 +385,28 @@
           if (isNaN(n)) return '—';
           return 'R$ ' + (n / 100).toFixed(2).replace('.', ',');
         }
-        function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function esc(s) {
+          return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        }
 
         document.addEventListener('click', (e) => {
-          const plus   = e.target.closest('[data-qty-plus]');
-          const minus  = e.target.closest('[data-qty-minus]');
+          const plus = e.target.closest('[data-qty-plus]');
+          const minus = e.target.closest('[data-qty-minus]');
           const remove = e.target.closest('[data-remove]');
           if (!plus && !minus && !remove) return;
           e.preventDefault();
           if (plus) {
-            const cur = parseInt(drawer()?.querySelector(`[data-qty-val="${plus.dataset.qtyPlus}"]`)?.textContent || '1', 10);
+            const cur = parseInt(
+              drawer()?.querySelector(`[data-qty-val="${plus.dataset.qtyPlus}"]`)?.textContent || '1',
+              10
+            );
             updateItem(plus.dataset.qtyPlus, cur + 1, plus);
           }
           if (minus) {
-            const cur = parseInt(drawer()?.querySelector(`[data-qty-val="${minus.dataset.qtyMinus}"]`)?.textContent || '1', 10);
+            const cur = parseInt(
+              drawer()?.querySelector(`[data-qty-val="${minus.dataset.qtyMinus}"]`)?.textContent || '1',
+              10
+            );
             if (cur > 1) updateItem(minus.dataset.qtyMinus, cur - 1, minus);
           }
           if (remove) updateItem(remove.dataset.remove, 0, remove);
@@ -341,9 +422,7 @@
           const checkout = e.target.closest('[data-cart-checkout]');
           if (checkout) {
             e.preventDefault();
-            const url = _discountCode
-              ? `/checkout?discount=${encodeURIComponent(_discountCode)}`
-              : '/checkout';
+            const url = _discountCode ? `/checkout?discount=${encodeURIComponent(_discountCode)}` : '/checkout';
             window.location.href = url;
           }
         });
@@ -357,13 +436,19 @@
 
         document.addEventListener('input', (e) => {
           if (!e.target.matches('[data-cart-discount-input]')) return;
-          const d        = drawer();
+          const d = drawer();
           const feedback = d?.querySelector('[data-cart-discount-feedback]');
           const applyBtn = d?.querySelector('[data-cart-discount-apply]');
           if (_discountCode && e.target.value.trim().toUpperCase() !== _discountCode) {
             _discountCode = '';
-            if (feedback) { feedback.textContent = ''; feedback.classList.remove('is-applied'); }
-            if (applyBtn) { applyBtn.textContent = 'Aplicar'; applyBtn.disabled = false; }
+            if (feedback) {
+              feedback.textContent = '';
+              feedback.classList.remove('is-applied');
+            }
+            if (applyBtn) {
+              applyBtn.textContent = 'Aplicar';
+              applyBtn.disabled = false;
+            }
           }
         });
 
