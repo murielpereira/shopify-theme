@@ -26,12 +26,16 @@
   </head>
 
   <!-- Waltz -->
-  <script
-    src="https://waltz.up.railway.app/scripts/shopify-conexao.js"
-    data-product-id="{{ product.id | default: '' }}"
-    data-collection-ids="{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}"
-    defer
-  ></script>
+  {% if product %}
+    <script>
+      window.WaltzShopify = {
+        productId: {{ product.id | json }},
+        collectionIds: [{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}]
+      };
+    </script>
+  {% endif %}
+
+  <script src="https://waltz.up.railway.app/waltz-core.js" defer></script>
 
   <body>
     <a href="#main-content" class="ame-skip-to-content">Pular para o conteúdo principal</a>
