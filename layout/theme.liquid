@@ -10,13 +10,13 @@
 
     {%- render 'css-variables' -%}
 
-    {%- unless settings.type_primary_font.system? -%}
-      {%- assign font_url = settings.type_primary_font | font_url -%}
-      {%- if font_url -%}
-        <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
-        {{ font_url | preload_tag: as: 'font', crossorigin: 'anonymous' }}
-      {%- endif -%}
-    {%- endunless -%}
+    {%- comment -%}
+      Preload da fonte do admin (settings.type_primary_font) removido:
+      a fonte primária agora é Lexend self-hosted (preload já em
+      css-variables.liquid). A fonte do admin nunca era renderizada porque
+      Lexend vinha primeiro no font-family — o preload aqui só desperdiçava
+      banda baixando um asset que o browser nunca aplicava.
+    {%- endcomment -%}
 
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
 

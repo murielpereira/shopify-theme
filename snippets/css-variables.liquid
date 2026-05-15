@@ -1,39 +1,78 @@
-{% comment %} Âme — Design Tokens + Font preloads {% endcomment %}
-{%- comment -%} theme-check-disable AssetUrl, RemoteAsset {%- endcomment -%}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-{{
-  'https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap'
-  | stylesheet_tag: preload: true
-}}
-{%- comment -%}
-  Material Symbols com subset via &icon_names=…
-  Antes: a fonte vinha COMPLETA (3.8MB no .woff2 — vilão #1 do PageSpeed).
-  Agora: só os 41 ícones realmente usados no tema. O Google retorna um
-  .woff2 sub-50KB com apenas os glifos listados.
+{% comment %} Âme — Design Tokens + Font preloads (self-hosted) {% endcomment %}
 
-  IMPORTANTE: ao adicionar um novo ícone no Liquid/JS, é OBRIGATÓRIO
-  adicionar o nome (ligature) na lista abaixo, ou ele renderiza como
-  texto literal. Lista mantida em ordem alfabética. Como detectar
-  todos os ícones em uso:
+{%- comment -%}
+  Fontes self-hosted (em /assets/) — antes vinham do Google Fonts.
+
+  Motivos pra self-host:
+  - Sem preconnect/handshake TLS pra fonts.googleapis.com + fonts.gstatic.com
+    (eram 2 origens; PSI reclamava de render-blocking nas 2)
+  - URL imune a mudanças do Google (woff2 do Google tem hash variável)
+  - LGPD/privacidade: nenhum dado de visitante vai pro Google
+  - CDN edge da Shopify (mais perto do BR que fonts.gstatic.com)
+
+  Lexend: variable font (wght 200..900 num único arquivo por subset).
+  Subsets: latin (a-z, ASCII) e latin-ext (acentos PT-BR + €, etc).
+  Browser baixa automaticamente o latin-ext só quando encontra caractere
+  fora do latin (via unicode-range).
+
+  Material Symbols: subset com APENAS os 41 ícones em uso (lista abaixo).
+  Variable font (wght 200..400, FILL 0..1) num único arquivo.
+
+  IMPORTANTE: ao adicionar um novo ícone Material Symbols no .liquid/.js,
+  é OBRIGATÓRIO regenerar o subset baixando o woff2 atualizado do Google
+  Fonts com a lista ampliada de icon_names. Senão o ícone renderiza como
+  texto literal. Como detectar todos os ícones em uso:
     grep -roh 'material-symbols-outlined[^>]*>[a-z_]\+' --include='*.liquid' .
 
-  Eixos limitados aos usados no tema (font-variation-settings):
-    - wght: 200..400 (era 100..700)
-    - FILL: 0..1 (mantido — usado em favorito/play)
-  opsz e GRAD removidos — não eram usados em nenhum CSS.
+  Como atualizar: ver script ou comentário no fim deste arquivo (TODO).
 {%- endcomment -%}
-{{
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..400,0..1&icon_names=account_balance_wallet,add,arrow_back,arrow_back_ios,arrow_forward,arrow_forward_ios,block,card_giftcard,chat,check,chevron_left,chevron_right,close,code,content_copy,expand_more,extension,favorite,gpp_good,image,info,local_police,local_shipping,lock,mail,menu,notifications_active,person,photo_camera,play_arrow,play_circle,refresh,remove,save,search,search_off,sell,shopping_bag,star,thumb_up,verified_user,visibility&display=block'
-  | stylesheet_tag: preload: true
-}}
-{%- comment -%} theme-check-enable AssetUrl, RemoteAsset {%- endcomment -%}
+
+<link rel="preload" href="{{ 'lexend-latin.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ 'material-symbols-subset.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
 
 {% style %}
-  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
-  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  /* Lexend — variable font, subset latin (ASCII) */
+  @font-face {
+    font-family: 'Lexend';
+    font-style: normal;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url('{{ 'lexend-latin.woff2' | asset_url }}') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  /* Lexend — subset latin-ext (acentos PT-BR estendidos) */
+  @font-face {
+    font-family: 'Lexend';
+    font-style: normal;
+    font-weight: 200 900;
+    font-display: swap;
+    src: url('{{ 'lexend-latin-ext.woff2' | asset_url }}') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  /* Material Symbols Outlined — subset com 41 ícones em uso */
+  @font-face {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-weight: 200 400;
+    font-display: block;
+    src: url('{{ 'material-symbols-subset.woff2' | asset_url }}') format('woff2');
+  }
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
 
   {%- liquid
     # Valores de layout hardcoded — antes vinham do admin (aba Layout),
@@ -48,7 +87,11 @@
 
   :root {
     /* ── Tipografia ── */
-    --font-primary--family: 'Lexend', {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    /* Lexend self-hosted (acima). Fallbacks: system-ui no SO do usuário,
+       sans-serif genérico em último caso. Antes interpolava
+       settings.type_primary_font.family (Shopify) — removido com a
+       transição pra self-host. */
+    --font-primary--family: 'Lexend', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
     /* ── Layout ──
        Mobile: 12px fixo (override no media query abaixo).
