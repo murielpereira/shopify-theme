@@ -6,8 +6,25 @@
   'https://fonts.googleapis.com/css2?family=Lexend:wght@200;300;400;500;600;700;800;900&display=swap'
   | stylesheet_tag: preload: true
 }}
+{%- comment -%}
+  Material Symbols com subset via &icon_names=…
+  Antes: a fonte vinha COMPLETA (3.8MB no .woff2 — vilão #1 do PageSpeed).
+  Agora: só os 41 ícones realmente usados no tema. O Google retorna um
+  .woff2 sub-50KB com apenas os glifos listados.
+
+  IMPORTANTE: ao adicionar um novo ícone no Liquid/JS, é OBRIGATÓRIO
+  adicionar o nome (ligature) na lista abaixo, ou ele renderiza como
+  texto literal. Lista mantida em ordem alfabética. Como detectar
+  todos os ícones em uso:
+    grep -roh 'material-symbols-outlined[^>]*>[a-z_]\+' --include='*.liquid' .
+
+  Eixos limitados aos usados no tema (font-variation-settings):
+    - wght: 200..400 (era 100..700)
+    - FILL: 0..1 (mantido — usado em favorito/play)
+  opsz e GRAD removidos — não eram usados em nenhum CSS.
+{%- endcomment -%}
 {{
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block'
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..400,0..1&icon_names=account_balance_wallet,add,arrow_back,arrow_back_ios,arrow_forward,arrow_forward_ios,block,card_giftcard,chat,check,chevron_left,chevron_right,close,code,content_copy,expand_more,extension,favorite,gpp_good,image,info,local_police,local_shipping,lock,mail,menu,notifications_active,person,photo_camera,play_arrow,play_circle,refresh,remove,save,search,search_off,sell,shopping_bag,star,thumb_up,verified_user,visibility&display=block'
   | stylesheet_tag: preload: true
 }}
 {%- comment -%} theme-check-enable AssetUrl, RemoteAsset {%- endcomment -%}
