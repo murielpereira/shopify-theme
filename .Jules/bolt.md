@@ -23,3 +23,6 @@
 ## 2024-05-13 - Liquid String Generation Overhead
 **Learning:** Generating comma-separated strings using manual `{% for %}` loops inside `{% capture %}` blocks adds unnecessary template processing overhead in Shopify.
 **Action:** Always use Liquid native filters like `map` and `join` when generating strings from an array of objects. Native filters execute at the C/Rust level, avoiding Liquid loop overhead entirely.
+## 2026-05-18 - Liquid String Generation Overhead
+**Learning:** Generating comma-separated strings using manual `{% for %}` loops inside `{% capture %}` blocks adds unnecessary template processing overhead in Shopify.
+**Action:** Always use Liquid native filters like `map` and `join` when generating strings from an array of objects. Native filters execute at the C/Rust level, avoiding Liquid loop overhead entirely.

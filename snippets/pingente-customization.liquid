@@ -19,23 +19,12 @@
       endif
     endcapture
 
-    capture pingente_couro_handles
-      for p in settings.pingente_couro_products
-        echo p.handle
-        unless forloop.last
-          echo ','
-        endunless
-      endfor
-    endcapture
-
-    capture pingente_metal_couro_handles
-      for p in settings.pingente_metal_couro_products
-        echo p.handle
-        unless forloop.last
-          echo ','
-        endunless
-      endfor
-    endcapture
+    # ⚡ Bolt: Optimize comma-separated string generation.
+    # 💡 What: Replaced manual `for` loops inside `capture` blocks with native Liquid `map` and `join` filters.
+    # 🎯 Why: Using filters avoids Liquid loop overhead as they execute natively at the C/Rust level.
+    # 📊 Impact: Faster string generation, reducing template processing time for the `pingente-customization` snippet.
+    assign pingente_couro_handles = settings.pingente_couro_products | map: 'handle' | join: ','
+    assign pingente_metal_couro_handles = settings.pingente_metal_couro_products | map: 'handle' | join: ','
   -%}
   <section
     class="ame-pingente"
