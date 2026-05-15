@@ -26,3 +26,7 @@
 **Vulnerability:** Unsanitized dynamic properties (like `data.src` and `data.id`) were being interpolated directly into `<iframe>` and `<video>` tags via `innerHTML` assignment without proper HTML escaping. Using a rudimentary `.replace(/"/g, '&quot;')` is insufficient.
 **Learning:** Assigning unescaped user-controlled or dynamic data to `innerHTML` can lead to DOM-based Cross-Site Scripting (XSS).
 **Prevention:** Always sanitize dynamic variables using robust local escaping functions (like `escapeHTML()` that escapes `&`, `<`, `>`, `"`, and `'`) before interpolating them into HTML strings that will be parsed by `innerHTML`.
+## 2025-02-28 - [DOM-based XSS in Favoritos innerHTML]
+**Vulnerability:** Dynamic properties like `p.title`, `p.handle` and `p.id` returned from the Shopify API via fetch in `sections/favoritos.liquid` were interpolated into a template string and assigned to `innerHTML` without adequate sanitization.
+**Learning:** Using a rudimentary string replace for quotes is insufficient and allows malicious handles/titles to execute arbitrary XSS payloads when rendered client-side via innerHTML.
+**Prevention:** Always implement a dedicated HTML escaping function (e.g. `escapeHTML`) that escapes all key control characters (`&`, `<`, `>`, `"`, and `'`) before interpolating dynamic data into strings assigned to `innerHTML`.

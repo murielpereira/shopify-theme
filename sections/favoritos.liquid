@@ -30,6 +30,20 @@
     const empty = document.querySelector('[data-favoritos-empty]');
     if (!grid || !empty) return;
 
+    function escapeHTML(str) {
+      return String(str ?? '').replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+          }[c])
+      );
+    }
+
     function readList() {
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
       catch { return []; }
@@ -62,27 +76,32 @@
         const compare = p.compare_at_price && p.compare_at_price > p.price
           ? (p.compare_at_price / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
           : null;
+
+        const escapedTitle = escapeHTML(p.title);
+        const escapedHandle = escapeHTML(p.handle);
+        const escapedId = escapeHTML(p.id);
+
         return `
           <div class="ame-fav-card">
-            <a href="/products/${p.handle}" class="ame-fav-card__link">
-              ${imgUrl ? `<img src="${imgUrl}" alt="${p.title.replace(/"/g, '&quot;')}" loading="lazy" class="ame-fav-card__img">` : ''}
+            <a href="/products/${escapedHandle}" class="ame-fav-card__link">
+              ${imgUrl ? `<img src="${escapeHTML(imgUrl)}" alt="${escapedTitle}" loading="lazy" class="ame-fav-card__img">` : ''}
             </a>
             <button class="ame-wishlist ame-fav-card__remove" type="button"
-              data-wishlist-btn="${p.id}"
-              data-wishlist-handle="${p.handle}"
-              data-wishlist-title="${p.title.replace(/"/g, '&quot;')}"
+              data-wishlist-btn="${escapedId}"
+              data-wishlist-handle="${escapedHandle}"
+              data-wishlist-title="${escapedTitle}"
               aria-label="Remover dos favoritos"
               title="Remover dos favoritos"
               aria-pressed="true">
               <span class="material-symbols-outlined" style="font-size:1.125rem; font-variation-settings:'FILL' 1;" aria-hidden="true">favorite</span>
             </button>
             <div class="ame-fav-card__info">
-              <h3 class="ame-fav-card__title"><a href="/products/${p.handle}">${p.title}</a></h3>
+              <h3 class="ame-fav-card__title"><a href="/products/${escapedHandle}">${escapedTitle}</a></h3>
               <div class="ame-fav-card__price">
                 ${compare ? `<del>R$ ${compare}</del>` : ''}
                 <strong>R$ ${price}</strong>
               </div>
-              <a href="/products/${p.handle}" class="ame-fav-card__cta">Ver produto</a>
+              <a href="/products/${escapedHandle}" class="ame-fav-card__cta">Ver produto</a>
             </div>
           </div>
         `;
