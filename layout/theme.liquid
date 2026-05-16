@@ -30,7 +30,13 @@
     <script>
       window.WaltzShopify = {
         productId: {{ product.id | json }},
-        collectionIds: [{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}]
+        {%- comment -%}
+          ⚡ Bolt: Optimize comma-separated string generation
+          💡 What: Replaced manual `{% for %}` loop inside array definition with Liquid native `map` and `join` filters.
+          🎯 Why: Native filters execute at the C/Rust level, avoiding Liquid loop parsing and scoping overhead.
+          📊 Impact: Reduces template compilation overhead and improves rendering time for product pages, especially when a product belongs to many collections.
+        {%- endcomment -%}
+        collectionIds: [{{ product.collections | map: 'id' | join: ',' }}]
       };
     </script>
   {% endif %}
