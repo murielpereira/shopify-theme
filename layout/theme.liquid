@@ -30,7 +30,7 @@
     <script>
       window.WaltzShopify = {
         productId: {{ product.id | json }},
-        collectionIds: [{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}]
+        collectionIds: [{{ product.collections | map: 'id' | join: ',' }}]
       };
     </script>
   {% endif %}
