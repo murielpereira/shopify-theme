@@ -33,10 +33,34 @@
     },
     "product_accordions_87ARfi": {
       "type": "product-accordions",
+      "blocks": {
+        "faq_fBQQrG": {
+          "type": "faq",
+          "settings": {
+            "question": "É couro legítimo mesmo?",
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_fBQQrG"
+      ],
       "name": "Detalhes do Produto",
       "settings": {
         "show_description": false,
-        "description_title": "Descrição"
+        "description_title": "Descrição",
+        "show_after_purchase": true,
+        "after_purchase_title": "O que acontece depois da compra",
+        "step_1_emoji": "🔍",
+        "step_1_title": "Analisamos as informações do seu pet",
+        "step_2_emoji": "✂️",
+        "step_2_title": "Produzimos a peça especialmente para ele",
+        "step_3_emoji": "🪡",
+        "step_3_title": "Finalizamos com cuidado manual",
+        "step_4_emoji": "📦",
+        "step_4_title": "Enviamos com todo o carinho",
+        "show_faq": true,
+        "faq_title": "Perguntas Frequentes"
       }
     }
   },
