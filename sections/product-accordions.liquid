@@ -216,12 +216,13 @@
 
     /* FAQ por produto — converte o rich text do metafield em <details> reais.
        O lojista escreve no admin do Shopify usando o editor visual: cada
-       pergunta vira um heading (h3 ou h4), e o conteúdo abaixo até o próximo
-       heading vira a resposta. */
+       pergunta vira um heading (Título 1..6 no editor visual = h1..h6 no
+       HTML), e o conteúdo abaixo até o próximo heading vira a resposta. */
     const faqSource = root.querySelector('[data-pdp-faq-source]');
     const faqList = root.querySelector('[data-pdp-faq]');
     if (faqSource && faqList) {
-      const headings = faqSource.querySelectorAll('h3, h4');
+      const HEADING_RE = /^H[1-6]$/;
+      const headings = faqSource.querySelectorAll('h1, h2, h3, h4, h5, h6');
       headings.forEach((heading) => {
         const question = heading.textContent.trim();
         if (!question) return;
@@ -229,7 +230,7 @@
         /* Coleta tudo entre este heading e o próximo (ou fim do source). */
         const answerNodes = [];
         let next = heading.nextElementSibling;
-        while (next && !/^H[34]$/.test(next.tagName)) {
+        while (next && !HEADING_RE.test(next.tagName)) {
           answerNodes.push(next);
           next = next.nextElementSibling;
         }
