@@ -108,13 +108,16 @@
 
                   {%- if has_product_faq -%}
                     {%- comment -%}
-                      O metafield é rich text. Cada pergunta deve ser um <h3>
-                      ou <h4>, seguido pelo conteúdo da resposta até a próxima.
+                      O metafield é rich text. Cada pergunta deve ser um Título
+                      (H1..H6 no editor), seguido pelo conteúdo da resposta até
+                      o próximo Título. O filtro `metafield_tag` converte o
+                      rich text (que internamente é JSON) em HTML — sem ele,
+                      o {{ product_faq }} renderiza o JSON cru como texto.
                       Renderizamos o HTML como bloco extra abaixo das FAQ
                       globais — o JS abaixo converte em <details> reais.
                     {%- endcomment -%}
                     <div class="pdp__faq__product-source" data-pdp-faq-source hidden>
-                      {{ product_faq }}
+                      {{ product.metafields.custom.faq | metafield_tag }}
                     </div>
                   {%- endif -%}
                 </div>
