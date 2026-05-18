@@ -47,7 +47,7 @@
       ],
       "name": "Detalhes do Produto",
       "settings": {
-        "show_description": false,
+        "show_description": true,
         "description_title": "Descrição",
         "show_after_purchase": true,
         "after_purchase_title": "O que acontece depois da compra",
