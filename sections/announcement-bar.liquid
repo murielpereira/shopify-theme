@@ -60,22 +60,70 @@
     const baseInterval = {{ section.settings.speed | times: 1000 }};
     const marqueeDuration = 18000;
 
-    function applyMarqueeIfNeeded(slide) {
-      if (!slide) return false;
-      const inner = slide.querySelector('[data-announce-inner]');
-      if (!inner) return false;
-      slide.classList.remove('is-marquee');
-      void slide.offsetWidth;
-      const slideWidth = slide.clientWidth;
-      const innerWidth = inner.scrollWidth;
-      const overflow = innerWidth > slideWidth - 32;
-      slide.classList.toggle('is-marquee', overflow);
-      return overflow;
+    if (slides.length === 0) return;
+
+    /* Cache de overflow por slide. Como o conteúdo dos slides é estático
+       (server-rendered), o overflow só muda em resize. Antes mediamos a
+       cada goTo() — PSI reportou 497ms de forced reflow por causa disso
+       (cada medida invalidava layout do próximo paint).
+       Agora medimos UMA VEZ por slide via IntersectionObserver (não força
+       reflow) e remedimos só em resize debounced.
+       Resultado: 0 forced reflow no caminho quente do carrossel. */
+    const overflowCache = new WeakMap();
+
+    function measureAll() {
+      /* Fase 1 — writes: garante que nenhum slide está em estado
+         is-marquee (que tem white-space: nowrap e infla o scrollWidth). */
+      slides.forEach((slide) => slide.classList.remove('is-marquee'));
+
+      /* Fase 2 — reads: todas as medidas em sequência sem writes no meio.
+         Browser pode batchar em UM único reflow pra todo o grupo. */
+      const reads = [];
+      slides.forEach((slide) => {
+        const inner = slide.querySelector('[data-announce-inner]');
+        if (!inner) {
+          reads.push({ slide, overflow: false });
+          return;
+        }
+        reads.push({
+          slide,
+          slideWidth: slide.clientWidth,
+          innerWidth: inner.scrollWidth,
+        });
+      });
+
+      /* Fase 3 — writes: aplica resultados no cache. */
+      reads.forEach((r) => {
+        const overflow = r.overflow !== undefined
+          ? r.overflow
+          : r.innerWidth > r.slideWidth - 32;
+        overflowCache.set(r.slide, overflow);
+      });
     }
 
-    if (slides.length === 0) return;
+    function isOverflow(slide) {
+      return overflowCache.get(slide) || false;
+    }
+
+    function setMarquee(slide, on) {
+      slide.classList.toggle('is-marquee', on);
+    }
+
+    /* Init — mede depois das fontes carregarem pra valor correto, e tudo
+       fora do caminho crítico. document.fonts.ready resolve assim que
+       todas as fontes em uso na página terminaram de baixar. */
+    function init() {
+      measureAll();
+      const first = slides[0];
+      if (isOverflow(first)) setMarquee(first, true);
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(init);
+    } else {
+      init();
+    }
+
     let current = 0;
-    applyMarqueeIfNeeded(slides[current]);
 
     if (slides.length <= 1) return;
 
@@ -94,15 +142,34 @@
       slides[current].classList.add('ame-announce__slide--active');
       dots[current]?.classList.add('ame-announce__dot--active');
 
-      const isMarquee = applyMarqueeIfNeeded(slides[current]);
-      const duration = isMarquee ? marqueeDuration : baseInterval;
+      const overflow = isOverflow(slides[current]);
+      setMarquee(slides[current], overflow);
+      const duration = overflow ? marqueeDuration : baseInterval;
       clearTimeout(timer);
       timer = setTimeout(() => goTo(current + 1), duration);
     }
 
-    const initialMarquee = slides[current].classList.contains('is-marquee');
-    timer = setTimeout(() => goTo(current + 1), initialMarquee ? marqueeDuration : baseInterval);
-    window.addEventListener('resize', () => applyMarqueeIfNeeded(slides[current]), { passive: true });
+    /* Primeira transição: usa o cache pra decidir duration. */
+    const startCadence = () => {
+      const initialOverflow = isOverflow(slides[current]);
+      timer = setTimeout(() => goTo(current + 1), initialOverflow ? marqueeDuration : baseInterval);
+    };
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(startCadence);
+    } else {
+      startCadence();
+    }
+
+    /* Resize debounced via rAF — evita rodar medida múltiplas vezes durante
+       um drag de janela (antes era chamado sync a cada pixel). */
+    let resizeRaf = null;
+    window.addEventListener('resize', () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        measureAll();
+        setMarquee(slides[current], isOverflow(slides[current]));
+      });
+    }, { passive: true });
   })();
 </script>
 

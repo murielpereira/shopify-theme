@@ -394,48 +394,71 @@
       e header-group sobe junto (top: countdownH).
       body.paddingTop = countdownH + announceH + groupH (sempre, para reservar espaço).
     */
-    function layout() {
+    /* Cache das alturas — só mudam em resize/ResizeObserver, nunca em scroll.
+       Antes mediamos as 3 (countdown/announce/group) em todo scroll, o que
+       PSI flagou como forced reflow de 159ms. Agora medimos só quando algo
+       muda de tamanho. */
+    const announceEl = document.querySelector('[data-announce]');
+    const countdownEl = document.querySelector('[data-countdown-bar]');
+    let countdownH = 0;
+    let announceH = 0;
+    let groupH = 0;
+
+    function measureHeights() {
+      countdownH = countdownEl && countdownEl.offsetHeight > 0 ? countdownEl.offsetHeight : 0;
+      announceH = announceEl ? announceEl.offsetHeight : 0;
+      groupH = group ? group.offsetHeight : 0;
+    }
+
+    /* Aplica posicionamento — só writes, sem reads. Chamado em scroll
+       (com rAF debounce) e depois de measureHeights() em resize. */
+    function applyLayout() {
       if (!group) return;
-
-      const countdown = document.querySelector('[data-countdown-bar]');
-      const countdownH = countdown && countdown.offsetHeight > 0 ? countdown.offsetHeight : 0;
-
-      const announce = document.querySelector('[data-announce]');
-      const announceH = announce ? announce.offsetHeight : 0;
-
       const scrolled = window.scrollY > 10;
 
-      // Announce: sobe para fora da tela ao rolar
-      if (announce) {
-        announce.style.top = countdownH + 'px';
-        announce.classList.toggle('is-hidden', scrolled);
+      if (announceEl) {
+        announceEl.style.top = countdownH + 'px';
+        announceEl.classList.toggle('is-hidden', scrolled);
       }
 
-      // Header-group: abaixo da announce quando no topo, sobe quando announce some
       const groupTop = scrolled ? countdownH : countdownH + announceH;
       group.style.top = groupTop + 'px';
       group.classList.toggle('is-sticky', scrolled);
 
-      // Reserva espaço no body sempre com announce + countdown + header
-      const totalPad = countdownH + announceH + group.offsetHeight;
+      const totalPad = countdownH + announceH + groupH;
       document.body.style.paddingTop = totalPad + 'px';
 
-      // Search overlay e mobile nav: sempre abaixo do header-group
-      const headerBottom = groupTop + group.offsetHeight;
+      const headerBottom = groupTop + groupH;
       if (searchOverlay) searchOverlay.style.top = headerBottom + 'px';
       if (mobileNav) mobileNav.style.top = headerBottom + 'px';
     }
 
-    layout();
-    window.addEventListener('scroll', layout, { passive: true });
-    window.addEventListener('resize', layout, { passive: true });
+    /* Scroll handler com rAF debounce: agrupa múltiplos eventos do mesmo
+       frame em um único applyLayout. Sem isso, scroll dispara dezenas de
+       vezes por segundo, cada uma com 4 offsetHeight reads forçando
+       reflow (159ms acumulados conforme PSI). */
+    let scrollRaf = null;
+    function onScroll() {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        applyLayout();
+      });
+    }
+
+    function relayout() {
+      measureHeights();
+      applyLayout();
+    }
+
+    relayout();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', relayout, { passive: true });
 
     if (window.ResizeObserver) {
-      const ro = new ResizeObserver(layout);
-      const announce = document.querySelector('[data-announce]');
-      const countdown = document.querySelector('[data-countdown-bar]');
-      if (announce) ro.observe(announce);
-      if (countdown) ro.observe(countdown);
+      const ro = new ResizeObserver(relayout);
+      if (announceEl) ro.observe(announceEl);
+      if (countdownEl) ro.observe(countdownEl);
       if (group) ro.observe(group);
     }
 
