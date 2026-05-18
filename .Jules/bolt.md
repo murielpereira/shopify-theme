@@ -23,3 +23,6 @@
 ## 2024-05-13 - Liquid String Generation Overhead
 **Learning:** Generating comma-separated strings using manual `{% for %}` loops inside `{% capture %}` blocks adds unnecessary template processing overhead in Shopify.
 **Action:** Always use Liquid native filters like `map` and `join` when generating strings from an array of objects. Native filters execute at the C/Rust level, avoiding Liquid loop overhead entirely.
+## 2024-05-19 - Use Liquid Comments for Liquid inside JS
+**Learning:** When leaving comments that contain Liquid syntax inside `<script>` tags, using JavaScript comments (`//`) is unsafe because the Shopify `theme check` linter still parses Liquid tags inside them. This can lead to a `LiquidHTMLSyntaxError`.
+**Action:** Always use Liquid comments (`{% comment %}...{% endcomment %}`) when documenting Liquid code snippets inside `<script>` blocks to avoid linter errors.

@@ -26,14 +26,20 @@
   </head>
 
   <!-- Waltz -->
-  {% if product %}
+  {%- if product -%}
     <script>
       window.WaltzShopify = {
         productId: {{ product.id | json }},
-        collectionIds: [{% for c in product.collections %}{{ c.id }}{% unless forloop.last %},{% endunless %}{% endfor %}]
+        {%- comment -%}
+          BOLT: Replaced manual Liquid loop with native `map` and `join` filters
+          What: `{{ product.collections | map: 'id' | join: ',' }}` instead of `{% for c in product.collections %}`
+          Why: Native filters execute at the C/Rust level, avoiding Liquid template iteration and scope-parsing overhead entirely
+          Impact: Eliminates O(N) Liquid rendering overhead per page load when collecting array properties into a string.
+        {%- endcomment -%}
+        collectionIds: [{{ product.collections | map: 'id' | join: ',' }}]
       };
     </script>
-  {% endif %}
+  {%- endif -%}
 
   <script src="https://waltz.up.railway.app/waltz-core.js" defer></script>
 
