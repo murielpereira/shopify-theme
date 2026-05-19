@@ -1796,6 +1796,7 @@ body::after {
   max-width: 50vw;
   object-fit: contain;
   display: block;
+  padding: 5px 0;
 }
 
 .ame-header__logo-text {

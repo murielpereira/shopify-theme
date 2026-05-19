@@ -15,16 +15,24 @@
   Browser baixa automaticamente o latin-ext só quando encontra caractere
   fora do latin (via unicode-range).
 
-  Material Symbols: subset com APENAS os 41 ícones em uso (lista abaixo).
+  Material Symbols: subset com APENAS os ícones realmente usados.
   Variable font (wght 200..400, FILL 0..1) num único arquivo.
 
   IMPORTANTE: ao adicionar um novo ícone Material Symbols no .liquid/.js,
-  é OBRIGATÓRIO regenerar o subset baixando o woff2 atualizado do Google
-  Fonts com a lista ampliada de icon_names. Senão o ícone renderiza como
-  texto literal. Como detectar todos os ícones em uso:
-    grep -roh 'material-symbols-outlined[^>]*>[a-z_]\+' --include='*.liquid' .
+  é OBRIGATÓRIO regenerar o subset baixando o woff2 atualizado. Senão
+  o ícone renderiza como TEXTO LITERAL (ex: "delete" em vez do lixinho).
 
-  Como atualizar: ver script ou comentário no fim deste arquivo (TODO).
+  Como regenerar o subset (5 passos):
+  1. Detectar todos os ícones em uso:
+       grep -rohE "material-symbols-outlined[^>]*>[a-z_]+" \
+         --include='*.liquid' --include='*.js' \
+         snippets/ sections/ layout/ blocks/ assets/ \
+       | sed -E 's/.*>([a-z_]+)/\1/' | sort -u | paste -sd,
+  2. Cole a lista em &icon_names= na URL do Google Fonts:
+       https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..400,0..1&icon_names=<lista>&display=block
+  3. curl com User-Agent de browser desktop e pegue o url() do .woff2
+  4. Baixe o .woff2 e salve em assets/material-symbols-subset.woff2
+  5. Commit. O Shopify CDN edge-cacheia o asset por hash; vai propagar.
 {%- endcomment -%}
 
 <link rel="preload" href="{{ 'lexend-latin.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
@@ -50,7 +58,7 @@
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
   }
 
-  /* Material Symbols Outlined — subset com 41 ícones em uso */
+  /* Material Symbols Outlined — subset com 42 ícones em uso (inclui delete) */
   @font-face {
     font-family: 'Material Symbols Outlined';
     font-style: normal;
