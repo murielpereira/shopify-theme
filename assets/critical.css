@@ -617,6 +617,31 @@ body::after {
   border-radius: var(--radius-md, 0.75rem);
 }
 
+/* Badge de esgotado — top-left (mesma posição do desconto, mas com contraste alto
+   pra sinalizar indisponibilidade. Tem prioridade sobre o desconto no Liquid). */
+.ame-card__sold-out-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 3;
+  background: var(--color-on-background, #201b14);
+  color: var(--color-on-primary, #ffffff);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.625rem;
+  border-radius: var(--radius-md, 0.75rem);
+}
+
+/* Imagem do card esgotado fica em escala de cinza + opacidade reduzida pra
+   reforçar visualmente a indisponibilidade. Aplica só na primária; a secundária
+   (hover) também herda. */
+.ame-card--sold-out .ame-card__img {
+  filter: grayscale(0.6);
+  opacity: 0.65;
+}
+
 /* Badge de texto (Heritage / Novo) — bottom-left */
 .ame-card__badge {
   position: absolute;
@@ -811,6 +836,21 @@ body::after {
   transform: scale(1.02);
   box-shadow: 0 12px 28px rgba(32, 27, 20, 0.12);
   color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
+}
+
+/* Variante esgotado: fundo cinza, sem hover destacado. Mantemos o link
+   navegável porque a PDP ainda pode mostrar quando volta ao estoque. */
+.ame-card__buy-btn--sold-out {
+  background: var(--color-outline, #817471);
+  color: var(--color-on-primary, #ffffff);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.ame-card__buy-btn--sold-out:hover {
+  transform: none;
+  box-shadow: none;
+  background: var(--color-outline, #817471);
+  color: var(--color-on-primary, #ffffff);
 }
 
 /* ── Cashback badge ── */

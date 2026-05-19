@@ -57,6 +57,14 @@
     assign card_badge = 'Mais Vendido'
   endif
 
+  # Esgotado: card_product.available é false quando TODAS as variantes têm
+  # inventory_quantity <= 0 e tracking habilitado. Cobre tanto produtos
+  # simples quanto multi-variantes.
+  assign card_is_sold_out = false
+  unless card_product.available
+    assign card_is_sold_out = true
+  endunless
+
   assign card_rating = card_product.metafields.reviews.rating.value
 
   assign pix_pct = settings.pix_discount | default: 5
@@ -66,7 +74,7 @@
   assign inst_value = card_effective_price | divided_by: inst_count
 -%}
 
-<div class="ame-card" data-product-card>
+<div class="ame-card{% if card_is_sold_out %} ame-card--sold-out{% endif %}" data-product-card>
   <div class="ame-card__image-wrap">
     <a href="{{ card_url }}" class="ame-card__link" tabindex="-1" aria-hidden="true"></a>
     {%- if card_img != blank -%}
@@ -109,8 +117,12 @@
       {{ 'product-1' | placeholder_svg_tag: 'ame-card__img ame-card__img--placeholder' }}
     {%- endif -%}
 
-    <!-- Desconto top-left -->
-    {%- if card_has_discount -%}
+    <!-- Esgotado top-left (prioridade sobre desconto: se não dá pra comprar, o % não importa) -->
+    {%- if card_is_sold_out -%}
+      <span class="ame-card__sold-out-badge" aria-label="Produto esgotado">
+        Esgotado
+      </span>
+    {%- elsif card_has_discount -%}
       <span class="ame-card__discount-badge" aria-label="{{ card_discount_pct }}% de desconto">
         {{ card_discount_pct }}% OFF
       </span>
@@ -232,9 +244,15 @@
       </div>
     {%- endif -%}
 
-    <a href="{{ card_url }}" class="ame-card__buy-btn" aria-label="{{ card_cta_label }}: {{ card_title }}">
-      {{ card_cta_label }}
-    </a>
+    {%- if card_is_sold_out -%}
+      <a href="{{ card_url }}" class="ame-card__buy-btn ame-card__buy-btn--sold-out" aria-label="Produto esgotado: {{ card_title }}">
+        Esgotado
+      </a>
+    {%- else -%}
+      <a href="{{ card_url }}" class="ame-card__buy-btn" aria-label="{{ card_cta_label }}: {{ card_title }}">
+        {{ card_cta_label }}
+      </a>
+    {%- endif -%}
   </div>
 </div>
 

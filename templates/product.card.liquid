@@ -1,7 +1,12 @@
-{% comment %}
-  Template alternativo de produto que renderiza apenas o snippet product-card.
-  Usado pela página de favoritos via /products/<handle>?view=card pra obter
-  o HTML do card idêntico ao do catálogo (com cashback, preços, badges, botão
-  de favorito hidratado, etc.) sem precisar replicar o template no JS.
-{% endcomment %}
+{% layout none %}
+{%- comment -%}
+  Template alternativo do produto que retorna APENAS o markup do product-card,
+  SEM o layout theme.liquid em volta. Acessado via /products/<handle>?view=card
+  pela página de favoritos pra montar o grid com cards idênticos ao do catálogo.
+
+  {% layout none %} é o ponto-chave: sem ele, o Shopify envolveria este template
+  no theme.liquid e a resposta viria com <head>, scripts globais, footer etc.,
+  o que quebrava a página de favoritos com "Identifier 'generals' has already
+  been declared" ao tentar injetar via createContextualFragment.
+{%- endcomment -%}
 {%- render 'product-card', card_product: product, card_btn_label: 'Comprar' -%}
