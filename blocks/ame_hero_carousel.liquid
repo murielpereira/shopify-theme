@@ -1,0 +1,703 @@
+{% comment %}
+  Âme — Hero simples com carrossel e agendamento por datetime.
+
+  Block próprio do tema (substitui o "Hero simples" gerado por IA do Shopify
+  que vinha de uma extensão externa). Diferenças do anterior:
+  - Suporta múltiplos slides (até 10)
+  - Cada slide tem campos start_at e end_at (datetime no fuso da loja);
+    se estiverem vazios, o slide é sempre visível.
+  - Carrossel com swipe touch + dots + autoplay opcional.
+
+  Agendamento: avaliado no servidor (Liquid) com 'now' | date: '%s'.
+  Slides fora da janela são filtrados ANTES de renderizar — não vão pro DOM.
+  Vantagem: HTML enxuto, sem flicker no client.
+  Limitação: o cache da Shopify pode atrasar a transição entre janelas em
+  alguns minutos. Aceitável pra agendamento de campanhas, não pra precisão
+  de segundo.
+{% endcomment %}
+
+{% assign hid = block.id | replace: '_', '' | downcase %}
+
+{%- liquid
+  # Coleta os slides ativos (até 10) — cada um é uma tupla configurada via settings.
+  assign now_ts = 'now' | date: '%s' | times: 1
+  assign active_slides = ''
+  for i in (1..10)
+    assign img_key       = 'slide_' | append: i | append: '_image'
+    assign img           = block.settings[img_key]
+    if img == blank
+      continue
+    endif
+
+    assign start_key     = 'slide_' | append: i | append: '_start_at'
+    assign end_key       = 'slide_' | append: i | append: '_end_at'
+    assign start_raw     = block.settings[start_key]
+    assign end_raw       = block.settings[end_key]
+
+    # Datetime no admin Shopify vem como string 'YYYY-MM-DDTHH:MM'.
+    # 'now' | date: '%s' está em UTC; assumimos que o admin escreveu no fuso
+    # da loja (Shopify ajusta isso pra string sem timezone) — comparar como
+    # epoch da própria string costuma ser suficiente pra agendamentos de
+    # campanha (precisão = minuto).
+    assign in_window = true
+    if start_raw != blank
+      assign start_ts = start_raw | date: '%s' | times: 1
+      if now_ts < start_ts
+        assign in_window = false
+      endif
+    endif
+    if in_window and end_raw != blank
+      assign end_ts = end_raw | date: '%s' | times: 1
+      if now_ts > end_ts
+        assign in_window = false
+      endif
+    endif
+    unless in_window
+      continue
+    endunless
+
+    assign active_slides = active_slides | append: i | append: ','
+  endfor
+  assign active_slides = active_slides | split: ',' | compact
+-%}
+
+{%- if active_slides.size > 0 -%}
+  <div
+    class="ame-hero-c ame-hero-c-{{ hid }}"
+    data-ame-hero-carousel
+    data-autoplay="{{ block.settings.autoplay }}"
+    data-autoplay-interval="{{ block.settings.autoplay_interval }}"
+    {{ block.shopify_attributes }}
+  >
+    <div class="ame-hero-c__track" data-track>
+      {%- for slide_i_raw in active_slides -%}
+        {%- assign i = slide_i_raw | times: 1 -%}
+        {%- liquid
+          assign img_key      = 'slide_' | append: i | append: '_image'
+          assign img_mob_key  = 'slide_' | append: i | append: '_image_mobile'
+          assign heading_key  = 'slide_' | append: i | append: '_heading'
+          assign text_key     = 'slide_' | append: i | append: '_text'
+          assign cta_key      = 'slide_' | append: i | append: '_cta_label'
+          assign cta_url_key  = 'slide_' | append: i | append: '_cta_url'
+          assign align_key    = 'slide_' | append: i | append: '_align'
+
+          assign img       = block.settings[img_key]
+          assign img_mob   = block.settings[img_mob_key]
+          assign heading   = block.settings[heading_key]
+          assign text      = block.settings[text_key]
+          assign cta_label = block.settings[cta_key]
+          assign cta_url   = block.settings[cta_url_key]
+          assign align     = block.settings[align_key] | default: 'flex-start bottom'
+          assign align_parts = align | split: ' '
+          assign align_x = align_parts[0] | default: 'flex-start'
+          assign align_y = align_parts[1] | default: 'flex-end'
+
+          assign is_first = false
+          if forloop.first
+            assign is_first = true
+          endif
+        -%}
+        <div
+          class="ame-hero-c__slide"
+          data-slide
+          style="--align-x: {{ align_x }}; --align-y: {{ align_y }};"
+        >
+          <picture>
+            {%- if img_mob != blank -%}
+              <source media="(max-width: 749px)" srcset="{{ img_mob | image_url: width: 900 }}">
+            {%- endif -%}
+            <img
+              src="{{ img | image_url: width: 1800 }}"
+              srcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1800 }} 1800w"
+              sizes="100vw"
+              alt="{{ img.alt | default: heading | escape }}"
+              loading="{% if is_first %}eager{% else %}lazy{% endif %}"
+              {% if is_first %}fetchpriority="high"{% endif %}
+              class="ame-hero-c__img"
+              width="{{ img.width }}"
+              height="{{ img.height }}"
+            >
+          </picture>
+
+          {%- if block.settings.show_overlay -%}
+            <div
+              class="ame-hero-c__overlay"
+              aria-hidden="true"
+              style="background: {{ block.settings.overlay_color }}; opacity: {{ block.settings.overlay_opacity }};"
+            ></div>
+          {%- endif -%}
+
+          <div class="ame-hero-c__content">
+            {%- if heading != blank -%}
+              <h2 class="ame-hero-c__heading" style="color: {{ block.settings.heading_color }};">
+                {{ heading }}
+              </h2>
+            {%- endif -%}
+            {%- if text != blank -%}
+              <div class="ame-hero-c__text" style="color: {{ block.settings.text_color }};">
+                {{ text }}
+              </div>
+            {%- endif -%}
+            {%- if cta_label != blank -%}
+              <a
+                href="{{ cta_url | default: '#' }}"
+                class="ame-hero-c__cta"
+                style="background: {{ block.settings.button_bg_color }}; color: {{ block.settings.button_text_color }}; border-radius: {{ block.settings.button_border_radius }}px;"
+              >
+                {{ cta_label }}
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if active_slides.size > 1 -%}
+      <button
+        type="button"
+        class="ame-hero-c__nav ame-hero-c__nav--prev"
+        data-prev
+        aria-label="Slide anterior"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="ame-hero-c__nav ame-hero-c__nav--next"
+        data-next
+        aria-label="Próximo slide"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+      </button>
+      <div class="ame-hero-c__dots" data-dots>
+        {%- for slide_i_raw in active_slides -%}
+          <button
+            type="button"
+            class="ame-hero-c__dot{% if forloop.first %} is-active{% endif %}"
+            data-dot="{{ forloop.index0 }}"
+            aria-label="Slide {{ forloop.index }}"
+          ></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% style %}
+  .ame-hero-c-{{ hid }} {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: {{ block.settings.height_mobile }}px;
+  }
+  @media (min-width: 750px) {
+    .ame-hero-c-{{ hid }} {
+      height: {{ block.settings.height_desktop }}px;
+    }
+  }
+  .ame-hero-c-{{ hid }} .ame-hero-c__heading {
+    font-size: {{ block.settings.heading_size_mobile }}px;
+  }
+  @media (min-width: 750px) {
+    .ame-hero-c-{{ hid }} .ame-hero-c__heading {
+      font-size: {{ block.settings.heading_size_desktop }}px;
+    }
+  }
+  .ame-hero-c-{{ hid }} .ame-hero-c__text {
+    font-size: {{ block.settings.text_size_mobile }}px;
+  }
+  @media (min-width: 750px) {
+    .ame-hero-c-{{ hid }} .ame-hero-c__text {
+      font-size: {{ block.settings.text_size_desktop }}px;
+    }
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .ame-hero-c {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #111;
+  }
+  .ame-hero-c__track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  .ame-hero-c__slide {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .ame-hero-c__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ame-hero-c__overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ame-hero-c__content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: var(--align-y, flex-end);
+    align-items: var(--align-x, flex-start);
+    text-align: left;
+    padding: clamp(1rem, 5vw, 3rem);
+    gap: 1rem;
+  }
+  .ame-hero-c__heading {
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+    max-width: 36rem;
+  }
+  .ame-hero-c__text {
+    line-height: 1.5;
+    max-width: 36rem;
+  }
+  .ame-hero-c__text p { margin: 0; }
+  .ame-hero-c__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .ame-hero-c__cta:hover {
+    transform: translateY(-2px);
+  }
+
+  .ame-hero-c__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    color: #333;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .ame-hero-c__nav:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.06);
+  }
+  .ame-hero-c__nav--prev { left: 16px; }
+  .ame-hero-c__nav--next { right: 16px; }
+  @media (max-width: 599px) {
+    .ame-hero-c__nav { display: none; }
+  }
+
+  .ame-hero-c__dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 5;
+  }
+  .ame-hero-c__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, width 0.2s ease;
+  }
+  .ame-hero-c__dot.is-active {
+    background: #fff;
+    width: 24px;
+    border-radius: 4px;
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const root = document.querySelector('.ame-hero-c-{{ hid }}');
+    if (!root) return;
+    const track = root.querySelector('[data-track]');
+    const slides = root.querySelectorAll('[data-slide]');
+    const prevBtn = root.querySelector('[data-prev]');
+    const nextBtn = root.querySelector('[data-next]');
+    const dots = root.querySelectorAll('[data-dot]');
+    if (slides.length <= 1) return;
+
+    let idx = 0;
+    let timer = null;
+    const autoplay = root.dataset.autoplay === 'true';
+    const interval = (parseInt(root.dataset.autoplayInterval, 10) || 6) * 1000;
+
+    function go(n) {
+      idx = (n + slides.length) % slides.length;
+      track.style.transform = `translateX(-${idx * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+    }
+
+    prevBtn?.addEventListener('click', () => { go(idx - 1); resetTimer(); });
+    nextBtn?.addEventListener('click', () => { go(idx + 1); resetTimer(); });
+    dots.forEach((d, i) => d.addEventListener('click', () => { go(i); resetTimer(); }));
+
+    /* Swipe touch — threshold 50px, ignora swipe vertical (deixa o scroll
+       da página passar). */
+    let touchStartX = 0, touchStartY = 0, swiping = false;
+    track.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+      swiping = true;
+    }, { passive: true });
+    track.addEventListener('touchend', (e) => {
+      if (!swiping) return;
+      swiping = false;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+      go(idx + (dx < 0 ? 1 : -1));
+      resetTimer();
+    }, { passive: true });
+
+    function startTimer() {
+      if (!autoplay) return;
+      timer = setInterval(() => go(idx + 1), interval);
+    }
+    function resetTimer() {
+      clearInterval(timer);
+      startTimer();
+    }
+    root.addEventListener('mouseenter', () => clearInterval(timer));
+    root.addEventListener('mouseleave', startTimer);
+    startTimer();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Hero Carrossel",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Carrossel de banners no topo da página. Cada slide pode ter datas de início e fim (agendamento). Slides fora da janela de exibição não aparecem no site — você pode deixar tudo configurado e o sistema mostra/esconde sozinho conforme as datas. Deixe os campos de data em branco para o slide aparecer sempre."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Altura no mobile",
+      "min": 200,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Altura no desktop",
+      "min": 300,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 600
+    },
+    {
+      "type": "checkbox",
+      "id": "show_overlay",
+      "label": "Aplicar escurecimento sobre as imagens",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Cor do escurecimento",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Intensidade do escurecimento",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.05,
+      "default": 0.3
+    },
+    {
+      "type": "header",
+      "content": "Carrossel"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Trocar slides automaticamente",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_interval",
+      "label": "Intervalo entre slides",
+      "min": 3,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Tipografia"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Cor do título",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Tamanho do título (mobile)",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Tamanho do título (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Cor do texto",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "Tamanho do texto (mobile)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "label": "Tamanho do texto (desktop)",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Botão CTA"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Cor de fundo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Cor do texto",
+      "default": "#5a4742"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Arredondamento do botão",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    { "type": "header", "content": "Slide 1" },
+    { "type": "image_picker", "id": "slide_1_image", "label": "Imagem (desktop)" },
+    { "type": "image_picker", "id": "slide_1_image_mobile", "label": "Imagem (mobile, opcional)" },
+    { "type": "text", "id": "slide_1_heading", "label": "Título", "default": "Para quem ama de verdade" },
+    { "type": "richtext", "id": "slide_1_text", "label": "Texto", "default": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>" },
+    { "type": "text", "id": "slide_1_cta_label", "label": "Texto do botão", "default": "Explorar coleção" },
+    { "type": "url", "id": "slide_1_cta_url", "label": "Link do botão" },
+    {
+      "type": "select",
+      "id": "slide_1_align",
+      "label": "Alinhamento do conteúdo",
+      "default": "flex-start flex-end",
+      "options": [
+        { "value": "flex-start flex-start", "label": "Esquerda em cima" },
+        { "value": "center flex-start",     "label": "Centro em cima" },
+        { "value": "flex-end flex-start",   "label": "Direita em cima" },
+        { "value": "flex-start center",     "label": "Esquerda no meio" },
+        { "value": "center center",         "label": "Centro no meio" },
+        { "value": "flex-end center",       "label": "Direita no meio" },
+        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
+        { "value": "center flex-end",       "label": "Centro em baixo" },
+        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "slide_1_start_at",
+      "label": "Início (datetime)",
+      "info": "Formato: AAAA-MM-DD HH:MM (ex: 2026-05-25 14:00). Deixe vazio para sempre visível."
+    },
+    {
+      "type": "text",
+      "id": "slide_1_end_at",
+      "label": "Fim (datetime)",
+      "info": "Formato: AAAA-MM-DD HH:MM. Deixe vazio para sem prazo final."
+    },
+
+    { "type": "header", "content": "Slide 2" },
+    { "type": "image_picker", "id": "slide_2_image", "label": "Imagem (desktop)" },
+    { "type": "image_picker", "id": "slide_2_image_mobile", "label": "Imagem (mobile, opcional)" },
+    { "type": "text", "id": "slide_2_heading", "label": "Título" },
+    { "type": "richtext", "id": "slide_2_text", "label": "Texto" },
+    { "type": "text", "id": "slide_2_cta_label", "label": "Texto do botão" },
+    { "type": "url", "id": "slide_2_cta_url", "label": "Link do botão" },
+    {
+      "type": "select",
+      "id": "slide_2_align",
+      "label": "Alinhamento do conteúdo",
+      "default": "flex-start flex-end",
+      "options": [
+        { "value": "flex-start flex-start", "label": "Esquerda em cima" },
+        { "value": "center flex-start",     "label": "Centro em cima" },
+        { "value": "flex-end flex-start",   "label": "Direita em cima" },
+        { "value": "flex-start center",     "label": "Esquerda no meio" },
+        { "value": "center center",         "label": "Centro no meio" },
+        { "value": "flex-end center",       "label": "Direita no meio" },
+        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
+        { "value": "center flex-end",       "label": "Centro em baixo" },
+        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+      ]
+    },
+    { "type": "text", "id": "slide_2_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_2_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+
+    { "type": "header", "content": "Slide 3" },
+    { "type": "image_picker", "id": "slide_3_image", "label": "Imagem (desktop)" },
+    { "type": "image_picker", "id": "slide_3_image_mobile", "label": "Imagem (mobile, opcional)" },
+    { "type": "text", "id": "slide_3_heading", "label": "Título" },
+    { "type": "richtext", "id": "slide_3_text", "label": "Texto" },
+    { "type": "text", "id": "slide_3_cta_label", "label": "Texto do botão" },
+    { "type": "url", "id": "slide_3_cta_url", "label": "Link do botão" },
+    {
+      "type": "select",
+      "id": "slide_3_align",
+      "label": "Alinhamento do conteúdo",
+      "default": "flex-start flex-end",
+      "options": [
+        { "value": "flex-start flex-start", "label": "Esquerda em cima" },
+        { "value": "center flex-start",     "label": "Centro em cima" },
+        { "value": "flex-end flex-start",   "label": "Direita em cima" },
+        { "value": "flex-start center",     "label": "Esquerda no meio" },
+        { "value": "center center",         "label": "Centro no meio" },
+        { "value": "flex-end center",       "label": "Direita no meio" },
+        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
+        { "value": "center flex-end",       "label": "Centro em baixo" },
+        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+      ]
+    },
+    { "type": "text", "id": "slide_3_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_3_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+
+    { "type": "header", "content": "Slide 4" },
+    { "type": "image_picker", "id": "slide_4_image", "label": "Imagem (desktop)" },
+    { "type": "image_picker", "id": "slide_4_image_mobile", "label": "Imagem (mobile, opcional)" },
+    { "type": "text", "id": "slide_4_heading", "label": "Título" },
+    { "type": "richtext", "id": "slide_4_text", "label": "Texto" },
+    { "type": "text", "id": "slide_4_cta_label", "label": "Texto do botão" },
+    { "type": "url", "id": "slide_4_cta_url", "label": "Link do botão" },
+    {
+      "type": "select",
+      "id": "slide_4_align",
+      "label": "Alinhamento do conteúdo",
+      "default": "flex-start flex-end",
+      "options": [
+        { "value": "flex-start flex-start", "label": "Esquerda em cima" },
+        { "value": "center flex-start",     "label": "Centro em cima" },
+        { "value": "flex-end flex-start",   "label": "Direita em cima" },
+        { "value": "flex-start center",     "label": "Esquerda no meio" },
+        { "value": "center center",         "label": "Centro no meio" },
+        { "value": "flex-end center",       "label": "Direita no meio" },
+        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
+        { "value": "center flex-end",       "label": "Centro em baixo" },
+        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+      ]
+    },
+    { "type": "text", "id": "slide_4_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_4_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+
+    { "type": "header", "content": "Slide 5" },
+    { "type": "image_picker", "id": "slide_5_image", "label": "Imagem (desktop)" },
+    { "type": "image_picker", "id": "slide_5_image_mobile", "label": "Imagem (mobile, opcional)" },
+    { "type": "text", "id": "slide_5_heading", "label": "Título" },
+    { "type": "richtext", "id": "slide_5_text", "label": "Texto" },
+    { "type": "text", "id": "slide_5_cta_label", "label": "Texto do botão" },
+    { "type": "url", "id": "slide_5_cta_url", "label": "Link do botão" },
+    {
+      "type": "select",
+      "id": "slide_5_align",
+      "label": "Alinhamento do conteúdo",
+      "default": "flex-start flex-end",
+      "options": [
+        { "value": "flex-start flex-start", "label": "Esquerda em cima" },
+        { "value": "center flex-start",     "label": "Centro em cima" },
+        { "value": "flex-end flex-start",   "label": "Direita em cima" },
+        { "value": "flex-start center",     "label": "Esquerda no meio" },
+        { "value": "center center",         "label": "Centro no meio" },
+        { "value": "flex-end center",       "label": "Direita no meio" },
+        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
+        { "value": "center flex-end",       "label": "Centro em baixo" },
+        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+      ]
+    },
+    { "type": "text", "id": "slide_5_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_5_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" }
+  ],
+  "presets": [
+    {
+      "name": "Hero Carrossel"
+    }
+  ]
+}
+{% endschema %}
