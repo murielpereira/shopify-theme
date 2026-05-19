@@ -229,7 +229,8 @@
           <img
             src="{{ block.settings.feature_image | image_url: width: 1200 }}"
             alt="{{ block.settings.feature_image.alt | escape }}"
-            loading="lazy"
+            loading="eager"
+            fetchpriority="high"
             width="{{ block.settings.feature_image.width }}"
             height="{{ block.settings.feature_image.height }}"
             class="ai-editorial-feature-image-{{ ai_gen_id }}"

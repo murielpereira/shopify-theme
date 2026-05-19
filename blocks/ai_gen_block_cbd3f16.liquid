@@ -162,7 +162,8 @@
             <img
               src="{{ desktop_image | image_url: width: 1200 }}"
               alt="{{ desktop_image.alt | escape }}"
-              loading="lazy"
+              loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+              {% if forloop.first %}fetchpriority="high"{% endif %}
               width="{{ desktop_image.width }}"
               height="{{ desktop_image.height }}"
               class="ai-dual-banners__image-{{ ai_gen_id }}"
