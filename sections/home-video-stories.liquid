@@ -1,6 +1,6 @@
 {% comment %} Âme — Video Stories (configurável via blocks) {% endcomment %}
 
-<section class="ame-vs-section{% if section.settings.format == 'spotlight' %} full-width ame-vs-section--full{% endif %}">
+<section class="ame-vs-section full-width{% if section.settings.format == 'spotlight' %} ame-vs-section--full{% endif %}">
   {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
     <header class="ame-vs-section__header ame-reveal">
       {%- if section.settings.eyebrow != blank -%}
@@ -39,27 +39,27 @@
 </section>
 
 <style>
+  /* A section é .full-width (grid-column: 1/-1 na .shopify-section), então
+     ela mesma ocupa borda a borda da viewport. Isso evita que os filhos —
+     stories/carrossel/spotlight — herdem a margem do grid padrão (que
+     deslocava os stories pra direita, como o usuário identificou). */
   .ame-vs-section {
     padding: 10px 0;
-    margin: 0 auto;
-    /* min-width: 0 é crítico aqui: a section é grid item direto da
-       .shopify-section, e por default grid items têm min-width: auto
-       (= min-content). Como o .ame-vs__track tem overflow-x: auto com
-       conteúdo intrinsicamente largo (5+ stories de 90px), o min-content
-       do track forçava a section a crescer além do container. Isso
-       criava o overflow horizontal na home reportado pelo usuário.
-       Sem isso, os stories vazavam pra direita. */
-    min-width: 0;
-  }
-  /* Quando spotlight, a section vai de borda a borda da viewport (.full-width
-     no grid global). O header com texto precisa de padding lateral pra não
-     colar nas bordas; e a section toda precisa de overflow:hidden pra o
-     scroll horizontal do track nunca estourar a viewport. */
-  .ame-vs-section--full {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  /* Conteúdo interno (header com texto + widget) precisa de padding lateral
+     pra não colar nas bordas. Aplica em todos os formatos exceto spotlight,
+     que é fullbleed por design (cards laterais vazam até a borda). */
+  .ame-vs-section:not(.ame-vs-section--full) > .ame-vs-section__header,
+  .ame-vs-section:not(.ame-vs-section--full) > .ame-vs {
+    padding-inline: var(--page-margin, 16px);
+  }
+  /* Spotlight mantém overflow:hidden pra o scroll do track não estourar. */
+  .ame-vs-section--full {
     overflow: hidden;
-    margin: 0;
   }
   .ame-vs-section--full > .ame-vs-section__header {
     padding-inline: var(--page-margin, 16px);
@@ -90,11 +90,13 @@
     padding: 2rem 0;
   }
 
+  /*
   @media (max-width: 750px) {
     .ame-vs-section {
       width: 94vw;
     }
   }
+  */
   /* .ame-label-sm vive global no critical.css */
 </style>
 
