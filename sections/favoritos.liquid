@@ -27,7 +27,7 @@
   </div>
 
   <div class="ame-favoritos__loading" data-favoritos-loading hidden>
-    <span class="material-symbols-outlined" aria-hidden="true">progress_activity</span>
+    <span class="ame-favoritos__spinner" aria-hidden="true"></span>
   </div>
 </section>
 
@@ -209,10 +209,15 @@
     justify-content: center;
     padding: 3rem 0;
   }
-  .ame-favoritos__loading .material-symbols-outlined {
-    font-size: 2rem !important;
-    color: var(--color-primary, #5a4742);
-    animation: ame-fav-spin 1s linear infinite;
+  /* Spinner CSS-only (sem depender do Material Symbols subset). Um anel com
+     a parte de cima transparente girando — efeito clássico de loader. */
+  .ame-favoritos__spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(90, 71, 66, 0.18);
+    border-top-color: var(--color-primary, #5a4742);
+    border-radius: 50%;
+    animation: ame-fav-spin 0.9s linear infinite;
   }
   @keyframes ame-fav-spin {
     from { transform: rotate(0deg); }
