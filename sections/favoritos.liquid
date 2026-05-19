@@ -204,7 +204,10 @@
     text-decoration: none;
   }
 
-  .ame-favoritos__loading {
+  /* :not([hidden]) é necessário porque uma regra de classe com display:flex
+     vence o [hidden]{display:none} da UA stylesheet — sem isso o spinner
+     nunca desaparecia mesmo com loading.hidden = true no JS. */
+  .ame-favoritos__loading:not([hidden]) {
     display: flex;
     justify-content: center;
     padding: 3rem 0;
