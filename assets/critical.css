@@ -929,7 +929,7 @@ body::after {
     border-radius: 1.25rem 1.25rem 0 0;
     transform: translateY(105%);
     box-shadow: 0 -24px 64px rgba(32, 27, 20, 0.12);
-    padding: 0 20px;
+    padding: 0 15px;
   }
 
   .ame-cart-drawer.is-open {

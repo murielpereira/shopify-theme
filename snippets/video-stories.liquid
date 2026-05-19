@@ -279,6 +279,12 @@
       --vs-espessura: 3px;
       --vs-espacamento: 12px;
       margin: 1.5rem 0;
+      /* min-width:0 + max-width:100% impedem o track filho (com overflow-x:auto
+         e conteúdo wider) de empurrar este wrapper além da coluna do grid pai.
+         Sem isso, .shopify-section content-margin perdia o efeito e os stories
+         ficavam deslocados pra direita / sangravam pra fora. */
+      min-width: 0;
+      max-width: 100%;
     }
 
     /* ── Stories / Carrossel: track horizontal com scroll lateral ── */

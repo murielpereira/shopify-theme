@@ -92,6 +92,20 @@
         </a>
       {%- endif -%}
 
+      <a
+        href="/pages/favoritos"
+        class="ame-header__icon-btn ame-header__wishlist"
+        aria-label="Favoritos" title="Favoritos"
+        data-header-wishlist
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">favorite</span>
+        <span
+          class="ame-header__cart-count"
+          data-header-wishlist-count
+          hidden
+        ></span>
+      </a>
+
       <button
         class="ame-header__icon-btn ame-header__cart"
         aria-label="Carrinho ({{ cart.item_count }} itens)" title="Carrinho"
@@ -659,6 +673,30 @@
         mobileNav.setAttribute('aria-hidden', !open);
         menuIcon.textContent = open ? 'close' : 'menu';
       });
+    }
+
+    /* ── Wishlist count no header ──
+       Lê o mesmo STORAGE_KEY que o product-card e a página de favoritos usam.
+       Atualiza ao receber o evento ame:wishlist-changed (disparado por
+       qualquer botão de favorito ao clicar). */
+    const wishlistCountEl = document.querySelector('[data-header-wishlist-count]');
+    if (wishlistCountEl) {
+      const WL_KEY = 'ame:wishlist';
+      function syncWishlistCount() {
+        let n = 0;
+        try { n = (JSON.parse(localStorage.getItem(WL_KEY)) || []).length; } catch {}
+        if (n > 0) {
+          wishlistCountEl.textContent = n > 99 ? '99+' : String(n);
+          wishlistCountEl.hidden = false;
+        } else {
+          wishlistCountEl.hidden = true;
+          wishlistCountEl.textContent = '';
+        }
+      }
+      syncWishlistCount();
+      document.addEventListener('ame:wishlist-changed', syncWishlistCount);
+      window.addEventListener('storage', (e) => { if (e.key === WL_KEY) syncWishlistCount(); });
+      window.addEventListener('pageshow', syncWishlistCount);
     }
 
     /* ── Mobile submenu (acordeão das sub-coleções) ── */

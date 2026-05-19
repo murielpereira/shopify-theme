@@ -1,6 +1,6 @@
 {% comment %} Âme — Video Stories (configurável via blocks) {% endcomment %}
 
-<section class="ame-vs-section full-width{% if section.settings.format == 'spotlight' %} ame-vs-section--full{% endif %}">
+<section class="ame-vs-section{% if section.settings.format == 'spotlight' %} full-width ame-vs-section--full{% endif %}">
   {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
     <header class="ame-vs-section__header ame-reveal">
       {%- if section.settings.eyebrow != blank -%}
@@ -39,25 +39,18 @@
 </section>
 
 <style>
-  /* A section é .full-width (grid-column: 1/-1 na .shopify-section), então
-     ela mesma ocupa borda a borda da viewport. Isso evita que os filhos —
-     stories/carrossel/spotlight — herdem a margem do grid padrão (que
-     deslocava os stories pra direita, como o usuário identificou). */
+  /* Stories e carrossel: section vive dentro do grid padrão da .shopify-section
+     (grid-column: 2), que já reserva --page-margin de cada lado. NÃO aplicar
+     padding-inline aqui — duplicaria a margem. min-width:0 evita que o track
+     com overflow-x:auto force a coluna do grid a crescer pra além do espaço
+     disponível (causando scroll horizontal na página). */
   .ame-vs-section {
     padding: 10px 0;
-    width: 100%;
-    max-width: 100%;
     min-width: 0;
-    box-sizing: border-box;
   }
-  /* Conteúdo interno (header com texto + widget) precisa de padding lateral
-     pra não colar nas bordas. Aplica em todos os formatos exceto spotlight,
-     que é fullbleed por design (cards laterais vazam até a borda). */
-  .ame-vs-section:not(.ame-vs-section--full) > .ame-vs-section__header,
-  .ame-vs-section:not(.ame-vs-section--full) > .ame-vs {
-    padding-inline: var(--page-margin, 16px);
-  }
-  /* Spotlight mantém overflow:hidden pra o scroll do track não estourar. */
+  /* Spotlight é .full-width (borda-a-borda) por design — cards laterais vazam
+     até a borda da viewport, criando o efeito de destaque. O header interno
+     precisa de padding pra não colar. */
   .ame-vs-section--full {
     overflow: hidden;
   }

@@ -1,0 +1,7 @@
+{% comment %}
+  Template alternativo de produto que renderiza apenas o snippet product-card.
+  Usado pela página de favoritos via /products/<handle>?view=card pra obter
+  o HTML do card idêntico ao do catálogo (com cashback, preços, badges, botão
+  de favorito hidratado, etc.) sem precisar replicar o template no JS.
+{% endcomment %}
+{%- render 'product-card', card_product: product, card_btn_label: 'Comprar' -%}
