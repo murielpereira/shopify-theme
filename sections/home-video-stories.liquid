@@ -42,6 +42,14 @@
   .ame-vs-section {
     padding: 10px 0;
     margin: 0 auto;
+    /* min-width: 0 é crítico aqui: a section é grid item direto da
+       .shopify-section, e por default grid items têm min-width: auto
+       (= min-content). Como o .ame-vs__track tem overflow-x: auto com
+       conteúdo intrinsicamente largo (5+ stories de 90px), o min-content
+       do track forçava a section a crescer além do container. Isso
+       criava o overflow horizontal na home reportado pelo usuário.
+       Sem isso, os stories vazavam pra direita. */
+    min-width: 0;
   }
   /* Quando spotlight, a section vai de borda a borda da viewport (.full-width
      no grid global). O header com texto precisa de padding lateral pra não

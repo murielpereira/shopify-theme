@@ -1096,42 +1096,15 @@
         openModal(videos, idx >= 0 ? idx : 0);
       }
 
-      /* Detecta tap vs swipe pra não abrir modal acidentalmente quando o
-         usuário só está rolando o carrossel. Touch threshold: 10px.
-         Como funciona:
-         - touchstart guarda x/y inicial
-         - touchmove acumula distância; se passar de 10px, marca como swipe
-         - click só dispara abertura se NÃO foi swipe
-         Bug anterior: pointerdown + click (capture + bubble) registrados ao
-         mesmo tempo. O pointerdown abria o modal; o click sintético do mesmo
-         tap acertava o backdrop e fechava — daí "abre e fecha rápido". */
-      let touchStartX = 0, touchStartY = 0;
-      let wasSwipe = false;
-
-      document.addEventListener('touchstart', (e) => {
-        if (!e.target.closest('[data-vs-open]')) return;
-        const t = e.touches[0];
-        touchStartX = t.clientX;
-        touchStartY = t.clientY;
-        wasSwipe = false;
-      }, { passive: true });
-
-      document.addEventListener('touchmove', (e) => {
-        if (wasSwipe) return;
-        const t = e.touches[0];
-        const dx = Math.abs(t.clientX - touchStartX);
-        const dy = Math.abs(t.clientY - touchStartY);
-        if (dx > 10 || dy > 10) wasSwipe = true;
-      }, { passive: true });
-
-      let lastOpenedAt = 0;
+      /* Listener simples de click — o browser nativo já cancela o click
+         sintético quando o usuário rola a página (não precisamos detectar
+         scroll manualmente). Antes tinha um detector de swipe que
+         comparava touchstart vs touchmove com threshold de 10px, mas isso
+         disparava em qualquer tap com tremor mínimo no dedo, impedindo a
+         abertura do modal mesmo em taps legítimos. */
       function handleOpenClick(e) {
         const btn = e.target.closest('[data-vs-open]');
         if (!btn) return;
-        if (wasSwipe) { wasSwipe = false; return; }
-        const now = Date.now();
-        if (now - lastOpenedAt < 500) { e.preventDefault(); return; }
-        lastOpenedAt = now;
         e.preventDefault();
         openFromButton(btn);
       }
