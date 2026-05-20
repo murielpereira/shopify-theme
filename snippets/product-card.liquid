@@ -124,20 +124,19 @@
       {{ 'product-1' | placeholder_svg_tag: 'ame-card__img ame-card__img--placeholder' }}
     {%- endif -%}
 
-    <!-- Esgotado top-left (prioridade sobre desconto: se não dá pra comprar, o % não importa) -->
-    {%- if card_is_sold_out -%}
-      <span class="ame-card__sold-out-badge" aria-label="Produto esgotado">
-        Esgotado
-      </span>
-    {%- elsif card_has_discount -%}
-      <span class="ame-card__discount-badge" aria-label="{{ card_discount_pct }}% de desconto">
-        {{ card_discount_pct }}% OFF
-      </span>
-    {%- endif -%}
-
-    <!-- Badge de texto (Lançamento / Heritage / Novo / Mais Vendido) bottom-left -->
-    {%- if card_badge != '' -%}
-      <span class="ame-chip ame-chip--primary ame-card__badge{% if card_badge_mod != '' %} ame-card__badge--{{ card_badge_mod }}{% endif %}">{{ card_badge }}</span>
+    <!-- Pilha de badges no top-left: Esgotado/Desconto + Lançamento/Heritage/Novo.
+         Esgotado tem prioridade sobre desconto (se não dá pra comprar, o % não importa). -->
+    {%- if card_is_sold_out or card_has_discount or card_badge != '' -%}
+      <div class="ame-card__badges">
+        {%- if card_is_sold_out -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--sold-out" aria-label="Produto esgotado">Esgotado</span>
+        {%- elsif card_has_discount -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--discount" aria-label="{{ card_discount_pct }}% de desconto">{{ card_discount_pct }}% OFF</span>
+        {%- endif -%}
+        {%- if card_badge != '' -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--{{ card_badge_mod | default: 'status' }}">{{ card_badge }}</span>
+        {%- endif -%}
+      </div>
     {%- endif -%}
 
     <!-- Avaliação top-right -->

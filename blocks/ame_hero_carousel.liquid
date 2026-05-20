@@ -23,16 +23,16 @@
   assign now_ts = 'now' | date: '%s' | times: 1
   assign active_slides = ''
   for i in (1..10)
-    assign img_key       = 'slide_' | append: i | append: '_image'
-    assign img           = block.settings[img_key]
+    assign img_key = 'slide_' | append: i | append: '_image'
+    assign img = block.settings[img_key]
     if img == blank
       continue
     endif
 
-    assign start_key     = 'slide_' | append: i | append: '_start_at'
-    assign end_key       = 'slide_' | append: i | append: '_end_at'
-    assign start_raw     = block.settings[start_key]
-    assign end_raw       = block.settings[end_key]
+    assign start_key = 'slide_' | append: i | append: '_start_at'
+    assign end_key = 'slide_' | append: i | append: '_end_at'
+    assign start_raw = block.settings[start_key]
+    assign end_raw = block.settings[end_key]
 
     # Datetime no admin Shopify vem como string 'YYYY-MM-DDTHH:MM'.
     # 'now' | date: '%s' está em UTC; assumimos que o admin escreveu no fuso
@@ -73,21 +73,21 @@
       {%- for slide_i_raw in active_slides -%}
         {%- assign i = slide_i_raw | times: 1 -%}
         {%- liquid
-          assign img_key      = 'slide_' | append: i | append: '_image'
-          assign img_mob_key  = 'slide_' | append: i | append: '_image_mobile'
-          assign heading_key  = 'slide_' | append: i | append: '_heading'
-          assign text_key     = 'slide_' | append: i | append: '_text'
-          assign cta_key      = 'slide_' | append: i | append: '_cta_label'
-          assign cta_url_key  = 'slide_' | append: i | append: '_cta_url'
-          assign align_key    = 'slide_' | append: i | append: '_align'
+          assign img_key = 'slide_' | append: i | append: '_image'
+          assign img_mob_key = 'slide_' | append: i | append: '_image_mobile'
+          assign heading_key = 'slide_' | append: i | append: '_heading'
+          assign text_key = 'slide_' | append: i | append: '_text'
+          assign cta_key = 'slide_' | append: i | append: '_cta_label'
+          assign cta_url_key = 'slide_' | append: i | append: '_cta_url'
+          assign align_key = 'slide_' | append: i | append: '_align'
 
-          assign img       = block.settings[img_key]
-          assign img_mob   = block.settings[img_mob_key]
-          assign heading   = block.settings[heading_key]
-          assign text      = block.settings[text_key]
+          assign img = block.settings[img_key]
+          assign img_mob = block.settings[img_mob_key]
+          assign heading = block.settings[heading_key]
+          assign text = block.settings[text_key]
           assign cta_label = block.settings[cta_key]
-          assign cta_url   = block.settings[cta_url_key]
-          assign align     = block.settings[align_key] | default: 'flex-start bottom'
+          assign cta_url = block.settings[cta_url_key]
+          assign align = block.settings[align_key] | default: 'flex-start bottom'
           assign align_parts = align | split: ' '
           assign align_x = align_parts[0] | default: 'flex-start'
           assign align_y = align_parts[1] | default: 'flex-end'
@@ -112,7 +112,9 @@
               sizes="100vw"
               alt="{{ img.alt | default: heading | escape }}"
               loading="{% if is_first %}eager{% else %}lazy{% endif %}"
-              {% if is_first %}fetchpriority="high"{% endif %}
+              {% if is_first %}
+                fetchpriority="high"
+              {% endif %}
               class="ame-hero-c__img"
               width="{{ img.width }}"
               height="{{ img.height }}"
@@ -268,7 +270,9 @@
     line-height: 1.5;
     max-width: 36rem;
   }
-  .ame-hero-c__text p { margin: 0; }
+  .ame-hero-c__text p {
+    margin: 0;
+  }
   .ame-hero-c__cta {
     display: inline-flex;
     align-items: center;
@@ -304,10 +308,16 @@
     background: #fff;
     transform: translateY(-50%) scale(1.06);
   }
-  .ame-hero-c__nav--prev { left: 16px; }
-  .ame-hero-c__nav--next { right: 16px; }
+  .ame-hero-c__nav--prev {
+    left: 16px;
+  }
+  .ame-hero-c__nav--next {
+    right: 16px;
+  }
   @media (max-width: 599px) {
-    .ame-hero-c__nav { display: none; }
+    .ame-hero-c__nav {
+      display: none;
+    }
   }
 
   .ame-hero-c__dots {
@@ -358,27 +368,48 @@
       dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
     }
 
-    prevBtn?.addEventListener('click', () => { go(idx - 1); resetTimer(); });
-    nextBtn?.addEventListener('click', () => { go(idx + 1); resetTimer(); });
-    dots.forEach((d, i) => d.addEventListener('click', () => { go(i); resetTimer(); }));
+    prevBtn?.addEventListener('click', () => {
+      go(idx - 1);
+      resetTimer();
+    });
+    nextBtn?.addEventListener('click', () => {
+      go(idx + 1);
+      resetTimer();
+    });
+    dots.forEach((d, i) =>
+      d.addEventListener('click', () => {
+        go(i);
+        resetTimer();
+      })
+    );
 
     /* Swipe touch — threshold 50px, ignora swipe vertical (deixa o scroll
        da página passar). */
-    let touchStartX = 0, touchStartY = 0, swiping = false;
-    track.addEventListener('touchstart', (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-      swiping = true;
-    }, { passive: true });
-    track.addEventListener('touchend', (e) => {
-      if (!swiping) return;
+    let touchStartX = 0,
+      touchStartY = 0,
       swiping = false;
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      const dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
-      go(idx + (dx < 0 ? 1 : -1));
-      resetTimer();
-    }, { passive: true });
+    track.addEventListener(
+      'touchstart',
+      (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        swiping = true;
+      },
+      { passive: true }
+    );
+    track.addEventListener(
+      'touchend',
+      (e) => {
+        if (!swiping) return;
+        swiping = false;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        go(idx + (dx < 0 ? 1 : -1));
+        resetTimer();
+      },
+      { passive: true }
+    );
 
     function startTimer() {
       if (!autoplay) return;
@@ -444,7 +475,7 @@
       "label": "Intensidade do escurecimento",
       "min": 0,
       "max": 0.8,
-      "step": 0.05,
+      "step": 0.1,
       "default": 0.3
     },
     {
@@ -553,7 +584,12 @@
     { "type": "image_picker", "id": "slide_1_image", "label": "Imagem (desktop)" },
     { "type": "image_picker", "id": "slide_1_image_mobile", "label": "Imagem (mobile, opcional)" },
     { "type": "text", "id": "slide_1_heading", "label": "Título", "default": "Para quem ama de verdade" },
-    { "type": "richtext", "id": "slide_1_text", "label": "Texto", "default": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>" },
+    {
+      "type": "richtext",
+      "id": "slide_1_text",
+      "label": "Texto",
+      "default": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>"
+    },
     { "type": "text", "id": "slide_1_cta_label", "label": "Texto do botão", "default": "Explorar coleção" },
     { "type": "url", "id": "slide_1_cta_url", "label": "Link do botão" },
     {
@@ -563,14 +599,14 @@
       "default": "flex-start flex-end",
       "options": [
         { "value": "flex-start flex-start", "label": "Esquerda em cima" },
-        { "value": "center flex-start",     "label": "Centro em cima" },
-        { "value": "flex-end flex-start",   "label": "Direita em cima" },
-        { "value": "flex-start center",     "label": "Esquerda no meio" },
-        { "value": "center center",         "label": "Centro no meio" },
-        { "value": "flex-end center",       "label": "Direita no meio" },
-        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
-        { "value": "center flex-end",       "label": "Centro em baixo" },
-        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+        { "value": "center flex-start", "label": "Centro em cima" },
+        { "value": "flex-end flex-start", "label": "Direita em cima" },
+        { "value": "flex-start center", "label": "Esquerda no meio" },
+        { "value": "center center", "label": "Centro no meio" },
+        { "value": "flex-end center", "label": "Direita no meio" },
+        { "value": "flex-start flex-end", "label": "Esquerda em baixo" },
+        { "value": "center flex-end", "label": "Centro em baixo" },
+        { "value": "flex-end flex-end", "label": "Direita em baixo" }
       ]
     },
     {
@@ -600,18 +636,18 @@
       "default": "flex-start flex-end",
       "options": [
         { "value": "flex-start flex-start", "label": "Esquerda em cima" },
-        { "value": "center flex-start",     "label": "Centro em cima" },
-        { "value": "flex-end flex-start",   "label": "Direita em cima" },
-        { "value": "flex-start center",     "label": "Esquerda no meio" },
-        { "value": "center center",         "label": "Centro no meio" },
-        { "value": "flex-end center",       "label": "Direita no meio" },
-        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
-        { "value": "center flex-end",       "label": "Centro em baixo" },
-        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+        { "value": "center flex-start", "label": "Centro em cima" },
+        { "value": "flex-end flex-start", "label": "Direita em cima" },
+        { "value": "flex-start center", "label": "Esquerda no meio" },
+        { "value": "center center", "label": "Centro no meio" },
+        { "value": "flex-end center", "label": "Direita no meio" },
+        { "value": "flex-start flex-end", "label": "Esquerda em baixo" },
+        { "value": "center flex-end", "label": "Centro em baixo" },
+        { "value": "flex-end flex-end", "label": "Direita em baixo" }
       ]
     },
     { "type": "text", "id": "slide_2_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
-    { "type": "text", "id": "slide_2_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_2_end_at", "label": "Fim (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
 
     { "type": "header", "content": "Slide 3" },
     { "type": "image_picker", "id": "slide_3_image", "label": "Imagem (desktop)" },
@@ -627,18 +663,18 @@
       "default": "flex-start flex-end",
       "options": [
         { "value": "flex-start flex-start", "label": "Esquerda em cima" },
-        { "value": "center flex-start",     "label": "Centro em cima" },
-        { "value": "flex-end flex-start",   "label": "Direita em cima" },
-        { "value": "flex-start center",     "label": "Esquerda no meio" },
-        { "value": "center center",         "label": "Centro no meio" },
-        { "value": "flex-end center",       "label": "Direita no meio" },
-        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
-        { "value": "center flex-end",       "label": "Centro em baixo" },
-        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+        { "value": "center flex-start", "label": "Centro em cima" },
+        { "value": "flex-end flex-start", "label": "Direita em cima" },
+        { "value": "flex-start center", "label": "Esquerda no meio" },
+        { "value": "center center", "label": "Centro no meio" },
+        { "value": "flex-end center", "label": "Direita no meio" },
+        { "value": "flex-start flex-end", "label": "Esquerda em baixo" },
+        { "value": "center flex-end", "label": "Centro em baixo" },
+        { "value": "flex-end flex-end", "label": "Direita em baixo" }
       ]
     },
     { "type": "text", "id": "slide_3_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
-    { "type": "text", "id": "slide_3_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_3_end_at", "label": "Fim (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
 
     { "type": "header", "content": "Slide 4" },
     { "type": "image_picker", "id": "slide_4_image", "label": "Imagem (desktop)" },
@@ -654,18 +690,18 @@
       "default": "flex-start flex-end",
       "options": [
         { "value": "flex-start flex-start", "label": "Esquerda em cima" },
-        { "value": "center flex-start",     "label": "Centro em cima" },
-        { "value": "flex-end flex-start",   "label": "Direita em cima" },
-        { "value": "flex-start center",     "label": "Esquerda no meio" },
-        { "value": "center center",         "label": "Centro no meio" },
-        { "value": "flex-end center",       "label": "Direita no meio" },
-        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
-        { "value": "center flex-end",       "label": "Centro em baixo" },
-        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+        { "value": "center flex-start", "label": "Centro em cima" },
+        { "value": "flex-end flex-start", "label": "Direita em cima" },
+        { "value": "flex-start center", "label": "Esquerda no meio" },
+        { "value": "center center", "label": "Centro no meio" },
+        { "value": "flex-end center", "label": "Direita no meio" },
+        { "value": "flex-start flex-end", "label": "Esquerda em baixo" },
+        { "value": "center flex-end", "label": "Centro em baixo" },
+        { "value": "flex-end flex-end", "label": "Direita em baixo" }
       ]
     },
     { "type": "text", "id": "slide_4_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
-    { "type": "text", "id": "slide_4_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" },
+    { "type": "text", "id": "slide_4_end_at", "label": "Fim (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
 
     { "type": "header", "content": "Slide 5" },
     { "type": "image_picker", "id": "slide_5_image", "label": "Imagem (desktop)" },
@@ -681,18 +717,18 @@
       "default": "flex-start flex-end",
       "options": [
         { "value": "flex-start flex-start", "label": "Esquerda em cima" },
-        { "value": "center flex-start",     "label": "Centro em cima" },
-        { "value": "flex-end flex-start",   "label": "Direita em cima" },
-        { "value": "flex-start center",     "label": "Esquerda no meio" },
-        { "value": "center center",         "label": "Centro no meio" },
-        { "value": "flex-end center",       "label": "Direita no meio" },
-        { "value": "flex-start flex-end",   "label": "Esquerda em baixo" },
-        { "value": "center flex-end",       "label": "Centro em baixo" },
-        { "value": "flex-end flex-end",     "label": "Direita em baixo" }
+        { "value": "center flex-start", "label": "Centro em cima" },
+        { "value": "flex-end flex-start", "label": "Direita em cima" },
+        { "value": "flex-start center", "label": "Esquerda no meio" },
+        { "value": "center center", "label": "Centro no meio" },
+        { "value": "flex-end center", "label": "Direita no meio" },
+        { "value": "flex-start flex-end", "label": "Esquerda em baixo" },
+        { "value": "center flex-end", "label": "Centro em baixo" },
+        { "value": "flex-end flex-end", "label": "Direita em baixo" }
       ]
     },
     { "type": "text", "id": "slide_5_start_at", "label": "Início (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" },
-    { "type": "text", "id": "slide_5_end_at",   "label": "Fim (datetime)",   "info": "Formato: AAAA-MM-DD HH:MM" }
+    { "type": "text", "id": "slide_5_end_at", "label": "Fim (datetime)", "info": "Formato: AAAA-MM-DD HH:MM" }
   ],
   "presets": [
     {
