@@ -10,6 +10,7 @@
   aria-hidden="true"
   aria-label="Carrinho de compras"
   role="dialog"
+  aria-modal="true"
   data-cart-drawer
 >
   <!-- Header do drawer -->
@@ -183,11 +184,12 @@
           data-cart-discount-input
           autocomplete="off"
           autocapitalize="characters"
+          aria-describedby="cart-discount-feedback"
         >
       </div>
       <button type="button" class="ame-cart-discount__btn" data-cart-discount-apply>Aplicar</button>
     </div>
-    <p class="ame-cart-discount__feedback" data-cart-discount-feedback aria-live="polite"></p>
+    <p class="ame-cart-discount__feedback" id="cart-discount-feedback" data-cart-discount-feedback aria-live="polite"></p>
 
     <!-- Totals -->
     <div class="ame-cart-totals">
