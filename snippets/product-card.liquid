@@ -48,8 +48,15 @@
     assign card_compare_price = card_compare
   endif
 
+  # Badge de status do produto. Prioridade: lancamento > heritage > novo > mais-vendido.
+  # Lançamento ganha prioridade pra dar destaque aos produtos recém-saídos do forno;
+  # ele também recebe a classe modificadora --lancamento pra cor de destaque.
   assign card_badge = ''
-  if card_product.tags contains 'heritage'
+  assign card_badge_mod = ''
+  if card_product.tags contains 'lancamento'
+    assign card_badge = 'Lançamento'
+    assign card_badge_mod = 'lancamento'
+  elsif card_product.tags contains 'heritage'
     assign card_badge = 'Heritage'
   elsif card_product.tags contains 'novo'
     assign card_badge = 'Novo'
@@ -128,9 +135,9 @@
       </span>
     {%- endif -%}
 
-    <!-- Badge de texto (Heritage / Novo / Mais Vendido) bottom-left -->
+    <!-- Badge de texto (Lançamento / Heritage / Novo / Mais Vendido) bottom-left -->
     {%- if card_badge != '' -%}
-      <span class="ame-chip ame-chip--primary ame-card__badge">{{ card_badge }}</span>
+      <span class="ame-chip ame-chip--primary ame-card__badge{% if card_badge_mod != '' %} ame-card__badge--{{ card_badge_mod }}{% endif %}">{{ card_badge }}</span>
     {%- endif -%}
 
     <!-- Avaliação top-right -->

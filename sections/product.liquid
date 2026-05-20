@@ -223,9 +223,12 @@
 
   <!-- ── Coluna direita: informações ── -->
   <div class="pdp__info">
-    <!-- Badge de coleção / heritage -->
+    <!-- Badge de coleção / heritage / lançamento / esgotado -->
     {%- liquid
       assign show_meta = false
+      if product.tags contains 'lancamento'
+        assign show_meta = true
+      endif
       if product.tags contains 'heritage' or product.tags contains 'Heritage'
         assign show_meta = true
       endif
@@ -241,6 +244,9 @@
           🎯 Why: Iterating over `product.tags` to find a specific tag causes O(N) rendering overhead. Native `contains` provides O(N) internal C++ lookup without the Liquid loop scoping overhead.
           📊 Impact: Reduces template compilation overhead and improves server response time for products with many tags.
         {%- endcomment -%}
+        {%- if product.tags contains 'lancamento' -%}
+          <span class="ame-chip ame-chip--lancamento">Lançamento</span>
+        {%- endif -%}
         {%- if product.tags contains 'heritage' or product.tags contains 'Heritage' -%}
           <span class="ame-chip">Heritage Series</span>
         {%- endif -%}

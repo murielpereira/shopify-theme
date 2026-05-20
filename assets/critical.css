@@ -489,6 +489,14 @@ body::after {
   color: var(--color-on-primary, #ffffff);
 }
 
+/* Variante "Lançamento": gradiente dourado pra diferenciar dos demais chips
+   neutros do tema. Reusada na PDP (.pdp__meta) e no card (.ame-card__badge). */
+.ame-chip--lancamento {
+  background: linear-gradient(135deg, #c89b5e 0%, #e9c89a 50%, #c89b5e 100%);
+  color: #fff;
+  border-color: transparent;
+}
+
 /* ── Selection ── */
 ::selection {
   background: var(--color-primary, #5a4742);
@@ -642,12 +650,28 @@ body::after {
   opacity: 0.65;
 }
 
-/* Badge de texto (Heritage / Novo) — bottom-left */
+/* Badge de texto (Lançamento / Heritage / Novo / Mais Vendido) — bottom-left */
 .ame-card__badge {
   position: absolute;
   bottom: 0.75rem;
   left: 0.75rem;
   z-index: 2;
+}
+
+/* Variante "Lançamento": dourado com leve glow + pulse sutil pra atrair olho.
+   Sobrescreve as cores do .ame-chip--primary herdado. */
+.ame-card__badge--lancamento {
+  background: linear-gradient(135deg, #c89b5e 0%, #e9c89a 50%, #c89b5e 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(200, 155, 94, 0.35);
+  animation: ame-badge-pulse 2.4s ease-in-out infinite;
+}
+@keyframes ame-badge-pulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(200, 155, 94, 0.35); }
+  50%      { box-shadow: 0 4px 22px rgba(200, 155, 94, 0.65); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ame-card__badge--lancamento { animation: none; }
 }
 
 /* Badge de avaliação — top-right */
@@ -843,9 +867,10 @@ body::after {
 .ame-card__buy-btn--sold-out {
   background: var(--color-outline, #817471);
   color: var(--color-on-primary, #ffffff);
-  cursor: not-allowed;
+  /*cursor: not-allowed;*/
   box-shadow: none;
 }
+
 .ame-card__buy-btn--sold-out:hover {
   transform: none;
   box-shadow: none;

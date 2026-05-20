@@ -305,18 +305,9 @@
       max-width: 100%;
       min-width: 0;
       box-sizing: border-box;
-      cursor: grab;
       /* touch-action: pan-x autoriza pan horizontal no track e pan vertical no
        resto da página (porque o gesto vertical não é capturado pelo track). */
       touch-action: pan-x;
-    }
-    .ame-vs__track.is-dragging {
-      cursor: grabbing;
-      scroll-snap-type: none;
-      user-select: none;
-    }
-    .ame-vs__track.is-dragging .ame-vs__item {
-      pointer-events: none;
     }
     .ame-vs__track::-webkit-scrollbar {
       display: none;
@@ -1139,34 +1130,18 @@
       }
     });
 
-    /* Drag horizontal com mouse + wheel-as-horizontal pra desktop (scrollbar é oculto) */
-    function enableHorizontalDrag(track) {
-      let isDown = false;
-      let startX = 0;
-      let startScroll = 0;
-      let moved = 0;
+    /* Versão anterior tinha mouse-drag custom + handler de click em CAPTURE
+       PHASE que cancelava clicks com `moved > 5`. Isso interceptava clicks
+       legítimos antes do delegate global (preventDefault+stopPropagation),
+       fazendo os stories não abrirem em desktop. Mobile não usava o drag
+       (touch usa scroll nativo), mas tinha sintomas paralelos.
 
-      track.addEventListener('mousedown', (e) => {
-        isDown = true;
-        moved = 0;
-        startX = e.pageX;
-        startScroll = track.scrollLeft;
-        track.classList.add('is-dragging');
-      });
-      const stop = () => { isDown = false; track.classList.remove('is-dragging'); };
-      track.addEventListener('mouseleave', stop);
-      track.addEventListener('mouseup', stop);
-      track.addEventListener('mousemove', (e) => {
-        if (!isDown) return;
-        const dx = e.pageX - startX;
-        moved = Math.abs(dx);
-        track.scrollLeft = startScroll - dx;
-      });
-      // Suprime o click se arrastou mais de 5px (evita abrir modal sem querer)
-      track.addEventListener('click', (e) => {
-        if (moved > 5) { e.preventDefault(); e.stopPropagation(); }
-      }, true);
-      // Wheel vertical do mouse vira scroll horizontal
+       Agora só mantemos wheel-vertical → scroll-horizontal pra usuários de
+       mouse desktop conseguirem navegar pelo carrossel. Touch e touchpad
+       já fazem scroll horizontal nativo via overflow-x:auto. Drag por mouse
+       (clicar e arrastar) virou só scroll por wheel — mais previsível e
+       não interfere com clicks. */
+    function enableHorizontalDrag(track) {
       track.addEventListener('wheel', (e) => {
         if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.deltaY !== 0) {
           e.preventDefault();
