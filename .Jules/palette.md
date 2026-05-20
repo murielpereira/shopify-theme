@@ -13,3 +13,7 @@
 ## 2024-05-13 - Add aria-pressed to custom selection buttons
 **Learning:** Found that custom selection buttons (like product swatches and size selectors) used CSS classes to indicate active state, but lacked the `aria-pressed` attribute, leaving screen reader users unaware of which option was currently selected. Additionally, disabled options did not clearly announce their unavailable status.
 **Action:** Always add `aria-pressed="true/false"` to custom toggle/selection buttons and ensure the state is kept in sync via JavaScript. For unavailable options, add `aria-disabled="true"` and explicitly append "(Esgotado)" or similar to the `aria-label` and `title` attributes.
+
+## 2024-05-20 - Cart Drawer Accessibility Refinements
+**Learning:** Dialog components and input feedbacks in Shopify themes often miss critical ARIA linkages (`aria-modal="true"` and `aria-describedby`), reducing screen reader context.
+**Action:** Always ensure `role="dialog"` is paired with `aria-modal="true"`, and connect dynamic feedback elements to their respective inputs using `aria-describedby` and `id`.
