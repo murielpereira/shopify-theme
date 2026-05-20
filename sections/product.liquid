@@ -753,7 +753,7 @@
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
         <div class="pdp__qty-ctrl">
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir">
+          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir" disabled>
             −
           </button>
           <input
@@ -922,11 +922,28 @@
 
     /* ── Quantidade ── */
     const qtyInput = document.getElementById('pdp-qty');
-    document.getElementById('pdp-qty-minus')?.addEventListener('click', () => {
-      if (qtyInput && +qtyInput.value > 1) qtyInput.value = +qtyInput.value - 1;
+    const btnMinus = document.getElementById('pdp-qty-minus');
+    const updateMinusBtn = () => {
+      if (btnMinus && qtyInput) {
+        btnMinus.disabled = +qtyInput.value <= 1;
+      }
+    };
+
+    btnMinus?.addEventListener('click', () => {
+      if (qtyInput && +qtyInput.value > 1) {
+        qtyInput.value = +qtyInput.value - 1;
+        updateMinusBtn();
+      }
     });
     document.getElementById('pdp-qty-plus')?.addEventListener('click', () => {
-      if (qtyInput) qtyInput.value = +qtyInput.value + 1;
+      if (qtyInput) {
+        qtyInput.value = +qtyInput.value + 1;
+        updateMinusBtn();
+      }
+    });
+    qtyInput?.addEventListener('change', () => {
+      if (+qtyInput.value < 1) qtyInput.value = 1;
+      updateMinusBtn();
     });
 
     /* ── Variantes (Section Rendering API — suporta >250 variantes) ── */
@@ -2176,6 +2193,11 @@
 
   .pdp__qty-btn:hover {
     background: var(--color-surface-container, #f8ece0);
+  }
+
+  .pdp__qty-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .pdp__qty-input {
