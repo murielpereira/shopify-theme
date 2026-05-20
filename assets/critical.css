@@ -347,6 +347,11 @@ body::after {
   transform: scale(1.02);
 }
 
+.ame-cta:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
+
 .ame-cta:hover::after {
   transform: translateX(100%);
 }
@@ -1412,6 +1417,11 @@ body::after {
   background: var(--color-surface-container, #f8ece0);
 }
 
+.ame-cart-discount__btn:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
+
 .ame-cart-discount__btn:disabled {
   opacity: 0.6;
   cursor: default;
@@ -1521,6 +1531,11 @@ body::after {
 
 .ame-cart-drawer__cta:hover::after {
   transform: translateX(100%);
+}
+
+.ame-cart-drawer__cta:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
 }
 
 .ame-cart-drawer__cta .material-symbols-outlined {
