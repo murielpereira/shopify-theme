@@ -1,160 +1,83 @@
-<h1 align="center" style="position: relative;">
-  <br>
-    <img src="./assets/shoppy-x-ray.svg" alt="logo" width="200">
-  <br>
-  Shopify Skeleton Theme
-</h1>
+# Âme Acessórios Pet — Tema Shopify
 
-A minimal, carefully structured Shopify theme designed to help you quickly get started. Designed with modularity, maintainability, and Shopify's best practices in mind.
+Tema da loja [ame-acessorios-pet.myshopify.com](https://ame-acessorios-pet.myshopify.com), especializada em acessórios pet artesanais de luxo (coleiras de couro, peitorais, almofadas e pingentes personalizados de identificação).
 
-<p align="center">
-  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-  <a href="./actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Shopify/skeleton-theme/actions/workflows/ci.yml/badge.svg"></a>
-</p>
+Fork do [Shopify Skeleton Theme](https://github.com/Shopify/skeleton-theme) com customizações pesadas. Todo o conteúdo do tema (strings, comentários, schema labels) está em **português do Brasil** — não há sistema de i18n.
 
-## Getting started
+## Começando
 
-### Prerequisites
+### Pré-requisitos
 
-Before starting, ensure you have the latest Shopify CLI installed:
+- [Shopify CLI](https://shopify.dev/docs/api/shopify-cli)
+- [Extensão Shopify Liquid pra VS Code](https://shopify.dev/docs/storefronts/themes/tools/shopify-liquid-vscode) (recomendado)
 
-- [Shopify CLI](https://shopify.dev/docs/api/shopify-cli) – helps you download, upload, preview themes, and streamline your workflows
-
-If you use VS Code:
-
-- [Shopify Liquid VS Code Extension](https://shopify.dev/docs/storefronts/themes/tools/shopify-liquid-vscode) – provides syntax highlighting, linting, inline documentation, and auto-completion specifically designed for Liquid templates
-
-### Clone
-
-Clone this repository using Git or Shopify CLI:
+### Desenvolvimento
 
 ```bash
-git clone git@github.com:Shopify/skeleton-theme.git
-# or
-shopify theme init
+shopify theme dev        # preview local conectado ao dev store
+shopify theme push       # sobe pro tema de testes
+shopify theme pull       # baixa settings_data.json + templates do admin
+shopify theme check      # linter (mesmo que roda no CI)
 ```
 
-### Preview
+O fluxo normal: editar localmente → `shopify theme push` → conferir no navegador. A CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) roda apenas `theme-check`; não há testes unitários.
 
-Preview this theme using Shopify CLI:
+## Recursos do tema
 
-```bash
-shopify theme dev
+### Página de produto (PDP)
+- **Section Rendering API** pra seletor de variantes — suporta produtos com >250 variantes sem dump de JSON. Quatro wrappers (`#pdp-options-wrap`, `#pdp-price-block`, `#pdp-add-btn-wrap`, `#pdp-img-badge-wrap`) são re-renderizados no clique.
+- **Pingente personalizado** ([snippets/pingente-customization.liquid](snippets/pingente-customization.liquid)) — adiciona um segundo item ao carrinho (coleira + pingente) com mapeamento de cor/tamanho automático.
+- **Campos personalizados por tag** — até 11 campos configuráveis ([sections/product.liquid](sections/product.liquid)) que aparecem apenas em produtos com a tag correspondente.
+- **FAQ híbrido** — perguntas globais via section blocks + perguntas específicas via metafield `custom.faq` (rich text). Cada FAQ global pode ser restrita a produtos com tags específicas.
+- **"Depois da compra"** — até 8 etapas configuráveis com emoji + texto, cada uma com filtro de tag opcional.
+- **Tag "Esgotado"** automática nos cards e PDP quando todas as variantes estão sem estoque.
+
+### Carrinho
+- AJAX com `items: []` (suporta múltiplos itens atômicos pra coleira+pingente).
+- Drawer híbrido: Liquid em [snippets/cart-drawer.liquid](snippets/cart-drawer.liquid) (server-rendered) + template literal em `itemHTML()` no [layout/theme.liquid](layout/theme.liquid) (após AJAX). **As duas versões precisam ficar em sincronia.**
+
+### Home
+- **Hero carrossel próprio** ([blocks/ame_hero_carousel.liquid](blocks/ame_hero_carousel.liquid)) com múltiplos slides e agendamento por datetime no Liquid.
+- **Stories de vídeo** ([snippets/video-stories.liquid](snippets/video-stories.liquid)) em 3 formatos: stories (círculos), carrossel (cards 9:16), spotlight (card central destacado com loop infinito).
+
+### Outros
+- **Página de favoritos** ([sections/favoritos.liquid](sections/favoritos.liquid)) — wishlist client-side via `localStorage`, com cards renderizados via `/products/<handle>?view=card` (template `templates/product.card.liquid` com `{% layout none %}`).
+- **Ícone de favoritos no header** com contador sincronizado entre abas via evento `storage`.
+- **Cashback** configurável por % e valor mínimo, exibido em cards e PDP.
+
+## Performance e fontes
+
+- **Lexend self-hosted** ([assets/lexend-latin.woff2](assets/lexend-latin.woff2) + latin-ext) com `font-display: swap` e `unicode-range` separando ASCII de acentos PT-BR.
+- **Material Symbols subset** ([assets/material-symbols-subset.woff2](assets/material-symbols-subset.woff2)) com apenas os ícones em uso. **Ao adicionar um ícone novo no Liquid/JS, é obrigatório regenerar o subset** — caso contrário ele renderiza como texto literal (ex: `delete`). Instruções completas em [snippets/css-variables.liquid](snippets/css-variables.liquid).
+- **CSS crítico** em [assets/critical.css](assets/critical.css) (global). Estilos específicos de section ficam em `<style>`/`{% stylesheet %}` dentro do próprio arquivo.
+
+## Arquitetura
+
 ```
-
-## Theme architecture
-
-```bash
 .
-├── assets          # Stores static assets (CSS, JS, images, fonts, etc.)
-├── blocks          # Reusable, nestable, customizable UI components
-├── config          # Global theme settings and customization options
-├── layout          # Top-level wrappers for pages (layout templates)
-├── locales         # Translation files for theme internationalization
-├── sections        # Modular full-width page components
-├── snippets        # Reusable Liquid code or HTML fragments
-└── templates       # Templates combining sections to define page structures
+├── assets          # CSS, JS, fontes self-hosted, ícones
+├── blocks          # Componentes reutilizáveis (hero carrossel, blocos AI-gen)
+├── config          # settings_schema.json, settings_data.json
+├── layout          # theme.liquid (com cart drawer JS template)
+├── locales         # vazios — todo o conteúdo é PT-BR direto
+├── sections        # Componentes de página com schema customizável
+├── snippets        # Liquid reutilizável (cart drawer, product card, pingente)
+└── templates       # JSON e Liquid de cada tipo de página
 ```
 
-To learn more, refer to the [theme architecture documentation](https://shopify.dev/docs/storefronts/themes/architecture).
+### Templates de produto
 
-### Templates
+- [`templates/product.json`](templates/product.json) — template padrão (produto comum).
+- [`templates/product.card.liquid`](templates/product.card.liquid) — alternativo com `{% layout none %}`. Acessado via `?view=card` pra entregar só o markup do card (usado pela página de favoritos pra montar grids client-side).
 
-[Templates](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) control what's rendered on each type of page in a theme.
+## Convenções
 
-The Skeleton Theme scaffolds [JSON templates](https://shopify.dev/docs/storefronts/themes/architecture/templates/json-templates) to make it easy for merchants to customize their store.
+- **PT-BR direto no código**: nada de `{{ '...' | t }}`. Copie o padrão dos arquivos existentes.
+- **Cor:** evite `#000` puro — use `--color-on-background: #201b14`. A primária é `--color-primary: #5a4742` (marrom).
+- **Sem `{% stylesheet %}` dentro de `{% if %}`** — Shopify rejeita na validação. Use `<style>` plano em snippets condicionais.
+- **`config/settings_data.json` é auto-gerado** pelo admin do Shopify — não edite manualmente, e se editar via script, valide o JSON antes de subir.
+- **Documentação interna**: [CLAUDE.md](CLAUDE.md) tem detalhes técnicos profundos e quirks. Pastas [`.Jules/`](.Jules/) acumulam memórias de revisões automatizadas (performance, acessibilidade, segurança).
 
-None of the template types are required, and not all of them are included in the Skeleton Theme. Refer to the [template types reference](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) for a full list.
+## Licença
 
-### Sections
-
-[Sections](https://shopify.dev/docs/storefronts/themes/architecture/sections) are Liquid files that allow you to create reusable modules of content that can be customized by merchants. They can also include blocks which allow merchants to add, remove, and reorder content within a section.
-
-Sections are made customizable by including a `{% schema %}` in the body. For more information, refer to the [section schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/sections/section-schema).
-
-### Blocks
-
-[Blocks](https://shopify.dev/docs/storefronts/themes/architecture/blocks) let developers create flexible layouts by breaking down sections into smaller, reusable pieces of Liquid. Each block has its own set of settings, and can be added, removed, and reordered within a section.
-
-Blocks are made customizable by including a `{% schema %}` in the body. For more information, refer to the [block schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/blocks/theme-blocks/schema).
-
-## Schemas
-
-When developing components defined by schema settings, we recommend these guidelines to simplify your code:
-
-- **Single property settings**: For settings that correspond to a single CSS property, use CSS variables:
-
-  ```liquid
-  <div class="collection" style="--gap: {{ block.settings.gap }}px">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection {
-      gap: var(--gap);
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "range",
-      "label": "gap",
-      "id": "gap",
-      "min": 0,
-      "max": 100,
-      "unit": "px",
-      "default": 0,
-    }]
-  }
-  {% endschema %}
-  ```
-
-- **Multiple property settings**: For settings that control multiple CSS properties, use CSS classes:
-
-  ```liquid
-  <div class="collection {{ block.settings.layout }}">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection--full-width {
-      /* multiple styles */
-    }
-    .collection--narrow {
-      /* multiple styles */
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "select",
-      "id": "layout",
-      "label": "layout",
-      "values": [
-        { "value": "collection--full-width", "label": "t:options.full" },
-        { "value": "collection--narrow", "label": "t:options.narrow" }
-      ]
-    }]
-  }
-  {% endschema %}
-  ```
-
-## CSS & JavaScript
-
-For CSS and JavaScript, we recommend using the [`{% stylesheet %}`](https://shopify.dev/docs/api/liquid/tags#stylesheet) and [`{% javascript %}`](https://shopify.dev/docs/api/liquid/tags/javascript) tags. They can be included multiple times, but the code will only appear once.
-
-### `critical.css`
-
-The Skeleton Theme explicitly separates essential CSS necessary for every page into a dedicated `critical.css` file.
-
-## Contributing
-
-We're excited for your contributions to the Skeleton Theme! This repository aims to remain as lean, lightweight, and fundamental as possible, and we kindly ask your contributions to align with this intention.
-
-Visit our [CONTRIBUTING.md](./CONTRIBUTING.md) for a detailed overview of our process, guidelines, and recommendations.
-
-## License
-
-Skeleton Theme is open-sourced under the [MIT](./LICENSE.md) License.
+[MIT](./LICENSE.md) — herdada do Skeleton Theme.

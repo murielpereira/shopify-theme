@@ -7,10 +7,91 @@
   #   - Filtro de tags dos blocks FAQ (whitelist por pergunta)
   # Pipes evitam que 'couro' case com 'couro_legitimo' (match exato, não substring).
   assign product_tags_search = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
+
+  # Detector "Depois da compra": há ao menos uma etapa visível pra este produto?
+  # Calculado AQUI (antes do accordion de Descrição) pra que o accordion abra
+  # mesmo quando product.description está vazio — antes ele ficava oculto e
+  # arrastava o Depois da compra + FAQ junto.
+  assign has_steps = false
+  if section.settings.show_after_purchase
+    for i in (1..8)
+      assign step_title_key = 'step_' | append: i | append: '_title'
+      assign step_tags_key = 'step_' | append: i | append: '_tags_filter'
+      if section.settings[step_title_key] == blank
+        continue
+      endif
+      assign step_visible = true
+      if section.settings[step_tags_key] != blank
+        assign step_visible = false
+        assign step_filter_tags = section.settings[step_tags_key] | downcase | split: ','
+        for sft in step_filter_tags
+          assign sft_clean = sft | strip
+          if sft_clean == blank
+            continue
+          endif
+          assign sft_needle = sft_clean | prepend: '|' | append: '|'
+          if product_tags_search contains sft_needle
+            assign step_visible = true
+            break
+          endif
+        endfor
+      endif
+      if step_visible
+        assign has_steps = true
+        break
+      endif
+    endfor
+  endif
+
+  # Detector FAQ global: pelo menos um block FAQ é visível pra este produto?
+  assign has_global_faq = false
+  if section.settings.show_faq
+    for block in section.blocks
+      if block.type == 'faq' and block.settings.question != blank
+        assign faq_visible = true
+        if block.settings.tags_filter != blank
+          assign faq_visible = false
+          assign filter_tags = block.settings.tags_filter | downcase | split: ','
+          for ft in filter_tags
+            assign ft_clean = ft | strip
+            if ft_clean == blank
+              continue
+            endif
+            assign ft_needle = ft_clean | prepend: '|' | append: '|'
+            if product_tags_search contains ft_needle
+              assign faq_visible = true
+              break
+            endif
+          endfor
+        endif
+        if faq_visible
+          assign has_global_faq = true
+          break
+        endif
+      endif
+    endfor
+  endif
+
+  # Detector FAQ por produto (metafield rich text custom.faq).
+  assign product_faq = product.metafields.custom.faq
+  assign has_product_faq = false
+  if section.settings.show_faq and product_faq != blank
+    assign has_product_faq = true
+  endif
+
+  # O accordion de Descrição abre se HOUVER qualquer conteúdo: descrição
+  # textual, etapas do Depois da compra ou FAQ. Sem isso, produtos sem
+  # descrição perdiam tudo (Depois da compra + FAQ eram filhos do accordion).
+  assign show_desc_accordion = false
+  if section.settings.show_description
+    if product.description != blank or has_steps or has_global_faq or has_product_faq
+      assign show_desc_accordion = true
+    endif
+  endif
 -%}
 
 <div class="pdp-accordions full-width" data-pdp-accordions>
-  {%- if section.settings.show_description and product.description != blank -%}
+  {%- if show_desc_accordion -%}
     <div class="ame-accordion">
       <button
         class="ame-accordion__btn"
@@ -32,51 +113,16 @@
         style="max-height: none;"
       >
         <div class="ame-accordion__body">
-          {{ product.description }}
+          {%- if product.description != blank -%}
+            {{ product.description }}
+          {%- endif -%}
 
           {%- comment -%}
-            Bloco "Depois da compra" — 4 etapas configuráveis na section.
-            Aparece embutido no acordeão de Descrição (renderizado em todos
-            os produtos automaticamente).
+            Bloco "Depois da compra" — 8 etapas configuráveis na section.
+            has_steps já foi calculado no topo do template (junto com filtros
+            de tag por etapa). Aparece embutido no acordeão de Descrição.
           {%- endcomment -%}
-          {%- if section.settings.show_after_purchase -%}
-            {%- liquid
-              # Cada etapa tem step_N_tags_filter (whitelist). Vazio = aparece sempre;
-              # preenchido = só aparece em produtos com pelo menos UMA das tags
-              # listadas. Mesma regra de match exato/case-insensitive do FAQ.
-              # has_steps checa se há ao menos uma etapa visível pra este produto
-              # — sem isso, o título "O que acontece depois da compra" apareceria
-              # vazio quando todas as etapas estão filtradas pra fora.
-              assign has_steps = false
-              for i in (1..8)
-                assign step_title_key = 'step_' | append: i | append: '_title'
-                assign step_tags_key = 'step_' | append: i | append: '_tags_filter'
-                if section.settings[step_title_key] == blank
-                  continue
-                endif
-                assign step_visible = true
-                if section.settings[step_tags_key] != blank
-                  assign step_visible = false
-                  assign step_filter_tags = section.settings[step_tags_key] | downcase | split: ','
-                  for sft in step_filter_tags
-                    assign sft_clean = sft | strip
-                    if sft_clean == blank
-                      continue
-                    endif
-                    assign sft_needle = sft_clean | prepend: '|' | append: '|'
-                    if product_tags_search contains sft_needle
-                      assign step_visible = true
-                      break
-                    endif
-                  endfor
-                endif
-                if step_visible
-                  assign has_steps = true
-                  break
-                endif
-              endfor
-            -%}
-            {%- if has_steps -%}
+          {%- if has_steps -%}
               <div class="pdp__after-purchase">
                 <h3 class="pdp__after-purchase__title">
                   {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
@@ -119,7 +165,6 @@
                   {%- endfor -%}
                 </ol>
               </div>
-            {%- endif -%}
           {%- endif -%}
 
           {%- comment -%}
@@ -127,44 +172,10 @@
             (metafield product.metafields.custom.faq, rich text com cada
             pergunta como <h3> ou <h4> seguida pelo conteúdo da resposta).
           {%- endcomment -%}
-          {%- if section.settings.show_faq -%}
-            {%- liquid
-              # FAQ global tem suporte a whitelist por tag (block.settings.tags_filter).
-              # Vazio = aparece em todos os produtos. Preenchido = aparece só nos
-              # produtos que têm pelo menos UMA das tags listadas. A variável
-              # product_tags_search é calculada no topo do template.
-              assign has_global_faq = false
-              for block in section.blocks
-                if block.type == 'faq' and block.settings.question != blank
-                  assign faq_visible = true
-                  if block.settings.tags_filter != blank
-                    assign faq_visible = false
-                    assign filter_tags = block.settings.tags_filter | downcase | split: ','
-                    for ft in filter_tags
-                      assign ft_clean = ft | strip
-                      if ft_clean == blank
-                        continue
-                      endif
-                      assign ft_needle = ft_clean | prepend: '|' | append: '|'
-                      if product_tags_search contains ft_needle
-                        assign faq_visible = true
-                        break
-                      endif
-                    endfor
-                  endif
-                  if faq_visible
-                    assign has_global_faq = true
-                    break
-                  endif
-                endif
-              endfor
-              assign product_faq = product.metafields.custom.faq
-              assign has_product_faq = false
-              if product_faq != blank
-                assign has_product_faq = true
-              endif
-            -%}
-            {%- if has_global_faq or has_product_faq -%}
+          {%- comment -%}
+            has_global_faq / has_product_faq foram calculados no topo do template.
+          {%- endcomment -%}
+          {%- if has_global_faq or has_product_faq -%}
               <div class="pdp__faq">
                 <h3 class="pdp__faq__title">
                   {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
@@ -222,7 +233,6 @@
                 </div>
               </div>
             {%- endif -%}
-          {%- endif -%}
         </div>
       </div>
     </div>

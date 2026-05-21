@@ -79,7 +79,10 @@
       "Bash(grep -iv \"comment\\\\|//\")",
       "Bash(curl -sL -A \"Mozilla/5.0 \\(Linux; Android 11\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0 Mobile Safari/537.36\" \"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..400,0..1&icon_names=account_balance_wallet,add,arrow_back,arrow_back_ios,arrow_forward,arrow_forward_ios,block,card_giftcard,chat,check,chevron_left,chevron_right,close,code,content_copy,delete,expand_more,extension,favorite,gpp_good,image,info,local_police,local_shipping,lock,mail,menu,notifications_active,person,photo_camera,play_arrow,play_circle,refresh,remove,save,search,search_off,sell,shopping_bag,star,thumb_up,verified_user,visibility&display=block\" -o /tmp/ms-css.txt)",
       "Bash(curl -s -L -A \"Mozilla/5.0 \\(Linux; Android 11\\) Mobile\" \"https://ame-acessorios-pet.myshopify.com/\" -o /tmp/home.html)",
-      "Bash(awk '/shopify-section-template--21998928920791__home_video_stories_MErTLy/,/<\\\\/section>/' home.html)"
+      "Bash(awk '/shopify-section-template--21998928920791__home_video_stories_MErTLy/,/<\\\\/section>/' home.html)",
+      "WebFetch(domain:ame-acessorios-pet.myshopify.com)",
+      "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-sara\")",
+      "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-sara\" -o /tmp/sara.html)"
     ]
   }
 }
