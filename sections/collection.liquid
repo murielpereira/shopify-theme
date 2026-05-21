@@ -161,7 +161,65 @@
         </div>
 
         {%- if paginate.pages > 1 -%}
-          <div class="ame-col-pagination">{{ paginate | default_pagination: anchor: '' }}</div>
+          {%- comment -%}
+            Paginação customizada (não usa default_pagination) pra dar o layout:
+            [Anterior fixo] [scroll horizontal de páginas] [Avançar fixo].
+            paginate.parts traz cada elemento (número, "..." gap, link ativo)
+            com .title, .url e .is_link — usamos pra montar a lista do meio.
+          {%- endcomment -%}
+          <nav class="ame-col-pagination" aria-label="Paginação">
+            {%- if paginate.previous -%}
+              <a
+                class="ame-col-pagination__nav ame-col-pagination__nav--prev"
+                href="{{ paginate.previous.url }}"
+                aria-label="Página anterior"
+                rel="prev"
+              >« Anterior</a>
+            {%- else -%}
+              <span class="ame-col-pagination__nav ame-col-pagination__nav--prev is-disabled" aria-disabled="true">« Anterior</span>
+            {%- endif -%}
+
+            <div class="ame-col-pagination__pages" data-pagination-pages>
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a class="ame-col-pagination__page" href="{{ part.url }}" aria-label="Página {{ part.title }}">{{ part.title }}</a>
+                {%- else -%}
+                  {%- if part.title == paginate.current_page -%}
+                    <span class="ame-col-pagination__page is-current" aria-current="page">{{ part.title }}</span>
+                  {%- else -%}
+                    <span class="ame-col-pagination__page is-gap" aria-hidden="true">{{ part.title }}</span>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+
+            {%- if paginate.next -%}
+              <a
+                class="ame-col-pagination__nav ame-col-pagination__nav--next"
+                href="{{ paginate.next.url }}"
+                aria-label="Próxima página"
+                rel="next"
+              >Avançar »</a>
+            {%- else -%}
+              <span class="ame-col-pagination__nav ame-col-pagination__nav--next is-disabled" aria-disabled="true">Avançar »</span>
+            {%- endif -%}
+          </nav>
+
+          <script>
+            /* Centraliza a página atual no scroll horizontal do meio — sem isso,
+               quando o cliente está na página 8 de 10, o scroll começa na 1 e
+               ele teria que rolar pra ver onde está. */
+            (() => {
+              const wrap = document.querySelector('[data-pagination-pages]');
+              if (!wrap) return;
+              const current = wrap.querySelector('.is-current');
+              if (!current) return;
+              const wrapRect = wrap.getBoundingClientRect();
+              const curRect = current.getBoundingClientRect();
+              const offset = curRect.left - wrapRect.left - (wrapRect.width / 2) + (curRect.width / 2);
+              wrap.scrollLeft = offset;
+            })();
+          </script>
         {%- endif -%}
       {%- endif -%}
     {%- endpaginate -%}
@@ -446,27 +504,91 @@
     padding: 4rem 0;
     text-align: center;
   }
+  /* Paginação: [Anterior fixo] [scroll horizontal de páginas] [Avançar fixo].
+     Anterior/Avançar não encolhem — o meio é flex:1 com overflow-x:auto,
+     então só ele scrolla quando há muitas páginas. */
   .ame-col-pagination {
     display: flex;
-    justify-content: center;
+    align-items: center;
     gap: 0.5rem;
     margin-top: 4rem;
     font-size: 0.875rem;
   }
-  .ame-col-pagination a,
-  .ame-col-pagination span {
-    padding: 0.5rem 1rem;
+  .ame-col-pagination__nav {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.875rem;
     border-radius: var(--radius-md, 0.25rem);
     color: var(--color-on-surface-variant, #4f4442);
     text-decoration: none;
+    white-space: nowrap;
     transition: background 0.2s ease;
   }
-  .ame-col-pagination a:hover {
+  .ame-col-pagination__nav:hover {
     background: var(--color-surface-container, #f8ece0);
   }
-  .ame-col-pagination .current {
+  .ame-col-pagination__nav.is-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .ame-col-pagination__pages {
+    flex: 1 1 0;
+    min-width: 0;              /* impede o flex item de crescer pra além do pai */
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    padding: 0.25rem 0.5rem;   /* respiro vertical pro :hover não cortar */
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ame-col-pagination__pages::-webkit-scrollbar {
+    display: none;
+  }
+  .ame-col-pagination__page {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md, 0.25rem);
+    color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+  }
+  .ame-col-pagination__page:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
+  .ame-col-pagination__page.is-current {
     background: var(--color-primary, #5a4742);
     color: #ffffff;
+  }
+  .ame-col-pagination__page.is-gap {
+    cursor: default;
+    color: rgba(90, 71, 66, 0.5);
+  }
+  @media (max-width: 599px) {
+    .ame-col-pagination {
+      gap: 0.25rem;
+      font-size: 0.8125rem;
+    }
+    .ame-col-pagination__nav {
+      padding: 0.4rem 0.625rem;
+      min-height: 2.25rem;
+    }
+    .ame-col-pagination__page {
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+      padding: 0.4rem 0.625rem;
+    }
   }
 
   /* .ame-label-sm vive global no critical.css */
