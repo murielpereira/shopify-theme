@@ -1,5 +1,14 @@
 {% comment %} Âme — Acordeões de detalhes do produto + Depois da compra + FAQ {% endcomment %}
 
+{%- liquid
+  # String pesquisável de tags do produto, em lowercase, com pipes como
+  # sentinelas em volta de cada tag — formato '|tag1|tag2|tag3|'. Usada por:
+  #   - Filtro de tags do bloco "Depois da compra" (etapas condicionais)
+  #   - Filtro de tags dos blocks FAQ (whitelist por pergunta)
+  # Pipes evitam que 'couro' case com 'couro_legitimo' (match exato, não substring).
+  assign product_tags_search = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
+-%}
+
 <div class="pdp-accordions full-width" data-pdp-accordions>
   {%- if section.settings.show_description and product.description != blank -%}
     <div class="ame-accordion">
@@ -32,10 +41,36 @@
           {%- endcomment -%}
           {%- if section.settings.show_after_purchase -%}
             {%- liquid
+              # Cada etapa tem step_N_tags_filter (whitelist). Vazio = aparece sempre;
+              # preenchido = só aparece em produtos com pelo menos UMA das tags
+              # listadas. Mesma regra de match exato/case-insensitive do FAQ.
+              # has_steps checa se há ao menos uma etapa visível pra este produto
+              # — sem isso, o título "O que acontece depois da compra" apareceria
+              # vazio quando todas as etapas estão filtradas pra fora.
               assign has_steps = false
               for i in (1..4)
                 assign step_title_key = 'step_' | append: i | append: '_title'
-                if section.settings[step_title_key] != blank
+                assign step_tags_key = 'step_' | append: i | append: '_tags_filter'
+                if section.settings[step_title_key] == blank
+                  continue
+                endif
+                assign step_visible = true
+                if section.settings[step_tags_key] != blank
+                  assign step_visible = false
+                  assign step_filter_tags = section.settings[step_tags_key] | downcase | split: ','
+                  for sft in step_filter_tags
+                    assign sft_clean = sft | strip
+                    if sft_clean == blank
+                      continue
+                    endif
+                    assign sft_needle = sft_clean | prepend: '|' | append: '|'
+                    if product_tags_search contains sft_needle
+                      assign step_visible = true
+                      break
+                    endif
+                  endfor
+                endif
+                if step_visible
                   assign has_steps = true
                   break
                 endif
@@ -51,10 +86,29 @@
                     {%- liquid
                       assign emoji_key = 'step_' | append: i | append: '_emoji'
                       assign title_key = 'step_' | append: i | append: '_title'
+                      assign tags_key = 'step_' | append: i | append: '_tags_filter'
                       assign step_emoji = section.settings[emoji_key]
                       assign step_title = section.settings[title_key]
+                      # Mesma regra do detector has_steps acima — qualquer mudança
+                      # de visibilidade precisa replicar nos dois lugares.
+                      assign step_visible = true
+                      if section.settings[tags_key] != blank
+                        assign step_visible = false
+                        assign step_filter_tags = section.settings[tags_key] | downcase | split: ','
+                        for sft in step_filter_tags
+                          assign sft_clean = sft | strip
+                          if sft_clean == blank
+                            continue
+                          endif
+                          assign sft_needle = sft_clean | prepend: '|' | append: '|'
+                          if product_tags_search contains sft_needle
+                            assign step_visible = true
+                            break
+                          endif
+                        endfor
+                      endif
                     -%}
-                    {%- if step_title != blank -%}
+                    {%- if step_title != blank and step_visible -%}
                       <li class="pdp__after-purchase__step">
                         {%- if step_emoji != blank -%}
                           <span class="pdp__after-purchase__emoji" aria-hidden="true">{{ step_emoji }}</span>
@@ -75,11 +129,33 @@
           {%- endcomment -%}
           {%- if section.settings.show_faq -%}
             {%- liquid
+              # FAQ global tem suporte a whitelist por tag (block.settings.tags_filter).
+              # Vazio = aparece em todos os produtos. Preenchido = aparece só nos
+              # produtos que têm pelo menos UMA das tags listadas. A variável
+              # product_tags_search é calculada no topo do template.
               assign has_global_faq = false
               for block in section.blocks
                 if block.type == 'faq' and block.settings.question != blank
-                  assign has_global_faq = true
-                  break
+                  assign faq_visible = true
+                  if block.settings.tags_filter != blank
+                    assign faq_visible = false
+                    assign filter_tags = block.settings.tags_filter | downcase | split: ','
+                    for ft in filter_tags
+                      assign ft_clean = ft | strip
+                      if ft_clean == blank
+                        continue
+                      endif
+                      assign ft_needle = ft_clean | prepend: '|' | append: '|'
+                      if product_tags_search contains ft_needle
+                        assign faq_visible = true
+                        break
+                      endif
+                    endfor
+                  endif
+                  if faq_visible
+                    assign has_global_faq = true
+                    break
+                  endif
                 endif
               endfor
               assign product_faq = product.metafields.custom.faq
@@ -96,13 +172,36 @@
                 <div class="pdp__faq__list" data-pdp-faq>
                   {%- for block in section.blocks -%}
                     {%- if block.type == 'faq' and block.settings.question != blank -%}
-                      <details class="pdp__faq__item" {{ block.shopify_attributes }}>
-                        <summary class="pdp__faq__question">
-                          <span>{{ block.settings.question }}</span>
-                          <span class="pdp__faq__toggle" aria-hidden="true">+</span>
-                        </summary>
-                        <div class="pdp__faq__answer">{{ block.settings.answer }}</div>
-                      </details>
+                      {%- liquid
+                        # Mesma regra de visibilidade do detector has_global_faq
+                        # acima — qualquer mudança de regra precisa replicar nos
+                        # dois lugares (detector + renderizador).
+                        assign faq_visible = true
+                        if block.settings.tags_filter != blank
+                          assign faq_visible = false
+                          assign filter_tags = block.settings.tags_filter | downcase | split: ','
+                          for ft in filter_tags
+                            assign ft_clean = ft | strip
+                            if ft_clean == blank
+                              continue
+                            endif
+                            assign ft_needle = ft_clean | prepend: '|' | append: '|'
+                            if product_tags_search contains ft_needle
+                              assign faq_visible = true
+                              break
+                            endif
+                          endfor
+                        endif
+                      -%}
+                      {%- if faq_visible -%}
+                        <details class="pdp__faq__item" {{ block.shopify_attributes }}>
+                          <summary class="pdp__faq__question">
+                            <span>{{ block.settings.question }}</span>
+                            <span class="pdp__faq__toggle" aria-hidden="true">+</span>
+                          </summary>
+                          <div class="pdp__faq__answer">{{ block.settings.answer }}</div>
+                        </details>
+                      {%- endif -%}
                     {%- endif -%}
                   {%- endfor -%}
 
@@ -427,6 +526,12 @@
     },
     {
       "type": "text",
+      "id": "step_1_tags_filter",
+      "label": "Etapa 1 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Se preenchido, esta etapa só aparece em produtos com pelo menos uma das tags. Vazio = aparece em todos."
+    },
+    {
+      "type": "text",
       "id": "step_2_emoji",
       "label": "Etapa 2 — Emoji",
       "default": "✂️"
@@ -436,6 +541,12 @@
       "id": "step_2_title",
       "label": "Etapa 2 — Texto",
       "default": "Produzimos a peça especialmente para ele"
+    },
+    {
+      "type": "text",
+      "id": "step_2_tags_filter",
+      "label": "Etapa 2 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
     },
     {
       "type": "text",
@@ -451,6 +562,12 @@
     },
     {
       "type": "text",
+      "id": "step_3_tags_filter",
+      "label": "Etapa 3 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
+    },
+    {
+      "type": "text",
       "id": "step_4_emoji",
       "label": "Etapa 4 — Emoji",
       "default": "📦"
@@ -460,6 +577,12 @@
       "id": "step_4_title",
       "label": "Etapa 4 — Texto",
       "default": "Enviamos com todo o carinho"
+    },
+    {
+      "type": "text",
+      "id": "step_4_tags_filter",
+      "label": "Etapa 4 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
     },
     {
       "type": "header",
@@ -497,10 +620,16 @@
       "settings": [
         {
           "type": "paragraph",
-          "content": "Aparece em todos os produtos. Pra perguntas específicas de um produto, use o metafield 'custom.faq' no admin do produto."
+          "content": "Aparece em todos os produtos por padrão. Pra restringir, preencha 'Mostrar apenas em produtos com estas tags' abaixo."
         },
         { "type": "text", "id": "question", "label": "Pergunta", "default": "É couro legítimo mesmo?" },
-        { "type": "richtext", "id": "answer", "label": "Resposta", "default": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>" }
+        { "type": "richtext", "id": "answer", "label": "Resposta", "default": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>" },
+        {
+          "type": "text",
+          "id": "tags_filter",
+          "label": "Mostrar apenas em produtos com estas tags",
+          "info": "Lista de tags separadas por vírgula. Ex: 'couro, coleira'. Se preenchido, a pergunta só aparece em produtos que tenham PELO MENOS UMA dessas tags. Vazio = aparece em todos."
+        }
       ]
     }
   ],

@@ -780,16 +780,22 @@
       <div class="pdp__ctas">
         <div id="pdp-add-btn-wrap" style="display:contents">
           {%- liquid
-            # Só desabilita quando o cliente já escolheu uma variante e ela está esgotada.
-            # Sem nada selecionado, deixa habilitado pra exibir o erro de validação no clique.
+            # Desabilita o botão em dois cenários:
+            # 1. Produto inteiro esgotado (product.available == false → todas as variantes sem estoque)
+            # 2. Cliente escolheu uma variante específica e ela está esgotada
+            # Sem nada selecionado mas produto disponível, deixa habilitado pra mostrar
+            # o erro de validação no clique (força o cliente a escolher variante).
             assign cta_sold_out = false
+            unless product.available
+              assign cta_sold_out = true
+            endunless
             if has_variant and cv.available == false
               assign cta_sold_out = true
             endif
           -%}
           <button
             type="submit"
-            class="ame-cta pdp__add-btn"
+            class="ame-cta pdp__add-btn{% if cta_sold_out %} pdp__add-btn--sold-out{% endif %}"
             id="pdp-add-btn"
             {% if product.tags contains 'efeito_borboletas_svg' %}
               data-fly-effect="butterflies-svg"
@@ -798,10 +804,11 @@
             {% endif %}
             {% if cta_sold_out %}
               disabled
+              aria-disabled="true"
             {% endif %}
           >
             {%- if cta_sold_out -%}
-              Esgotado
+              Produto esgotado
             {%- else -%}
               Adicionar ao Carrinho
               <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
@@ -2253,10 +2260,31 @@
     flex: 1;
   }
 
+  /* Estado "esgotado" do CTA — fundo cinza, sem hover, sem clique.
+     `disabled` no <button> já impede submit; pointer-events:none é redundância
+     defensiva. Mantemos a opacidade próxima de 1 (não 0.5) porque o cinza
+     já comunica "indisponível" sem precisar atenuar. */
+  .pdp__add-btn--sold-out,
   .pdp__add-btn:disabled {
-    opacity: 0.5;
+    background: var(--color-outline, #817471) !important;
+    color: var(--color-on-primary, #ffffff) !important;
     cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none;
     transform: none !important;
+  }
+  .pdp__add-btn--sold-out:hover,
+  .pdp__add-btn--sold-out:focus,
+  .pdp__add-btn:disabled:hover,
+  .pdp__add-btn:disabled:focus {
+    transform: none !important;
+    background: var(--color-outline, #817471) !important;
+    color: var(--color-on-primary, #ffffff) !important;
+  }
+  /* Desativa o efeito de shimmer/luxo (::after) quando esgotado. */
+  .pdp__add-btn--sold-out::after,
+  .pdp__add-btn:disabled::after {
+    display: none;
   }
 
   .pdp__wishlist-btn {
