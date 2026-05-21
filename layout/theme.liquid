@@ -139,6 +139,7 @@
                 dragHeight = d.getBoundingClientRect().height;
                 dragging = true;
                 d.style.transition = 'none';
+                d.style.touchAction = 'none';
               },
               { passive: true }
             );
@@ -152,10 +153,9 @@
                   d.style.transform = '';
                   return;
                 }
-                e.preventDefault();
                 d.style.transform = `translateY(${dy}px)`;
               },
-              { passive: false }
+              { passive: true }
             );
 
             d.addEventListener(
@@ -163,6 +163,7 @@
               (e) => {
                 if (!dragging) return;
                 dragging = false;
+                d.style.touchAction = '';
                 const dy = e.changedTouches[0].clientY - startY;
                 const elapsed = Date.now() - startT;
                 const velocity = dy / Math.max(1, elapsed);
