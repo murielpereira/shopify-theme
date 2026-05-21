@@ -41,10 +41,19 @@
             "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
             "tags_filter": "faq_couro"
           }
+        },
+        "faq_7MGQ9j": {
+          "type": "faq",
+          "settings": {
+            "question": "Quanto tempo de garantia?",
+            "answer": "<p>Nossos produtos tem <strong>6 meses de garantia </strong>contra defeitos de fabricação (costuras, metais, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!<br/><br/></p>",
+            "tags_filter": "faq_garantia"
+          }
         }
       },
       "block_order": [
-        "faq_fBQQrG"
+        "faq_fBQQrG",
+        "faq_7MGQ9j"
       ],
       "name": "Detalhes do Produto",
       "settings": {
