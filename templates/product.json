@@ -38,7 +38,8 @@
           "type": "faq",
           "settings": {
             "question": "É couro legítimo mesmo?",
-            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>"
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
+            "tags_filter": "faq_couro"
           }
         }
       },
@@ -53,12 +54,28 @@
         "after_purchase_title": "O que acontece depois da compra",
         "step_1_emoji": "🔍",
         "step_1_title": "Analisamos as informações do seu pet",
+        "step_1_tags_filter": "",
         "step_2_emoji": "✂️",
         "step_2_title": "Produzimos a peça especialmente para ele",
+        "step_2_tags_filter": "",
         "step_3_emoji": "🪡",
         "step_3_title": "Finalizamos com cuidado manual",
+        "step_3_tags_filter": "",
         "step_4_emoji": "📦",
         "step_4_title": "Enviamos com todo o carinho",
+        "step_4_tags_filter": "",
+        "step_5_emoji": "",
+        "step_5_title": "",
+        "step_5_tags_filter": "",
+        "step_6_emoji": "",
+        "step_6_title": "",
+        "step_6_tags_filter": "",
+        "step_7_emoji": "",
+        "step_7_title": "",
+        "step_7_tags_filter": "",
+        "step_8_emoji": "",
+        "step_8_title": "",
+        "step_8_tags_filter": "",
         "show_faq": true,
         "faq_title": "Perguntas Frequentes"
       }
