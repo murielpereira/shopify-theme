@@ -48,7 +48,7 @@
               # — sem isso, o título "O que acontece depois da compra" apareceria
               # vazio quando todas as etapas estão filtradas pra fora.
               assign has_steps = false
-              for i in (1..4)
+              for i in (1..8)
                 assign step_title_key = 'step_' | append: i | append: '_title'
                 assign step_tags_key = 'step_' | append: i | append: '_tags_filter'
                 if section.settings[step_title_key] == blank
@@ -82,7 +82,7 @@
                   {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
                 </h3>
                 <ol class="pdp__after-purchase__steps">
-                  {%- for i in (1..4) -%}
+                  {%- for i in (1..8) -%}
                     {%- liquid
                       assign emoji_key = 'step_' | append: i | append: '_emoji'
                       assign title_key = 'step_' | append: i | append: '_title'
@@ -585,6 +585,70 @@
       "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
     },
     {
+      "type": "text",
+      "id": "step_5_emoji",
+      "label": "Etapa 5 — Emoji"
+    },
+    {
+      "type": "text",
+      "id": "step_5_title",
+      "label": "Etapa 5 — Texto"
+    },
+    {
+      "type": "text",
+      "id": "step_5_tags_filter",
+      "label": "Etapa 5 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
+    },
+    {
+      "type": "text",
+      "id": "step_6_emoji",
+      "label": "Etapa 6 — Emoji"
+    },
+    {
+      "type": "text",
+      "id": "step_6_title",
+      "label": "Etapa 6 — Texto"
+    },
+    {
+      "type": "text",
+      "id": "step_6_tags_filter",
+      "label": "Etapa 6 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
+    },
+    {
+      "type": "text",
+      "id": "step_7_emoji",
+      "label": "Etapa 7 — Emoji"
+    },
+    {
+      "type": "text",
+      "id": "step_7_title",
+      "label": "Etapa 7 — Texto"
+    },
+    {
+      "type": "text",
+      "id": "step_7_tags_filter",
+      "label": "Etapa 7 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
+    },
+    {
+      "type": "text",
+      "id": "step_8_emoji",
+      "label": "Etapa 8 — Emoji"
+    },
+    {
+      "type": "text",
+      "id": "step_8_title",
+      "label": "Etapa 8 — Texto"
+    },
+    {
+      "type": "text",
+      "id": "step_8_tags_filter",
+      "label": "Etapa 8 — Mostrar apenas em produtos com estas tags",
+      "info": "Lista de tags separadas por vírgula. Vazio = aparece em todos."
+    },
+    {
       "type": "header",
       "content": "Perguntas Frequentes"
     },
@@ -633,7 +697,7 @@
       ]
     }
   ],
-  "max_blocks": 30,
+  "max_blocks": 50,
   "presets": [
     {
       "name": "Detalhes do Produto",
