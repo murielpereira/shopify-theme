@@ -502,6 +502,14 @@ body::after {
   border-color: transparent;
 }
 
+/* Sob medida: tom sage/verde escuro — comunica informação técnica
+   (produção sob demanda), diferenciando dos chips marrons do tema. */
+.ame-chip--sob-medida {
+  background: #5a7461;
+  color: #fff;
+  border-color: transparent;
+}
+
 /* ── Selection ── */
 ::selection {
   background: var(--color-primary, #5a4742);
@@ -652,6 +660,12 @@ body::after {
 .ame-card__badge-pill--status {
   background: var(--color-primary, #5a4742);
   color: var(--color-on-primary, #ffffff);
+}
+/* "Sob Medida": tom sage/verde escuro pra diferenciar dos marrons do tema.
+   Comunica visualmente que é informação técnica do produto, não promoção. */
+.ame-card__badge-pill--sob-medida {
+  background: #5a7461;
+  color: #ffffff;
 }
 
 /* Lançamento: gradiente dourado com glow pulsante pra atrair atenção. */

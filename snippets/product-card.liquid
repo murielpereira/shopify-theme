@@ -72,6 +72,14 @@
     assign card_is_sold_out = true
   endunless
 
+  # "Sob Medida" é informação técnica (afeta produção/prazo), não promoção —
+  # por isso aparece JUNTO com lancamento/heritage/etc na mesma pilha,
+  # independente do card_badge principal.
+  assign card_is_sob_medida = false
+  if card_product.tags contains 'customizacao_sobmedida'
+    assign card_is_sob_medida = true
+  endif
+
   assign card_rating = card_product.metafields.reviews.rating.value
 
   assign pix_pct = settings.pix_discount | default: 5
@@ -124,9 +132,10 @@
       {{ 'product-1' | placeholder_svg_tag: 'ame-card__img ame-card__img--placeholder' }}
     {%- endif -%}
 
-    <!-- Pilha de badges no top-left: Esgotado/Desconto + Lançamento/Heritage/Novo.
-         Esgotado tem prioridade sobre desconto (se não dá pra comprar, o % não importa). -->
-    {%- if card_is_sold_out or card_has_discount or card_badge != '' -%}
+    <!-- Pilha de badges no top-left: Esgotado/Desconto + Lançamento/Heritage/Novo + Sob Medida.
+         Esgotado tem prioridade sobre desconto (se não dá pra comprar, o % não importa).
+         "Sob Medida" é informação técnica, aparece junto com qualquer outro badge. -->
+    {%- if card_is_sold_out or card_has_discount or card_badge != '' or card_is_sob_medida -%}
       <div class="ame-card__badges">
         {%- if card_is_sold_out -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--sold-out" aria-label="Produto esgotado">Esgotado</span>
@@ -135,6 +144,9 @@
         {%- endif -%}
         {%- if card_badge != '' -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--{{ card_badge_mod | default: 'status' }}">{{ card_badge }}</span>
+        {%- endif -%}
+        {%- if card_is_sob_medida -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--sob-medida" aria-label="Produto feito sob medida">Sob Medida</span>
         {%- endif -%}
       </div>
     {%- endif -%}

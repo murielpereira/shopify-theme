@@ -101,7 +101,11 @@
       "Bash(grep -oE 'youtube-nocookie\\\\.com/embed/[a-zA-Z0-9_-]{11}[^\"\\\\\\\\]*' /tmp/gab.html)",
       "Bash(cp /tmp/psi-quality.json ./psi-q.json)",
       "Bash(grep -oE '[^\"]*zNQ8UXn9BpY[^\"]{0,100}' /tmp/gab.html)",
-      "Bash(grep -oE '<h[1-6][^>]*>[^<]{1,80}' /tmp/gab.html)"
+      "Bash(grep -oE '<h[1-6][^>]*>[^<]{1,80}' /tmp/gab.html)",
+      "Bash(node)",
+      "Bash(node \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/_check.cjs\")",
+      "Bash(awk '/sections.product.liquid/,/^$/' /tmp/check.txt)",
+      "Bash(node \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/_check2.cjs\")"
     ]
   }
 }

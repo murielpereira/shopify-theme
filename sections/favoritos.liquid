@@ -99,7 +99,7 @@
         return;
       }
 
-      // Usar Range.createContextualFragment pra executar o <script> embutido
+      // Usar Range.createContextualFragment pra executar o script embutido
       // no product-card (innerHTML não executa scripts). O script tem guard
       // `if (window.AmeWishlistCardBound) return;` então é seguro rodar várias
       // vezes — só a primeira efetivamente registra o listener delegation.
@@ -111,7 +111,7 @@
       grid.hidden = false;
       if (loading) loading.hidden = true;
 
-      // O <script> do product-card faz delegação no document e roda
+      // O script do product-card faz delegação no document e roda
       // hydrateVisualState() ao receber o evento, pintando o coração como
       // "ativo" (FILL 1) nos botões recém-inseridos. Como esse listener
       // testa pelo handle no localStorage, é seguro disparar aqui.

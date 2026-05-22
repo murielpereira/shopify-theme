@@ -19,10 +19,9 @@
   assign pdp_videos_show = false
   assign pdp_videos_count = 0
   if section.settings.videos_enabled
-    # ⚡ Bolt: Replace manual loop with Liquid native array filters.
-    # 💡 What: Replaced `{% for %}` loop over `product.media` with native `where` filter.
-    # 🎯 Why: Native filters execute at the C/Rust level, avoiding Liquid loop parsing and execution overhead, significantly improving backend render times for products with large media galleries.
-    # 📊 Impact: Reduces template compilation overhead and speeds up Time to First Byte (TTFB).
+    # Bolt: usa filtro native `where` em vez de loop manual sobre product.media
+    # (executa em C/Rust no servidor Shopify, evita overhead de parse do Liquid
+    # loop e melhora TTFB em produtos com galerias grandes).
     assign native_videos = product.media | where: 'media_type', 'video'
     assign external_videos = product.media | where: 'media_type', 'external_video'
     assign pdp_videos_count = native_videos.size | plus: external_videos.size
@@ -226,13 +225,16 @@
 
   <!-- ── Coluna direita: informações ── -->
   <div class="pdp__info">
-    <!-- Badge de coleção / heritage / lançamento / esgotado -->
+    <!-- Badge de coleção / heritage / lançamento / sob medida / esgotado -->
     {%- liquid
       assign show_meta = false
       if product.tags contains 'lancamento'
         assign show_meta = true
       endif
       if product.tags contains 'heritage' or product.tags contains 'Heritage'
+        assign show_meta = true
+      endif
+      if product.tags contains 'customizacao_sobmedida'
         assign show_meta = true
       endif
       if product.available == false
@@ -252,6 +254,9 @@
         {%- endif -%}
         {%- if product.tags contains 'heritage' or product.tags contains 'Heritage' -%}
           <span class="ame-chip">Heritage Series</span>
+        {%- endif -%}
+        {%- if product.tags contains 'customizacao_sobmedida' -%}
+          <span class="ame-chip ame-chip--sob-medida">Sob Medida</span>
         {%- endif -%}
         {%- if product.available == false -%}
           <span class="ame-chip">Esgotado</span>
