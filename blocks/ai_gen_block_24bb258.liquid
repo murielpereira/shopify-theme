@@ -181,11 +181,15 @@
     }
   }
 
-  .ai-product-grid__item-{{ ai_gen_id }} {
+  .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card {
     display: none;
   }
 
-  .ai-product-grid__item-{{ ai_gen_id }}.visible {
+  .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card:nth-child(-n+{{ block.settings.initial_rows | times: block.settings.products_per_row }}) {
+    display: block;
+  }
+
+  .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card.visible {
     display: block;
   }
 
@@ -241,11 +245,14 @@
 
     {% if products.size > 0 %}
       <div class="ai-product-grid__grid-{{ ai_gen_id }}">
-        {% for product in products %}
-          <div class="ai-product-grid__item-{{ ai_gen_id }} {% if forloop.index <= initial_count %}visible{% endif %}" data-index="{{ forloop.index }}">
-            {% render 'product-card', card_product: product, eager_load_image: forloop.first %}
-          </div>
-        {% endfor %}
+        {% comment %}
+          ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
+          💡 What: Uses the `render 'product-card' for array` tag instead of manually looping. We also replaced the wrapper div logic with CSS :nth-child visibility to avoid breaking the snippet.
+          🎯 Why: Liquid processes a `for` loop with a `render` inside by parsing and scoping the snippet per iteration (N+1 overhead).
+          📊 Impact: Eliminates N+1 rendering overhead, reducing template compilation time.
+          🔬 Measurement: Profile the Server Response time on the page.
+        {% endcomment %}
+        {% render 'product-card' for products as card_product %}
       </div>
 
       {% if products.size > initial_count %}
@@ -273,7 +280,7 @@
       constructor() {
         super();
         this.loadMoreButton = this.querySelector('[data-load-more]');
-        this.items = this.querySelectorAll('.ai-product-grid__item-{{ ai_gen_id }}');
+        this.items = this.querySelectorAll('.ame-card');
         this.productsPerRow = {{ block.settings.products_per_row }};
         this.currentVisibleCount = {{ block.settings.initial_rows | times: block.settings.products_per_row }};
       }

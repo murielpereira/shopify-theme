@@ -1,0 +1,31 @@
+<<<<<<< SEARCH
+      window.__amefavRehydrating = true;
+      document.dispatchEvent(new CustomEvent('ame:wishlist-changed', { detail: { list: readList(), source: 'favoritos-render' } }));
+      window.__amefavRehydrating = false;
+    }
+
+    render();
+    document.addEventListener('ame:wishlist-changed', (e) => {
+      // Ignora o evento que nós mesmos disparamos pra re-hidratar visual.
+      if (window.__amefavRehydrating) return;
+      if (e?.detail?.source === 'favoritos-render') return;
+      render();
+    });
+  })();
+</script>
+=======
+      window.__amefavRehydrating = true;
+      document.dispatchEvent(new CustomEvent('ame:wishlist-changed', { detail: { list: readList(), source: 'favoritos-render' } }));
+      window.__amefavRehydrating = false;
+    }
+
+    render();
+    document.addEventListener('ame:wishlist-changed', (e) => {
+      // Ignora o evento que nós mesmos disparamos pra re-hidratar visual.
+      if (window.__amefavRehydrating) return;
+      if (e?.detail?.source === 'favoritos-render') return;
+      render();
+    });
+  })();
+</script>
+>>>>>>> REPLACE
