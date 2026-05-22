@@ -264,8 +264,13 @@
     text-transform: uppercase;
     color: var(--color-on-primary, #ffffff);
     text-decoration: none;
-    display: block;
+    /* inline-flex + min 24x24 garante área clicável WCAG/PSI (target-size). */
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    min-width: 24px;
     margin-bottom: 1rem;
+    padding: 0.25rem 0;
   }
 
   .ame-footer__tagline {

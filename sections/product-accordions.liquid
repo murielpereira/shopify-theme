@@ -124,9 +124,9 @@
           {%- endcomment -%}
           {%- if has_steps -%}
               <div class="pdp__after-purchase">
-                <h3 class="pdp__after-purchase__title">
+                <h2 class="pdp__after-purchase__title">
                   {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
-                </h3>
+                </h2>
                 <ol class="pdp__after-purchase__steps">
                   {%- for i in (1..8) -%}
                     {%- liquid
@@ -177,9 +177,9 @@
           {%- endcomment -%}
           {%- if has_global_faq or has_product_faq -%}
               <div class="pdp__faq">
-                <h3 class="pdp__faq__title">
+                <h2 class="pdp__faq__title">
                   {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
-                </h3>
+                </h2>
                 <div class="pdp__faq__list" data-pdp-faq>
                   {%- for block in section.blocks -%}
                     {%- if block.type == 'faq' and block.settings.question != blank -%}

@@ -21,3 +21,8 @@ nuvemshop/
 referencias/
 
 index.html
+
+# Secrets — API keys, tokens locais (NÃO commitar)
+.env
+.env.*
+!.env.example

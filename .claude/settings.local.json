@@ -82,7 +82,26 @@
       "Bash(awk '/shopify-section-template--21998928920791__home_video_stories_MErTLy/,/<\\\\/section>/' home.html)",
       "WebFetch(domain:ame-acessorios-pet.myshopify.com)",
       "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-sara\")",
-      "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-sara\" -o /tmp/sara.html)"
+      "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-sara\" -o /tmp/sara.html)",
+      "Bash(curl -s \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-cora&strategy=mobile&category=performance\" -o /tmp/psi-mobile.json)",
+      "Bash(curl -s \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-cora&strategy=desktop&category=performance\" -o /tmp/psi-desktop.json)",
+      "Bash(ls -la /tmp/psi-*.json 2>/dev/null)",
+      "Read(//c/tmp/**)",
+      "Bash(curl -sL -w \"\\\\n---HEADERS---\\\\nTotal time: %{time_total}s\\\\nSize: %{size_download} bytes\\\\nHTTP: %{http_code}\\\\n\" -o /tmp/cora.html \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-cora\")",
+      "Bash(awk -F: '{print $1, $2}')",
+      "Bash(cp /tmp/psi-mobile.json /tmp/psi-m.json)",
+      "Bash(cp /tmp/psi-desktop.json /tmp/psi-d.json)",
+      "Bash(cp /tmp/psi-mobile.json ./psi-mobile.json)",
+      "Bash(cp /tmp/psi-desktop.json ./psi-desktop.json)",
+      "Bash(awk '/nmkbbory/ {gsub\\(/.{0,80}nmkbbory.{0,80}/, \"##MATCH##&##MATCH##\"\\); print NR\": \"$0}' /tmp/cora.html)",
+      "Bash(cp /tmp/psi-gab-mobile.json ./psi-m.json)",
+      "Bash(cp /tmp/psi-gab-desktop.json ./psi-d.json)",
+      "Bash(curl -sL \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-gabriel\" -o /tmp/gab.html)",
+      "Bash(grep -oE 'external_video[^\"]{0,50}' /tmp/gab.html)",
+      "Bash(grep -oE 'youtube-nocookie\\\\.com/embed/[a-zA-Z0-9_-]{11}[^\"\\\\\\\\]*' /tmp/gab.html)",
+      "Bash(cp /tmp/psi-quality.json ./psi-q.json)",
+      "Bash(grep -oE '[^\"]*zNQ8UXn9BpY[^\"]{0,100}' /tmp/gab.html)",
+      "Bash(grep -oE '<h[1-6][^>]*>[^<]{1,80}' /tmp/gab.html)"
     ]
   }
 }
