@@ -17,3 +17,7 @@
 ## 2024-05-20 - Cart Drawer Accessibility Refinements
 **Learning:** Dialog components and input feedbacks in Shopify themes often miss critical ARIA linkages (`aria-modal="true"` and `aria-describedby`), reducing screen reader context.
 **Action:** Always ensure `role="dialog"` is paired with `aria-modal="true"`, and connect dynamic feedback elements to their respective inputs using `aria-describedby` and `id`.
+
+## 2024-05-24 - Cart Toggle Button Accessibility
+**Learning:** Modal and drawer toggle buttons (like the cart button) require `type="button"` to prevent accidental form submission, as well as `aria-expanded` and `aria-controls` to properly announce their state and target to screen readers.
+**Action:** When implementing new UI toggles for menus, search overlays, or drawers, always ensure `type="button"` is set, `aria-controls` links to the container ID, and `aria-expanded` is dynamically updated via JavaScript.
