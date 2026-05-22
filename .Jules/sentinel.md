@@ -30,3 +30,8 @@
 **Vulnerability:** Dynamic properties like `p.title`, `p.handle` and `p.id` returned from the Shopify API via fetch in `sections/favoritos.liquid` were interpolated into a template string and assigned to `innerHTML` without adequate sanitization.
 **Learning:** Using a rudimentary string replace for quotes is insufficient and allows malicious handles/titles to execute arbitrary XSS payloads when rendered client-side via innerHTML.
 **Prevention:** Always implement a dedicated HTML escaping function (e.g. `escapeHTML`) that escapes all key control characters (`&`, `<`, `>`, `"`, and `'`) before interpolating dynamic data into strings assigned to `innerHTML`.
+
+## 2025-02-28 - [Incomplete HTML Escaping in Cart Drawer]
+**Vulnerability:** The `esc()` function in `layout/theme.liquid` used for escaping dynamic cart item properties was missing escaping for single quotes (`'`).
+**Learning:** While most HTML attributes were wrapped in double quotes, omitting single quote escaping could still leave the application vulnerable if the escaped string is used in a context where single quotes are significant.
+**Prevention:** Always escape all HTML control characters (`&`, `<`, `>`, `"`, and `'`) when interpolating dynamic data into strings assigned to `.innerHTML` or `outerHTML`.
