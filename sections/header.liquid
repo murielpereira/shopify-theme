@@ -78,7 +78,15 @@
         hidden
       ></div>
 
-      <button type="button" class="ame-header__icon-btn" aria-label="Buscar" title="Buscar" data-search-toggle>
+      <button
+        type="button"
+        class="ame-header__icon-btn"
+        aria-label="Buscar"
+        title="Buscar"
+        aria-expanded="false"
+        aria-controls="search-overlay"
+        data-search-toggle
+      >
         <span class="material-symbols-outlined" aria-hidden="true">search</span>
       </button>
 
@@ -508,11 +516,13 @@
         searchOverlay?.setAttribute('aria-hidden', 'false');
         setTimeout(() => searchInputMobile?.focus(), 80);
       }
+      searchBtn?.setAttribute('aria-expanded', 'true');
     }
     function closeSearch() {
       searchWrap?.classList.remove('is-open');
       searchOverlay?.classList.remove('is-open');
       searchOverlay?.setAttribute('aria-hidden', 'true');
+      searchBtn?.setAttribute('aria-expanded', 'false');
       document.querySelectorAll('[data-predictive-dropdown]').forEach(d => {
         d.hidden = true;
         d.innerHTML = '';
