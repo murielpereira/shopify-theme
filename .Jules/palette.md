@@ -21,3 +21,7 @@
 ## 2024-05-24 - Cart Toggle Button Accessibility
 **Learning:** Modal and drawer toggle buttons (like the cart button) require `type="button"` to prevent accidental form submission, as well as `aria-expanded` and `aria-controls` to properly announce their state and target to screen readers.
 **Action:** When implementing new UI toggles for menus, search overlays, or drawers, always ensure `type="button"` is set, `aria-controls` links to the container ID, and `aria-expanded` is dynamically updated via JavaScript.
+
+## 2024-05-24 - Search Toggle Button Accessibility
+**Learning:** The header search toggle button lacked `aria-controls` and `aria-expanded` attributes. This meant screen readers had no way to know if the search overlay was currently open or what section of the page the button actually controlled.
+**Action:** Always add `aria-expanded="false"` (or `"true"`) and `aria-controls="[id]"` to button elements that toggle the visibility of modals, overlays, or drawers. Ensure the `aria-expanded` attribute is kept in sync via Javascript during open/close logic.
