@@ -1,0 +1,406 @@
+{% comment %} Âme — Página de cadastro customizada (Plano B do Customer Accounts)
+
+  A loja usa o novo customer accounts do Shopify (hospedado em shopify.com/.../account),
+  que não permite customizar visual via tema. Esta página é a alternativa:
+  um form local com a identidade da loja que submete pra `/account` do Shopify
+  (endpoint legado mantido pra compatibilidade). Após cadastro, o cliente é
+  redirecionado pelo Shopify pra confirmação por e-mail.
+
+  Campos extras (Instagram + Pet) são salvos em customer[note] — visível no
+  admin Shopify na ficha do cliente. Pra mover pra tags automaticamente, o
+  lojista pode configurar uma regra de Shopify Flow que parseia a nota.
+{% endcomment %}
+
+<section class="ame-cadastro full-width">
+  <div class="ame-cadastro__shell">
+    <header class="ame-cadastro__header">
+      <h1 class="ame-cadastro__title">{{ section.settings.title | default: 'Criar minha conta' }}</h1>
+      {%- if section.settings.subtitle != blank -%}
+        <p class="ame-cadastro__subtitle">{{ section.settings.subtitle }}</p>
+      {%- endif -%}
+    </header>
+
+    {%- form 'create_customer', class: 'ame-cadastro__form', novalidate: 'novalidate' -%}
+      {%- if form.errors -%}
+        <div class="ame-cadastro__alert ame-cadastro__alert--error" role="alert">
+          <p>Não foi possível criar a conta:</p>
+          <ul>
+            {%- for field in form.errors -%}
+              <li>
+                {{- form.errors.translated_fields[field] | capitalize -}}
+                {%- if field != 'form' %}: {% endif -%}
+                {{ form.errors.messages[field] }}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if form.posted_successfully? -%}
+        <div class="ame-cadastro__alert ame-cadastro__alert--success" role="status">
+          <p>Conta criada com sucesso! Enviamos um e-mail de confirmação pra você.</p>
+        </div>
+      {%- endif -%}
+
+      <div class="ame-cadastro__row">
+        <div class="ame-cadastro__field">
+          <label for="cadastro-first-name">Nome <span aria-hidden="true">*</span></label>
+          <input
+            type="text"
+            id="cadastro-first-name"
+            name="customer[first_name]"
+            required
+            autocomplete="given-name"
+          >
+        </div>
+        <div class="ame-cadastro__field">
+          <label for="cadastro-last-name">Sobrenome <span aria-hidden="true">*</span></label>
+          <input
+            type="text"
+            id="cadastro-last-name"
+            name="customer[last_name]"
+            required
+            autocomplete="family-name"
+          >
+        </div>
+      </div>
+
+      <div class="ame-cadastro__field">
+        <label for="cadastro-email">E-mail <span aria-hidden="true">*</span></label>
+        <input
+          type="email"
+          id="cadastro-email"
+          name="customer[email]"
+          required
+          autocomplete="email"
+          inputmode="email"
+        >
+      </div>
+
+      <div class="ame-cadastro__field">
+        <label for="cadastro-password">Senha <span aria-hidden="true">*</span></label>
+        <input
+          type="password"
+          id="cadastro-password"
+          name="customer[password]"
+          required
+          autocomplete="new-password"
+          minlength="5"
+        >
+        <small>Mínimo 5 caracteres.</small>
+      </div>
+
+      <div class="ame-cadastro__divider"><span>Opcional</span></div>
+
+      <div class="ame-cadastro__field">
+        <label for="cadastro-instagram">Seu Instagram</label>
+        <input
+          type="text"
+          id="cadastro-instagram"
+          name="ame_instagram"
+          placeholder="@seu.usuario"
+          autocomplete="off"
+          inputmode="text"
+        >
+        <small>Pra você marcar a Âme nas fotos do seu pet 💛</small>
+      </div>
+
+      <fieldset class="ame-cadastro__field ame-cadastro__pet">
+        <legend>Você tem...</legend>
+        <div class="ame-cadastro__pet-options">
+          <label class="ame-cadastro__pet-option">
+            <input type="radio" name="ame_pet" value="cachorro">
+            <span class="ame-cadastro__pet-emoji" aria-hidden="true">🐶</span>
+            <span>Cachorro</span>
+          </label>
+          <label class="ame-cadastro__pet-option">
+            <input type="radio" name="ame_pet" value="gato">
+            <span class="ame-cadastro__pet-emoji" aria-hidden="true">🐱</span>
+            <span>Gato</span>
+          </label>
+          <label class="ame-cadastro__pet-option">
+            <input type="radio" name="ame_pet" value="ambos">
+            <span class="ame-cadastro__pet-emoji" aria-hidden="true">🐾</span>
+            <span>Ambos</span>
+          </label>
+        </div>
+      </fieldset>
+
+      {%- comment -%} Acumulador dos campos opcionais — preenchido por JS no submit {%- endcomment -%}
+      <input type="hidden" name="customer[note]" id="cadastro-note" value="">
+
+      <label class="ame-cadastro__check">
+        <input type="checkbox" name="customer[accepts_marketing]" value="true">
+        <span>Quero receber novidades, promoções e dicas pro meu pet por e-mail.</span>
+      </label>
+
+      <button type="submit" class="ame-cta ame-cadastro__submit">
+        Criar minha conta
+      </button>
+
+      <p class="ame-cadastro__login-link">
+        Já tem conta? <a href="{{ routes.account_login_url }}">Entrar</a>
+      </p>
+    {%- endform -%}
+  </div>
+</section>
+
+<script>
+  (() => {
+    const form = document.querySelector('.ame-cadastro__form');
+    if (!form) return;
+    const noteEl = document.getElementById('cadastro-note');
+    if (!noteEl) return;
+
+    // Antes do submit, monta a nota com os campos opcionais. Vai pro
+    // customer[note] do Shopify, visível no admin na ficha do cliente.
+    form.addEventListener('submit', () => {
+      const igRaw = (form.elements['ame_instagram']?.value || '').trim();
+      // Normaliza Instagram: sempre com @ na frente
+      const ig = igRaw && !igRaw.startsWith('@') ? '@' + igRaw.replace(/^@+/, '') : igRaw;
+      const petInput = form.querySelector('input[name="ame_pet"]:checked');
+      const pet = petInput ? petInput.value : '';
+
+      const parts = [];
+      if (ig) parts.push('Instagram: ' + ig);
+      if (pet) parts.push('Pet: ' + pet);
+      noteEl.value = parts.join(' | ');
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  .ame-cadastro {
+    padding: clamp(2rem, 5vw, 4rem) var(--page-margin, 16px);
+    background: var(--color-background, #f7f5f2);
+    min-height: 60vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .ame-cadastro__shell {
+    width: 100%;
+    max-width: 28rem;
+    background: var(--color-surface-container-lowest, #fff);
+    border-radius: var(--radius-lg, 0.5rem);
+    box-shadow: var(--shadow-ambient, 0 16px 32px rgba(32, 27, 20, 0.06));
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .ame-cadastro__header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .ame-cadastro__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--color-on-background, #201b14);
+    margin: 0;
+  }
+  .ame-cadastro__subtitle {
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.55;
+    margin: 0.625rem 0 0;
+  }
+
+  .ame-cadastro__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ame-cadastro__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .ame-cadastro__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .ame-cadastro__field label,
+  .ame-cadastro__field legend {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-on-background, #201b14);
+    letter-spacing: 0.02em;
+  }
+  .ame-cadastro__field input[type="text"],
+  .ame-cadastro__field input[type="email"],
+  .ame-cadastro__field input[type="password"] {
+    font-family: var(--font-primary--family);
+    font-size: 0.9375rem;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 0.25rem);
+    background: var(--color-background, #f7f5f2);
+    color: var(--color-on-background, #201b14);
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .ame-cadastro__field input:focus {
+    outline: none;
+    border-color: var(--color-primary, #5a4742);
+    background: var(--color-surface-container-lowest, #fff);
+  }
+  .ame-cadastro__field small {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.4;
+  }
+
+  /* Divisor "Opcional" — linha com label centralizado */
+  .ame-cadastro__divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+    color: var(--color-on-surface-variant, #4f4442);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .ame-cadastro__divider::before,
+  .ame-cadastro__divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-outline-variant, #d2c3c0);
+  }
+
+  /* Pet — fieldset com 3 cards */
+  .ame-cadastro__pet {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+  .ame-cadastro__pet-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.375rem;
+  }
+  .ame-cadastro__pet-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 0.25rem);
+    cursor: pointer;
+    background: var(--color-background, #f7f5f2);
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+  .ame-cadastro__pet-option:hover {
+    border-color: var(--color-primary, #5a4742);
+    transform: translateY(-1px);
+  }
+  .ame-cadastro__pet-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ame-cadastro__pet-option:has(input:checked) {
+    border-color: var(--color-primary, #5a4742);
+    background: var(--color-surface-container, #f8ece0);
+  }
+  .ame-cadastro__pet-emoji {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .ame-cadastro__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.45;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  .ame-cadastro__check input {
+    margin-top: 0.125rem;
+    accent-color: var(--color-primary, #5a4742);
+  }
+
+  .ame-cadastro__submit {
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ame-cadastro__login-link {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0.5rem 0 0;
+  }
+  .ame-cadastro__login-link a {
+    color: var(--color-primary, #5a4742);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Alertas (sucesso / erro) */
+  .ame-cadastro__alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md, 0.25rem);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .ame-cadastro__alert p {
+    margin: 0 0 0.25rem;
+    font-weight: 600;
+  }
+  .ame-cadastro__alert ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+  .ame-cadastro__alert--error {
+    background: var(--danger-50, #fef2f2);
+    color: var(--danger-700, #b91c1c);
+    border: 1px solid var(--danger-200, #fecaca);
+  }
+  .ame-cadastro__alert--success {
+    background: var(--success-50, #f0fdf4);
+    color: var(--success-700, #15803d);
+    border: 1px solid var(--success-200, #bbf7d0);
+  }
+
+  @media (max-width: 499px) {
+    .ame-cadastro__row {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Cadastro",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Criar minha conta"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "Acompanhe seus pedidos, salve seus favoritos e ganhe acesso a ofertas exclusivas."
+    }
+  ],
+  "presets": [
+    { "name": "Cadastro" }
+  ],
+  "enabled_on": { "templates": ["page"] }
+}
+{% endschema %}

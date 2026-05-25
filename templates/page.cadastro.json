@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "cadastro": {
+      "type": "cadastro",
+      "settings": {
+        "title": "Criar minha conta",
+        "subtitle": "Acompanhe seus pedidos, salve seus favoritos e ganhe acesso a ofertas exclusivas."
+      }
+    }
+  },
+  "order": ["cadastro"]
+}
