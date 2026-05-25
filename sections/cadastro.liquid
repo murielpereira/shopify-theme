@@ -90,6 +90,22 @@
         <small>Mínimo 5 caracteres.</small>
       </div>
 
+      <div class="ame-cadastro__field">
+        <label for="cadastro-cpf">CPF <span aria-hidden="true">*</span></label>
+        <input
+          type="tel"
+          id="cadastro-cpf"
+          name="ame_cpf"
+          required
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="000.000.000-00"
+          maxlength="14"
+          aria-describedby="cadastro-cpf-error"
+        >
+        <small id="cadastro-cpf-error" data-cpf-error hidden style="color: var(--danger-600, #dc2626);">CPF inválido</small>
+      </div>
+
       <div class="ame-cadastro__divider"><span>Opcional</span></div>
 
       <div class="ame-cadastro__field">
@@ -150,18 +166,63 @@
     const form = document.querySelector('.ame-cadastro__form');
     if (!form) return;
     const noteEl = document.getElementById('cadastro-note');
-    if (!noteEl) return;
+    const cpfEl = form.elements['ame_cpf'];
+    const cpfError = form.querySelector('[data-cpf-error]');
+    if (!noteEl || !cpfEl) return;
 
-    // Antes do submit, monta a nota com os campos opcionais. Vai pro
-    // customer[note] do Shopify, visível no admin na ficha do cliente.
-    form.addEventListener('submit', () => {
+    /* Máscara CPF: aplica 000.000.000-00 conforme o usuário digita. */
+    function maskCpf(value) {
+      const digits = value.replace(/\D/g, '').slice(0, 11);
+      const len = digits.length;
+      if (len <= 3) return digits;
+      if (len <= 6) return digits.slice(0, 3) + '.' + digits.slice(3);
+      if (len <= 9) return digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6);
+      return digits.slice(0, 3) + '.' + digits.slice(3, 6) + '.' + digits.slice(6, 9) + '-' + digits.slice(9);
+    }
+    cpfEl.addEventListener('input', (e) => {
+      e.target.value = maskCpf(e.target.value);
+      e.target.setAttribute('aria-invalid', 'false');
+      if (cpfError) cpfError.hidden = true;
+    });
+
+    /* Valida CPF pelo algoritmo dos dígitos verificadores. Bloqueia padrões
+       inválidos óbvios (111.111.111-11, etc) e calcula os 2 dígitos. */
+    function isValidCpf(cpf) {
+      const d = cpf.replace(/\D/g, '');
+      if (d.length !== 11) return false;
+      if (/^(\d)\1{10}$/.test(d)) return false;
+      let sum = 0;
+      for (let i = 0; i < 9; i++) sum += parseInt(d[i], 10) * (10 - i);
+      let rest = (sum * 10) % 11;
+      if (rest === 10) rest = 0;
+      if (rest !== parseInt(d[9], 10)) return false;
+      sum = 0;
+      for (let i = 0; i < 10; i++) sum += parseInt(d[i], 10) * (11 - i);
+      rest = (sum * 10) % 11;
+      if (rest === 10) rest = 0;
+      return rest === parseInt(d[10], 10);
+    }
+
+    /* Antes do submit:
+       1. Valida CPF (bloqueia se inválido)
+       2. Monta customer[note] com CPF + Instagram + Pet (CPF sempre vai;
+          os outros só se preenchidos). */
+    form.addEventListener('submit', (e) => {
+      const cpfValue = cpfEl.value.trim();
+      if (!isValidCpf(cpfValue)) {
+        e.preventDefault();
+        cpfEl.setAttribute('aria-invalid', 'true');
+        if (cpfError) cpfError.hidden = false;
+        cpfEl.focus();
+        return;
+      }
+
       const igRaw = (form.elements['ame_instagram']?.value || '').trim();
-      // Normaliza Instagram: sempre com @ na frente
       const ig = igRaw && !igRaw.startsWith('@') ? '@' + igRaw.replace(/^@+/, '') : igRaw;
       const petInput = form.querySelector('input[name="ame_pet"]:checked');
       const pet = petInput ? petInput.value : '';
 
-      const parts = [];
+      const parts = ['CPF: ' + cpfValue];
       if (ig) parts.push('Instagram: ' + ig);
       if (pet) parts.push('Pet: ' + pet);
       noteEl.value = parts.join(' | ');
@@ -219,6 +280,9 @@
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
+    /* min-width:0 impede o input filho de empurrar a coluna do grid pra além
+       de 1fr — sem isso o "Sobrenome" estourava pra fora no mobile. */
+    min-width: 0;
   }
   .ame-cadastro__field label,
   .ame-cadastro__field legend {
@@ -229,7 +293,10 @@
   }
   .ame-cadastro__field input[type="text"],
   .ame-cadastro__field input[type="email"],
-  .ame-cadastro__field input[type="password"] {
+  .ame-cadastro__field input[type="password"],
+  .ame-cadastro__field input[type="tel"] {
+    width: 100%;
+    box-sizing: border-box;
     font-family: var(--font-primary--family);
     font-size: 0.9375rem;
     padding: 0.75rem 0.875rem;
@@ -238,6 +305,9 @@
     background: var(--color-background, #f7f5f2);
     color: var(--color-on-background, #201b14);
     transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .ame-cadastro__field input[aria-invalid="true"] {
+    border-color: var(--danger-500, #ef4444);
   }
   .ame-cadastro__field input:focus {
     outline: none;

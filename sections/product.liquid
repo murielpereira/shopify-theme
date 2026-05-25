@@ -66,11 +66,29 @@
 </style>
 
 <!-- Breadcrumb -->
+{%- liquid
+  # Resolve a coleção pro breadcrumb:
+  # 1. `collection` vem preenchido quando o cliente acessa via URL
+  #    /collections/<handle>/products/<handle> — usa esta direto.
+  # 2. Senão (acesso direto via /products/<handle>), procura a primeira
+  #    coleção do produto que NÃO seja virtual/automática (Shopify cria
+  #    "frontpage" e "all" automaticamente que não fazem sentido aqui).
+  assign breadcrumb_collection = collection
+  if breadcrumb_collection == blank or breadcrumb_collection == empty
+    for col in product.collections
+      if col.handle == 'frontpage' or col.handle == 'all'
+        continue
+      endif
+      assign breadcrumb_collection = col
+      break
+    endfor
+  endif
+-%}
 <nav class="pdp-breadcrumb full-width" aria-label="Navegação">
   <a href="{{ routes.root_url }}">Início</a>
   <span aria-hidden="true">/</span>
-  {%- if collection -%}
-    <a href="{{ collection.url }}">{{ collection.title }}</a>
+  {%- if breadcrumb_collection != blank and breadcrumb_collection.url != blank -%}
+    <a href="{{ breadcrumb_collection.url }}">{{ breadcrumb_collection.title }}</a>
     <span aria-hidden="true">/</span>
   {%- endif -%}
   <span aria-current="page">{{ display_title }}</span>

@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "login": {
+      "type": "login",
+      "settings": {
+        "title": "Entrar",
+        "subtitle": "Acesse sua conta para acompanhar pedidos e favoritos."
+      }
+    }
+  },
+  "order": ["login"]
+}

@@ -1,0 +1,207 @@
+{% comment %} Âme — Página de login customizada
+
+  Submete pra /account/login (endpoint legado do Shopify, ainda funcional
+  mesmo com new customer accounts habilitado). Após login bem-sucedido, o
+  Shopify redireciona o cliente pra /account, que com new accounts vai pra
+  shopify.com/<id>/account (hospedado). O cadastro continua local em
+  /pages/cadastro.
+
+  Recuperar senha: o Shopify ainda processa requests pra /account/recover
+  com {% form 'recover_customer_password' %}.
+{% endcomment %}
+
+<section class="ame-cadastro full-width" data-login-section>
+  <div class="ame-cadastro__shell">
+    <header class="ame-cadastro__header">
+      <h1 class="ame-cadastro__title" data-login-title>
+        {{- section.settings.title | default: 'Entrar' -}}
+      </h1>
+      <p class="ame-cadastro__subtitle" data-login-subtitle>
+        {{- section.settings.subtitle | default: 'Acesse sua conta para acompanhar pedidos e favoritos.' -}}
+      </p>
+    </header>
+
+    {%- comment -%} Form de login {%- endcomment -%}
+    <div data-login-panel>
+      {%- form 'customer_login', class: 'ame-cadastro__form', novalidate: 'novalidate' -%}
+        {%- if form.errors -%}
+          <div class="ame-cadastro__alert ame-cadastro__alert--error" role="alert">
+            <p>Não conseguimos entrar com esses dados:</p>
+            <ul>
+              {%- for field in form.errors -%}
+                <li>{{ form.errors.messages[field] }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        <div class="ame-cadastro__field">
+          <label for="login-email">E-mail</label>
+          <input
+            type="email"
+            id="login-email"
+            name="customer[email]"
+            required
+            autocomplete="email"
+            inputmode="email"
+          >
+        </div>
+
+        <div class="ame-cadastro__field">
+          <label for="login-password">Senha</label>
+          <input
+            type="password"
+            id="login-password"
+            name="customer[password]"
+            required
+            autocomplete="current-password"
+          >
+          <a href="#recuperar" class="ame-cadastro__forgot-link" data-show-recover>
+            Esqueci minha senha
+          </a>
+        </div>
+
+        <button type="submit" class="ame-cta ame-cadastro__submit">
+          Entrar
+        </button>
+
+        <p class="ame-cadastro__login-link">
+          Novo por aqui? <a href="/pages/cadastro">Criar minha conta</a>
+        </p>
+      {%- endform -%}
+    </div>
+
+    {%- comment -%} Form de recuperar senha — escondido por padrão, mostrado via JS {%- endcomment -%}
+    <div data-recover-panel hidden>
+      {%- form 'recover_customer_password', class: 'ame-cadastro__form', novalidate: 'novalidate' -%}
+        {%- if form.posted_successfully? -%}
+          <div class="ame-cadastro__alert ame-cadastro__alert--success" role="status">
+            <p>Enviamos um link de recuperação pro seu e-mail.</p>
+          </div>
+        {%- endif -%}
+
+        {%- if form.errors -%}
+          <div class="ame-cadastro__alert ame-cadastro__alert--error" role="alert">
+            <p>Erro:</p>
+            <ul>
+              {%- for field in form.errors -%}
+                <li>{{ form.errors.messages[field] }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        <div class="ame-cadastro__field">
+          <label for="recover-email">E-mail cadastrado</label>
+          <input
+            type="email"
+            id="recover-email"
+            name="email"
+            required
+            autocomplete="email"
+            inputmode="email"
+          >
+          <small>Você vai receber um link pra criar uma nova senha.</small>
+        </div>
+
+        <button type="submit" class="ame-cta ame-cadastro__submit">
+          Enviar link de recuperação
+        </button>
+
+        <p class="ame-cadastro__login-link">
+          <a href="#login" data-show-login>← Voltar pro login</a>
+        </p>
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const root = document.querySelector('[data-login-section]');
+    if (!root) return;
+    const loginPanel = root.querySelector('[data-login-panel]');
+    const recoverPanel = root.querySelector('[data-recover-panel]');
+    const titleEl = root.querySelector('[data-login-title]');
+    const subtitleEl = root.querySelector('[data-login-subtitle]');
+    const showRecover = root.querySelector('[data-show-recover]');
+    const showLogin = root.querySelector('[data-show-login]');
+
+    const titleLogin = titleEl.textContent;
+    const subtitleLogin = subtitleEl.textContent;
+    const titleRecover = 'Recuperar senha';
+    const subtitleRecover = 'Te mandamos um link por e-mail pra você criar uma nova senha.';
+
+    function toRecover(e) {
+      if (e) e.preventDefault();
+      loginPanel.hidden = true;
+      recoverPanel.hidden = false;
+      titleEl.textContent = titleRecover;
+      subtitleEl.textContent = subtitleRecover;
+      root.querySelector('#recover-email')?.focus();
+    }
+    function toLogin(e) {
+      if (e) e.preventDefault();
+      recoverPanel.hidden = true;
+      loginPanel.hidden = false;
+      titleEl.textContent = titleLogin;
+      subtitleEl.textContent = subtitleLogin;
+      root.querySelector('#login-email')?.focus();
+    }
+
+    showRecover?.addEventListener('click', toRecover);
+    showLogin?.addEventListener('click', toLogin);
+
+    /* Se URL chega com #recuperar, abre direto o painel de recuperação
+       (link enviado em e-mails ou compartilhado). */
+    if (window.location.hash === '#recuperar') toRecover();
+
+    /* Se o form de recover foi submetido com sucesso (estado server-side),
+       mantém o painel aberto pra mostrar a mensagem. */
+    {%- if form.posted_successfully? and form.id == 'recover_customer_password' -%}
+      toRecover();
+    {%- endif -%}
+  })();
+</script>
+
+{%- comment -%}
+  O CSS vive em sections/cadastro.liquid via {% stylesheet %} — esta section
+  reusa as mesmas classes (.ame-cadastro__*) pra manter consistência visual
+  e não duplicar código. Único acréscimo é o link "Esqueci minha senha"
+  abaixo do campo de senha.
+{%- endcomment -%}
+{% stylesheet %}
+  .ame-cadastro__forgot-link {
+    align-self: flex-end;
+    font-size: 0.75rem;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin-top: 0.125rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Login",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Entrar"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "Acesse sua conta para acompanhar pedidos e favoritos."
+    }
+  ],
+  "presets": [
+    { "name": "Login" }
+  ],
+  "enabled_on": { "templates": ["page"] }
+}
+{% endschema %}
