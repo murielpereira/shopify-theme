@@ -135,9 +135,11 @@
       </button>
 
       <button
+        type="button"
         class="ame-header__icon-btn ame-header__mobile-menu-btn"
         aria-label="Menu" title="Menu"
         aria-expanded="false"
+        aria-controls="mobile-nav"
         data-mobile-menu-toggle
       >
         <span class="material-symbols-outlined" aria-hidden="true" data-menu-icon>menu</span>
@@ -223,12 +225,13 @@
           type="button"
           class="ame-mobile-nav__link ame-mobile-nav__toggle{% if link.active %} ame-mobile-nav__link--active{% endif %}"
           aria-expanded="false"
+          aria-controls="mobile-submenu-{{ forloop.index }}"
           data-mobile-submenu-toggle
         >
           <span>{{ link.title }}</span>
           <span class="material-symbols-outlined ame-mobile-nav__caret" aria-hidden="true">expand_more</span>
         </button>
-        <div class="ame-mobile-nav__submenu" hidden>
+        <div id="mobile-submenu-{{ forloop.index }}" class="ame-mobile-nav__submenu" hidden>
           <a
             href="{{ link.url }}"
             class="ame-mobile-nav__sublink ame-mobile-nav__sublink--parent"

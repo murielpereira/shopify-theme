@@ -25,3 +25,7 @@
 ## 2024-05-24 - Search Toggle Button Accessibility
 **Learning:** The header search toggle button lacked `aria-controls` and `aria-expanded` attributes. This meant screen readers had no way to know if the search overlay was currently open or what section of the page the button actually controlled.
 **Action:** Always add `aria-expanded="false"` (or `"true"`) and `aria-controls="[id]"` to button elements that toggle the visibility of modals, overlays, or drawers. Ensure the `aria-expanded` attribute is kept in sync via Javascript during open/close logic.
+
+## 2024-05-25 - Mobile Menu Accessibility Links
+**Learning:** Found that the mobile menu toggle buttons (both the main header button and submenu toggle buttons) did not have `aria-controls` connecting them to their respective containers. For submenus inside a loop, dynamically generating `id`s using `forloop.index` is an effective way to maintain unique ARIA links.
+**Action:** When working with toggle buttons that reveal hidden sections (menus, drawers, accordions), especially within a Liquid loop, ensure to use `aria-controls` linked to a dynamically generated `id` (e.g., `id="mobile-submenu-{{ forloop.index }}"`).
