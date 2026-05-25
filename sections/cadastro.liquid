@@ -135,9 +135,14 @@
             <span>Gato</span>
           </label>
           <label class="ame-cadastro__pet-option">
-            <input type="radio" name="ame_pet" value="ambos">
+            <input type="radio" name="ame_pet" value="cachorro_e_gato">
             <span class="ame-cadastro__pet-emoji" aria-hidden="true">🐾</span>
-            <span>Ambos</span>
+            <span>Cachorro e gato</span>
+          </label>
+          <label class="ame-cadastro__pet-option">
+            <input type="radio" name="ame_pet" value="outros">
+            <span class="ame-cadastro__pet-emoji" aria-hidden="true">∞</span>
+            <span>Outros</span>
           </label>
         </div>
       </fieldset>
@@ -220,7 +225,14 @@
       const igRaw = (form.elements['ame_instagram']?.value || '').trim();
       const ig = igRaw && !igRaw.startsWith('@') ? '@' + igRaw.replace(/^@+/, '') : igRaw;
       const petInput = form.querySelector('input[name="ame_pet"]:checked');
-      const pet = petInput ? petInput.value : '';
+      // Traduz value (snake_case) pra label legível no admin do Shopify.
+      const petLabels = {
+        cachorro: 'Cachorro',
+        gato: 'Gato',
+        cachorro_e_gato: 'Cachorro e gato',
+        outros: 'Outros'
+      };
+      const pet = petInput ? (petLabels[petInput.value] || petInput.value) : '';
 
       const parts = ['CPF: ' + cpfValue];
       if (ig) parts.push('Instagram: ' + ig);
@@ -345,11 +357,18 @@
     padding: 0;
     margin: 0;
   }
+  /* Pet: 2x2 em mobile (mais legível, labels podem ter até 2 linhas);
+     4 em linha em telas >= 480px. */
   .ame-cadastro__pet-options {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
     margin-top: 0.375rem;
+  }
+  @media (min-width: 480px) {
+    .ame-cadastro__pet-options {
+      grid-template-columns: repeat(4, 1fr);
+    }
   }
   .ame-cadastro__pet-option {
     display: flex;
