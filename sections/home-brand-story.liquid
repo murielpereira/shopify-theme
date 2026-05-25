@@ -34,11 +34,19 @@
     <div class="ame-story__image-col ame-reveal">
       <div class="ame-story__image-wrap">
         {%- if section.settings.image != blank -%}
+          {% comment %}
+            ⚡ Bolt: Eager load the LCP image in Brand Story section
+            💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
+            🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
+            📊 Impact: Improves LCP Web Vital metric significantly.
+            🔬 Measurement: Profile the LCP metric on pages containing this section.
+          {% endcomment %}
           {{
             section.settings.image
             | image_url: width: 900
             | image_tag: widths: '300, 600, 900',
-              loading: 'lazy',
+              loading: 'eager',
+              fetchpriority: 'high',
               class: 'ame-story__image',
               alt: section.settings.image.alt | escape
           }}
