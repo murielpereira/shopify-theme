@@ -1,4 +1,5 @@
-{% comment %} Âme — Página de cadastro customizada (Plano B do Customer Accounts)
+{% comment %}
+  Âme — Página de cadastro customizada (Plano B do Customer Accounts)
 
   A loja usa o novo customer accounts do Shopify (hospedado em shopify.com/.../account),
   que não permite customizar visual via tema. Esta página é a alternativa:
@@ -103,7 +104,9 @@
           maxlength="14"
           aria-describedby="cadastro-cpf-error"
         >
-        <small id="cadastro-cpf-error" data-cpf-error hidden style="color: var(--danger-600, #dc2626);">CPF inválido</small>
+        <small id="cadastro-cpf-error" data-cpf-error hidden style="color: var(--danger-600, #dc2626);"
+          >CPF inválido</small
+        >
       </div>
 
       <div class="ame-cadastro__divider"><span>Opcional</span></div>
@@ -118,7 +121,7 @@
           autocomplete="off"
           inputmode="text"
         >
-        <small>Pra você marcar a Âme nas fotos do seu pet 💛</small>
+        <!-- <small>Pra você marcar a Âme nas fotos do seu pet 💛</small> -->
       </div>
 
       <fieldset class="ame-cadastro__field ame-cadastro__pet">
@@ -155,13 +158,9 @@
         <span>Quero receber novidades, promoções e dicas pro meu pet por e-mail.</span>
       </label>
 
-      <button type="submit" class="ame-cta ame-cadastro__submit">
-        Criar minha conta
-      </button>
+      <button type="submit" class="ame-cta ame-cadastro__submit">Criar minha conta</button>
 
-      <p class="ame-cadastro__login-link">
-        Já tem conta? <a href="{{ routes.account_login_url }}">Entrar</a>
-      </p>
+      <p class="ame-cadastro__login-link">Já tem conta? <a href="{{ routes.account_login_url }}">Entrar</a></p>
     {%- endform -%}
   </div>
 </section>
@@ -230,9 +229,9 @@
         cachorro: 'Cachorro',
         gato: 'Gato',
         cachorro_e_gato: 'Cachorro e gato',
-        outros: 'Outros'
+        outros: 'Outros',
       };
-      const pet = petInput ? (petLabels[petInput.value] || petInput.value) : '';
+      const pet = petInput ? petLabels[petInput.value] || petInput.value : '';
 
       const parts = ['CPF: ' + cpfValue];
       if (ig) parts.push('Instagram: ' + ig);
@@ -303,10 +302,10 @@
     color: var(--color-on-background, #201b14);
     letter-spacing: 0.02em;
   }
-  .ame-cadastro__field input[type="text"],
-  .ame-cadastro__field input[type="email"],
-  .ame-cadastro__field input[type="password"],
-  .ame-cadastro__field input[type="tel"] {
+  .ame-cadastro__field input[type='text'],
+  .ame-cadastro__field input[type='email'],
+  .ame-cadastro__field input[type='password'],
+  .ame-cadastro__field input[type='tel'] {
     width: 100%;
     box-sizing: border-box;
     font-family: var(--font-primary--family);
@@ -318,7 +317,7 @@
     color: var(--color-on-background, #201b14);
     transition: border-color 0.2s ease, background 0.2s ease;
   }
-  .ame-cadastro__field input[aria-invalid="true"] {
+  .ame-cadastro__field input[aria-invalid='true'] {
     border-color: var(--danger-500, #ef4444);
   }
   .ame-cadastro__field input:focus {
@@ -487,9 +486,7 @@
       "default": "Acompanhe seus pedidos, salve seus favoritos e ganhe acesso a ofertas exclusivas."
     }
   ],
-  "presets": [
-    { "name": "Cadastro" }
-  ],
+  "presets": [{ "name": "Cadastro" }],
   "enabled_on": { "templates": ["page"] }
 }
 {% endschema %}
