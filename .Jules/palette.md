@@ -29,3 +29,7 @@
 ## 2024-05-25 - Mobile Menu Accessibility Links
 **Learning:** Found that the mobile menu toggle buttons (both the main header button and submenu toggle buttons) did not have `aria-controls` connecting them to their respective containers. For submenus inside a loop, dynamically generating `id`s using `forloop.index` is an effective way to maintain unique ARIA links.
 **Action:** When working with toggle buttons that reveal hidden sections (menus, drawers, accordions), especially within a Liquid loop, ensure to use `aria-controls` linked to a dynamically generated `id` (e.g., `id="mobile-submenu-{{ forloop.index }}"`).
+
+## 2024-05-26 - Keyboard Focus Visible Styles on Snippet Components
+**Learning:** Some custom UI buttons located entirely within localized snippets (like the `.ame-pingente__custom-btn` inside `pingente-customization.liquid` and `.ame-vs__spot-nav` inside `video-stories.liquid`) lacked explicit `:focus-visible` styles. Because these are specific classes not covered by global styles in `critical.css`, this omission resulted in poor keyboard navigation feedback.
+**Action:** When creating new interactive components or maintaining existing ones within localized snippets, always ensure explicit `:focus-visible` styles are declared directly in their specific CSS blocks (if they are not covered by global base styles) to guarantee robust keyboard accessibility.
