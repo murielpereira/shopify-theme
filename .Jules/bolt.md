@@ -7,3 +7,6 @@
 ## 2024-05-24 - Unobserve IntersectionObserver after scroll reveal
 **Learning:** The scroll reveal implementation using IntersectionObserver was leaving the observer attached to elements even after they became visible. This anti-pattern can cause main-thread scroll performance bottlenecks because the browser keeps evaluating the intersection on every scroll tick for elements that have already animated.
 **Action:** Always call io.unobserve(e.target) when an intersection check succeeds for a one-time animation to free up memory and prevent main-thread leaks.
+## 2024-05-27 - Optimize conditional rendering loops in product accordions
+**Learning:** Liquid loops that iterate over an array (such as string split arrays) and conditionally check product tags incur processing overhead. When the logic to check if a block should be visible is identical to the logic to render it, looping twice (once to set a visibility boolean flag and once to render) doubles the Liquid overhead.
+**Action:** Use the `{% capture %}` strategy. Loop once, capture the generated HTML into a variable (like `after_purchase_steps_html`), strip it, and use its existence (`if after_purchase_steps_html != blank`) as the boolean flag instead of running the loop twice.
