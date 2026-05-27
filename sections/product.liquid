@@ -1491,9 +1491,9 @@
   /* ── Características do produto (chips) ── */
 
   /* ════════════════════════════════════════
-   PÁGINA DE PRODUTO
-   Mobile-first → Desktop ≥1024px: 2 colunas
-════════════════════════════════════════ */
+     PÁGINA DE PRODUTO
+     Mobile-first → Desktop ≥1024px: 2 colunas
+  ════════════════════════════════════════ */
 
   /* Breadcrumb */
   .pdp-breadcrumb {
@@ -1544,8 +1544,8 @@
   }
 
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
-   tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
-   conteúdo intrinsicamente largo empurra a coluna do grid pra fora. */
+     tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
+     conteúdo intrinsicamente largo empurra a coluna do grid pra fora. */
   .pdp__gallery,
   .pdp__sticky-wrap {
     min-width: 0;
@@ -1866,9 +1866,9 @@
     margin-bottom: 1rem;
     padding: 0;
     /* Reserva espaço pra evitar CLS quando o Section Rendering API troca
-       a variante. Cabe: linha "De:" (se houver) + preço + PIX + parcelamento
-       + cashback. PSI reportou CLS de 0.163 vindo do .pdp__info (a maior
-       parte é desse bloco). */
+         a variante. Cabe: linha "De:" (se houver) + preço + PIX + parcelamento
+         + cashback. PSI reportou CLS de 0.163 vindo do .pdp__info (a maior
+         parte é desse bloco). */
     min-height: 120px;
     /*teste destaque preco*/
     background: var(--color-surface-container);
@@ -2062,7 +2062,7 @@
 
   .pdp__swatch {
     /* Cálculo correto pra 6 colunas com gap fixo (5 gaps entre 6 itens).
-     Compatível com produtos que têm muitas variantes (100+). */
+       Compatível com produtos que têm muitas variantes (100+). */
     width: calc((100% - 5 * 0.45rem) / 6);
     aspect-ratio: 1 / 1;
     border-radius: 8px;
@@ -2093,7 +2093,7 @@
 
   .pdp__swatch--active {
     outline: 2px solid var(--color-primary, #5a4742);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 
   .pdp__swatch-img {
@@ -2172,9 +2172,9 @@
   }
 
   /* Variantes sem estoque ficam visualmente apagadas (opacity + linha diagonal
-     no ::after), mas continuam CLICÁVEIS — selecioná-las aciona o botão
-     "Avise-me quando chegar" do app de notificação de estoque. Por isso
-     cursor:pointer (não not-allowed) e opacity um pouco menos agressiva. */
+       no ::after), mas continuam CLICÁVEIS — selecioná-las aciona o botão
+       "Avise-me quando chegar" do app de notificação de estoque. Por isso
+       cursor:pointer (não not-allowed) e opacity um pouco menos agressiva. */
   .pdp__swatch--disabled,
   .pdp__size-btn--disabled {
     opacity: 0.45;
@@ -2310,9 +2310,9 @@
   }
 
   /* Estado "esgotado" do CTA — fundo cinza, sem hover, sem clique.
-     `disabled` no <button> já impede submit; pointer-events:none é redundância
-     defensiva. Mantemos a opacidade próxima de 1 (não 0.5) porque o cinza
-     já comunica "indisponível" sem precisar atenuar. */
+       `disabled` no <button> já impede submit; pointer-events:none é redundância
+       defensiva. Mantemos a opacidade próxima de 1 (não 0.5) porque o cinza
+       já comunica "indisponível" sem precisar atenuar. */
   .pdp__add-btn--sold-out,
   .pdp__add-btn:disabled {
     background: var(--color-outline, #817471) !important;
@@ -2442,7 +2442,7 @@
 
   .ame-accordion__content:not([hidden]) {
     /* Suficientemente grande pra descrições ricas (imagens, listas, vídeos).
-     Imagens dentro do body usam max-width:100% pra não overflowar lateralmente. */
+       Imagens dentro do body usam max-width:100% pra não overflowar lateralmente. */
     max-height: none;
   }
 
@@ -2459,7 +2459,7 @@
     overflow-wrap: break-word;
     word-break: break-word;
     /* Container clipa qualquer conteúdo HTML colado no admin que tente estourar
-     (divs com width fixo inline, imagens com width inline, etc.). */
+       (divs com width fixo inline, imagens com width inline, etc.). */
     overflow-x: hidden;
     max-width: 100%;
   }
@@ -2526,7 +2526,7 @@
   }
 
   /* .ame-label-sm vive global no critical.css. Aqui só override de margem
-     (0.5rem vs 0.75rem padrão) pra encaixar no layout compacto da PDP. */
+       (0.5rem vs 0.75rem padrão) pra encaixar no layout compacto da PDP. */
   .pdp .ame-label-sm {
     margin-bottom: 0.5rem;
   }
@@ -2683,9 +2683,9 @@
   }
 
   /* Botões de opção dos campos personalizados reusam o visual do
-     .pdp__size-btn (definido em outra parte do arquivo). Mantemos o
-     wrapper .pdp__custom-field__radio-group só pra agrupar/flexbox;
-     todo o styling dos botões vem da classe global. */
+       .pdp__size-btn (definido em outra parte do arquivo). Mantemos o
+       wrapper .pdp__custom-field__radio-group só pra agrupar/flexbox;
+       todo o styling dos botões vem da classe global. */
   .pdp__custom-field__radio-group {
     display: flex;
     flex-wrap: wrap;
@@ -2817,16 +2817,16 @@
   }
 
   /*
-  @media (min-width: 1300px) {
-    .pdp__text-overlay {
-      top: 125px;
-    }
+    @media (min-width: 1300px) {
+      .pdp__text-overlay {
+        top: 125px;
+      }
 
-    .pdp__text-overlay__text {
-      font-size: 2.5rem;
+      .pdp__text-overlay__text {
+        font-size: 2.5rem;
+      }
     }
-  }
-    */
+      */
   /* ── Resumo das variações escolhidas (abaixo da imagem, mobile) ── */
   .pdp__selection-info {
     padding: 0.5rem 1rem;
@@ -2888,7 +2888,7 @@
     border-radius: var(--radius-md, 4px);
     padding: 0.75rem;
     /*margin-left: -0.75rem;
-    margin-right: -0.75rem;*/
+      margin-right: -0.75rem;*/
     background: rgba(192, 57, 43, 0.06);
     box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.55);
     animation: pdpOptionShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
@@ -2954,7 +2954,8 @@
       right: 0;
       width: 100%;
       margin: 0;
-      padding: 0 0.75rem 0;
+      /*padding: 0 0.75rem; original*/
+      padding: 5px 1.2rem 0;
       z-index: 50;
       will-change: transform;
       background: var(--color-surface, #fff8f3);

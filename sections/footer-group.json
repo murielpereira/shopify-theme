@@ -26,6 +26,14 @@
         "social_youtube": "https://www.youtube.com/channel/UCHtuFHpPYE3fgdDLgP0grnw",
         "social_pinterest": "https://pinterest.com/ameacessoriospet",
         "social_whatsapp": "https://wa.me/5548991574943",
+        "company_phone": "(48) 99157-4943",
+        "company_email": "contato@ameacessoriospet.com.br",
+        "company_hours": "Seg a Sex: 7h às 11h30 e 13h às 17h",
+        "company_name": "AME IND E COM DE ACESSORIOS PET LTDA - ME",
+        "company_cnpj": "40.296.286/0001-19",
+        "company_address": "Rua Gilmar Azevedo, 70 — Cardoso\nSão João Batista — SC\nCEP 88240-000\nBrasil",
+        "show_map": true,
+        "company_maps_query": "Rua Gilmar Azevedo, 70, Cardoso, São João Batista - SC, 88240-000",
         "show_payment_icons": true
       }
     }

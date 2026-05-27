@@ -19,8 +19,13 @@
   <div class="ame-footer__inner">
     <!-- Brand column -->
     <div class="ame-footer__brand">
-      <!-- Logo -->
-      <a href="{{ routes.root_url }}" class="ame-header__logo" aria-label="{{ shop.name }}">
+      {%- comment -%}
+        Logo do footer: configurada no schema desta section. Costuma ser a
+        mesma do header, mas é uma setting separada porque o footer tem
+        fundo escuro e talvez você queira uma versão clara/em branco aqui.
+        Se vazio, mostra apenas o nome da loja em texto.
+      {%- endcomment -%}
+      <a href="{{ routes.root_url }}" class="ame-footer__logo" aria-label="{{ shop.name }}">
         {%- if section.settings.logo != blank -%}
           {%- assign logo_img_alt = section.settings.logo.alt | default: shop.name | escape -%}
           {{
@@ -28,18 +33,16 @@
             | image_url: width: 560
             | image_tag:
               widths: '200, 400, 560',
-              loading: 'eager',
-              fetchpriority: 'high',
-              class: 'ame-header__logo-img',
+              loading: 'lazy',
+              class: 'ame-footer__logo-img',
               alt: logo_img_alt,
               width: section.settings.logo.width,
               height: section.settings.logo.height
           }}
         {%- else -%}
-          <span class="ame-header__logo-text">{{ shop.name }}</span>
+          <span class="ame-footer__logo-text">{{ shop.name }}</span>
         {%- endif -%}
       </a>
-      <a href="{{ routes.root_url }}" class="ame-footer__logo">{{ shop.name }}</a>
       {% if section.settings.tagline != blank %}
         <p class="ame-footer__tagline">{{ section.settings.tagline }}</p>
       {% endif %}
@@ -210,6 +213,94 @@
       {%- endif -%}
     {% endif %}
 
+    {%- comment -%}
+      Coluna de Atendimento + Dados da empresa.
+      Renderiza só se ao menos um campo da empresa estiver preenchido —
+      assim quem não quer essa coluna pode esvaziar tudo no admin que ela
+      some sem deixar um <div> vazio no markup.
+    {%- endcomment -%}
+    {%- liquid
+      assign company_phone = section.settings.company_phone
+      assign company_email = section.settings.company_email
+      assign company_hours = section.settings.company_hours
+      assign company_name = section.settings.company_name
+      assign company_cnpj = section.settings.company_cnpj
+      assign company_address = section.settings.company_address
+
+      assign has_company_info = false
+      if company_phone != blank or company_email != blank or company_hours != blank or company_name != blank or company_cnpj != blank or company_address != blank
+        assign has_company_info = true
+      endif
+
+      # Limpa o telefone pra usar no href tel: (só dígitos, sem espaço/parênteses).
+      # Brasil precisa de +55 + DDD + número.
+      assign phone_digits = company_phone | replace: ' ', '' | replace: '-', '' | replace: '(', '' | replace: ')', '' | replace: '+', ''
+    -%}
+
+    {%- if has_company_info -%}
+      <div class="ame-footer__nav ame-footer__company">
+        <p class="ame-footer__nav-title">Atendimento</p>
+
+        {%- if company_phone != blank -%}
+          <a href="tel:+55{{ phone_digits }}" class="ame-footer__nav-link">{{ company_phone }}</a>
+        {%- endif -%}
+        {%- if company_email != blank -%}
+          <a href="mailto:{{ company_email }}" class="ame-footer__nav-link">{{ company_email }}</a>
+        {%- endif -%}
+        {%- if company_hours != blank -%}
+          <p class="ame-footer__company-text">{{ company_hours | newline_to_br }}</p>
+        {%- endif -%}
+
+        {%- if company_name != blank or company_cnpj != blank or company_address != blank -%}
+          <address class="ame-footer__company-info">
+            {%- if company_name != blank -%}
+              <span>{{ company_name }}</span>
+            {%- endif -%}
+            {%- if company_cnpj != blank -%}
+              <span>CNPJ: {{ company_cnpj }}</span>
+            {%- endif -%}
+            {%- if company_address != blank -%}
+              <span>{{ company_address | newline_to_br }}</span>
+            {%- endif -%}
+          </address>
+        {%- endif -%}
+
+        {%- comment -%}
+          Mapa + botões "Como chegar". O iframe usa loading="lazy", então
+          o player do Google Maps só baixa quando o cliente rola até o
+          rodapé — não impacta o PSI da primeira vista.
+          A query é o próprio endereço (sem precisar de lat/lng nem API key).
+        {%- endcomment -%}
+        {%- if section.settings.show_map and section.settings.company_maps_query != blank -%}
+          {%- assign maps_q = section.settings.company_maps_query | url_encode -%}
+          <div class="ame-footer__map">
+            <iframe
+              src="https://maps.google.com/maps?q={{ maps_q }}&output=embed"
+              width="100%"
+              height="180"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Localização da loja no mapa"
+            ></iframe>
+            <div class="ame-footer__map-actions">
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination={{ maps_q }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="ame-footer__map-btn"
+              >Google Maps</a>
+              <a
+                href="https://waze.com/ul?q={{ maps_q }}&navigate=yes"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="ame-footer__map-btn"
+              >Waze</a>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
     <!-- Copyright + payment -->
     <div class="ame-footer__bottom">
       <p class="ame-footer__copyright">
@@ -257,19 +348,31 @@
     }
   }
 
+  /* Logo wrapper — link em volta da imagem OU do texto fallback.
+     inline-flex + min 24x24 garante área clicável WCAG/PSI (target-size). */
   .ame-footer__logo {
-    font-size: 1rem;
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    text-transform: uppercase;
-    color: var(--color-on-primary, #ffffff);
-    text-decoration: none;
-    /* inline-flex + min 24x24 garante área clicável WCAG/PSI (target-size). */
     display: inline-flex;
     align-items: center;
     min-height: 24px;
     min-width: 24px;
     margin-bottom: 1rem;
+    text-decoration: none;
+    color: var(--color-on-primary, #ffffff);
+  }
+  .ame-footer__logo-img {
+    display: block;
+    max-width: 12rem;
+    max-height: 3rem;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+  /* Fallback de texto quando não há imagem configurada. */
+  .ame-footer__logo-text {
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
     padding: 0.25rem 0;
   }
 
@@ -331,6 +434,74 @@
     opacity: 0.7;
   }
 
+  /* Coluna de Atendimento / Empresa */
+  .ame-footer__company {
+    min-width: 0;
+  }
+  .ame-footer__company-text {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    margin: 0.25rem 0 0;
+    opacity: 0.85;
+  }
+  .ame-footer__company-info {
+    font-style: normal;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    opacity: 0.7;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  /* Mapa + botões de rota */
+  .ame-footer__map {
+    margin-top: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .ame-footer__map iframe {
+    width: 100%;
+    border: 0;
+    border-radius: var(--radius-md, 8px);
+    background: rgba(255, 255, 255, 0.05);
+    /* Filtro deixa o mapa em tons mais sóbrios pra combinar com o footer escuro.
+       Cliente ainda enxerga ruas/marcador, mas com paleta sutil. */
+    filter: grayscale(0.25) brightness(0.95);
+    transition: filter 0.25s ease;
+  }
+  .ame-footer__map iframe:hover {
+    filter: none;
+  }
+  .ame-footer__map-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .ame-footer__map-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md, 8px);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-on-primary, #fff);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .ame-footer__map-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
   /* Bottom row — spans all columns */
   .ame-footer__bottom {
     grid-column: 1 / -1;
@@ -381,6 +552,12 @@
 {
   "name": "Rodapé",
   "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo do rodapé",
+      "info": "Pode ser a mesma do cabeçalho ou uma versão em branco/clara, já que o fundo do rodapé é escuro. Se vazio, exibe o nome da loja em texto."
+    },
     {
       "type": "text",
       "id": "tagline",
@@ -494,6 +671,63 @@
       "id": "social_whatsapp",
       "label": "WhatsApp (link wa.me/...)",
       "default": "https://wa.me/5548991574943"
+    },
+    {
+      "type": "header",
+      "content": "Atendimento e dados da empresa"
+    },
+    {
+      "type": "text",
+      "id": "company_phone",
+      "label": "Telefone",
+      "info": "Aparece como link clicável (tel:). Inclua DDD. Ex: (48) 99157-4943",
+      "default": "(48) 99157-4943"
+    },
+    {
+      "type": "text",
+      "id": "company_email",
+      "label": "E-mail de contato",
+      "default": "contato@ameacessoriospet.com.br"
+    },
+    {
+      "type": "textarea",
+      "id": "company_hours",
+      "label": "Horário de atendimento",
+      "info": "Opcional. Ex: 'Seg a Sex: 7h às 11h30 e 13h às 17h'.",
+      "default": "Seg a Sex: 7h às 11h30 e 13h às 17h"
+    },
+    {
+      "type": "text",
+      "id": "company_name",
+      "label": "Razão social",
+      "info": "Nome registrado no CNPJ. Diferente do nome fantasia (Âme Acessórios Pet).",
+      "default": "AME IND E COM DE ACESSORIOS PET LTDA - ME"
+    },
+    {
+      "type": "text",
+      "id": "company_cnpj",
+      "label": "CNPJ",
+      "default": "40.296.286/0001-19"
+    },
+    {
+      "type": "textarea",
+      "id": "company_address",
+      "label": "Endereço",
+      "info": "Cada linha vira uma quebra de linha no rodapé. Inclua o país (loja vende internacionalmente).",
+      "default": "Rua Gilmar Azevedo, 70 — Cardoso\nSão João Batista — SC\nCEP 88240-000\nBrasil"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_map",
+      "label": "Exibir mapa + botões 'Como chegar'",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "company_maps_query",
+      "label": "Endereço pesquisado no mapa",
+      "info": "Texto que será buscado no Google Maps e Waze. Costuma ser uma versão sem quebra de linha do endereço acima.",
+      "default": "Rua Gilmar Azevedo, 70, Cardoso, São João Batista - SC, 88240-000"
     },
     {
       "type": "header",
