@@ -444,10 +444,10 @@
   }
 
   /* Coluna de Atendimento / Empresa.
-     Mobile: empilhado (1 coluna). Desktop: 2 colunas — texto à esquerda,
-     mapa à direita — pra economizar espaço vertical no footer.
-     A coluna inteira pode ocupar mais espaço no grid pai via grid-column:
-     span 2 (definido no media query abaixo). */
+     Mobile: empilhado, ocupa 1 coluna do grid pai.
+     Desktop: ocupa a row INTEIRA do footer (grid-column: 1 / -1) e o
+     conteúdo interno fica em flex space-between — texto à esquerda,
+     mapa à direita, ambos verticalmente centralizados. */
   .ame-footer__company {
     min-width: 0;
   }
@@ -458,14 +458,16 @@
   }
   @media (min-width: 768px) {
     .ame-footer__company {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 1.25rem;
-      align-items: start;
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
     }
-    /* Mapa não precisa do margin-top (já tem gap do grid) */
     .ame-footer__company .ame-footer__map {
       margin-top: 0;
+      flex-shrink: 0;
+      width: min(28rem, 45%);
     }
   }
   .ame-footer__company-text {
