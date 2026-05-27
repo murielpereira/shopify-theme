@@ -159,14 +159,14 @@
             de tag por etapa). Aparece embutido no acordeão de Descrição.
           {%- endcomment -%}
           {%- if has_steps -%}
-              <div class="pdp__after-purchase">
-                <h2 class="pdp__after-purchase__title">
-                  {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
-                </h2>
-                <ol class="pdp__after-purchase__steps">
-                  {{ after_purchase_steps_html }}
-                </ol>
-              </div>
+            <div class="pdp__after-purchase">
+              <h2 class="pdp__after-purchase__title">
+                {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
+              </h2>
+              <ol class="pdp__after-purchase__steps">
+                {{ after_purchase_steps_html }}
+              </ol>
+            </div>
           {%- endif -%}
 
           {%- comment -%}
@@ -178,30 +178,30 @@
             has_global_faq / has_product_faq foram calculados no topo do template.
           {%- endcomment -%}
           {%- if has_global_faq or has_product_faq -%}
-              <div class="pdp__faq">
-                <h2 class="pdp__faq__title">
-                  {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
-                </h2>
-                <div class="pdp__faq__list" data-pdp-faq>
-                  {{ global_faqs_html }}
+            <div class="pdp__faq">
+              <h2 class="pdp__faq__title">
+                {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
+              </h2>
+              <div class="pdp__faq__list" data-pdp-faq>
+                {{ global_faqs_html }}
 
-                  {%- if has_product_faq -%}
-                    {%- comment -%}
-                      O metafield é rich text. Cada pergunta deve ser um Título
-                      (H1..H6 no editor), seguido pelo conteúdo da resposta até
-                      o próximo Título. O filtro `metafield_tag` converte o
-                      rich text (que internamente é JSON) em HTML — sem ele,
-                      o {{ product_faq }} renderiza o JSON cru como texto.
-                      Renderizamos o HTML como bloco extra abaixo das FAQ
-                      globais — o JS abaixo converte em <details> reais.
-                    {%- endcomment -%}
-                    <div class="pdp__faq__product-source" data-pdp-faq-source hidden>
-                      {{ product.metafields.custom.faq | metafield_tag }}
-                    </div>
-                  {%- endif -%}
-                </div>
+                {%- if has_product_faq -%}
+                  {%- comment -%}
+                    O metafield é rich text. Cada pergunta deve ser um Título
+                    (H1..H6 no editor), seguido pelo conteúdo da resposta até
+                    o próximo Título. O filtro `metafield_tag` converte o
+                    rich text (que internamente é JSON) em HTML — sem ele,
+                    o {{ product_faq }} renderiza o JSON cru como texto.
+                    Renderizamos o HTML como bloco extra abaixo das FAQ
+                    globais — o JS abaixo converte em <details> reais.
+                  {%- endcomment -%}
+                  <div class="pdp__faq__product-source" data-pdp-faq-source hidden>
+                    {{ product.metafields.custom.faq | metafield_tag }}
+                  </div>
+                {%- endif -%}
               </div>
-            {%- endif -%}
+            </div>
+          {%- endif -%}
         </div>
       </div>
     </div>
@@ -340,7 +340,7 @@
   .pdp__after-purchase {
     margin-top: 2rem;
     padding: 1.5rem;
-    background: var(--color-surface-container, #f8ece0);
+    background: var(--color-surface-light);
     border-radius: var(--radius-lg, 12px);
   }
   .pdp__after-purchase__title {
@@ -415,9 +415,11 @@
     color: var(--color-on-background, #3d2d1c);
     transition: background 0.2s ease;
   }
-  .pdp__faq__question::-webkit-details-marker { display: none; }
+  .pdp__faq__question::-webkit-details-marker {
+    display: none;
+  }
   .pdp__faq__question:hover {
-    background: var(--color-surface-container-low, #fef2e5);
+    background: var(--color-surface-light);
   }
   .pdp__faq__toggle {
     flex-shrink: 0;
@@ -435,8 +437,12 @@
     line-height: 1.7;
     color: var(--color-on-surface-variant, #5a4b46);
   }
-  .pdp__faq__answer p:first-child { margin-top: 0; }
-  .pdp__faq__answer p:last-child { margin-bottom: 0; }
+  .pdp__faq__answer p:first-child {
+    margin-top: 0;
+  }
+  .pdp__faq__answer p:last-child {
+    margin-bottom: 0;
+  }
   .pdp__faq__answer a {
     color: var(--color-primary, #5a4742);
     font-weight: 600;
@@ -654,7 +660,12 @@
       "name": "Acordeão",
       "settings": [
         { "type": "text", "id": "title", "label": "Título", "default": "Materiais & Craft" },
-        { "type": "richtext", "id": "body", "label": "Conteúdo", "default": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>" }
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Conteúdo",
+          "default": "<p>Descreva os materiais, tamanhos ou instruções de cuidado.</p>"
+        }
       ]
     },
     {
@@ -666,7 +677,12 @@
           "content": "Aparece em todos os produtos por padrão. Pra restringir, preencha 'Mostrar apenas em produtos com estas tags' abaixo."
         },
         { "type": "text", "id": "question", "label": "Pergunta", "default": "É couro legítimo mesmo?" },
-        { "type": "richtext", "id": "answer", "label": "Resposta", "default": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>" },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Resposta",
+          "default": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>"
+        },
         {
           "type": "text",
           "id": "tags_filter",
@@ -685,12 +701,48 @@
         { "type": "accordion", "settings": { "title": "Guia de Tamanhos" } },
         { "type": "accordion", "settings": { "title": "Cuidados & Manutenção" } },
         { "type": "accordion", "settings": { "title": "Envio & Embalagem" } },
-        { "type": "faq", "settings": { "question": "É couro legítimo mesmo?", "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>" } },
-        { "type": "faq", "settings": { "question": "Quais dados vêm gravados no pingente?", "answer": "<p>O pingente personalizado vem com: <strong>Nome do pet na frente</strong> e <strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>" } },
-        { "type": "faq", "settings": { "question": "Quanto tempo de garantia?", "answer": "<p>Nossas peças têm <strong>6 meses de garantia</strong> contra defeitos de fabricação (costuras, fivela, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!</p>" } },
-        { "type": "faq", "settings": { "question": "Se eu comprar o tamanho errado, consigo trocar?", "answer": "<p><strong>Sim, pode trocar!</strong> No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante:</strong> peças feitas sob medida (que o cliente passa a medida) ou personalizadas, o frete fica por conta do cliente.</p>" } },
-        { "type": "faq", "settings": { "question": "Como eu limpo a coleira?", "answer": "<p>Limpeza é super simples! Use um <strong>pano úmido com sabão neutro</strong> para remover sujeira superficial. Para manchas mais resistentes, use uma escova macia. Depois, deixe secar naturalmente à sombra (nunca no sol direto). De vez em quando, você pode aplicar um hidratante de couro para manter o brilho.</p>" } },
-        { "type": "faq", "settings": { "question": "Como sei o tamanho certo para meu pet?", "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima. <strong>Ainda com dúvida?</strong> Chama a gente no <a href=\"https://wa.me/5548991574943\" target=\"_blank\" rel=\"noopener\">WhatsApp</a> que te ajudamos na hora! 💚</p>" } }
+        {
+          "type": "faq",
+          "settings": {
+            "question": "É couro legítimo mesmo?",
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Quais dados vêm gravados no pingente?",
+            "answer": "<p>O pingente personalizado vem com: <strong>Nome do pet na frente</strong> e <strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Quanto tempo de garantia?",
+            "answer": "<p>Nossas peças têm <strong>6 meses de garantia</strong> contra defeitos de fabricação (costuras, fivela, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Se eu comprar o tamanho errado, consigo trocar?",
+            "answer": "<p><strong>Sim, pode trocar!</strong> No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante:</strong> peças feitas sob medida (que o cliente passa a medida) ou personalizadas, o frete fica por conta do cliente.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Como eu limpo a coleira?",
+            "answer": "<p>Limpeza é super simples! Use um <strong>pano úmido com sabão neutro</strong> para remover sujeira superficial. Para manchas mais resistentes, use uma escova macia. Depois, deixe secar naturalmente à sombra (nunca no sol direto). De vez em quando, você pode aplicar um hidratante de couro para manter o brilho.</p>"
+          }
+        },
+        {
+          "type": "faq",
+          "settings": {
+            "question": "Como sei o tamanho certo para meu pet?",
+            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima. <strong>Ainda com dúvida?</strong> Chama a gente no <a href=\"https://wa.me/5548991574943\" target=\"_blank\" rel=\"noopener\">WhatsApp</a> que te ajudamos na hora! 💚</p>"
+          }
+        }
       ]
     }
   ],
