@@ -238,32 +238,39 @@
     -%}
 
     {%- if has_company_info -%}
+      {%- comment -%}
+        Layout interno: texto à esquerda + mapa à direita (desktop), empilhado
+        no mobile. Wrapper .ame-footer__company-text-col agrupa tudo que é
+        texto pra o grid 2-colunas funcionar sem precisar de grid-area por item.
+      {%- endcomment -%}
       <div class="ame-footer__nav ame-footer__company">
-        <p class="ame-footer__nav-title">Atendimento</p>
+        <div class="ame-footer__company-text-col">
+          <p class="ame-footer__nav-title">Atendimento</p>
 
-        {%- if company_phone != blank -%}
-          <a href="tel:+55{{ phone_digits }}" class="ame-footer__nav-link">{{ company_phone }}</a>
-        {%- endif -%}
-        {%- if company_email != blank -%}
-          <a href="mailto:{{ company_email }}" class="ame-footer__nav-link">{{ company_email }}</a>
-        {%- endif -%}
-        {%- if company_hours != blank -%}
-          <p class="ame-footer__company-text">{{ company_hours | newline_to_br }}</p>
-        {%- endif -%}
+          {%- if company_phone != blank -%}
+            <a href="tel:+55{{ phone_digits }}" class="ame-footer__nav-link">{{ company_phone }}</a>
+          {%- endif -%}
+          {%- if company_email != blank -%}
+            <a href="mailto:{{ company_email }}" class="ame-footer__nav-link">{{ company_email }}</a>
+          {%- endif -%}
+          {%- if company_hours != blank -%}
+            <p class="ame-footer__company-text">{{ company_hours | newline_to_br }}</p>
+          {%- endif -%}
 
-        {%- if company_name != blank or company_cnpj != blank or company_address != blank -%}
-          <address class="ame-footer__company-info">
-            {%- if company_name != blank -%}
-              <span>{{ company_name }}</span>
-            {%- endif -%}
-            {%- if company_cnpj != blank -%}
-              <span>CNPJ: {{ company_cnpj }}</span>
-            {%- endif -%}
-            {%- if company_address != blank -%}
-              <span>{{ company_address | newline_to_br }}</span>
-            {%- endif -%}
-          </address>
-        {%- endif -%}
+          {%- if company_name != blank or company_cnpj != blank or company_address != blank -%}
+            <address class="ame-footer__company-info">
+              {%- if company_name != blank -%}
+                <span>{{ company_name }}</span>
+              {%- endif -%}
+              {%- if company_cnpj != blank -%}
+                <span>CNPJ: {{ company_cnpj }}</span>
+              {%- endif -%}
+              {%- if company_address != blank -%}
+                <span>{{ company_address | newline_to_br }}</span>
+              {%- endif -%}
+            </address>
+          {%- endif -%}
+        </div>
 
         {%- comment -%}
           Mapa + botões "Como chegar". O iframe usa loading="lazy", então
@@ -288,13 +295,15 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 class="ame-footer__map-btn"
-              >Google Maps</a>
+                >Google Maps</a
+              >
               <a
                 href="https://waze.com/ul?q={{ maps_q }}&navigate=yes"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="ame-footer__map-btn"
-              >Waze</a>
+                >Waze</a
+              >
             </div>
           </div>
         {%- endif -%}
@@ -425,7 +434,7 @@
   }
 
   .ame-footer__nav-link {
-    font-size: 0.875rem;
+    font-size: 0.7rem;
     text-decoration: none;
     transition: opacity 0.25s ease;
   }
@@ -434,9 +443,30 @@
     opacity: 0.7;
   }
 
-  /* Coluna de Atendimento / Empresa */
+  /* Coluna de Atendimento / Empresa.
+     Mobile: empilhado (1 coluna). Desktop: 2 colunas — texto à esquerda,
+     mapa à direita — pra economizar espaço vertical no footer.
+     A coluna inteira pode ocupar mais espaço no grid pai via grid-column:
+     span 2 (definido no media query abaixo). */
   .ame-footer__company {
     min-width: 0;
+  }
+  .ame-footer__company-text-col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 768px) {
+    .ame-footer__company {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+    /* Mapa não precisa do margin-top (já tem gap do grid) */
+    .ame-footer__company .ame-footer__map {
+      margin-top: 0;
+    }
   }
   .ame-footer__company-text {
     font-size: 0.8125rem;
@@ -478,7 +508,7 @@
     filter: none;
   }
   .ame-footer__map-actions {
-    display: flex;
+    display: none;
     gap: 0.5rem;
   }
   .ame-footer__map-btn {
