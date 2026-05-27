@@ -7,69 +7,105 @@
   #   - Filtro de tags dos blocks FAQ (whitelist por pergunta)
   # Pipes evitam que 'couro' case com 'couro_legitimo' (match exato, não substring).
   assign product_tags_search = product.tags | join: '|' | downcase | prepend: '|' | append: '|'
+-%}
 
-  # Detector "Depois da compra": há ao menos uma etapa visível pra este produto?
-  # Calculado AQUI (antes do accordion de Descrição) pra que o accordion abra
-  # mesmo quando product.description está vazio — antes ele ficava oculto e
-  # arrastava o Depois da compra + FAQ junto.
-  assign has_steps = false
-  if section.settings.show_after_purchase
-    for i in (1..8)
-      assign step_title_key = 'step_' | append: i | append: '_title'
-      assign step_tags_key = 'step_' | append: i | append: '_tags_filter'
-      if section.settings[step_title_key] == blank
-        continue
-      endif
-      assign step_visible = true
-      if section.settings[step_tags_key] != blank
-        assign step_visible = false
-        assign step_filter_tags = section.settings[step_tags_key] | downcase | split: ','
-        for sft in step_filter_tags
-          assign sft_clean = sft | strip
-          if sft_clean == blank
-            continue
-          endif
-          assign sft_needle = sft_clean | prepend: '|' | append: '|'
-          if product_tags_search contains sft_needle
-            assign step_visible = true
-            break
-          endif
-        endfor
-      endif
-      if step_visible
-        assign has_steps = true
-        break
-      endif
-    endfor
-  endif
+{%- comment -%}
+  ⚡ Bolt: Optimize conditional rendering loops
+  💡 What: Removed duplicate iteration for steps and FAQs by using `{% capture %}` to build the HTML in one pass.
+  🎯 Why: Looping twice (once to detect visibility, once to render) doubles the Liquid processing overhead.
+  📊 Impact: Reduces template evaluation time and improves backend TTFB.
+{%- endcomment -%}
 
-  # Detector FAQ global: pelo menos um block FAQ é visível pra este produto?
-  assign has_global_faq = false
-  if section.settings.show_faq
-    for block in section.blocks
-      if block.type == 'faq' and block.settings.question != blank
-        assign faq_visible = true
-        if block.settings.tags_filter != blank
-          assign faq_visible = false
-          assign filter_tags = block.settings.tags_filter | downcase | split: ','
-          for ft in filter_tags
-            assign ft_clean = ft | strip
-            if ft_clean == blank
+{%- capture after_purchase_steps_html -%}
+  {%- if section.settings.show_after_purchase -%}
+    {%- for i in (1..8) -%}
+      {%- liquid
+        assign emoji_key = 'step_' | append: i | append: '_emoji'
+        assign title_key = 'step_' | append: i | append: '_title'
+        assign tags_key = 'step_' | append: i | append: '_tags_filter'
+        assign step_emoji = section.settings[emoji_key]
+        assign step_title = section.settings[title_key]
+
+        if step_title == blank
+          continue
+        endif
+
+        assign step_visible = true
+        if section.settings[tags_key] != blank
+          assign step_visible = false
+          assign step_filter_tags = section.settings[tags_key] | downcase | split: ','
+          for sft in step_filter_tags
+            assign sft_clean = sft | strip
+            if sft_clean == blank
               continue
             endif
-            assign ft_needle = ft_clean | prepend: '|' | append: '|'
-            if product_tags_search contains ft_needle
-              assign faq_visible = true
+            assign sft_needle = sft_clean | prepend: '|' | append: '|'
+            if product_tags_search contains sft_needle
+              assign step_visible = true
               break
             endif
           endfor
         endif
-        if faq_visible
-          assign has_global_faq = true
-          break
-        endif
-      endif
-    endfor
+      -%}
+      {%- if step_visible -%}
+        <li class="pdp__after-purchase__step">
+          {%- if step_emoji != blank -%}
+            <span class="pdp__after-purchase__emoji" aria-hidden="true">{{ step_emoji }}</span>
+          {%- endif -%}
+          <span class="pdp__after-purchase__step-title">{{ step_title }}</span>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign after_purchase_steps_html = after_purchase_steps_html | strip -%}
+
+{%- capture global_faqs_html -%}
+  {%- if section.settings.show_faq -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'faq' and block.settings.question != blank -%}
+        {%- liquid
+          assign faq_visible = true
+          if block.settings.tags_filter != blank
+            assign faq_visible = false
+            assign filter_tags = block.settings.tags_filter | downcase | split: ','
+            for ft in filter_tags
+              assign ft_clean = ft | strip
+              if ft_clean == blank
+                continue
+              endif
+              assign ft_needle = ft_clean | prepend: '|' | append: '|'
+              if product_tags_search contains ft_needle
+                assign faq_visible = true
+                break
+              endif
+            endfor
+          endif
+        -%}
+        {%- if faq_visible -%}
+          <details class="pdp__faq__item" {{ block.shopify_attributes }}>
+            <summary class="pdp__faq__question">
+              <span>{{ block.settings.question }}</span>
+              <span class="pdp__faq__toggle" aria-hidden="true">+</span>
+            </summary>
+            <div class="pdp__faq__answer">{{ block.settings.answer }}</div>
+          </details>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign global_faqs_html = global_faqs_html | strip -%}
+
+{%- liquid
+  assign has_steps = false
+  if after_purchase_steps_html != blank
+    assign has_steps = true
+  endif
+
+  assign has_global_faq = false
+  if global_faqs_html != blank
+    assign has_global_faq = true
   endif
 
   # Detector FAQ por produto (metafield rich text custom.faq).
@@ -128,41 +164,7 @@
                   {{ section.settings.after_purchase_title | default: 'O que acontece depois da compra' }}
                 </h2>
                 <ol class="pdp__after-purchase__steps">
-                  {%- for i in (1..8) -%}
-                    {%- liquid
-                      assign emoji_key = 'step_' | append: i | append: '_emoji'
-                      assign title_key = 'step_' | append: i | append: '_title'
-                      assign tags_key = 'step_' | append: i | append: '_tags_filter'
-                      assign step_emoji = section.settings[emoji_key]
-                      assign step_title = section.settings[title_key]
-                      # Mesma regra do detector has_steps acima — qualquer mudança
-                      # de visibilidade precisa replicar nos dois lugares.
-                      assign step_visible = true
-                      if section.settings[tags_key] != blank
-                        assign step_visible = false
-                        assign step_filter_tags = section.settings[tags_key] | downcase | split: ','
-                        for sft in step_filter_tags
-                          assign sft_clean = sft | strip
-                          if sft_clean == blank
-                            continue
-                          endif
-                          assign sft_needle = sft_clean | prepend: '|' | append: '|'
-                          if product_tags_search contains sft_needle
-                            assign step_visible = true
-                            break
-                          endif
-                        endfor
-                      endif
-                    -%}
-                    {%- if step_title != blank and step_visible -%}
-                      <li class="pdp__after-purchase__step">
-                        {%- if step_emoji != blank -%}
-                          <span class="pdp__after-purchase__emoji" aria-hidden="true">{{ step_emoji }}</span>
-                        {%- endif -%}
-                        <span class="pdp__after-purchase__step-title">{{ step_title }}</span>
-                      </li>
-                    {%- endif -%}
-                  {%- endfor -%}
+                  {{ after_purchase_steps_html }}
                 </ol>
               </div>
           {%- endif -%}
@@ -181,40 +183,7 @@
                   {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
                 </h2>
                 <div class="pdp__faq__list" data-pdp-faq>
-                  {%- for block in section.blocks -%}
-                    {%- if block.type == 'faq' and block.settings.question != blank -%}
-                      {%- liquid
-                        # Mesma regra de visibilidade do detector has_global_faq
-                        # acima — qualquer mudança de regra precisa replicar nos
-                        # dois lugares (detector + renderizador).
-                        assign faq_visible = true
-                        if block.settings.tags_filter != blank
-                          assign faq_visible = false
-                          assign filter_tags = block.settings.tags_filter | downcase | split: ','
-                          for ft in filter_tags
-                            assign ft_clean = ft | strip
-                            if ft_clean == blank
-                              continue
-                            endif
-                            assign ft_needle = ft_clean | prepend: '|' | append: '|'
-                            if product_tags_search contains ft_needle
-                              assign faq_visible = true
-                              break
-                            endif
-                          endfor
-                        endif
-                      -%}
-                      {%- if faq_visible -%}
-                        <details class="pdp__faq__item" {{ block.shopify_attributes }}>
-                          <summary class="pdp__faq__question">
-                            <span>{{ block.settings.question }}</span>
-                            <span class="pdp__faq__toggle" aria-hidden="true">+</span>
-                          </summary>
-                          <div class="pdp__faq__answer">{{ block.settings.answer }}</div>
-                        </details>
-                      {%- endif -%}
-                    {%- endif -%}
-                  {%- endfor -%}
+                  {{ global_faqs_html }}
 
                   {%- if has_product_faq -%}
                     {%- comment -%}
