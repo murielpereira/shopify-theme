@@ -738,13 +738,13 @@
                     <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
                   {%- endif -%}
                 </div>
-                <div class="pdp__custom-field__radio-group">
+                <div class="pdp__custom-field__radio-group pdp__sizes">
                   {%- assign cf_opts = cf_options | split: ',' -%}
                   {%- for cf_opt in cf_opts -%}
                     {%- assign opt_val = cf_opt | strip -%}
                     <button
                       type="button"
-                      class="pdp__custom-field__radio-btn"
+                      class="pdp__size-btn"
                       data-value="{{ opt_val | escape }}"
                       aria-label="{{ opt_val | escape }}"
                       title="{{ opt_val | escape }}"
@@ -1163,15 +1163,15 @@
     // Toast público — usado também pelo snippet do pingente
     window.AmePdpToast = showSelectionToast;
 
-    /* ── Campos Personalizados — radio ── */
-    document.querySelectorAll('.pdp__custom-field__radio-btn').forEach(btn => {
+    /* ── Campos Personalizados — radio (reusa visual do .pdp__size-btn) ── */
+    document.querySelectorAll('.pdp__custom-field .pdp__size-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const group = btn.closest('.pdp__custom-field');
-        group?.querySelectorAll('.pdp__custom-field__radio-btn').forEach(b => {
-          b.classList.remove('is-selected');
+        group?.querySelectorAll('.pdp__size-btn').forEach(b => {
+          b.classList.remove('pdp__size-btn--active');
           b.setAttribute('aria-pressed', 'false');
         });
-        btn.classList.add('is-selected');
+        btn.classList.add('pdp__size-btn--active');
         btn.setAttribute('aria-pressed', 'true');
         const hidden = group?.querySelector('.pdp__custom-field__radio-val');
         if (hidden) hidden.value = btn.dataset.value;
@@ -2525,7 +2525,6 @@
   .pdp__swatch:focus-visible,
   .pdp__size-btn:focus-visible,
   .pdp__qty-btn:focus-visible,
-  .pdp__custom-field__radio-btn:focus-visible,
   .pdp__thumb:focus-visible,
   .ame-cart-item__qty-btn:focus-visible,
   .ame-wishlist:focus-visible,
@@ -2669,31 +2668,14 @@
     font-weight: 600;
   }
 
+  /* Botões de opção dos campos personalizados reusam o visual do
+     .pdp__size-btn (definido em outra parte do arquivo). Mantemos o
+     wrapper .pdp__custom-field__radio-group só pra agrupar/flexbox;
+     todo o styling dos botões vem da classe global. */
   .pdp__custom-field__radio-group {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
-
-  .pdp__custom-field__radio-btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-outline-variant, #d2c3c0);
-    border-radius: var(--radius-md, 4px);
-    background: transparent;
-    font-size: 0.875rem;
-    color: var(--color-on-background, #201b14);
-    cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease;
-  }
-
-  .pdp__custom-field__radio-btn:hover,
-  .pdp__custom-field__radio-btn.is-selected {
-    border-color: var(--color-primary, #5a4742);
-    background: var(--color-surface-container, #f8ece0);
-  }
-
-  .pdp__custom-field__radio-btn.is-selected {
-    font-weight: 600;
   }
 
   .pdp__custom-field__error-msg {
@@ -2716,7 +2698,7 @@
     border-color: #c0392b;
   }
 
-  .pdp__custom-field--error .pdp__custom-field__radio-btn {
+  .pdp__custom-field--error .pdp__size-btn {
     border-color: #c0392b;
   }
 
