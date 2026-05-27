@@ -239,13 +239,7 @@
           "type": "video",
           "id": "video",
           "label": "Vídeo (Shopify)",
-          "info": "Faça upload de um vídeo (recomendado: MP4, ≥ 720p). Tem prioridade sobre a URL abaixo."
-        },
-        {
-          "type": "url",
-          "id": "url",
-          "label": "URL do vídeo (YouTube/Vimeo — fallback)",
-          "info": "Usado apenas se nenhum vídeo for enviado acima."
+          "info": "Faça upload de um vídeo (recomendado: MP4, ≥ 720p). Apenas upload nativo é suportado — URLs YouTube/Vimeo não funcionam por motivos de performance."
         },
         {
           "type": "text",
@@ -256,7 +250,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Thumbnail customizada (opcional)",
-          "info": "Se vazio, usa o frame de preview do vídeo (ou a thumbnail do YouTube)."
+          "info": "Se vazio, usa o frame de preview do vídeo."
         },
         {
           "type": "header",

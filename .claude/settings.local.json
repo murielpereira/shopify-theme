@@ -105,7 +105,14 @@
       "Bash(node)",
       "Bash(node \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/_check.cjs\")",
       "Bash(awk '/sections.product.liquid/,/^$/' /tmp/check.txt)",
-      "Bash(node \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/_check2.cjs\")"
+      "Bash(node \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/_check2.cjs\")",
+      "Bash(curl -sL \"https://ame-acessorios-pet.myshopify.com/products/coleira-de-couro-pandora\" -o /tmp/pandora.html)",
+      "Bash(grep -oE '<iframe[^>]*src=\"[^$]{20}[^\"]*\"' /tmp/pandora.html)",
+      "Bash(grep -oE '<iframe[^>]*src=\"https?://[^$\"]*\"' /tmp/pandora.html)",
+      "Bash(grep -oE '.{0,80}youtube.{0,80}' /tmp/pandora.html)",
+      "Bash(grep -oE '\"[^\"]{0,5}https://[a-z]*\\\\.youtube\\\\.com[^\"]{0,100}\"' /tmp/pandora.html)",
+      "Bash(grep -oE '.{0,40}youtube[a-z.]*\\\\.com[^\"]{0,60}' /tmp/pandora.html)",
+      "Bash(grep -oE '<\\(iframe|embed|video\\)[^>]{20,}' /tmp/pandora.html)"
     ]
   }
 }

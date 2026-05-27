@@ -196,7 +196,7 @@
 </div>
 
 <!-- Search overlay mobile (desliza abaixo do header-group — apenas mobile) -->
-<div class="ame-search-overlay" id="search-overlay" aria-hidden="true" data-search-overlay>
+<div class="ame-search-overlay" id="search-overlay" aria-hidden="true" inert data-search-overlay>
   <form action="{{ routes.search_url }}" method="get" class="ame-search-form" role="search">
     <input type="hidden" name="type" value="product">
     <span class="material-symbols-outlined ame-search-form__icon" aria-hidden="true">search</span>
@@ -222,7 +222,7 @@
 </div>
 
 <!-- Mobile nav drawer (fora do grupo fixed) -->
-<nav class="ame-mobile-nav" id="mobile-nav" aria-hidden="true" data-mobile-nav>
+<nav class="ame-mobile-nav" id="mobile-nav" aria-hidden="true" inert data-mobile-nav>
   {%- for link in section.settings.menu.links -%}
     {%- if link.links.size > 0 -%}
       <div class="ame-mobile-nav__group">
@@ -522,6 +522,7 @@
       } else {
         searchOverlay?.classList.add('is-open');
         searchOverlay?.setAttribute('aria-hidden', 'false');
+        searchOverlay?.removeAttribute('inert');
         setTimeout(() => searchInputMobile?.focus(), 80);
       }
       searchBtn?.setAttribute('aria-expanded', 'true');
@@ -530,6 +531,9 @@
       searchWrap?.classList.remove('is-open');
       searchOverlay?.classList.remove('is-open');
       searchOverlay?.setAttribute('aria-hidden', 'true');
+      // inert bloqueia foco em descendentes — sem isso o Tab navegava pra
+      // dentro do overlay fechado (PSI flagava aria-hidden-focus).
+      searchOverlay?.setAttribute('inert', '');
       searchBtn?.setAttribute('aria-expanded', 'false');
       document.querySelectorAll('[data-predictive-dropdown]').forEach(d => {
         d.hidden = true;
@@ -692,6 +696,9 @@
         const open = mobileNav.classList.toggle('is-open');
         menuBtn.setAttribute('aria-expanded', open);
         mobileNav.setAttribute('aria-hidden', !open);
+        // Sincroniza inert: bloqueia foco no menu enquanto fechado.
+        if (open) mobileNav.removeAttribute('inert');
+        else mobileNav.setAttribute('inert', '');
         menuIcon.textContent = open ? 'close' : 'menu';
       });
     }

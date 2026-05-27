@@ -2,7 +2,12 @@
   Âme — Video Stories widget
   Renderiza vídeos como stories (círculos), carrossel (cards 9:16) ou spotlight
   (loop infinito com card central destacado, autoplay mutado nos próximos).
-  Modal em lightbox com player (YouTube, Vimeo ou vídeo nativo Shopify).
+  Modal em lightbox com player de vídeo nativo Shopify (upload).
+
+  Suporte a YouTube/Vimeo foi removido por motivos de performance — players
+  externos baixam ~600KB de JS mesmo com lazy load, degradando o PSI mobile.
+  Vídeos devem ser enviados como upload nativo do Shopify (Configurações de
+  mídia do produto OU campo de vídeo do bloco da home).
 {% endcomment %}
 
 {%- liquid
@@ -127,8 +132,6 @@
           endif
         elsif vs_source == 'blocks'
           assign block_video = v.settings.video
-          assign block_url_raw = v.settings.url | default: ''
-          assign block_url = block_url_raw | downcase
           assign vt_title = v.settings.title
           if v.settings.image != blank
             assign vt_image = v.settings.image | image_url: width: 720
@@ -136,7 +139,10 @@
           assign vt_cta_url = v.settings.cta_url
           assign vt_cta_label = v.settings.cta_label | default: vs_cta_default
 
-          # Prioridade: vídeo nativo do Shopify → URL externa (YouTube/Vimeo) — legacy
+          # Apenas vídeo nativo do Shopify (upload). Suporte a YouTube/Vimeo
+          # foi removido por motivos de performance — player do YouTube
+          # baixa ~600KB de JS mesmo lazy. Se o lojista colar uma URL
+          # YouTube/Vimeo no campo `url`, o bloco simplesmente não renderiza.
           if block_video != blank and block_video.sources.size > 0
             assign vt_type = 'native'
             assign vt_id = block_video.id
@@ -152,26 +158,6 @@
             if vt_image == '' and block_video.preview_image != blank
               assign vt_image = block_video.preview_image | image_url: width: 720
             endif
-          elsif block_url contains 'youtube.com/watch'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'v=' | last | split: '&' | first
-          elsif block_url contains 'youtu.be/'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'youtu.be/' | last | split: '?' | first
-          elsif block_url contains 'youtube.com/shorts/'
-            assign vt_type = 'external'
-            assign vt_host = 'youtube'
-            assign vt_id = block_url_raw | split: 'shorts/' | last | split: '?' | first
-          elsif block_url contains 'vimeo.com/'
-            assign vt_type = 'external'
-            assign vt_host = 'vimeo'
-            assign vt_id = block_url_raw | split: 'vimeo.com/' | last | split: '?' | first
-          endif
-
-          if vt_image == '' and vt_type == 'external' and vt_host == 'youtube' and vt_id != ''
-            assign vt_image = 'https://img.youtube.com/vi/' | append: vt_id | append: '/hqdefault.jpg'
           endif
         endif
       -%}
@@ -934,15 +920,8 @@
       }
 
       function buildPlayer(data) {
-        // Modal abre por clique do usuário (gesto), então pode reproduzir com áudio.
-        // Mantemos autoplay sempre 1 (já está abrindo pra reproduzir).
-        const autoplay = '1';
-        if (data.type === 'external' && data.host === 'youtube') {
-          return `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(data.id)}?autoplay=${autoplay}&mute=0&controls=1&rel=0&playsinline=1&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-        }
-        if (data.type === 'external' && data.host === 'vimeo') {
-          return `<iframe src="https://player.vimeo.com/video/${escapeHTML(encodeURIComponent(data.id))}?autoplay=${autoplay}&muted=0&playsinline=1&controls=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
-        }
+        // Apenas vídeo nativo do Shopify. Suporte YouTube/Vimeo foi removido
+        // por performance — players externos baixam ~600KB de JS.
         if (data.type === 'native' && data.src) {
           return `<video src="${escapeHTML(data.src)}" autoplay controls playsinline></video>`;
         }
@@ -1201,14 +1180,9 @@
         const vid = card.querySelector('[data-vs-spot-vid]');
         if (!vid || vid.innerHTML) return;
         const type = card.dataset.vsType;
-        const host = card.dataset.vsHost;
-        const id = card.dataset.vsId;
         const src = card.dataset.vsSrc;
-        if (type === 'external' && host === 'youtube' && id) {
-          vid.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${encodeURIComponent(id)}&playsinline=1&modestbranding=1&rel=0&disablekb=1" frameborder="0" allow="autoplay; encrypted-media" tabindex="-1"></iframe>`;
-        } else if (type === 'external' && host === 'vimeo' && id) {
-          vid.innerHTML = `<iframe src="https://player.vimeo.com/video/${escapeHTML(encodeURIComponent(id))}?autoplay=1&muted=1&loop=1&background=1&controls=0" frameborder="0" allow="autoplay; encrypted-media" tabindex="-1"></iframe>`;
-        } else if (type === 'native' && src) {
+        // Apenas vídeo nativo. Sem fallback YouTube/Vimeo (performance).
+        if (src) {
           vid.innerHTML = `<video src="${escapeHTML(src)}" autoplay muted loop playsinline></video>`;
         }
         card.classList.add('is-vid-loaded');

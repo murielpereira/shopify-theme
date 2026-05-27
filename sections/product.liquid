@@ -1398,7 +1398,11 @@
     spacer.setAttribute('aria-hidden', 'true');
     wrap.after(spacer);
 
-    const mq = window.matchMedia('(max-width: 1023px)');
+    // Sticky só ativa em mobile real (< 600px). Em tablets/laptops pequenos
+    // (600-1023px) sobra espaço lateral pra exibir o layout naturalmente, e
+    // o pin estava ocupando 100% da viewport — imagem quadrada vinha maior
+    // que a altura, bloqueando o acesso ao form e ao botão Comprar.
+    const mq = window.matchMedia('(max-width: 599px)');
     let pinned = false;
     let headerOffset = 0;
 
@@ -1506,7 +1510,9 @@
     font-size: 0.625rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.4);
+    /* Alpha 0.4 dava ratio ~3:1 (PSI flagava color-contrast). Cor sólida
+       --color-on-surface-variant dá ratio ~7:1 (passa WCAG AA com folga). */
+    color: var(--color-on-surface-variant, #4f4442);
     flex-wrap: wrap;
   }
 
@@ -1936,7 +1942,8 @@
 
   .pdp__price-label {
     font-size: 0.8125rem;
-    color: rgba(90, 71, 66, 0.55);
+    /* Alpha 0.55 → ratio ~3.7:1 (PSI flagava). Cor sólida dá ratio ~7:1. */
+    color: var(--color-on-surface-variant, #4f4442);
     font-weight: 400;
   }
 
@@ -2946,7 +2953,11 @@
     display: none;
   }
 
-  @media (max-width: 1023px) {
+  /* Sticky pinned é só pra mobile (<600px). Em tablets/laptops menores
+     o pin com width:100% + aspect-ratio 1/1 tornava a imagem maior que
+     o viewport vertical, bloqueando o form e o botão Comprar.
+     O breakpoint 599px é o mesmo do --page-margin override do tema. */
+  @media (max-width: 599px) {
     .pdp__sticky-wrap.is-pinned {
       position: fixed;
       top: var(--pdp-pinned-top, 0px);
@@ -2954,7 +2965,6 @@
       right: 0;
       width: 100%;
       margin: 0;
-      /*padding: 0 0.75rem; original*/
       padding: 5px 1.2rem 0;
       z-index: 50;
       will-change: transform;

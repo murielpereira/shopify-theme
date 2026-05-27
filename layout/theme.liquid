@@ -92,6 +92,7 @@
           if (!d) return;
           d.classList.add('is-open');
           d.setAttribute('aria-hidden', 'false');
+          d.removeAttribute('inert');
           b?.classList.add('is-open');
           document.body.style.overflow = 'hidden';
           setTimeout(() => d.querySelector('[data-cart-close]')?.focus(), 50);
@@ -105,6 +106,8 @@
           if (!d) return;
           d.classList.remove('is-open');
           d.setAttribute('aria-hidden', 'true');
+          // inert bloqueia foco dentro do drawer fechado (PSI aria-hidden-focus).
+          d.setAttribute('inert', '');
           b?.classList.remove('is-open');
           document.body.style.overflow = '';
           const toggleBtn = document.querySelector('[data-cart-open]');
