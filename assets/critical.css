@@ -2190,14 +2190,29 @@ shopify-account {
   }
 }
 
+/* .ame-mobile-nav__link cobre AMBOS:
+   - itens simples (<a>)
+   - itens com submenu (<button class="__link __toggle">)
+   Usa flex pra alinhar texto + caret consistentemente. Antes o __toggle
+   tinha `border: none` que anulava o border-bottom herdado — só os itens
+   sem submenu apareciam com linha separadora, ficando desigual. */
 .ame-mobile-nav__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   font-size: 1.125rem;
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--color-on-background, #201b14);
-  text-decoration: none;
-  padding-bottom: 1rem;
+  background: none;
+  border: 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.2);
+  padding: 0 0 1rem;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
   transition: color 0.2s ease;
 }
 
@@ -2212,18 +2227,8 @@ shopify-account {
   flex-direction: column;
 }
 
-.ame-mobile-nav__toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-}
+/* __toggle agora só existe pra hooks de JS — o styling visual vem do
+   __link, garantindo paridade entre itens simples e com submenu. */
 
 .ame-mobile-nav__caret {
   font-size: 1.25rem !important;
