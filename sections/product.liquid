@@ -2392,11 +2392,21 @@
   }
 
   /* ── Acordeões ── */
+  /* Padding responsivo seguindo --page-margin do tema (12px no mobile,
+     clamp(32px..160px) no tablet/desktop). Antes era fixo em 20rem (320px)
+     em todos os tamanhos exceto mobile, espremendo a descrição em telas
+     769-1279px (tablet/laptop pequeno). */
   .pdp-accordions {
-    /*padding: 0 var(--page-margin, 20px) 3rem;*/
-    padding: 10px 20rem;
+    padding: 10px var(--page-margin, 20px);
     max-width: 100%;
     margin: 0 auto;
+  }
+
+  /* Desktop largo: mantém o padding generoso de 20rem do design original. */
+  @media (min-width: 1280px) {
+    .pdp-accordions {
+      padding: 10px 20rem;
+    }
   }
 
   @media (max-width: 768px) {
