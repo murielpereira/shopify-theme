@@ -588,44 +588,61 @@
 
       <!--
         ── Campos Personalizados ──
-        Renderização ordenada: o setting `custom_field_N_order` controla a
-        posição (menor primeiro). Fazemos um pass externo por posição
-        (1..20) e, dentro, procuramos qual dos 20 campos tem aquele order.
-        Custo: 20×20 = 400 iterações no pior caso — desprezível e mantém
-        a ordem totalmente configurável pelo admin sem JS.
       -->
-      {%- for pass_i in (1..20) -%}
-        {%- for cf_i in (1..20) -%}
-          {%- liquid
+      {%- comment -%}
+        ⚡ Bolt: Replace O(N²) nested loop with O(N) sort.
+        💡 What: Builds an array of active custom fields prefixed by order, sorts it natively, and then iterates.
+        🎯 Why: Replaces 400 (20x20) Liquid loop iterations with a single pass build (20 iterations) and native `sort`, significantly reducing template evaluation time.
+        📊 Impact: Improves server response time (TTFB) on product pages with custom fields enabled.
+      {%- endcomment -%}
+      {%- liquid
+        assign active_cf_str = ''
+        for cf_i in (1..20)
+          assign cf_en_key = 'custom_field_' | append: cf_i | append: '_enable'
+          assign cf_tag_key = 'custom_field_' | append: cf_i | append: '_tag'
+          assign cf_enabled = settings[cf_en_key]
+          assign cf_cfg_tag = settings[cf_tag_key]
+
+          if cf_enabled and product.tags contains cf_cfg_tag
             assign cf_or_key = 'custom_field_' | append: cf_i | append: '_order'
             assign cf_order = settings[cf_or_key] | default: cf_i
-          -%}
-          {%- if cf_order != pass_i -%}{%- continue -%}{%- endif -%}
-          {%- liquid
-            assign cf_en_key = 'custom_field_' | append: cf_i | append: '_enable'
-            assign cf_tag_key = 'custom_field_' | append: cf_i | append: '_tag'
-            assign cf_enabled = settings[cf_en_key]
-            assign cf_cfg_tag = settings[cf_tag_key]
-          -%}
-          {%- if cf_enabled and product.tags contains cf_cfg_tag -%}
-            {%- liquid
-              assign cf_nm_key = 'custom_field_' | append: cf_i | append: '_name'
-              assign cf_tt_key = 'custom_field_' | append: cf_i | append: '_title'
-              assign cf_ph_key = 'custom_field_' | append: cf_i | append: '_placeholder'
-              assign cf_hl_key = 'custom_field_' | append: cf_i | append: '_helper'
-              assign cf_lm_key = 'custom_field_' | append: cf_i | append: '_limiter'
-              assign cf_tp_key = 'custom_field_' | append: cf_i | append: '_type'
-              assign cf_op_key = 'custom_field_' | append: cf_i | append: '_options'
-              assign cf_rq_key = 'custom_field_' | append: cf_i | append: '_required'
-              assign cf_name = settings[cf_nm_key]
-              assign cf_title = settings[cf_tt_key]
-              assign cf_placeholder = settings[cf_ph_key] | default: cf_title
-              assign cf_helper = settings[cf_hl_key]
-              assign cf_limiter = settings[cf_lm_key]
-              assign cf_type = settings[cf_tp_key]
-              assign cf_options = settings[cf_op_key]
-              assign cf_req = settings[cf_rq_key]
-            -%}
+            # Padds order with 0 if single digit to ensure correct string sorting
+            assign padded_order = cf_order | prepend: '00' | slice: -2, 2
+
+            # Format: order_cf_i
+            assign cf_item = padded_order | append: '_' | append: cf_i
+            assign active_cf_str = active_cf_str | append: cf_item | append: ','
+          endif
+        endfor
+
+        assign active_cfs = active_cf_str | split: ',' | sort
+      -%}
+
+      {%- for sorted_cf in active_cfs -%}
+        {%- if sorted_cf == blank -%}{%- continue -%}{%- endif -%}
+
+        {%- liquid
+          assign cf_parts = sorted_cf | split: '_'
+          assign cf_i = cf_parts[1]
+
+          assign cf_nm_key = 'custom_field_' | append: cf_i | append: '_name'
+          assign cf_tt_key = 'custom_field_' | append: cf_i | append: '_title'
+          assign cf_ph_key = 'custom_field_' | append: cf_i | append: '_placeholder'
+          assign cf_hl_key = 'custom_field_' | append: cf_i | append: '_helper'
+          assign cf_lm_key = 'custom_field_' | append: cf_i | append: '_limiter'
+          assign cf_tp_key = 'custom_field_' | append: cf_i | append: '_type'
+          assign cf_op_key = 'custom_field_' | append: cf_i | append: '_options'
+          assign cf_rq_key = 'custom_field_' | append: cf_i | append: '_required'
+
+          assign cf_name = settings[cf_nm_key]
+          assign cf_title = settings[cf_tt_key]
+          assign cf_placeholder = settings[cf_ph_key] | default: cf_title
+          assign cf_helper = settings[cf_hl_key]
+          assign cf_limiter = settings[cf_lm_key]
+          assign cf_type = settings[cf_tp_key]
+          assign cf_options = settings[cf_op_key]
+          assign cf_req = settings[cf_rq_key]
+        -%}
             <div class="pdp__custom-field">
               {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
                 {%- liquid
@@ -771,8 +788,6 @@
                 {%- endif -%}
               {%- endif -%}
             </div>
-          {%- endif -%}
-        {%- endfor -%}
       {%- endfor -%}
 
       <!-- Quantidade -->
