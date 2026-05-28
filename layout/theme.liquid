@@ -829,13 +829,112 @@
           }
           Object.entries(prevSels).forEach(([key, val]) => {
             newCard.dataset[key] = val;
-            // Re-aplica is-active no botão se for opção variante
             const idx = key.replace('csSel', '');
             const btn = newCard.querySelector('[data-cs-opt-idx="' + idx + '"][data-cs-opt-val="' + val.replace(/"/g, '&quot;') + '"]');
             if (btn) btn.classList.add('is-active');
           });
-          // Re-avalia se deve habilitar Adicionar com as seleções preservadas
           updateAddBtnState(newCard);
+
+          // Atrelando listeners DIRETO nos botões do card (não delegation no
+          // document) porque apps de terceiros estavam interceptando o click
+          // via stopImmediatePropagation antes do nosso handler global.
+          attachCardListeners(newCard);
+        }
+
+        /* Atrela listeners de click nos botões do card recém-criado. */
+        function attachCardListeners(card) {
+          card.querySelector('[data-cs-dismiss]')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const slot = card.closest('[data-cs-slot]');
+            const key = card.dataset.csSource + '::' + card.dataset.csGuia;
+            addDismissed(key);
+            if (slot) slot.innerHTML = '';
+          });
+
+          card.querySelectorAll('[data-cs-opt-idx]').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const idx = btn.dataset.csOptIdx;
+              card.querySelectorAll('[data-cs-opt-idx="' + idx + '"]').forEach(b => b.classList.remove('is-active'));
+              btn.classList.add('is-active');
+              card.dataset['csSel' + idx] = btn.dataset.csOptVal;
+              updateAddBtnState(card);
+            });
+          });
+
+          card.querySelectorAll('[data-cs-prop-val]').forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              card.querySelectorAll('[data-cs-prop-val]').forEach(b => b.classList.remove('is-active'));
+              btn.classList.add('is-active');
+              card.dataset.csPropVal = btn.dataset.csPropVal;
+              updateAddBtnState(card);
+            });
+          });
+
+          const addBtn = card.querySelector('[data-cs-add]');
+          if (addBtn) {
+            addBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              if (addBtn.disabled) {
+                console.warn('[cross-sell] botão clicado mas está disabled');
+                return;
+              }
+              const guiaHandle = card.dataset.csGuia;
+              console.log('[cross-sell] add clicked. guia=', guiaHandle);
+              const guia = await fetchProduct(guiaHandle);
+              if (!guia) {
+                console.warn('[cross-sell] guia não retornada do fetch:', guiaHandle);
+                (window.AmePdpToast || alert)('Não foi possível encontrar a guia.');
+                return;
+              }
+              const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
+              const selections = [];
+              for (let i = 0; i < totalOpts; i++) {
+                const v = card.dataset['csSel' + i];
+                console.log('[cross-sell] sel ' + i + ' =', v);
+                if (!v) {
+                  (window.AmePdpToast || alert)('Selecione todas as opções.');
+                  return;
+                }
+                selections.push(v);
+              }
+              const variant = findVariant(guia, selections);
+              console.log('[cross-sell] selections:', selections, '→ variant:', variant);
+              if (!variant) {
+                (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação: ' + selections.join(' / '));
+                return;
+              }
+              const needsProp = card.dataset.csNeedsProp === '1';
+              const propName = card.dataset.csPropName || '';
+              const propVal = card.dataset.csPropVal || '';
+              const propsPayload = {};
+              if (needsProp && propName && propVal) propsPayload[propName] = propVal;
+
+              addBtn.disabled = true;
+              addBtn.textContent = 'Adicionando...';
+              try {
+                const itemPayload = { id: variant.id, quantity: 1 };
+                if (Object.keys(propsPayload).length) itemPayload.properties = propsPayload;
+                const res = await fetch('/cart/add.js', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ items: [itemPayload] })
+                });
+                if (!res.ok) {
+                  const err = await res.json().catch(() => ({}));
+                  throw new Error(err.description || err.message || 'Erro ao adicionar');
+                }
+                const refreshed = await (await fetch('/cart.js')).json();
+                window.AmeCart?.refresh(refreshed);
+              } catch (err) {
+                console.warn('[cross-sell] add failed:', err);
+                addBtn.disabled = false;
+                addBtn.textContent = 'Tente novamente';
+                (window.AmePdpToast || alert)(err.message || 'Não foi possível adicionar.');
+              }
+            });
+          }
         }
 
         async function renderCrossSell(cart) {
@@ -853,115 +952,12 @@
           })[c]);
         }
 
-        /* Click delegation: seleciona opção pendente, dismiss e adiciona */
-        document.addEventListener('click', async (e) => {
-          // Dismiss — fecha sugestão pra este par source+guia
-          const dismissBtn = e.target.closest('[data-cs-dismiss]');
-          if (dismissBtn) {
-            const card = dismissBtn.closest('[data-cs-card]');
-            const slot = card.closest('[data-cs-slot]');
-            const key = card.dataset.csSource + '::' + card.dataset.csGuia;
-            addDismissed(key);
-            if (slot) slot.innerHTML = '';
-            return;
-          }
-
-          // Selecionar valor pra uma opção de variante não auto-matched
-          const optBtn = e.target.closest('[data-cs-opt-idx]');
-          if (optBtn) {
-            const card = optBtn.closest('[data-cs-card]');
-            const idx = optBtn.dataset.csOptIdx;
-            card.querySelectorAll('[data-cs-opt-idx="' + idx + '"]').forEach(b => b.classList.remove('is-active'));
-            optBtn.classList.add('is-active');
-            card.dataset['csSel' + idx] = optBtn.dataset.csOptVal;
-            updateAddBtnState(card);
-            return;
-          }
-
-          // Selecionar valor pra property (ex: Comprimento da Guia 120/150)
-          const propBtn = e.target.closest('[data-cs-prop-val]');
-          if (propBtn) {
-            const card = propBtn.closest('[data-cs-card]');
-            card.querySelectorAll('[data-cs-prop-val]').forEach(b => b.classList.remove('is-active'));
-            propBtn.classList.add('is-active');
-            card.dataset.csPropVal = propBtn.dataset.csPropVal;
-            updateAddBtnState(card);
-            return;
-          }
-
-          // Adicionar guia ao carrinho
-          const addBtn = e.target.closest('[data-cs-add]');
-          if (!addBtn) return;
-          if (addBtn.disabled) {
-            console.warn('[cross-sell] botão clicado mas está disabled');
-            return;
-          }
-          const card = addBtn.closest('[data-cs-card]');
-          if (!card) {
-            console.warn('[cross-sell] card pai não encontrado');
-            return;
-          }
-          const guiaHandle = card.dataset.csGuia;
-          console.log('[cross-sell] add clicked. guia=', guiaHandle);
-
-          const guia = await fetchProduct(guiaHandle);
-          if (!guia) {
-            console.warn('[cross-sell] guia não retornada do fetch:', guiaHandle);
-            (window.AmePdpToast || alert)('Não foi possível encontrar a guia.');
-            return;
-          }
-
-          const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
-          const selections = [];
-          for (let i = 0; i < totalOpts; i++) {
-            const v = card.dataset['csSel' + i];
-            console.log('[cross-sell] sel ' + i + ' =', v);
-            if (!v) {
-              (window.AmePdpToast || alert)('Selecione todas as opções.');
-              return;
-            }
-            selections.push(v);
-          }
-
-          const variant = findVariant(guia, selections);
-          console.log('[cross-sell] selections:', selections, '→ variant:', variant);
-          if (!variant) {
-            (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação: ' + selections.join(' / '));
-            return;
-          }
-
-          // Propriedades (ex: Comprimento da Guia) — só se a guia exigir
-          const needsProp = card.dataset.csNeedsProp === '1';
-          const propName = card.dataset.csPropName || '';
-          const propVal = card.dataset.csPropVal || '';
-          const propsPayload = {};
-          if (needsProp && propName && propVal) {
-            propsPayload[propName] = propVal;
-          }
-
-          addBtn.disabled = true;
-          addBtn.textContent = 'Adicionando...';
-          try {
-            const itemPayload = { id: variant.id, quantity: 1 };
-            if (Object.keys(propsPayload).length) itemPayload.properties = propsPayload;
-            const res = await fetch('/cart/add.js', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ items: [itemPayload] })
-            });
-            if (!res.ok) {
-              const err = await res.json().catch(() => ({}));
-              throw new Error(err.description || err.message || 'Erro ao adicionar');
-            }
-            const refreshed = await (await fetch('/cart.js')).json();
-            window.AmeCart?.refresh(refreshed);
-          } catch (err) {
-            console.warn('[cross-sell] add failed:', err);
-            addBtn.disabled = false;
-            addBtn.textContent = 'Tente novamente';
-            (window.AmePdpToast || alert)(err.message || 'Não foi possível adicionar.');
-          }
-        });
+        /* Handlers de click ficam atrelados DIRETO nos botões do card via
+           attachCardListeners (chamado dentro de renderCrossSellForSlot). NÃO
+           usamos document.addEventListener por delegation aqui porque apps
+           de terceiros (Easify/Optis/Waltz) registram listeners em capture
+           phase com stopImmediatePropagation, interceptando o click antes
+           dele chegar nos handlers globais. */
 
         /* Habilita botão Adicionar quando todas as opções + property
            obrigatória estão preenchidas. */
