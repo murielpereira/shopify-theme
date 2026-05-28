@@ -1755,6 +1755,32 @@ body::after {
   display: block;
 }
 
+/* Esvaziar carrinho — link sutil (não-destrutivo visualmente até o 2º clique).
+   Quando is-confirming, fica vermelho pra sinalizar destruição iminente. */
+.ame-cart-drawer__clear {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(90, 71, 66, 0.4);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  font-family: inherit;
+  transition: color 0.2s ease;
+}
+.ame-cart-drawer__clear:hover {
+  color: var(--color-on-surface-variant, #4f4442);
+}
+.ame-cart-drawer__clear.is-confirming {
+  color: var(--danger-600, #dc2626);
+  font-weight: 600;
+}
+
 .ame-cart-drawer__continue:hover {
   color: var(--color-primary, #5a4742);
 }

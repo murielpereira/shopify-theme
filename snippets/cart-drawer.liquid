@@ -222,5 +222,13 @@
     <a href="#" class="ame-cart-drawer__continue" data-cart-close>
       Continuar comprando
     </a>
+    {%- comment -%}
+      Limpar carrinho — confirmação inline (2 cliques): no 1º clique muda
+      pra "Confirmar?" + "Cancelar"; 2º clique limpa de verdade. Evita
+      o `confirm()` nativo (que é feio e bloqueia o thread).
+    {%- endcomment -%}
+    <button type="button" class="ame-cart-drawer__clear" data-cart-clear>
+      Esvaziar carrinho
+    </button>
   </div>
 </div>

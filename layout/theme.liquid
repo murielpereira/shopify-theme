@@ -697,7 +697,7 @@
 
             // Pré-popula data-cs-sel-* com os valores já auto-matched.
             const selDataAttrs = resolutions
-              .map((r, i) => r.matched ? `data-cs-sel-${i}="${escapeHTML(r.value)}"` : '')
+              .map((r, i) => r.matched ? `data-cs-sel${i}="${escapeHTML(r.value)}"` : '')
               .filter(Boolean)
               .join(' ');
 
@@ -794,16 +794,69 @@
           addBtn.disabled = true;
           addBtn.textContent = 'Adicionando...';
           try {
-            await fetch('/cart/add.js', {
+            const res = await fetch('/cart/add.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ items: [{ id: variant.id, quantity: 1 }] })
             });
+            if (!res.ok) {
+              const err = await res.json().catch(() => ({}));
+              throw new Error(err.description || err.message || 'Erro ao adicionar');
+            }
             const refreshed = await (await fetch('/cart.js')).json();
             window.AmeCart?.refresh(refreshed);
-          } catch {
+          } catch (e) {
+            console.warn('[cross-sell] add failed:', e);
             addBtn.disabled = false;
             addBtn.textContent = 'Tente novamente';
+            (window.AmePdpToast || alert)(e.message || 'Não foi possível adicionar.');
+          }
+        });
+
+        /* Limpar carrinho — exige 2 cliques (confirmação inline).
+           Primeiro clique: muda label pra "Confirmar?" e adiciona is-confirming.
+           Segundo clique (dentro de 5s): chama /cart/clear.js e atualiza drawer.
+           Click fora ou timeout 5s: cancela. */
+        let clearConfirmTimer = null;
+        document.addEventListener('click', async (e) => {
+          const clearBtn = e.target.closest('[data-cart-clear]');
+          if (!clearBtn) {
+            // Click fora do botão cancela o estado de confirmação
+            document.querySelectorAll('[data-cart-clear].is-confirming').forEach(b => {
+              b.classList.remove('is-confirming');
+              b.textContent = b.dataset.labelOriginal || 'Esvaziar carrinho';
+            });
+            clearTimeout(clearConfirmTimer);
+            return;
+          }
+          if (!clearBtn.classList.contains('is-confirming')) {
+            // 1º clique: pede confirmação
+            clearBtn.dataset.labelOriginal = clearBtn.textContent;
+            clearBtn.classList.add('is-confirming');
+            clearBtn.textContent = 'Toque novamente para confirmar';
+            clearTimeout(clearConfirmTimer);
+            clearConfirmTimer = setTimeout(() => {
+              clearBtn.classList.remove('is-confirming');
+              clearBtn.textContent = clearBtn.dataset.labelOriginal || 'Esvaziar carrinho';
+            }, 5000);
+            e.stopPropagation();
+            return;
+          }
+          // 2º clique: limpa de fato
+          clearTimeout(clearConfirmTimer);
+          clearBtn.disabled = true;
+          clearBtn.textContent = 'Esvaziando...';
+          try {
+            await fetch('/cart/clear.js', { method: 'POST' });
+            const refreshed = await (await fetch('/cart.js')).json();
+            window.AmeCart?.refresh(refreshed);
+          } catch (err) {
+            console.warn('[cart] clear failed:', err);
+            (window.AmePdpToast || alert)('Não foi possível esvaziar o carrinho.');
+          } finally {
+            clearBtn.disabled = false;
+            clearBtn.classList.remove('is-confirming');
+            clearBtn.textContent = clearBtn.dataset.labelOriginal || 'Esvaziar carrinho';
           }
         });
 
