@@ -75,7 +75,8 @@
         "stat-2"
       ],
       "settings": {
-        "video_url": "https://www.youtube.com/watch?v=ze869tziyg4&t=60s&pp=ygUPZG9ncyBwbGF5aW5nIDRr0gcJCcMKAYcqIYzv",
+        "video": "shopify://files/videos/Âme - Reels - Janeiro - 3.mp4",
+        "video_url": "",
         "eyebrow": "Heritage Series — 2024",
         "title": "<p>Feito<br/><em>com</em><br/>Amor.</p>",
         "subtitle": "Acessórios de couro feitos à mão para pets que se movem com propósito.",
@@ -160,7 +161,6 @@
         "video_9NCbzb": {
           "type": "video",
           "settings": {
-            "url": "",
             "title": "",
             "cta_label": "",
             "cta_url": ""
@@ -169,7 +169,6 @@
         "video_AttiH7": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/4iPWGkeJp3M",
             "title": "Teste 1",
             "cta_label": "",
             "cta_url": ""
@@ -178,7 +177,6 @@
         "video_JmNNLx": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/zNQ8UXn9BpY",
             "title": "Teste 2",
             "cta_label": "",
             "cta_url": ""
@@ -187,7 +185,6 @@
         "video_itxBrA": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/Ltr5dSFLrXs",
             "title": "Teste 3",
             "cta_label": "",
             "cta_url": ""
@@ -196,7 +193,6 @@
         "video_cnTReD": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/ZRgTFWjUaIM",
             "title": "Teste 4",
             "cta_label": "",
             "cta_url": ""
@@ -205,7 +201,6 @@
         "video_tP4rhQ": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/eU3h6sWw84M",
             "title": "Teste 5",
             "cta_label": "",
             "cta_url": ""
@@ -278,7 +273,6 @@
         "video_4xnDcG": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/4iPWGkeJp3M",
             "title": "",
             "cta_label": "Coleira Sara",
             "cta_url": ""
@@ -287,7 +281,6 @@
         "video_9ApKnh": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/zNQ8UXn9BpY",
             "title": "",
             "cta_label": "",
             "cta_url": ""
@@ -296,7 +289,6 @@
         "video_WVK8cR": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/Ltr5dSFLrXs",
             "title": "",
             "cta_label": "",
             "cta_url": ""
@@ -305,7 +297,6 @@
         "video_hXUiAF": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/ZRgTFWjUaIM",
             "title": "",
             "cta_label": "",
             "cta_url": ""
@@ -314,7 +305,6 @@
         "video_KBX4NR": {
           "type": "video",
           "settings": {
-            "url": "https://www.youtube.com/shorts/eU3h6sWw84M",
             "title": "",
             "cta_label": "",
             "cta_url": ""
