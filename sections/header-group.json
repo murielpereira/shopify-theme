@@ -16,7 +16,7 @@
       "settings": {
         "enabled": true,
         "message": "Contagem regressiva para o aniversário Âme",
-        "end_date": "2026-04-31",
+        "end_date": "2026-10-30",
         "end_time": "23:59:59",
         "link": ""
       }
@@ -55,7 +55,9 @@
         "announcement-3"
       ],
       "settings": {
-        "speed": 5
+        "speed": 5,
+        "bg_color": "#5a4742",
+        "text_color": "#ffffff"
       }
     },
     "header": {
