@@ -854,17 +854,31 @@
 
           // Adicionar guia ao carrinho
           const addBtn = e.target.closest('[data-cs-add]');
-          if (!addBtn || addBtn.disabled) return;
+          if (!addBtn) return;
+          if (addBtn.disabled) {
+            console.warn('[cross-sell] botão clicado mas está disabled');
+            return;
+          }
           const card = addBtn.closest('[data-cs-card]');
+          if (!card) {
+            console.warn('[cross-sell] card pai não encontrado');
+            return;
+          }
           const guiaHandle = card.dataset.csGuia;
+          console.log('[cross-sell] add clicked. guia=', guiaHandle);
 
           const guia = await fetchProduct(guiaHandle);
-          if (!guia) return;
+          if (!guia) {
+            console.warn('[cross-sell] guia não retornada do fetch:', guiaHandle);
+            (window.AmePdpToast || alert)('Não foi possível encontrar a guia.');
+            return;
+          }
 
           const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
           const selections = [];
           for (let i = 0; i < totalOpts; i++) {
             const v = card.dataset['csSel' + i];
+            console.log('[cross-sell] sel ' + i + ' =', v);
             if (!v) {
               (window.AmePdpToast || alert)('Selecione todas as opções.');
               return;
@@ -873,8 +887,9 @@
           }
 
           const variant = findVariant(guia, selections);
+          console.log('[cross-sell] selections:', selections, '→ variant:', variant);
           if (!variant) {
-            (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação.');
+            (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação: ' + selections.join(' / '));
             return;
           }
 

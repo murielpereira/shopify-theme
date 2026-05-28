@@ -1211,10 +1211,37 @@ body::after {
 
 .ame-cart-item {
   display: flex;
+  flex-wrap: wrap; /* permite o slot de cross-sell quebrar pra linha de baixo */
   gap: 1rem;
   padding: 1.25rem 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.15);
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, background 0.25s ease;
+}
+
+/* Slot de cross-sell ocupa a linha inteira, abaixo de img+info */
+.ame-cart-item > .ame-cart-crosssell {
+  flex: 1 1 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Quando há card de cross-sell dentro do item, agrupa visualmente:
+   fundo sutil + borda + arredondamento mostrando que produto e sugestão
+   pertencem ao mesmo "grupo". `:has()` tem suporte amplo em 2026 (Chrome
+   105+, Safari 15.4+, Firefox 121+). */
+.ame-cart-item:has(.ame-cart-crosssell__card) {
+  background: rgba(248, 236, 224, 0.4);
+  border: 1px solid rgba(210, 195, 192, 0.3);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+/* Dentro do agrupamento, o card de cross-sell pode ficar mais simples
+   (sem duplicar fundo). */
+.ame-cart-item:has(.ame-cart-crosssell__card) .ame-cart-crosssell__card {
+  background: rgba(255, 248, 243, 0.7);
+  border-color: rgba(210, 195, 192, 0.35);
+  margin-top: 0.25rem;
 }
 
 .ame-cart-item.is-loading {
