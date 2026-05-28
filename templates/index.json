@@ -426,7 +426,7 @@
       ],
       "settings": {
         "eyebrow": "Coleções em Destaque",
-        "title": "Curado para Cada Silhueta.",
+        "title": "Curado para Cada Estilo.",
         "cta_label": "Ver Todas",
         "cta_url": ""
       }
@@ -498,11 +498,11 @@
       ],
       "settings": {
         "eyebrow": "Nossa Filosofia",
-        "title": "<p>Elegância<br/><em>Aerodinámica.</em></p>",
-        "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e o artesanato minucioso dos grandes ateliês italianos.</p>",
+        "title": "<p>Elegância &<br/><em>Qualidade.</em></p>",
+        "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e a habilidade minuciosa dos nossos artesões.</p>",
         "image": "shopify://shop_images/IMG_9593.jpg",
         "floating_eyebrow": "Satisfação",
-        "floating_label": "98.7%",
+        "floating_label": "99.2 %",
         "floating_sublabel": "de clientes satisfeitos"
       }
     },
