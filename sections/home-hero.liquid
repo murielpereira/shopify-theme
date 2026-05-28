@@ -161,20 +161,38 @@
     opacity: 0.3;
   }
 
+  /* No mobile, escondemos eyebrow + subtítulo pra liberar espaço visual
+     pro vídeo de fundo. Title + CTAs continuam (essenciais), stats abaixo
+     também. Se quiser voltar, é só remover este bloco. */
+  @media (max-width: 767px) {
+    .ame-hero__eyebrow,
+    .ame-hero__subtitle {
+      display: none;
+    }
+  }
+
+  /* Mobile: vídeo preenche toda a section (cover). */
   .ame-hero__bg-video {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
     border: none;
     pointer-events: none;
     opacity: 0.9;
-    /* Cover 16:9 — cresce pro lado maior, evitando letterbox */
-    aspect-ratio: 16 / 9;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
+  }
+  /* Desktop: vídeo alinhado à direita, ocupando ~metade da section.
+     Funciona pra vídeos verticais (9:16) sem distorção — o lado esquerdo
+     fica livre pro texto do hero. object-fit:cover preenche a metade
+     direita inteira, cortando bordas se necessário. */
+  @media (min-width: 768px) {
+    .ame-hero__bg-video {
+      inset: 0 0 0 auto;
+      width: 55%;
+      height: 100%;
+    }
   }
 
   /* Máscara no topo — esconde o título do YouTube que aparece quando o vídeo está carregando/pausado */

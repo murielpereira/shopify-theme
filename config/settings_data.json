@@ -143,7 +143,7 @@
     "custom_field_13_name": "Comprimento da Guia",
     "custom_field_13_title": "Comprimento da Guia",
     "custom_field_13_type": "radio",
-    "custom_field_13_options": "110cm, 150cm",
+    "custom_field_13_options": "120cm, 150cm",
     "custom_field_13_required": true,
     "max_page_width": "120rem",
     "section_gap": 120,
