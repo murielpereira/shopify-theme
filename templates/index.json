@@ -437,18 +437,21 @@
         "img-1": {
           "type": "image",
           "settings": {
+            "image": "shopify://shop_images/A-Leatherworker-Making-a-Leather-Belt-Leatherworker-International-Leather-Club.webp",
             "caption": ""
           }
         },
         "img-2": {
           "type": "image",
           "settings": {
+            "image": "shopify://shop_images/Marcus-Cutting-Leather.webp",
             "caption": ""
           }
         },
         "img-3": {
           "type": "image",
           "settings": {
+            "image": "shopify://shop_images/stitchingpony-0018c5148c7647d9a0a44fb4d5000649.jpg",
             "caption": ""
           }
         }
