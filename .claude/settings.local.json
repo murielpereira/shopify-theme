@@ -114,7 +114,12 @@
       "Bash(grep -oE '.{0,40}youtube[a-z.]*\\\\.com[^\"]{0,60}' /tmp/pandora.html)",
       "Bash(grep -oE '<\\(iframe|embed|video\\)[^>]{20,}' /tmp/pandora.html)",
       "Bash(grep -oE '<video[^>]{20,200}>' /tmp/pandora.html)",
-      "Bash(grep -oE '.{0,200}ze869tziyg4[^\"]*\"[^>]*>' /tmp/home.html)"
+      "Bash(grep -oE '.{0,200}ze869tziyg4[^\"]*\"[^>]*>' /tmp/home.html)",
+      "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/guia-de-couro-atena.js\" -o /tmp/guia.json)",
+      "Bash(cp /tmp/guia.json *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   }
 }

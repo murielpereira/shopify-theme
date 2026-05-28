@@ -484,12 +484,26 @@
            Convenção de handle:
              coleira-de-couro-pandora → guia-de-couro-pandora
              peitoral-de-couro-amelia → guia-de-couro-amelia
-           A guia tem opções Cor/Tamanho/Cor do Metal IDÊNTICAS ao produto
-           principal, mais um campo extra: Comprimento (120cm / 150cm) —
-           obrigatório, cliente escolhe no card antes de adicionar.
+
+           Auto-match de variante:
+           Pra cada opção da guia, tenta achar valor que case com o item
+           original. Match em ordem:
+             1. Mesma opção (por nome) E mesmo valor exato
+             2. Mesma opção E o valor da coleira aparece como token no
+                valor da guia (split por '/'). Ex: opção "Comprimento" da
+                guia tem valores "PP / P / 15mm" → match se a coleira tem
+                Tamanho "P".
+             3. Qualquer opção da coleira cujo valor exato apareça nos
+                valores da guia.
+
+           Se TODAS as opções da guia conseguem match automático → adiciona
+           direto, sem seletor. Se ALGUMA não casa → mostra botões pra essa
+           opção (ex: Comprimento 120cm/150cm em guias longas).
         */
         const CROSSSELL_PREFIXES = ['coleira-', 'peitoral-'];
-        const CROSSSELL_LENGTH_OPTION_NAMES = ['comprimento', 'tamanho da guia']; // tolerante a variações
+        // Guia padrão usada como fallback quando a coleira/peitoral não tem
+        // uma guia com o mesmo nome (ex: peitoral-de-couro-X sem guia-de-couro-X).
+        const CROSSSELL_FALLBACK_HANDLE = 'guia-de-couro-atena';
         const productCache = new Map(); // handle → product JSON (evita refetch)
 
         function getCrossSellHandle(handle) {
@@ -519,54 +533,105 @@
           }
         }
 
-        /* Acha o índice da opção "comprimento" no produto guia. */
-        function getLengthOptionIndex(product) {
-          if (!product?.options) return -1;
-          return product.options.findIndex(opt => {
-            const lower = String(opt).toLowerCase().trim();
-            return CROSSSELL_LENGTH_OPTION_NAMES.some(n => lower.includes(n));
-          });
-        }
-
-        /* Tenta achar variante da guia que combina com Cor/Tamanho/Metal do
-           item original + comprimento escolhido pelo cliente. */
-        function findMatchingVariant(guia, cartItem, lengthValue) {
-          if (!guia?.variants?.length) return null;
-          const lengthIdx = getLengthOptionIndex(guia);
-          const cartOptions = cartItem.options_with_values || [];
-
-          // Match estrito: todas as opções não-comprimento batem + comprimento = lengthValue
-          const candidates = guia.variants.filter(v => {
-            // Comprimento bate
-            if (lengthIdx >= 0 && lengthValue) {
-              if (v[`option${lengthIdx + 1}`] !== lengthValue) return false;
-            }
-            // Demais opções batem com o item original
-            for (let i = 0; i < guia.options.length; i++) {
-              if (i === lengthIdx) continue;
-              const optName = String(guia.options[i]).toLowerCase().trim();
-              const cartOpt = cartOptions.find(o => String(o.name).toLowerCase().trim() === optName);
-              if (!cartOpt) continue; // se item original não tem essa opção, ignora
-              if (v[`option${i + 1}`] !== cartOpt.value) return false;
-            }
-            return true;
-          });
-          // Prioriza disponível
-          return candidates.find(v => v.available) || candidates[0] || null;
-        }
-
-        /* Pega os valores possíveis pro Comprimento (geralmente 120cm/150cm). */
-        function getLengthValues(guia) {
-          const idx = getLengthOptionIndex(guia);
-          if (idx < 0) return [];
-          // products.json devolve options_with_values com valores em cada item
-          if (guia.options_with_values && guia.options_with_values[idx]) {
-            return guia.options_with_values[idx].values || [];
+        /* Resolve a guia pra um item do carrinho:
+           1. Tenta guia com mesmo nome (convenção: coleira-X → guia-X)
+           2. Se não existir / indisponível, cai pro fallback Atena */
+        async function resolveCrossSellProduct(item) {
+          if (!item?.handle) return null;
+          const ownGuiaHandle = getCrossSellHandle(item.handle);
+          if (ownGuiaHandle) {
+            const own = await fetchProduct(ownGuiaHandle);
+            if (own && own.available) return own;
           }
-          // Fallback: extrai valores únicos das variants
-          const set = new Set();
-          guia.variants.forEach(v => set.add(v[`option${idx + 1}`]));
-          return Array.from(set);
+          // Fallback — só faz sentido se o item original é coleira/peitoral
+          if (ownGuiaHandle) {
+            const fallback = await fetchProduct(CROSSSELL_FALLBACK_HANDLE);
+            if (fallback && fallback.available) return fallback;
+          }
+          return null;
+        }
+
+        /* Extrai array uniforme {name, values[]} das opções do produto.
+           O endpoint .js pode retornar options como array de strings OU
+           array de objetos — esta função normaliza pra objeto. */
+        function getProductOptions(product) {
+          if (!product?.options) return [];
+          return product.options.map((opt, i) => {
+            if (typeof opt === 'string') {
+              // Array de strings: pega valores únicos das variants
+              const set = new Set();
+              product.variants.forEach(v => {
+                const val = v[`option${i + 1}`];
+                if (val) set.add(val);
+              });
+              return { name: opt, values: Array.from(set) };
+            }
+            return { name: opt.name, values: opt.values || [] };
+          });
+        }
+
+        /* Tenta achar o valor da `guiaOption` que combine com alguma opção
+           do `cartItem`. Retorna o valor da guia (string) ou null. */
+        function matchOptionValue(cartItem, guiaOption) {
+          const cartOptions = cartItem.options_with_values || [];
+          const guiaName = String(guiaOption.name).toLowerCase().trim();
+          const guiaValues = guiaOption.values || [];
+
+          // 1. Tenta match pelo NOME da opção
+          const sameName = cartOptions.find(o =>
+            String(o.name).toLowerCase().trim() === guiaName
+          );
+          if (sameName) {
+            const cartVal = String(sameName.value).trim();
+            // 1a. Valor exato
+            const exact = guiaValues.find(v => String(v).trim() === cartVal);
+            if (exact) return exact;
+            // 1b. Token match (split por '/')
+            const tokenMatch = guiaValues.find(v =>
+              String(v).split('/').some(tok => tok.trim().toLowerCase() === cartVal.toLowerCase())
+            );
+            if (tokenMatch) return tokenMatch;
+          }
+
+          // 2. Fallback: tenta match pelo VALOR em qualquer opção do cart
+          for (const cartOpt of cartOptions) {
+            const cartVal = String(cartOpt.value).trim();
+            // 2a. Valor exato
+            const exact = guiaValues.find(v => String(v).trim() === cartVal);
+            if (exact) return exact;
+            // 2b. Token match
+            const tokenMatch = guiaValues.find(v =>
+              String(v).split('/').some(tok => tok.trim().toLowerCase() === cartVal.toLowerCase())
+            );
+            if (tokenMatch) return tokenMatch;
+          }
+
+          return null; // não conseguiu match — cliente precisa escolher
+        }
+
+        /* Resolve TODAS as opções da guia contra o cartItem.
+           Retorna array { matched, value, option } pra cada opção da guia. */
+        function resolveOptions(guia, cartItem) {
+          const opts = getProductOptions(guia);
+          return opts.map(opt => {
+            const value = matchOptionValue(cartItem, opt);
+            return {
+              option: opt,
+              value,
+              matched: value !== null,
+            };
+          });
+        }
+
+        /* Acha variant da guia com os valores resolvidos.
+           `selections` é um array paralelo a `guia.options` com o valor
+           selecionado pra cada opção (auto-match OU clique do cliente). */
+        function findVariant(guia, selections) {
+          if (!guia?.variants?.length) return null;
+          const candidates = guia.variants.filter(v =>
+            selections.every((sel, i) => v[`option${i + 1}`] === sel)
+          );
+          return candidates.find(v => v.available) || candidates[0] || null;
         }
 
         function fmtMoney(cents) {
@@ -586,15 +651,16 @@
           // Lista de handles já no carrinho (pra não sugerir produto já adicionado)
           const cartHandles = new Set(cart.items.map(i => i.handle));
 
-          // Pra cada item elegível, descobre a guia. Dedup pelo handle da guia.
+          // Pra cada item elegível, descobre a guia (com fallback Atena).
+          // Dedup pelo handle da guia (se 2 coleiras diferentes caem na
+          // mesma Atena fallback, mostra UM card só).
           const suggestions = [];
           const seen = new Set();
           for (const item of cart.items) {
-            const guiaHandle = getCrossSellHandle(item.handle);
-            if (!guiaHandle || seen.has(guiaHandle) || cartHandles.has(guiaHandle)) continue;
-            const guia = await fetchProduct(guiaHandle);
-            if (!guia || !guia.available) continue;
-            seen.add(guiaHandle);
+            const guia = await resolveCrossSellProduct(item);
+            if (!guia) continue;
+            if (seen.has(guia.handle) || cartHandles.has(guia.handle)) continue;
+            seen.add(guia.handle);
             suggestions.push({ guia, sourceItem: item });
           }
 
@@ -610,29 +676,55 @@
               ? guia.featured_image.replace(/(\.[a-z]+)(\?|$)/i, '_200x$1$2')
               : '';
             const price = (guia.price_min ?? guia.price) || 0;
-            const lengths = getLengthValues(guia);
-            const hasLengthOption = lengths.length > 0;
-            const lengthBtns = hasLengthOption
-              ? lengths.map(v => `<button type="button" class="ame-cart-crosssell__len-btn" data-cs-length="${escapeHTML(v)}">${escapeHTML(v)}</button>`).join('')
-              : '';
+
+            // Pra cada opção da guia, vê se rola auto-match com o item de origem.
+            const resolutions = resolveOptions(guia, sourceItem);
+            const unmatched = resolutions.filter(r => !r.matched);
+
+            // Pra cada opção não-resolvida, gera seletor de botões.
+            const selectorsHtml = unmatched.map((r, idxInUnmatched) => {
+              const optIdx = resolutions.indexOf(r); // posição original (option1/2/3)
+              const btns = r.option.values
+                .map(v => `<button type="button" class="ame-cart-crosssell__len-btn" data-cs-opt-idx="${optIdx}" data-cs-opt-val="${escapeHTML(v)}">${escapeHTML(v)}</button>`)
+                .join('');
+              return `
+                <div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="${escapeHTML(r.option.name)}">
+                  <span class="ame-cart-crosssell__lengths-label">${escapeHTML(r.option.name)}:</span>
+                  ${btns}
+                </div>
+              `;
+            }).join('');
+
+            // Pré-popula data-cs-sel-* com os valores já auto-matched.
+            const selDataAttrs = resolutions
+              .map((r, i) => r.matched ? `data-cs-sel-${i}="${escapeHTML(r.value)}"` : '')
+              .filter(Boolean)
+              .join(' ');
+
+            const needsSelection = unmatched.length > 0;
+            const totalOpts = resolutions.length;
+
             return `
-              <div class="ame-cart-crosssell__card" data-cs-card data-cs-guia="${escapeHTML(guia.handle)}" data-cs-source="${escapeHTML(sourceItem.key)}">
+              <div
+                class="ame-cart-crosssell__card"
+                data-cs-card
+                data-cs-guia="${escapeHTML(guia.handle)}"
+                data-cs-source="${escapeHTML(sourceItem.key)}"
+                data-cs-total-opts="${totalOpts}"
+                ${selDataAttrs}
+              >
                 ${img ? `<img src="${escapeHTML(img)}" alt="" class="ame-cart-crosssell__img" loading="lazy">` : ''}
                 <div class="ame-cart-crosssell__info">
                   <p class="ame-cart-crosssell__eyebrow">Complete o look</p>
                   <p class="ame-cart-crosssell__title">${escapeHTML(guia.title)}</p>
                   <p class="ame-cart-crosssell__price">${fmtMoney(price)}</p>
-                  ${hasLengthOption ? `
-                    <div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="Comprimento da guia">
-                      ${lengthBtns}
-                    </div>
-                  ` : ''}
+                  ${selectorsHtml}
                   <button
                     type="button"
                     class="ame-cart-crosssell__add"
                     data-cs-add
-                    ${hasLengthOption ? 'disabled' : ''}
-                  >${hasLengthOption ? 'Escolha o comprimento' : 'Adicionar ao carrinho'}</button>
+                    ${needsSelection ? 'disabled' : ''}
+                  >${needsSelection ? 'Escolha as opções acima' : 'Adicionar ao carrinho'}</button>
                 </div>
               </div>
             `;
@@ -646,42 +738,56 @@
           })[c]);
         }
 
-        /* Click delegation: seleciona comprimento + adiciona */
+        /* Click delegation: seleciona opção pendente + adiciona */
         document.addEventListener('click', async (e) => {
-          // Selecionar comprimento
-          const lenBtn = e.target.closest('[data-cs-length]');
-          if (lenBtn) {
-            const card = lenBtn.closest('[data-cs-card]');
-            card.querySelectorAll('[data-cs-length]').forEach(b => b.classList.remove('is-active'));
-            lenBtn.classList.add('is-active');
-            card.dataset.csSelectedLength = lenBtn.dataset.csLength;
+          // Selecionar valor pra uma opção não-resolvida automaticamente
+          const optBtn = e.target.closest('[data-cs-opt-idx]');
+          if (optBtn) {
+            const card = optBtn.closest('[data-cs-card]');
+            const idx = optBtn.dataset.csOptIdx;
+            // Limpa só os botões DESTA opção (não os de outras opções no mesmo card)
+            card.querySelectorAll(`[data-cs-opt-idx="${idx}"]`).forEach(b => b.classList.remove('is-active'));
+            optBtn.classList.add('is-active');
+            card.dataset[`csSel${idx}`] = optBtn.dataset.csOptVal;
+
+            // Checa se TODAS as opções já têm seleção (auto-match + manual)
+            const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
+            let allSelected = true;
+            for (let i = 0; i < totalOpts; i++) {
+              if (!card.dataset[`csSel${i}`]) { allSelected = false; break; }
+            }
             const addBtn = card.querySelector('[data-cs-add]');
-            if (addBtn) {
+            if (addBtn && allSelected) {
               addBtn.disabled = false;
               addBtn.textContent = 'Adicionar ao carrinho';
             }
             return;
           }
 
-          // Adicionar guia
+          // Adicionar guia ao carrinho
           const addBtn = e.target.closest('[data-cs-add]');
           if (!addBtn || addBtn.disabled) return;
           const card = addBtn.closest('[data-cs-card]');
           const guiaHandle = card.dataset.csGuia;
-          const sourceKey = card.dataset.csSource;
-          const selectedLength = card.dataset.csSelectedLength || '';
 
           const guia = await fetchProduct(guiaHandle);
           if (!guia) return;
 
-          // Encontra o item-fonte no cart atual pra pegar Cor/Tamanho/Metal
-          const cartData = await (await fetch('/cart.js')).json();
-          const sourceItem = cartData.items.find(i => i.key === sourceKey);
-          if (!sourceItem) return;
+          // Monta o array de seleções (option1, option2, ...) lendo dos data-cs-sel-N
+          const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
+          const selections = [];
+          for (let i = 0; i < totalOpts; i++) {
+            const v = card.dataset[`csSel${i}`];
+            if (!v) {
+              (window.AmePdpToast || alert)('Selecione todas as opções.');
+              return;
+            }
+            selections.push(v);
+          }
 
-          const variant = findMatchingVariant(guia, sourceItem, selectedLength);
+          const variant = findVariant(guia, selections);
           if (!variant) {
-            (window.AmePdpToast || alert)('Não encontramos a guia com essa combinação.');
+            (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação.');
             return;
           }
 
