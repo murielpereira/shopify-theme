@@ -2,11 +2,29 @@
 
 {%- assign banner_video = collection.metafields.custom.banner_video.value -%}
 {%- assign banner_img = collection.featured_image -%}
+{%- comment -%}
+  Banner mobile (opcional) — metafield custom.banner_image_mobile da coleção.
+  Quando preenchido, é usado em viewports <768px no lugar do featured_image
+  (que costuma ser horizontal e fica feio cortado no mobile). Cadastre o
+  metafield em: Configurações Shopify → Metafields → Coleções → Adicionar
+  definição: namespace "custom", chave "banner_image_mobile", tipo "Imagem".
+{%- endcomment -%}
+{%- assign banner_img_mobile = collection.metafields.custom.banner_image_mobile.value -%}
 {%- assign has_banner = false -%}
 {%- if section.settings.show_banner -%}
   {%- if banner_video != blank or banner_img != blank -%}
     {%- assign has_banner = true -%}
   {%- endif -%}
+{%- endif -%}
+
+{%- comment -%}
+  Quando o banner está visível E tem o título por cima, esconde o título do
+  header editorial abaixo pra evitar duplicação. Eyebrow ("Coleções"),
+  descrição e tabs continuam.
+{%- endcomment -%}
+{%- assign hide_editorial_title = false -%}
+{%- if has_banner and section.settings.banner_show_title -%}
+  {%- assign hide_editorial_title = true -%}
 {%- endif -%}
 
 {%- if has_banner -%}
@@ -20,6 +38,27 @@
           <source src="{{ source.url }}" type="{{ source.mime_type }}">
         {%- endfor -%}
       </video>
+    {%- elsif banner_img_mobile != blank -%}
+      {%- comment -%}
+        <picture> com source mobile dedicado. O browser baixa APENAS o que
+        for usado (não os dois) — diferente do que acontece com display:none.
+      {%- endcomment -%}
+      <picture>
+        <source
+          media="(max-width: 767px)"
+          srcset="{{ banner_img_mobile | image_url: width: 900 }} 900w, {{ banner_img_mobile | image_url: width: 600 }} 600w"
+        >
+        {{
+          banner_img
+          | image_url: width: 1800
+          | image_tag:
+            widths: '600, 1200, 1800',
+            class: 'ame-col-banner__media',
+            alt: collection.title,
+            loading: 'eager',
+            fetchpriority: 'high'
+        }}
+      </picture>
     {%- else -%}
       {{
         banner_img
@@ -46,14 +85,16 @@
 
 <header class="ame-col-header full-width">
   <div class="ame-col-header__inner">
-    <div class="ame-fade-up ame-delay-1">
-      <p class="ame-label-sm">Coleções</p>
-      <h1 class="ame-col-header__title">
-        {{ collection.title -}}
-        <br>
-        <em>Curado.</em>
-      </h1>
-    </div>
+    {%- unless hide_editorial_title -%}
+      <div class="ame-fade-up ame-delay-1">
+        <p class="ame-label-sm">Coleções</p>
+        <h1 class="ame-col-header__title">
+          {{ collection.title -}}
+          <br>
+          <em>Curado.</em>
+        </h1>
+      </div>
+    {%- endunless -%}
     {%- if collection.description != blank -%}
       <p class="ame-col-header__desc ame-fade-up ame-delay-2">{{ collection.description }}</p>
     {%- endif -%}
