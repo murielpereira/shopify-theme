@@ -472,15 +472,15 @@
         "stat-1": {
           "type": "stat",
           "settings": {
-            "value": "7+",
-            "label": "Anos de Craft"
+            "value": "6+",
+            "label": "Anos de Experiência"
           }
         },
         "stat-2": {
           "type": "stat",
           "settings": {
-            "value": "3",
-            "label": "Curtumes"
+            "value": "Envios",
+            "label": "para todo o mundo"
           }
         },
         "stat-3": {
