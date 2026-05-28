@@ -675,8 +675,24 @@
 
         /* Renderiza o card de cross-sell num slot específico (dentro do <li>).
            Cada produto elegível do carrinho tem seu próprio slot e card,
-           refletindo as opções/cor/foto da variante exata sugerida. */
+           refletindo as opções/cor/foto da variante exata sugerida.
+
+           Preserva seleções de comprimento_guia (data-cs-prop-val) e opções
+           variantes (data-cs-sel*) feitas pelo cliente — o re-render pós
+           refreshDrawer não pode descartar essas escolhas. */
         async function renderCrossSellForSlot(slot, cart, dismissed) {
+          // Salva estado existente antes de limpar o slot.
+          const prevCard = slot.querySelector('[data-cs-card]');
+          const prevPropVal = prevCard?.dataset.csPropVal || null;
+          const prevSels = {};
+          if (prevCard) {
+            Object.keys(prevCard.dataset).forEach(k => {
+              if (k.startsWith('csSel') && k !== 'csSelSourceKey') {
+                prevSels[k] = prevCard.dataset[k];
+              }
+            });
+          }
+
           slot.innerHTML = '';
           const sourceKey = slot.dataset.csSourceKey;
           if (!sourceKey) return;
@@ -799,6 +815,27 @@
               '<button type="button" class="ame-cart-crosssell__add" data-cs-add ' + disabledAttr + '>' + initialLabel + '</button>' +
             '</div>' +
             '</div>';
+
+          // Restaura estado prévio (re-render pós-refresh não pode resetar
+          // seleções já feitas pelo cliente).
+          const newCard = slot.querySelector('[data-cs-card]');
+          if (!newCard) return;
+          if (prevPropVal) {
+            const btn = newCard.querySelector('[data-cs-prop-val="' + escapeHTML(prevPropVal).replace(/"/g, '&quot;') + '"]');
+            if (btn) {
+              btn.classList.add('is-active');
+              newCard.dataset.csPropVal = prevPropVal;
+            }
+          }
+          Object.entries(prevSels).forEach(([key, val]) => {
+            newCard.dataset[key] = val;
+            // Re-aplica is-active no botão se for opção variante
+            const idx = key.replace('csSel', '');
+            const btn = newCard.querySelector('[data-cs-opt-idx="' + idx + '"][data-cs-opt-val="' + val.replace(/"/g, '&quot;') + '"]');
+            if (btn) btn.classList.add('is-active');
+          });
+          // Re-avalia se deve habilitar Adicionar com as seleções preservadas
+          updateAddBtnState(newCard);
         }
 
         async function renderCrossSell(cart) {
