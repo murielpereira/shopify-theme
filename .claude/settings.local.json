@@ -112,7 +112,9 @@
       "Bash(grep -oE '.{0,80}youtube.{0,80}' /tmp/pandora.html)",
       "Bash(grep -oE '\"[^\"]{0,5}https://[a-z]*\\\\.youtube\\\\.com[^\"]{0,100}\"' /tmp/pandora.html)",
       "Bash(grep -oE '.{0,40}youtube[a-z.]*\\\\.com[^\"]{0,60}' /tmp/pandora.html)",
-      "Bash(grep -oE '<\\(iframe|embed|video\\)[^>]{20,}' /tmp/pandora.html)"
+      "Bash(grep -oE '<\\(iframe|embed|video\\)[^>]{20,}' /tmp/pandora.html)",
+      "Bash(grep -oE '<video[^>]{20,200}>' /tmp/pandora.html)",
+      "Bash(grep -oE '.{0,200}ze869tziyg4[^\"]*\"[^>]*>' /tmp/home.html)"
     ]
   }
 }

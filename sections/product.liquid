@@ -131,7 +131,50 @@
                       alt: img_alt
                   -}}
                 {%- elsif media.media_type == 'video' -%}
-                  {{ media | video_tag: class: 'pdp__slide-img', autoplay: false, loop: true, muted: true }}
+                  {%- comment -%}
+                    Renderiza o <video> manualmente em vez de usar | video_tag,
+                    pra forçar preload="none". O filtro do Shopify aplica
+                    preload="metadata" que, dependendo do encoding do MP4
+                    (moov box no fim), acaba baixando o vídeo inteiro mesmo
+                    sem dar play — chegou a 21MB de transferência inútil no
+                    PSI desta PDP.
+
+                    Estratégia: o primeiro slide (LCP) carrega metadata pra
+                    o frame inicial aparecer rápido se o cliente trocar pra
+                    ele logo; demais ficam com preload="none" — só baixam ao
+                    receber play().
+                  {%- endcomment -%}
+                  {%- liquid
+                    assign video_preload = 'none'
+                    if forloop.first
+                      assign video_preload = 'metadata'
+                    endif
+                    assign video_src = ''
+                    for s in media.sources
+                      if s.format == 'mp4' and s.height >= 720
+                        assign video_src = s.url
+                        break
+                      endif
+                    endfor
+                    if video_src == '' and media.sources.size > 0
+                      assign video_src = media.sources[0].url
+                    endif
+                    assign video_poster = ''
+                    if media.preview_image != blank
+                      assign video_poster = media.preview_image | image_url: width: 1200
+                    endif
+                  -%}
+                  <video
+                    class="pdp__slide-img"
+                    preload="{{ video_preload }}"
+                    loop
+                    muted
+                    playsinline
+                    aria-label="{{ product.title | escape }}"
+                    {% if video_poster != '' %}poster="{{ video_poster }}"{% endif %}
+                  >
+                    <source src="{{ video_src }}" type="video/mp4">
+                  </video>
                 {%- endif -%}
               </div>
             {%- endfor -%}
