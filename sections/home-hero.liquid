@@ -1,6 +1,7 @@
 {% comment %} Home Hero — editorial assimétrico {% endcomment %}
 
 {%- liquid
+  # Vídeo desktop (principal).
   # Prioridade: vídeo nativo (Shopify-hosted) → URL do YouTube (legacy) → imagem fallback
   assign hero_native_video = section.settings.video
   assign hero_native_src = ''
@@ -9,6 +10,20 @@
     for s in hero_native_video.sources
       if s.format == 'mp4' and s.height >= 720
         assign hero_native_src = s.url
+        break
+      endif
+    endfor
+  endif
+
+  # Vídeo mobile (opcional — quando preenchido, usa este em telas <768px).
+  # Permite enviar um corte vertical/9:16 otimizado pro celular.
+  assign hero_mobile_video = section.settings.video_mobile
+  assign hero_mobile_src = ''
+  if hero_mobile_video != blank and hero_mobile_video.sources.size > 0
+    assign hero_mobile_src = hero_mobile_video.sources[0].url
+    for s in hero_mobile_video.sources
+      if s.format == 'mp4' and s.height >= 720
+        assign hero_mobile_src = s.url
         break
       endif
     endfor
@@ -30,8 +45,17 @@
   <!-- Fundo (lado direito): vídeo ou imagem -->
   <div class="ame-hero__bg">
     {%- if hero_native_src != '' -%}
+      {%- comment -%}
+        Renderizamos até 2 elementos <video> quando há vídeo mobile específico:
+        - .ame-hero__bg-video--desktop: visível em ≥768px, oculto no mobile
+        - .ame-hero__bg-video--mobile : visível em <768px, oculto no desktop
+        Se mobile_src estiver vazio, só renderiza o desktop e ele cobre ambos
+        (comportamento legado preservado).
+        Browsers modernos não baixam o body de vídeos `display:none`, mas
+        ainda podem baixar metadata — aceitável (~50KB).
+      {%- endcomment -%}
       <video
-        class="ame-hero__bg-video"
+        class="ame-hero__bg-video ame-hero__bg-video--desktop"
         src="{{ hero_native_src }}"
         {%- if hero_native_video.preview_image != blank %}
           poster="{{ hero_native_video.preview_image | image_url: width: 1600 }}"
@@ -43,6 +67,21 @@
         preload="metadata"
         aria-hidden="true"
       ></video>
+      {%- if hero_mobile_src != '' -%}
+        <video
+          class="ame-hero__bg-video ame-hero__bg-video--mobile"
+          src="{{ hero_mobile_src }}"
+          {%- if hero_mobile_video.preview_image != blank %}
+            poster="{{ hero_mobile_video.preview_image | image_url: width: 900 }}"
+          {% endif -%}
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          aria-hidden="true"
+        ></video>
+      {%- endif -%}
     {%- elsif hero_video_id != '' -%}
       <iframe
         class="ame-hero__bg-video"
@@ -133,6 +172,13 @@
     justify-content: center;
     overflow: hidden;
   }
+  /* Mobile: empurra o conteúdo pro fim (canto inferior). O alinhamento à
+     esquerda já vem do padding-left natural do .ame-hero__content. */
+  @media (max-width: 767px) {
+    .ame-hero {
+      justify-content: flex-end;
+    }
+  }
   @media (min-width: 768px) {
     .ame-hero {
       min-height: calc(100svh - 5rem);
@@ -190,8 +236,25 @@
   @media (min-width: 768px) {
     .ame-hero__bg-video {
       inset: 0 0 0 auto;
-      width: 55%;
+      width: 70%;
       height: 100%;
+    }
+  }
+
+  /* Troca entre vídeo desktop e mobile (quando há os dois configurados).
+     display:none impede o browser de baixar o body do vídeo escondido —
+     só metadata é puxada (~50KB), comportamento aceitável. */
+  .ame-hero__bg-video--mobile {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .ame-hero__bg-video--desktop {
+      display: none;
+    }
+    /* Mobile-specific só aparece quando existir (renderizado condicionalmente
+       no Liquid); a regra aqui ativa ele. */
+    .ame-hero__bg-video--mobile {
+      display: block;
     }
   }
 
@@ -214,7 +277,10 @@
   }
   @media (max-width: 767px) {
     .ame-hero__bg::before {
-      height: 3.25rem;
+      /* No mobile o vídeo vertical preenche a tela; o fade no topo escondia
+         demais do vídeo. Removemos pra deixar o frame inicial do vídeo
+         totalmente visível. */
+      display: none;
     }
   }
 
@@ -233,13 +299,14 @@
     z-index: 1;
   }
   @media (max-width: 767px) {
+    /* Fade inferior mais sutil — só uma sombra suave embaixo pra dar
+       contraste com o texto, sem cobrir tanto vídeo. */
     .ame-hero__bg-fade {
       background: linear-gradient(
         to top,
-        var(--color-background, #fff8f3) 0%,
-        color-mix(in srgb, var(--color-background, #fff8f3) 80%, transparent) 15%,
-        color-mix(in srgb, var(--color-background, #fff8f3) 35%, transparent) 40%,
-        transparent 65%
+        color-mix(in srgb, var(--color-background, #fff8f3) 75%, transparent) 0%,
+        color-mix(in srgb, var(--color-background, #fff8f3) 30%, transparent) 25%,
+        transparent 50%
       );
     }
   }
@@ -255,7 +322,10 @@
   @media (max-width: 767px) {
     .ame-hero__content {
       max-width: 100%;
-      padding: 3rem 20px 5rem;
+      /* Padding-top zerado (texto fica colado no fim com justify-content:flex-end
+         do .ame-hero). Padding-bottom moderado pra não colar no rodapé da section. */
+      padding: 0 20px 2.5rem;
+      text-align: left;
     }
   }
 
@@ -386,8 +456,14 @@
     {
       "type": "video",
       "id": "video",
-      "label": "Vídeo de fundo (Shopify)",
-      "info": "Faça upload de um vídeo (recomendado: MP4, ≤ 50MB, ≥ 720p). Tem prioridade sobre o YouTube."
+      "label": "Vídeo de fundo — desktop",
+      "info": "Upload nativo do Shopify (recomendado: MP4 horizontal 16:9, ≤ 50MB, ≥ 720p)."
+    },
+    {
+      "type": "video",
+      "id": "video_mobile",
+      "label": "Vídeo de fundo — mobile (opcional)",
+      "info": "Versão vertical 9:16 pro celular. Se vazio, usa o vídeo desktop em todas as resoluções."
     },
     {
       "type": "text",
