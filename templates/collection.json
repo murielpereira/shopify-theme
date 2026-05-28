@@ -15,7 +15,7 @@
         "show_banner": true,
         "banner_show_title": true,
         "banner_height": 55,
-        "banner_overlay": 25,
+        "banner_overlay": 15,
         "cols_desktop": 4,
         "products_per_page": 12,
         "card_btn_label": "Comprar"
