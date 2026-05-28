@@ -534,21 +534,51 @@
           }
         }
 
-        /* Resolve a guia pra um item do carrinho:
-           1. Tenta guia com mesmo nome (convenção: coleira-X → guia-X)
-           2. Se não existir / indisponível, cai pro fallback Atena */
+        /* Resolve a sugestão pra um item do carrinho — ordem de prioridade:
+
+           1. TAG do produto: `crosssell:<handle>` (uma ou mais).
+              Permite cross-sell/upsell entre QUALQUER produto (manta↔suéter,
+              cama↔coberta, etc.) sem depender de naming. Cadastra-se a tag
+              em cada produto no admin do Shopify. Múltiplas tags → tenta
+              cada handle na ordem; usa o primeiro disponível.
+
+              Por que tag em vez de metafield: o endpoint /products/<handle>.js
+              do Shopify NÃO retorna metafields, mas retorna tags. Tags são
+              mais simples (sem precisar definir metafield schema) e funcionam
+              imediatamente.
+
+           2. Convenção de handle (coleira-X → guia-X / peitoral-X → guia-X)
+              específica pra coleiras/peitorais → guias.
+
+           3. Fallback Atena pra coleiras/peitorais sem guia própria. */
         async function resolveCrossSellProduct(item) {
           if (!item?.handle) return null;
+
+          // 1. Tags `crosssell:<handle>` do próprio produto
+          const sourceProduct = await fetchProduct(item.handle);
+          const tags = sourceProduct?.tags || [];
+          const csHandles = tags
+            .filter(t => String(t).toLowerCase().startsWith('crosssell:'))
+            .map(t => String(t).slice('crosssell:'.length).trim())
+            .filter(Boolean);
+          for (const h of csHandles) {
+            const p = await fetchProduct(h);
+            if (p && p.available) return p;
+          }
+
+          // 2. Convenção de handle (coleira-X / peitoral-X → guia-X)
           const ownGuiaHandle = getCrossSellHandle(item.handle);
           if (ownGuiaHandle) {
             const own = await fetchProduct(ownGuiaHandle);
             if (own && own.available) return own;
           }
-          // Fallback — só faz sentido se o item original é coleira/peitoral
+
+          // 3. Fallback Atena pra coleiras/peitorais sem guia própria
           if (ownGuiaHandle) {
             const fallback = await fetchProduct(CROSSSELL_FALLBACK_HANDLE);
             if (fallback && fallback.available) return fallback;
           }
+
           return null;
         }
 
@@ -876,23 +906,17 @@
           if (addBtn) {
             addBtn.addEventListener('click', async (e) => {
               e.stopPropagation();
-              if (addBtn.disabled) {
-                console.warn('[cross-sell] botão clicado mas está disabled');
-                return;
-              }
+              if (addBtn.disabled) return;
               const guiaHandle = card.dataset.csGuia;
-              console.log('[cross-sell] add clicked. guia=', guiaHandle);
               const guia = await fetchProduct(guiaHandle);
               if (!guia) {
-                console.warn('[cross-sell] guia não retornada do fetch:', guiaHandle);
-                (window.AmePdpToast || alert)('Não foi possível encontrar a guia.');
+                (window.AmePdpToast || alert)('Não foi possível encontrar a sugestão.');
                 return;
               }
               const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
               const selections = [];
               for (let i = 0; i < totalOpts; i++) {
                 const v = card.dataset['csSel' + i];
-                console.log('[cross-sell] sel ' + i + ' =', v);
                 if (!v) {
                   (window.AmePdpToast || alert)('Selecione todas as opções.');
                   return;
@@ -900,7 +924,6 @@
                 selections.push(v);
               }
               const variant = findVariant(guia, selections);
-              console.log('[cross-sell] selections:', selections, '→ variant:', variant);
               if (!variant) {
                 (window.AmePdpToast || alert)('Não encontramos uma variante com essa combinação: ' + selections.join(' / '));
                 return;
@@ -976,53 +999,6 @@
             addBtn.textContent = 'Adicionar ao carrinho';
           }
         }
-
-        /* Limpar carrinho — exige 2 cliques (confirmação inline).
-           Primeiro clique: muda label pra "Confirmar?" e adiciona is-confirming.
-           Segundo clique (dentro de 5s): chama /cart/clear.js e atualiza drawer.
-           Click fora ou timeout 5s: cancela. */
-        let clearConfirmTimer = null;
-        document.addEventListener('click', async (e) => {
-          const clearBtn = e.target.closest('[data-cart-clear]');
-          if (!clearBtn) {
-            // Click fora do botão cancela o estado de confirmação
-            document.querySelectorAll('[data-cart-clear].is-confirming').forEach(b => {
-              b.classList.remove('is-confirming');
-              b.textContent = b.dataset.labelOriginal || 'Esvaziar carrinho';
-            });
-            clearTimeout(clearConfirmTimer);
-            return;
-          }
-          if (!clearBtn.classList.contains('is-confirming')) {
-            // 1º clique: pede confirmação
-            clearBtn.dataset.labelOriginal = clearBtn.textContent;
-            clearBtn.classList.add('is-confirming');
-            clearBtn.textContent = 'Toque novamente para confirmar';
-            clearTimeout(clearConfirmTimer);
-            clearConfirmTimer = setTimeout(() => {
-              clearBtn.classList.remove('is-confirming');
-              clearBtn.textContent = clearBtn.dataset.labelOriginal || 'Esvaziar carrinho';
-            }, 5000);
-            e.stopPropagation();
-            return;
-          }
-          // 2º clique: limpa de fato
-          clearTimeout(clearConfirmTimer);
-          clearBtn.disabled = true;
-          clearBtn.textContent = 'Esvaziando...';
-          try {
-            await fetch('/cart/clear.js', { method: 'POST' });
-            const refreshed = await (await fetch('/cart.js')).json();
-            window.AmeCart?.refresh(refreshed);
-          } catch (err) {
-            console.warn('[cart] clear failed:', err);
-            (window.AmePdpToast || alert)('Não foi possível esvaziar o carrinho.');
-          } finally {
-            clearBtn.disabled = false;
-            clearBtn.classList.remove('is-confirming');
-            clearBtn.textContent = clearBtn.dataset.labelOriginal || 'Esvaziar carrinho';
-          }
-        });
 
         /* Hook na refresh do drawer pra recalcular sugestões */
         const _origRefresh = refreshDrawer;
