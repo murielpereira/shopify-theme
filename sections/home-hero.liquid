@@ -266,12 +266,14 @@
     left: 0;
     right: 0;
     height: 4rem;
+    /*
     background: linear-gradient(
       to bottom,
       var(--color-background, #fff8f3) 0%,
       color-mix(in srgb, var(--color-background, #fff8f3) 65%, transparent) 55%,
       transparent 100%
-    );
+    )
+    */
     z-index: 1;
     pointer-events: none;
   }
@@ -292,9 +294,9 @@
       to right,
       var(--color-background, #fff8f3) 0%,
       var(--color-background, #fff8f3) 30%,
-      color-mix(in srgb, var(--color-background, #fff8f3) 85%, transparent) 42%,
-      color-mix(in srgb, var(--color-background, #fff8f3) 40%, transparent) 55%,
-      transparent 70%
+      color-mix(in srgb, var(--color-background, #fff8f3) 45%, transparent) 45%,
+      color-mix(in srgb, var(--color-background, #fff8f3) 25%, transparent) 50%,
+      transparent 60%
     );
     z-index: 1;
   }
@@ -512,12 +514,6 @@
     {
       "type": "header",
       "content": "Botão secundário"
-    },
-    {
-      "type": "text",
-      "id": "cta_secondary_label",
-      "label": "Texto",
-      "default": "Nossa História"
     },
     {
       "type": "url",
