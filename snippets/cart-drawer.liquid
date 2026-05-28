@@ -170,6 +170,18 @@
     {%- endif -%}
   </div>
 
+  {%- comment -%}
+    Cross-sell: container vazio que o JS preenche com sugestões de guias
+    quando o carrinho tem coleiras/peitorais. A descoberta usa convenção de
+    handle (coleira-X → guia-X) e busca a variante com mesma Cor/Tamanho/Metal.
+    Cliente escolhe o comprimento (120/150cm) e adiciona sem sair do drawer.
+  {%- endcomment -%}
+  <div
+    class="ame-cart-crosssell"
+    data-cart-crosssell
+    {% if cart.item_count == 0 %}style="display:none"{% endif %}
+  ></div>
+
   <!-- Footer fixo com totais e CTA -->
   <div class="ame-cart-drawer__footer" data-cart-footer {% if cart.item_count == 0 %}style="display:none"{% endif %}>
     <!-- Discount code -->

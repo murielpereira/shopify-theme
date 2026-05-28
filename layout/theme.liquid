@@ -478,6 +478,241 @@
           }
         });
 
+        /* ─────────────────────────────────────────────────────────────
+           Cross-sell — sugere guia quando há coleira/peitoral no carrinho
+           ─────────────────────────────────────────────────────────────
+           Convenção de handle:
+             coleira-de-couro-pandora → guia-de-couro-pandora
+             peitoral-de-couro-amelia → guia-de-couro-amelia
+           A guia tem opções Cor/Tamanho/Cor do Metal IDÊNTICAS ao produto
+           principal, mais um campo extra: Comprimento (120cm / 150cm) —
+           obrigatório, cliente escolhe no card antes de adicionar.
+        */
+        const CROSSSELL_PREFIXES = ['coleira-', 'peitoral-'];
+        const CROSSSELL_LENGTH_OPTION_NAMES = ['comprimento', 'tamanho da guia']; // tolerante a variações
+        const productCache = new Map(); // handle → product JSON (evita refetch)
+
+        function getCrossSellHandle(handle) {
+          if (!handle) return null;
+          for (const prefix of CROSSSELL_PREFIXES) {
+            if (handle.startsWith(prefix)) {
+              return 'guia-' + handle.slice(prefix.length);
+            }
+          }
+          return null;
+        }
+
+        async function fetchProduct(handle) {
+          if (productCache.has(handle)) return productCache.get(handle);
+          try {
+            const res = await fetch(`/products/${encodeURIComponent(handle)}.js`);
+            if (!res.ok) {
+              productCache.set(handle, null);
+              return null;
+            }
+            const product = await res.json();
+            productCache.set(handle, product);
+            return product;
+          } catch {
+            productCache.set(handle, null);
+            return null;
+          }
+        }
+
+        /* Acha o índice da opção "comprimento" no produto guia. */
+        function getLengthOptionIndex(product) {
+          if (!product?.options) return -1;
+          return product.options.findIndex(opt => {
+            const lower = String(opt).toLowerCase().trim();
+            return CROSSSELL_LENGTH_OPTION_NAMES.some(n => lower.includes(n));
+          });
+        }
+
+        /* Tenta achar variante da guia que combina com Cor/Tamanho/Metal do
+           item original + comprimento escolhido pelo cliente. */
+        function findMatchingVariant(guia, cartItem, lengthValue) {
+          if (!guia?.variants?.length) return null;
+          const lengthIdx = getLengthOptionIndex(guia);
+          const cartOptions = cartItem.options_with_values || [];
+
+          // Match estrito: todas as opções não-comprimento batem + comprimento = lengthValue
+          const candidates = guia.variants.filter(v => {
+            // Comprimento bate
+            if (lengthIdx >= 0 && lengthValue) {
+              if (v[`option${lengthIdx + 1}`] !== lengthValue) return false;
+            }
+            // Demais opções batem com o item original
+            for (let i = 0; i < guia.options.length; i++) {
+              if (i === lengthIdx) continue;
+              const optName = String(guia.options[i]).toLowerCase().trim();
+              const cartOpt = cartOptions.find(o => String(o.name).toLowerCase().trim() === optName);
+              if (!cartOpt) continue; // se item original não tem essa opção, ignora
+              if (v[`option${i + 1}`] !== cartOpt.value) return false;
+            }
+            return true;
+          });
+          // Prioriza disponível
+          return candidates.find(v => v.available) || candidates[0] || null;
+        }
+
+        /* Pega os valores possíveis pro Comprimento (geralmente 120cm/150cm). */
+        function getLengthValues(guia) {
+          const idx = getLengthOptionIndex(guia);
+          if (idx < 0) return [];
+          // products.json devolve options_with_values com valores em cada item
+          if (guia.options_with_values && guia.options_with_values[idx]) {
+            return guia.options_with_values[idx].values || [];
+          }
+          // Fallback: extrai valores únicos das variants
+          const set = new Set();
+          guia.variants.forEach(v => set.add(v[`option${idx + 1}`]));
+          return Array.from(set);
+        }
+
+        function fmtMoney(cents) {
+          return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
+        }
+
+        async function renderCrossSell(cart) {
+          const wrap = document.querySelector('[data-cart-crosssell]');
+          if (!wrap) return;
+
+          if (!cart?.items?.length) {
+            wrap.style.display = 'none';
+            wrap.innerHTML = '';
+            return;
+          }
+
+          // Lista de handles já no carrinho (pra não sugerir produto já adicionado)
+          const cartHandles = new Set(cart.items.map(i => i.handle));
+
+          // Pra cada item elegível, descobre a guia. Dedup pelo handle da guia.
+          const suggestions = [];
+          const seen = new Set();
+          for (const item of cart.items) {
+            const guiaHandle = getCrossSellHandle(item.handle);
+            if (!guiaHandle || seen.has(guiaHandle) || cartHandles.has(guiaHandle)) continue;
+            const guia = await fetchProduct(guiaHandle);
+            if (!guia || !guia.available) continue;
+            seen.add(guiaHandle);
+            suggestions.push({ guia, sourceItem: item });
+          }
+
+          if (!suggestions.length) {
+            wrap.style.display = 'none';
+            wrap.innerHTML = '';
+            return;
+          }
+
+          wrap.style.display = '';
+          wrap.innerHTML = suggestions.map(({ guia, sourceItem }) => {
+            const img = guia.featured_image
+              ? guia.featured_image.replace(/(\.[a-z]+)(\?|$)/i, '_200x$1$2')
+              : '';
+            const price = (guia.price_min ?? guia.price) || 0;
+            const lengths = getLengthValues(guia);
+            const hasLengthOption = lengths.length > 0;
+            const lengthBtns = hasLengthOption
+              ? lengths.map(v => `<button type="button" class="ame-cart-crosssell__len-btn" data-cs-length="${escapeHTML(v)}">${escapeHTML(v)}</button>`).join('')
+              : '';
+            return `
+              <div class="ame-cart-crosssell__card" data-cs-card data-cs-guia="${escapeHTML(guia.handle)}" data-cs-source="${escapeHTML(sourceItem.key)}">
+                ${img ? `<img src="${escapeHTML(img)}" alt="" class="ame-cart-crosssell__img" loading="lazy">` : ''}
+                <div class="ame-cart-crosssell__info">
+                  <p class="ame-cart-crosssell__eyebrow">Complete o look</p>
+                  <p class="ame-cart-crosssell__title">${escapeHTML(guia.title)}</p>
+                  <p class="ame-cart-crosssell__price">${fmtMoney(price)}</p>
+                  ${hasLengthOption ? `
+                    <div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="Comprimento da guia">
+                      ${lengthBtns}
+                    </div>
+                  ` : ''}
+                  <button
+                    type="button"
+                    class="ame-cart-crosssell__add"
+                    data-cs-add
+                    ${hasLengthOption ? 'disabled' : ''}
+                  >${hasLengthOption ? 'Escolha o comprimento' : 'Adicionar ao carrinho'}</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        /* Escape HTML pra evitar XSS dos dados do produto. */
+        function escapeHTML(str) {
+          return String(str ?? '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+          })[c]);
+        }
+
+        /* Click delegation: seleciona comprimento + adiciona */
+        document.addEventListener('click', async (e) => {
+          // Selecionar comprimento
+          const lenBtn = e.target.closest('[data-cs-length]');
+          if (lenBtn) {
+            const card = lenBtn.closest('[data-cs-card]');
+            card.querySelectorAll('[data-cs-length]').forEach(b => b.classList.remove('is-active'));
+            lenBtn.classList.add('is-active');
+            card.dataset.csSelectedLength = lenBtn.dataset.csLength;
+            const addBtn = card.querySelector('[data-cs-add]');
+            if (addBtn) {
+              addBtn.disabled = false;
+              addBtn.textContent = 'Adicionar ao carrinho';
+            }
+            return;
+          }
+
+          // Adicionar guia
+          const addBtn = e.target.closest('[data-cs-add]');
+          if (!addBtn || addBtn.disabled) return;
+          const card = addBtn.closest('[data-cs-card]');
+          const guiaHandle = card.dataset.csGuia;
+          const sourceKey = card.dataset.csSource;
+          const selectedLength = card.dataset.csSelectedLength || '';
+
+          const guia = await fetchProduct(guiaHandle);
+          if (!guia) return;
+
+          // Encontra o item-fonte no cart atual pra pegar Cor/Tamanho/Metal
+          const cartData = await (await fetch('/cart.js')).json();
+          const sourceItem = cartData.items.find(i => i.key === sourceKey);
+          if (!sourceItem) return;
+
+          const variant = findMatchingVariant(guia, sourceItem, selectedLength);
+          if (!variant) {
+            (window.AmePdpToast || alert)('Não encontramos a guia com essa combinação.');
+            return;
+          }
+
+          addBtn.disabled = true;
+          addBtn.textContent = 'Adicionando...';
+          try {
+            await fetch('/cart/add.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items: [{ id: variant.id, quantity: 1 }] })
+            });
+            const refreshed = await (await fetch('/cart.js')).json();
+            window.AmeCart?.refresh(refreshed);
+          } catch {
+            addBtn.disabled = false;
+            addBtn.textContent = 'Tente novamente';
+          }
+        });
+
+        /* Hook na refresh do drawer pra recalcular sugestões */
+        const _origRefresh = refreshDrawer;
+        refreshDrawer = function (cart) {
+          _origRefresh(cart);
+          renderCrossSell(cart);
+        };
+
+        /* Render inicial (no load) — busca cart atual */
+        if (document.querySelector('[data-cart-crosssell]')) {
+          fetch('/cart.js').then(r => r.json()).then(renderCrossSell).catch(() => {});
+        }
+
         window.AmeCart = { open: openCart, close: closeCart, refresh: refreshDrawer };
       })();
     </script>
