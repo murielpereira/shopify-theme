@@ -164,23 +164,17 @@
                 </div>
               </div>
             </div>
+            {%- comment -%}
+              Slot pro card de cross-sell. JS preenche se houver guia sugerida
+              pra este item (coleira/peitoral). Fica logo abaixo do produto
+              pra deixar claro a qual produto a sugestão pertence.
+            {%- endcomment -%}
+            <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="{{ item.key }}"></div>
           </li>
         {%- endfor -%}
       </ul>
     {%- endif -%}
   </div>
-
-  {%- comment -%}
-    Cross-sell: container vazio que o JS preenche com sugestões de guias
-    quando o carrinho tem coleiras/peitorais. A descoberta usa convenção de
-    handle (coleira-X → guia-X) e busca a variante com mesma Cor/Tamanho/Metal.
-    Cliente escolhe o comprimento (120/150cm) e adiciona sem sair do drawer.
-  {%- endcomment -%}
-  <div
-    class="ame-cart-crosssell"
-    data-cart-crosssell
-    {% if cart.item_count == 0 %}style="display:none"{% endif %}
-  ></div>
 
   <!-- Footer fixo com totais e CTA -->
   <div class="ame-cart-drawer__footer" data-cart-footer {% if cart.item_count == 0 %}style="display:none"{% endif %}>
@@ -223,12 +217,14 @@
       Continuar comprando
     </a>
     {%- comment -%}
-      Limpar carrinho — confirmação inline (2 cliques): no 1º clique muda
-      pra "Confirmar?" + "Cancelar"; 2º clique limpa de verdade. Evita
-      o `confirm()` nativo (que é feio e bloqueia o thread).
+      Botão "Esvaziar carrinho" temporariamente desativado — ocupa espaço
+      visual e não temos um lugar bom pra ele ainda. O JS handler
+      [data-cart-clear] no theme.liquid fica intacto; basta descomentar
+      o <button> abaixo quando quisermos reativar.
+
+      <button type="button" class="ame-cart-drawer__clear" data-cart-clear>
+        Esvaziar carrinho
+      </button>
     {%- endcomment -%}
-    <button type="button" class="ame-cart-drawer__clear" data-cart-clear>
-      Esvaziar carrinho
-    </button>
   </div>
 </div>

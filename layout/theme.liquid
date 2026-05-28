@@ -403,7 +403,8 @@
             item.key
           )}">${fmt(item.final_line_price)}</span></div>
               </div>
-            </div></li>`;
+            </div>
+            <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="${esc(item.key)}"></div></li>`;
         }
 
         function fmt(c) {
@@ -638,97 +639,174 @@
           return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
         }
 
-        async function renderCrossSell(cart) {
-          const wrap = document.querySelector('[data-cart-crosssell]');
-          if (!wrap) return;
+        /* Dismiss state — quais cards o cliente já fechou nessa sessão.
+           Chave: `${sourceKey}::${guiaHandle}`. Volta ao reabrir o navegador. */
+        function getDismissed() {
+          try {
+            return new Set(JSON.parse(sessionStorage.getItem('ame:cs-dismiss') || '[]'));
+          } catch {
+            return new Set();
+          }
+        }
+        function addDismissed(key) {
+          const s = getDismissed();
+          s.add(key);
+          sessionStorage.setItem('ame:cs-dismiss', JSON.stringify(Array.from(s)));
+        }
 
-          if (!cart?.items?.length) {
-            wrap.style.display = 'none';
-            wrap.innerHTML = '';
-            return;
+        /* Acha a imagem específica de uma variante. Tenta nesta ordem:
+           variant.featured_image.src → product.images[image_id] → product.featured_image */
+        function getVariantImage(guia, variant) {
+          if (!variant) return guia.featured_image || '';
+          if (variant.featured_image?.src) return variant.featured_image.src;
+          if (variant.featured_image && typeof variant.featured_image === 'string') return variant.featured_image;
+          return guia.featured_image || '';
+        }
+
+        /* Lê a config de comprimento_guia das settings do tema.
+           Renderizado inline via Liquid no script atual. */
+        const COMPRIMENTO_GUIA_CONFIG = {
+          enabled: {{ settings.custom_field_13_enable | json }},
+          tag: {{ settings.custom_field_13_tag | json }},
+          name: {{ settings.custom_field_13_name | json }},
+          options: {{ settings.custom_field_13_options | json }},
+          required: {{ settings.custom_field_13_required | json }},
+        };
+
+        /* Renderiza o card de cross-sell num slot específico (dentro do <li>).
+           Cada produto elegível do carrinho tem seu próprio slot e card,
+           refletindo as opções/cor/foto da variante exata sugerida. */
+        async function renderCrossSellForSlot(slot, cart, dismissed) {
+          slot.innerHTML = '';
+          const sourceKey = slot.dataset.csSourceKey;
+          if (!sourceKey) return;
+          const item = cart.items.find(i => i.key === sourceKey);
+          if (!item) return;
+
+          const guia = await resolveCrossSellProduct(item);
+          if (!guia) return;
+
+          // Já adicionou esta guia no carrinho? Não sugere de novo.
+          if (cart.items.some(i => i.handle === guia.handle)) return;
+
+          // Cliente fechou esta sugestão nesta sessão?
+          const dismissKey = `${sourceKey}::${guia.handle}`;
+          if (dismissed.has(dismissKey)) return;
+
+          const resolutions = resolveOptions(guia, item);
+          const unmatched = resolutions.filter(r => !r.matched);
+
+          // Tenta achar variante já com auto-match (pra pegar foto/preço correto)
+          let previewVariant = null;
+          if (unmatched.length === 0) {
+            const selections = resolutions.map(r => r.value);
+            previewVariant = findVariant(guia, selections);
+          } else {
+            // Pega 1ª variant que combina com as opções auto-matched (ignora unmatched)
+            previewVariant = guia.variants.find(v => {
+              return resolutions.every((r, i) => !r.matched || v[`option${i + 1}`] === r.value);
+            }) || guia.variants[0];
           }
 
-          // Lista de handles já no carrinho (pra não sugerir produto já adicionado)
-          const cartHandles = new Set(cart.items.map(i => i.handle));
+          const img = getVariantImage(guia, previewVariant);
+          const imgSmall = img ? img.replace(/(\.[a-z]+)(\?|$)/i, '_240x$1$2') : '';
+          const price = previewVariant?.price ?? guia.price ?? guia.price_min ?? 0;
 
-          // Pra cada item elegível, descobre a guia (com fallback Atena).
-          // Dedup pelo handle da guia (se 2 coleiras diferentes caem na
-          // mesma Atena fallback, mostra UM card só).
-          const suggestions = [];
-          const seen = new Set();
-          for (const item of cart.items) {
-            const guia = await resolveCrossSellProduct(item);
-            if (!guia) continue;
-            if (seen.has(guia.handle) || cartHandles.has(guia.handle)) continue;
-            seen.add(guia.handle);
-            suggestions.push({ guia, sourceItem: item });
-          }
+          // Cor da variante preview (pra mostrar no card como confirmação visual)
+          const variantColor = previewVariant
+            ? (resolutions[1]?.value || previewVariant.option2 || '')
+            : '';
 
-          if (!suggestions.length) {
-            wrap.style.display = 'none';
-            wrap.innerHTML = '';
-            return;
-          }
+          // Comprimento via custom field (tag comprimento_guia)
+          const hasComprimentoTag = COMPRIMENTO_GUIA_CONFIG.enabled
+            && COMPRIMENTO_GUIA_CONFIG.tag
+            && Array.isArray(guia.tags)
+            && guia.tags.includes(COMPRIMENTO_GUIA_CONFIG.tag);
+          const comprimentoValues = hasComprimentoTag && COMPRIMENTO_GUIA_CONFIG.options
+            ? String(COMPRIMENTO_GUIA_CONFIG.options).split(',').map(s => s.trim()).filter(Boolean)
+            : [];
 
-          wrap.style.display = '';
-          wrap.innerHTML = suggestions.map(({ guia, sourceItem }) => {
-            const img = guia.featured_image
-              ? guia.featured_image.replace(/(\.[a-z]+)(\?|$)/i, '_200x$1$2')
-              : '';
-            const price = (guia.price_min ?? guia.price) || 0;
-
-            // Pra cada opção da guia, vê se rola auto-match com o item de origem.
-            const resolutions = resolveOptions(guia, sourceItem);
-            const unmatched = resolutions.filter(r => !r.matched);
-
-            // Pra cada opção não-resolvida, gera seletor de botões.
-            const selectorsHtml = unmatched.map((r, idxInUnmatched) => {
-              const optIdx = resolutions.indexOf(r); // posição original (option1/2/3)
-              const btns = r.option.values
-                .map(v => `<button type="button" class="ame-cart-crosssell__len-btn" data-cs-opt-idx="${optIdx}" data-cs-opt-val="${escapeHTML(v)}">${escapeHTML(v)}</button>`)
-                .join('');
-              return `
-                <div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="${escapeHTML(r.option.name)}">
-                  <span class="ame-cart-crosssell__lengths-label">${escapeHTML(r.option.name)}:</span>
-                  ${btns}
-                </div>
-              `;
+          // Pra cada opção não-resolvida (variant), gera seletor.
+          // Sem template literals (uso concat de strings) pra não confundir o
+          // parser do theme-check, que esbarra em backticks aninhados.
+          const selectorsHtml = unmatched.map(function (r) {
+            const optIdx = resolutions.indexOf(r);
+            const btns = r.option.values.map(function (v) {
+              return '<button type="button" class="ame-cart-crosssell__len-btn" data-cs-opt-idx="' +
+                optIdx + '" data-cs-opt-val="' + escapeHTML(v) + '">' + escapeHTML(v) + '</button>';
             }).join('');
-
-            // Pré-popula data-cs-sel-* com os valores já auto-matched.
-            const selDataAttrs = resolutions
-              .map((r, i) => r.matched ? `data-cs-sel${i}="${escapeHTML(r.value)}"` : '')
-              .filter(Boolean)
-              .join(' ');
-
-            const needsSelection = unmatched.length > 0;
-            const totalOpts = resolutions.length;
-
-            return `
-              <div
-                class="ame-cart-crosssell__card"
-                data-cs-card
-                data-cs-guia="${escapeHTML(guia.handle)}"
-                data-cs-source="${escapeHTML(sourceItem.key)}"
-                data-cs-total-opts="${totalOpts}"
-                ${selDataAttrs}
-              >
-                ${img ? `<img src="${escapeHTML(img)}" alt="" class="ame-cart-crosssell__img" loading="lazy">` : ''}
-                <div class="ame-cart-crosssell__info">
-                  <p class="ame-cart-crosssell__eyebrow">Complete o look</p>
-                  <p class="ame-cart-crosssell__title">${escapeHTML(guia.title)}</p>
-                  <p class="ame-cart-crosssell__price">${fmtMoney(price)}</p>
-                  ${selectorsHtml}
-                  <button
-                    type="button"
-                    class="ame-cart-crosssell__add"
-                    data-cs-add
-                    ${needsSelection ? 'disabled' : ''}
-                  >${needsSelection ? 'Escolha as opções acima' : 'Adicionar ao carrinho'}</button>
-                </div>
-              </div>
-            `;
+            return '<div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="' +
+              escapeHTML(r.option.name) + '">' +
+              '<span class="ame-cart-crosssell__lengths-label">' + escapeHTML(r.option.name) + ':</span>' +
+              btns +
+              '</div>';
           }).join('');
+
+          // Seletor de comprimento_guia (via property, não variante).
+          let comprimentoHtml = '';
+          if (comprimentoValues.length) {
+            const compName = escapeHTML(COMPRIMENTO_GUIA_CONFIG.name || 'Comprimento');
+            const compBtns = comprimentoValues.map(function (v) {
+              return '<button type="button" class="ame-cart-crosssell__len-btn" data-cs-prop-val="' +
+                escapeHTML(v) + '">' + escapeHTML(v) + '</button>';
+            }).join('');
+            comprimentoHtml = '<div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="' +
+              compName + '">' +
+              '<span class="ame-cart-crosssell__lengths-label">' + compName + ':</span>' +
+              compBtns +
+              '</div>';
+          }
+
+          const selDataAttrs = resolutions
+            .map((r, i) => r.matched ? `data-cs-sel${i}="${escapeHTML(r.value)}"` : '')
+            .filter(Boolean)
+            .join(' ');
+
+          const needsVariantSelection = unmatched.length > 0;
+          const needsComprimento = comprimentoValues.length > 0 && COMPRIMENTO_GUIA_CONFIG.required;
+          const initiallyDisabled = needsVariantSelection || needsComprimento;
+          const initialLabel = needsVariantSelection || needsComprimento
+            ? 'Escolha as opções acima' : 'Adicionar ao carrinho';
+
+          // Extraído em variáveis (sem template literals aninhados) pra
+          // não confundir o parser HTML do theme-check.
+          const imgHtml = imgSmall
+            ? '<img src="' + escapeHTML(imgSmall) + '" alt="" class="ame-cart-crosssell__img" loading="lazy">'
+            : '';
+          const colorHtml = variantColor
+            ? '<p class="ame-cart-crosssell__variant">' + escapeHTML(variantColor) + '</p>'
+            : '';
+          const disabledAttr = initiallyDisabled ? 'disabled' : '';
+          const needsPropAttr = comprimentoValues.length > 0 ? '1' : '0';
+
+          slot.innerHTML =
+            '<div class="ame-cart-crosssell__card" data-cs-card' +
+            ' data-cs-guia="' + escapeHTML(guia.handle) + '"' +
+            ' data-cs-source="' + escapeHTML(sourceKey) + '"' +
+            ' data-cs-total-opts="' + resolutions.length + '"' +
+            ' data-cs-needs-prop="' + needsPropAttr + '"' +
+            ' data-cs-prop-name="' + escapeHTML(COMPRIMENTO_GUIA_CONFIG.name || '') + '"' +
+            ' ' + selDataAttrs + '>' +
+            '<button type="button" class="ame-cart-crosssell__dismiss" data-cs-dismiss aria-label="Recusar sugestão" title="Recusar sugestão">&times;</button>' +
+            imgHtml +
+            '<div class="ame-cart-crosssell__info">' +
+              '<p class="ame-cart-crosssell__eyebrow">Combine com este produto</p>' +
+              '<p class="ame-cart-crosssell__title">' + escapeHTML(guia.title) + '</p>' +
+              colorHtml +
+              '<p class="ame-cart-crosssell__price">' + fmtMoney(price) + '</p>' +
+              selectorsHtml +
+              comprimentoHtml +
+              '<button type="button" class="ame-cart-crosssell__add" data-cs-add ' + disabledAttr + '>' + initialLabel + '</button>' +
+            '</div>' +
+            '</div>';
+        }
+
+        async function renderCrossSell(cart) {
+          const slots = document.querySelectorAll('[data-cs-slot]');
+          if (!slots.length || !cart?.items?.length) return;
+          const dismissed = getDismissed();
+          // Processa em paralelo, mas cada slot é independente
+          await Promise.all(Array.from(slots).map(slot => renderCrossSellForSlot(slot, cart, dismissed)));
         }
 
         /* Escape HTML pra evitar XSS dos dados do produto. */
@@ -738,29 +816,39 @@
           })[c]);
         }
 
-        /* Click delegation: seleciona opção pendente + adiciona */
+        /* Click delegation: seleciona opção pendente, dismiss e adiciona */
         document.addEventListener('click', async (e) => {
-          // Selecionar valor pra uma opção não-resolvida automaticamente
+          // Dismiss — fecha sugestão pra este par source+guia
+          const dismissBtn = e.target.closest('[data-cs-dismiss]');
+          if (dismissBtn) {
+            const card = dismissBtn.closest('[data-cs-card]');
+            const slot = card.closest('[data-cs-slot]');
+            const key = card.dataset.csSource + '::' + card.dataset.csGuia;
+            addDismissed(key);
+            if (slot) slot.innerHTML = '';
+            return;
+          }
+
+          // Selecionar valor pra uma opção de variante não auto-matched
           const optBtn = e.target.closest('[data-cs-opt-idx]');
           if (optBtn) {
             const card = optBtn.closest('[data-cs-card]');
             const idx = optBtn.dataset.csOptIdx;
-            // Limpa só os botões DESTA opção (não os de outras opções no mesmo card)
-            card.querySelectorAll(`[data-cs-opt-idx="${idx}"]`).forEach(b => b.classList.remove('is-active'));
+            card.querySelectorAll('[data-cs-opt-idx="' + idx + '"]').forEach(b => b.classList.remove('is-active'));
             optBtn.classList.add('is-active');
-            card.dataset[`csSel${idx}`] = optBtn.dataset.csOptVal;
+            card.dataset['csSel' + idx] = optBtn.dataset.csOptVal;
+            updateAddBtnState(card);
+            return;
+          }
 
-            // Checa se TODAS as opções já têm seleção (auto-match + manual)
-            const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
-            let allSelected = true;
-            for (let i = 0; i < totalOpts; i++) {
-              if (!card.dataset[`csSel${i}`]) { allSelected = false; break; }
-            }
-            const addBtn = card.querySelector('[data-cs-add]');
-            if (addBtn && allSelected) {
-              addBtn.disabled = false;
-              addBtn.textContent = 'Adicionar ao carrinho';
-            }
+          // Selecionar valor pra property (ex: Comprimento da Guia 120/150)
+          const propBtn = e.target.closest('[data-cs-prop-val]');
+          if (propBtn) {
+            const card = propBtn.closest('[data-cs-card]');
+            card.querySelectorAll('[data-cs-prop-val]').forEach(b => b.classList.remove('is-active'));
+            propBtn.classList.add('is-active');
+            card.dataset.csPropVal = propBtn.dataset.csPropVal;
+            updateAddBtnState(card);
             return;
           }
 
@@ -773,11 +861,10 @@
           const guia = await fetchProduct(guiaHandle);
           if (!guia) return;
 
-          // Monta o array de seleções (option1, option2, ...) lendo dos data-cs-sel-N
           const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
           const selections = [];
           for (let i = 0; i < totalOpts; i++) {
-            const v = card.dataset[`csSel${i}`];
+            const v = card.dataset['csSel' + i];
             if (!v) {
               (window.AmePdpToast || alert)('Selecione todas as opções.');
               return;
@@ -791,13 +878,24 @@
             return;
           }
 
+          // Propriedades (ex: Comprimento da Guia) — só se a guia exigir
+          const needsProp = card.dataset.csNeedsProp === '1';
+          const propName = card.dataset.csPropName || '';
+          const propVal = card.dataset.csPropVal || '';
+          const propsPayload = {};
+          if (needsProp && propName && propVal) {
+            propsPayload[propName] = propVal;
+          }
+
           addBtn.disabled = true;
           addBtn.textContent = 'Adicionando...';
           try {
+            const itemPayload = { id: variant.id, quantity: 1 };
+            if (Object.keys(propsPayload).length) itemPayload.properties = propsPayload;
             const res = await fetch('/cart/add.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ items: [{ id: variant.id, quantity: 1 }] })
+              body: JSON.stringify({ items: [itemPayload] })
             });
             if (!res.ok) {
               const err = await res.json().catch(() => ({}));
@@ -805,13 +903,31 @@
             }
             const refreshed = await (await fetch('/cart.js')).json();
             window.AmeCart?.refresh(refreshed);
-          } catch (e) {
-            console.warn('[cross-sell] add failed:', e);
+          } catch (err) {
+            console.warn('[cross-sell] add failed:', err);
             addBtn.disabled = false;
             addBtn.textContent = 'Tente novamente';
-            (window.AmePdpToast || alert)(e.message || 'Não foi possível adicionar.');
+            (window.AmePdpToast || alert)(err.message || 'Não foi possível adicionar.');
           }
         });
+
+        /* Habilita botão Adicionar quando todas as opções + property
+           obrigatória estão preenchidas. */
+        function updateAddBtnState(card) {
+          const totalOpts = parseInt(card.dataset.csTotalOpts, 10) || 0;
+          let allOpts = true;
+          for (let i = 0; i < totalOpts; i++) {
+            if (!card.dataset['csSel' + i]) { allOpts = false; break; }
+          }
+          const needsProp = card.dataset.csNeedsProp === '1';
+          const hasProp = !needsProp || !!card.dataset.csPropVal;
+          const addBtn = card.querySelector('[data-cs-add]');
+          if (!addBtn) return;
+          if (allOpts && hasProp) {
+            addBtn.disabled = false;
+            addBtn.textContent = 'Adicionar ao carrinho';
+          }
+        }
 
         /* Limpar carrinho — exige 2 cliques (confirmação inline).
            Primeiro clique: muda label pra "Confirmar?" e adiciona is-confirming.
@@ -867,8 +983,8 @@
           renderCrossSell(cart);
         };
 
-        /* Render inicial (no load) — busca cart atual */
-        if (document.querySelector('[data-cart-crosssell]')) {
+        /* Render inicial (no load) — busca cart atual e popula os slots */
+        if (document.querySelector('[data-cs-slot]')) {
           fetch('/cart.js').then(r => r.json()).then(renderCrossSell).catch(() => {});
         }
 

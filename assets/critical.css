@@ -1447,6 +1447,34 @@ body::after {
   border: 1px solid rgba(210, 195, 192, 0.3);
   border-radius: var(--radius-md, 0.5rem);
   align-items: flex-start;
+  position: relative;
+}
+/* Botão "×" pra recusar sugestão. Topo direito do card. */
+.ame-cart-crosssell__dismiss {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.375rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: transparent;
+  border: 0;
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--color-on-surface-variant, #4f4442);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  font-family: inherit;
+}
+.ame-cart-crosssell__dismiss:hover {
+  opacity: 1;
+}
+/* Linha de cor/variante (ex: "Camel com Azul Bebê") abaixo do título */
+.ame-cart-crosssell__variant {
+  font-size: 0.75rem;
+  color: var(--color-on-surface-variant, #4f4442);
+  margin: 0;
+  font-style: italic;
 }
 .ame-cart-crosssell__img {
   width: 64px;
