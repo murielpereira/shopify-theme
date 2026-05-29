@@ -2813,8 +2813,8 @@
   }
 
   .pdp .pdp__add-btn {
-    background: var(--pdp-btn-bg, #000000);
-    color: var(--pdp-btn-fg, #ffffff);
+    background: var(--pdp-btn-bg);
+    color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
   }
 
   /* ── Largura flexível dos botões de variação ── */
@@ -2916,7 +2916,7 @@
   .pdp__selection-info {
     padding: 0.5rem 1rem;
     background: var(--color-surface, #fff8f3);
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant, #4f4442);
     font-size: 0.67rem;
     line-height: 1.35;
     text-align: center;
@@ -2954,13 +2954,13 @@
     z-index: 5;
     padding: 0.5rem 1rem;
     background: var(--color-surface, #fff8f3);
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant, #4f4442);
     border-top: none;
     pointer-events: none;
     opacity: 1;
   }
   .pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info .pdp__selection-info__label {
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--color-on-surface-variant, #4f4442);
   }
 
   /* ── Slots pra apps de terceiros (cores, CEP, etc) ── */
