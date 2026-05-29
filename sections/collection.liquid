@@ -183,11 +183,17 @@
       </p>
     </div>
 
+    {%- assign pagination_mode = section.settings.pagination_mode | default: 'paginate' -%}
     {%- paginate collection.products by section.settings.products_per_page -%}
       {%- if collection.products.size == 0 -%}
         <p class="ame-col-empty">Nenhum produto encontrado nesta coleção.</p>
       {%- else -%}
-        <div class="ame-col-grid" style="--grid-cols: {{ section.settings.cols_desktop }};">
+        <div
+          class="ame-col-grid"
+          style="--grid-cols: {{ section.settings.cols_desktop }};"
+          data-products-grid
+          data-pagination-mode="{{ pagination_mode }}"
+        >
           {% comment %}
             ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
             💡 What: Uses the `render 'product-card' for array` tag instead of manually looping.
@@ -203,11 +209,11 @@
 
         {%- if paginate.pages > 1 -%}
           {%- comment -%}
-            Paginação customizada (não usa default_pagination) pra dar o layout:
-            [Anterior fixo] [scroll horizontal de páginas] [Avançar fixo].
-            paginate.parts traz cada elemento (número, "..." gap, link ativo)
-            com .title, .url e .is_link — usamos pra montar a lista do meio.
+            Paginação numerada — só renderizada quando o modo é "paginate".
+            No modo "infinite", o botão "Carregar mais" + IntersectionObserver
+            cuidam de buscar as próximas páginas via fetch.
           {%- endcomment -%}
+          {%- if pagination_mode == 'paginate' -%}
           <nav class="ame-col-pagination" aria-label="Paginação">
             {%- if paginate.previous -%}
               <a
@@ -261,9 +267,103 @@
               wrap.scrollLeft = offset;
             })();
           </script>
+          {%- else -%}
+            {%- comment -%}
+              Modo "infinite": sentinel invisível abaixo do grid. Quando entra
+              no viewport (com margem de 400px antes), o JS dispara o fetch
+              da próxima página automaticamente. Não há botão clicável — o
+              cliente só precisa rolar.
+              data-next-url começa apontando pra próxima página; o JS atualiza
+              após cada fetch e remove o sentinel quando chega no fim.
+            {%- endcomment -%}
+            {%- if paginate.next -%}
+              <div class="ame-col-load-more" data-load-more-wrap>
+                <div class="ame-col-load-more__sentinel" data-load-more data-next-url="{{ paginate.next.url }}" aria-hidden="true"></div>
+                <p class="ame-col-load-more__status" data-load-more-status aria-live="polite">
+                  <span class="ame-col-load-more__spinner" aria-hidden="true"></span>
+                  Carregando mais produtos…
+                </p>
+              </div>
+            {%- endif -%}
+          {%- endif -%}
         {%- endif -%}
       {%- endif -%}
     {%- endpaginate -%}
+
+    {%- comment -%}
+      JS do infinite-load — só roda quando o grid está em modo "infinite".
+      Faz fetch da próxima página, parseia o HTML retornado e:
+      - copia os product cards do .ame-col-grid pro grid atual
+      - atualiza data-next-url com o próximo link (do paginate.next dentro
+        da resposta) OU remove o botão se acabou
+      Sem dependências; usa IntersectionObserver pra prefetch automático.
+    {%- endcomment -%}
+    <script>
+      (() => {
+        const grid = document.querySelector('[data-products-grid][data-pagination-mode="infinite"]');
+        if (!grid) return;
+        const sentinel = document.querySelector('[data-load-more]');
+        const status = document.querySelector('[data-load-more-status]');
+        const wrap = document.querySelector('[data-load-more-wrap]');
+        if (!sentinel) return;
+
+        let loading = false;
+        let io = null;
+
+        async function loadNext() {
+          if (loading) return;
+          const url = sentinel.dataset.nextUrl;
+          if (!url) return;
+          loading = true;
+          if (status) status.hidden = false;
+          try {
+            const res = await fetch(url, { headers: { Accept: 'text/html' } });
+            if (!res.ok) throw new Error('Falha ao carregar próxima página');
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const nextGrid = doc.querySelector('[data-products-grid]');
+            if (nextGrid) {
+              // Move cada produto pro grid atual. Usa range pra preservar
+              // tags script que o product-card pode ter (innerHTML não executa).
+              const range = document.createRange();
+              range.selectNodeContents(grid);
+              const frag = range.createContextualFragment(nextGrid.innerHTML);
+              grid.appendChild(frag);
+            }
+            // Atualiza link da próxima página OU encerra se acabou
+            const nextSentinel = doc.querySelector('[data-load-more]');
+            if (nextSentinel && nextSentinel.dataset.nextUrl) {
+              sentinel.dataset.nextUrl = nextSentinel.dataset.nextUrl;
+              if (status) status.hidden = true;
+            } else {
+              if (io) io.disconnect();
+              if (wrap) wrap.remove();
+            }
+          } catch (e) {
+            if (status) {
+              status.innerHTML = 'Não foi possível carregar mais produtos.';
+              status.hidden = false;
+            }
+            // Tenta de novo na próxima vez que entrar no viewport — o
+            // IntersectionObserver continua ativo.
+          } finally {
+            loading = false;
+          }
+        }
+
+        if ('IntersectionObserver' in window) {
+          io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) loadNext();
+            });
+          }, { rootMargin: '400px' }); // dispara 400px antes do sentinel aparecer
+          io.observe(sentinel);
+        } else {
+          // Fallback: navegadores antigos carregam imediatamente
+          loadNext();
+        }
+      })();
+    </script>
   </div>
 </div>
 
@@ -632,6 +732,43 @@
     }
   }
 
+  /* ── Carregamento infinito (sentinel + status) ── */
+  .ame-col-load-more {
+    margin-top: 3rem;
+    text-align: center;
+    min-height: 3rem;
+  }
+  /* Sentinel: invisível, mas precisa ter altura mínima pra o
+     IntersectionObserver detectar a entrada no viewport. */
+  .ame-col-load-more__sentinel {
+    height: 1px;
+    width: 100%;
+  }
+  .ame-col-load-more__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+  .ame-col-load-more__status[hidden] {
+    display: none;
+  }
+  .ame-col-load-more__spinner {
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 2px solid rgba(90, 71, 66, 0.2);
+    border-top-color: var(--color-primary, #5a4742);
+    border-radius: 50%;
+    animation: ame-col-load-spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes ame-col-load-spin {
+    to { transform: rotate(360deg); }
+  }
+
   /* .ame-label-sm vive global no critical.css */
 {% endstylesheet %}
 
@@ -700,6 +837,17 @@
       "step": 4,
       "label": "Produtos por página",
       "default": 12
+    },
+    {
+      "type": "select",
+      "id": "pagination_mode",
+      "label": "Modo de navegação",
+      "info": "Paginação numerada mostra setas e números (cliente clica). Carregamento infinito busca a próxima página automaticamente quando o cliente chega perto do fim.",
+      "options": [
+        { "value": "paginate", "label": "Paginação numerada" },
+        { "value": "infinite", "label": "Carregamento infinito" }
+      ],
+      "default": "paginate"
     },
     {
       "type": "text",

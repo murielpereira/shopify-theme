@@ -2943,10 +2943,9 @@
   }
 
   /* Variante "over" — texto sobreposto no topo da imagem (libera espaço da tela).
-     Quando o sticky-wrap está pinned (mobile), o conteúdo todo fica fixed
-     logo abaixo do header — o selection-info no topo da imagem fica
-     justamente na faixa entre a base do header e o topo da imagem encolhida.
-     Sem fundo escuro chamativo, lendo melhor sobre fundos claros. */
+     Gradient mais suave: o anterior (0.7→0.35) escurecia demais o topo da
+     imagem, atrapalhando a leitura visual do produto. Atual deixa o texto
+     legível sem ofuscar a foto. */
   .pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info {
     position: absolute;
     top: 0;
@@ -2959,23 +2958,6 @@
     border-top: none;
     pointer-events: none;
     opacity: 1;
-  }
-  /* Quando o sticky-wrap está PINNED (mobile, < 600px), o selection-info
-     da variante "over" fica ESTRANHO em cima da imagem encolhida — sobrepõe
-     a foto. Movemos pra ficar abaixo da imagem (mas dentro do sticky-wrap
-     fixed), ainda visível sob o header. */
-  @media (max-width: 599px) {
-    .pdp__sticky-wrap.is-pinned.pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info {
-      top: auto;
-      bottom: -2rem;
-      background: var(--color-surface, #fff8f3);
-      color: var(--color-on-background, #201b14);
-      box-shadow: 0 4px 12px rgba(32, 27, 20, 0.08);
-      font-size: 0.75rem;
-    }
-    .pdp__sticky-wrap.is-pinned.pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info .pdp__selection-info__label {
-      color: var(--color-on-surface-variant, #4f4442);
-    }
   }
   .pdp__sticky-wrap--selection-over .pdp__main-img-wrap > .pdp__selection-info .pdp__selection-info__label {
     color: rgba(255, 255, 255, 0.85);

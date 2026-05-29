@@ -1,0 +1,410 @@
+{% comment %}
+  Âme — Section: Produtos em destaque
+  Reutilizável na home pra mostrar uma faixa de produtos filtrados por tag
+  (ou só de uma coleção). Pode ser adicionada várias vezes:
+    - "Lançamentos" → coleção Catálogo + tag "lancamento"
+    - "Mais vendidos" → coleção Catálogo + tag "mais-vendido"
+    - "Destaques" → coleção Catálogo + tag "destaque"
+    - etc.
+
+  Layout: carrossel horizontal (scroll-snap) ou grade fixa. Tudo CSS puro
+  exceto setas de navegação no desktop (JS leve).
+{% endcomment %}
+
+{%- liquid
+  assign fp_collection = collections[section.settings.collection]
+  assign fp_tag = section.settings.tag | strip
+  assign fp_max = section.settings.max_products | default: 8
+  assign fp_format = section.settings.format | default: 'carousel'
+
+  # Filtragem por tag acontece no markup (loop com `continue` quando não
+  # bate a tag) — mais simples que pré-filtrar via capture/split.
+  assign fp_products = empty
+  if fp_collection != blank
+    assign fp_products = fp_collection.products
+  endif
+-%}
+
+{%- if fp_products == empty or fp_collection == blank -%}
+  {%- comment -%} Sem coleção configurada — mostra placeholder só no editor {%- endcomment -%}
+  {%- if request.design_mode -%}
+    <section class="ame-fp ame-fp--empty">
+      <p>Configure uma coleção no editor pra exibir produtos aqui.</p>
+    </section>
+  {%- endif -%}
+{%- else -%}
+  <section class="ame-fp ame-fp--{{ fp_format }} full-width" data-fp-section>
+    {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
+      <header class="ame-fp__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="ame-fp__eyebrow ame-label-sm">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 class="ame-fp__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="ame-fp__subtitle">{{ section.settings.subtitle }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="ame-fp__wrap">
+      {%- if fp_format == 'carousel' -%}
+        <button
+          type="button"
+          class="ame-fp__nav ame-fp__nav--prev"
+          data-fp-prev
+          aria-label="Anterior"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </button>
+        <button
+          type="button"
+          class="ame-fp__nav ame-fp__nav--next"
+          data-fp-next
+          aria-label="Próximo"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+      {%- endif -%}
+
+      <div
+        class="ame-fp__track"
+        data-fp-track
+        style="--fp-cols: {{ section.settings.cols_desktop | default: 4 }};"
+      >
+        {%- assign fp_count = 0 -%}
+        {%- for p in fp_products -%}
+          {%- if fp_count >= fp_max -%}{%- break -%}{%- endif -%}
+          {%- if fp_tag != blank -%}
+            {%- unless p.tags contains fp_tag -%}{%- continue -%}{%- endunless -%}
+          {%- endif -%}
+          {%- assign fp_count = fp_count | plus: 1 -%}
+          <div class="ame-fp__item">
+            {%- render 'product-card', card_product: p, card_btn_label: section.settings.card_btn_label -%}
+          </div>
+        {%- endfor -%}
+
+        {%- if fp_count == 0 -%}
+          {%- if request.design_mode -%}
+            <p class="ame-fp__empty">Nenhum produto com a tag "{{ fp_tag }}" foi encontrado na coleção "{{ fp_collection.title }}".</p>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.settings.show_view_all and fp_collection.url != blank -%}
+      <div class="ame-fp__view-all">
+        <a href="{{ fp_collection.url }}" class="ame-btn-secondary">
+          {{ section.settings.view_all_label | default: 'Ver todos' }}
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </a>
+      </div>
+    {%- endif -%}
+  </section>
+
+  {%- if fp_format == 'carousel' -%}
+    <script>
+      (() => {
+        const sections = document.querySelectorAll('[data-fp-section]');
+        sections.forEach(section => {
+          const track = section.querySelector('[data-fp-track]');
+          const prev = section.querySelector('[data-fp-prev]');
+          const next = section.querySelector('[data-fp-next]');
+          if (!track) return;
+
+          // Scroll de 80% da largura visível por click — geralmente avança
+          // 3-4 cards sem ficar com um "meio cortado".
+          function scrollBy(dir) {
+            const dist = track.clientWidth * 0.8 * dir;
+            track.scrollBy({ left: dist, behavior: 'smooth' });
+          }
+          prev?.addEventListener('click', () => scrollBy(-1));
+          next?.addEventListener('click', () => scrollBy(1));
+
+          // Esconde setas quando não há mais o que rolar
+          function updateNavState() {
+            if (!prev || !next) return;
+            const max = track.scrollWidth - track.clientWidth - 4;
+            prev.toggleAttribute('hidden', track.scrollLeft <= 4);
+            next.toggleAttribute('hidden', track.scrollLeft >= max);
+          }
+          track.addEventListener('scroll', () => requestAnimationFrame(updateNavState), { passive: true });
+          window.addEventListener('resize', updateNavState);
+          updateNavState();
+        });
+      })();
+    </script>
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .ame-fp {
+    padding: clamp(2rem, 5vw, 4rem) 0;
+  }
+  .ame-fp__header {
+    text-align: center;
+    padding: 0 var(--page-margin, 16px);
+    margin-bottom: 2rem;
+  }
+  .ame-fp__eyebrow {
+    margin-bottom: 0.75rem;
+  }
+  .ame-fp__title {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--color-on-background, #201b14);
+    margin: 0;
+  }
+  .ame-fp__subtitle {
+    font-size: 0.9375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.6;
+    max-width: 36rem;
+    margin: 0.75rem auto 0;
+  }
+
+  .ame-fp__wrap {
+    position: relative;
+  }
+
+  /* ── CARROSSEL ── */
+  .ame-fp--carousel .ame-fp__track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0 var(--page-margin, 16px) 1rem;
+    /* min-width: 0 evita que o flex-track empurre o pai além da coluna. */
+    min-width: 0;
+  }
+  .ame-fp--carousel .ame-fp__track::-webkit-scrollbar {
+    display: none;
+  }
+  .ame-fp--carousel .ame-fp__item {
+    flex: 0 0 auto;
+    width: calc(100% - 2rem);
+    scroll-snap-align: start;
+    max-width: 18rem;
+  }
+  @media (min-width: 600px) {
+    .ame-fp--carousel .ame-fp__item {
+      width: calc(50% - 0.5rem);
+    }
+  }
+  @media (min-width: 900px) {
+    .ame-fp--carousel .ame-fp__item {
+      width: calc(33.333% - 0.667rem);
+    }
+  }
+  @media (min-width: 1200px) {
+    .ame-fp--carousel .ame-fp__item {
+      width: calc((100% - (var(--fp-cols) - 1) * 1rem) / var(--fp-cols));
+      max-width: none;
+    }
+  }
+
+  /* Setas — só desktop */
+  .ame-fp__nav {
+    position: absolute;
+    top: 35%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: rgba(255, 248, 243, 0.95);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-background, #201b14);
+    box-shadow: 0 4px 14px rgba(32, 27, 20, 0.08);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .ame-fp__nav:hover {
+    background: var(--color-surface-container-lowest, #fff);
+    transform: translateY(-50%) scale(1.05);
+  }
+  .ame-fp__nav[hidden] {
+    display: none !important;
+  }
+  .ame-fp__nav--prev { left: 0.5rem; }
+  .ame-fp__nav--next { right: 0.5rem; }
+  @media (min-width: 1024px) {
+    .ame-fp__nav {
+      display: flex;
+    }
+  }
+
+  /* ── GRID ── */
+  .ame-fp--grid .ame-fp__track {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 0.75rem;
+    padding: 0 var(--page-margin, 16px);
+  }
+  @media (min-width: 768px) {
+    .ame-fp--grid .ame-fp__track {
+      gap: 2rem 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 1280px) {
+    .ame-fp--grid .ame-fp__track {
+      grid-template-columns: repeat(var(--fp-cols, 4), 1fr);
+    }
+  }
+
+  .ame-fp__view-all {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 0 var(--page-margin, 16px);
+  }
+
+  .ame-fp__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-on-surface-variant, #4f4442);
+    padding: 2rem;
+  }
+  .ame-fp--empty {
+    padding: 2rem var(--page-margin, 16px);
+    text-align: center;
+    color: var(--color-on-surface-variant, #4f4442);
+    background: rgba(248, 236, 224, 0.4);
+    border: 1px dashed rgba(210, 195, 192, 0.5);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Produtos por tag",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto acima do título"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Mais vendidos"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtítulo"
+    },
+    {
+      "type": "header",
+      "content": "Fonte dos produtos"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Coleção",
+      "info": "De onde buscar os produtos. Sem coleção, a seção não aparece."
+    },
+    {
+      "type": "text",
+      "id": "tag",
+      "label": "Filtrar por tag (opcional)",
+      "info": "Se preenchido, mostra só produtos da coleção que tenham esta tag. Ex: 'lancamento', 'mais-vendido', 'destaque'."
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "label": "Máximo de produtos exibidos",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "format",
+      "label": "Formato",
+      "options": [
+        { "value": "carousel", "label": "Carrossel horizontal" },
+        { "value": "grid", "label": "Grade" }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "cols_desktop",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "label": "Colunas no desktop (≥ 1200px)",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Botão 'Ver todos'"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Exibir botão 'Ver todos'",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "Texto do botão",
+      "default": "Ver todos"
+    },
+    {
+      "type": "header",
+      "content": "Card de produto"
+    },
+    {
+      "type": "text",
+      "id": "card_btn_label",
+      "label": "Texto do botão do card",
+      "default": "Comprar"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Lançamentos",
+      "settings": {
+        "title": "Lançamentos",
+        "tag": "lancamento"
+      }
+    },
+    {
+      "name": "Mais vendidos",
+      "settings": {
+        "title": "Mais vendidos",
+        "tag": "mais-vendido"
+      }
+    },
+    {
+      "name": "Destaques",
+      "settings": {
+        "title": "Em destaque",
+        "tag": "destaque"
+      }
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}
