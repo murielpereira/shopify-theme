@@ -171,7 +171,9 @@
                     muted
                     playsinline
                     aria-label="{{ product.title | escape }}"
-                    {% if video_poster != '' %}poster="{{ video_poster }}"{% endif %}
+                    {% if video_poster != '' %}
+                      poster="{{ video_poster }}"
+                    {% endif %}
                   >
                     <source src="{{ video_src }}" type="video/mp4">
                   </video>
@@ -629,9 +631,7 @@
 
       {%- render 'pingente-customization', product: product -%}
 
-      <!--
-        ── Campos Personalizados ──
-      -->
+      <!-- ── Campos Personalizados ── -->
       {%- comment -%}
         ⚡ Bolt: Replace O(N²) nested loop with O(N) sort.
         💡 What: Builds an array of active custom fields prefixed by order, sorts it natively, and then iterates.
@@ -686,151 +686,151 @@
           assign cf_options = settings[cf_op_key]
           assign cf_req = settings[cf_rq_key]
         -%}
-            <div class="pdp__custom-field">
-              {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
-                {%- liquid
-                  # Mapeia o tipo do campo pro input HTML correspondente
-                  assign input_type = 'text'
-                  if cf_type == 'date'
-                    assign input_type = 'date'
-                  elsif cf_type == 'phone'
-                    assign input_type = 'tel'
-                  endif
-                  # Phone: placeholder e maxlength default quando não configurados
-                  assign phone_placeholder = cf_placeholder
-                  if cf_type == 'phone' and cf_placeholder == cf_title
-                    assign phone_placeholder = '11 99999-9999'
-                  endif
-                  assign phone_maxlength = cf_limiter
-                  if cf_type == 'phone' and cf_limiter == blank
-                    assign phone_maxlength = 13
-                  endif
-                -%}
-                <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
-                  {{- cf_title -}}
-                  {%- if cf_req -%}
-                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
-                  {%- endif -%}
-                </label>
-                {%- liquid
-                  # Define o max do contador: usa o limiter cadastrado pra qualquer tipo,
-                  # ou 13 (máscara completa) como default pro telefone.
-                  assign counter_max = cf_limiter
-                  if cf_type == 'phone' and cf_limiter == blank
-                    assign counter_max = 13
-                  endif
-                -%}
-                <div class="pdp__custom-field__input-wrap{% if counter_max != blank %} pdp__custom-field__input-wrap--has-counter{% endif %}">
-                  <input
-                    id="cf-{{ cf_name | handle }}"
-                    type="{{ input_type }}"
-                    name="properties[{{ cf_name }}]"
-                    placeholder="{% if cf_type == 'phone' %}{{ phone_placeholder }}{% else %}{{ cf_placeholder }}{% endif %}"
-                    class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}{% if cf_type == 'phone' %} pdp__custom-field__input--phone{% endif %}"
-                    {%- if cf_req %}
-                      data-cf-required="true"
-                    {% endif %}
-                    {%- if cf_type == 'phone' %}
-                      data-cf-phone="true"
-                      inputmode="numeric"
-                      maxlength="{{ phone_maxlength }}"
-                    {%- elsif cf_limiter != blank %}
-                      maxlength="{{ cf_limiter }}"
-                    {% endif %}
-                  >
-                  {%- if counter_max != blank -%}
-                    <span
-                      class="pdp__custom-field__counter pdp__custom-field__counter--inline"
-                      data-cf-counter
-                      data-cf-max="{{ counter_max }}"
-                      aria-live="polite"
-                      >0 / {{ counter_max -}}
-                    </span>
-                  {%- endif -%}
-                </div>
-                {%- if cf_helper != blank -%}
-                  <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
-                {%- endif -%}
-                {%- if cf_req -%}
-                  <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
-                {%- endif -%}
-              {%- elsif cf_type == 'long_text' -%}
-                <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
-                  {{- cf_title -}}
-                  {%- if cf_req -%}
-                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
-                  {%- endif -%}
-                </label>
-                <div class="pdp__custom-field__input-wrap pdp__custom-field__input-wrap--textarea">
-                  <textarea
-                    id="cf-{{ cf_name | handle }}"
-                    name="properties[{{ cf_name }}]"
-                    placeholder="{{ cf_placeholder }}"
-                    class="pdp__custom-field__textarea"
-                    {%- if cf_req %}
-                      data-cf-required="true"
-                    {% endif %}
-                    {%- if cf_limiter != blank %}
-                      maxlength="{{ cf_limiter }}"
-                    {% endif %}
-                    rows="3"
-                  ></textarea>
-                  {%- if cf_limiter != blank -%}
-                    <span
-                      class="pdp__custom-field__counter pdp__custom-field__counter--inline pdp__custom-field__counter--textarea"
-                      data-cf-counter
-                      data-cf-max="{{ cf_limiter }}"
-                      aria-live="polite"
-                      >0 / {{ cf_limiter -}}
-                    </span>
-                  {%- endif -%}
-                </div>
-                {%- if cf_helper != blank -%}
-                  <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
-                {%- endif -%}
-                {%- if cf_req -%}
-                  <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
-                {%- endif -%}
-              {%- elsif cf_type == 'radio' -%}
-                <div class="pdp__custom-field__label">
-                  {{- cf_title -}}
-                  {%- if cf_req -%}
-                    <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
-                  {%- endif -%}
-                </div>
-                <div class="pdp__custom-field__radio-group pdp__sizes">
-                  {%- assign cf_opts = cf_options | split: ',' -%}
-                  {%- for cf_opt in cf_opts -%}
-                    {%- assign opt_val = cf_opt | strip -%}
-                    <button
-                      type="button"
-                      class="pdp__size-btn"
-                      data-value="{{ opt_val | escape }}"
-                      aria-label="{{ opt_val | escape }}"
-                      title="{{ opt_val | escape }}"
-                      aria-pressed="false"
-                    >
-                      {{- opt_val -}}
-                    </button>
-                  {%- endfor -%}
-                </div>
-                <input
-                  type="hidden"
-                  name="properties[{{ cf_name }}]"
-                  id="cf-hidden-{{ cf_name | handle }}"
-                  class="pdp__custom-field__radio-val"
-                  {%- if cf_req %}
-                    data-cf-required="true"
-                  {% endif %}
-                >
-                {%- if cf_helper != blank -%}
-                  <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
-                {%- endif -%}
-                {%- if cf_req -%}
-                  <p class="pdp__custom-field__error-msg">Selecione uma opção.</p>
-                {%- endif -%}
+        <div class="pdp__custom-field">
+          {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
+            {%- liquid
+              # Mapeia o tipo do campo pro input HTML correspondente
+              assign input_type = 'text'
+              if cf_type == 'date'
+                assign input_type = 'date'
+              elsif cf_type == 'phone'
+                assign input_type = 'tel'
+              endif
+              # Phone: placeholder e maxlength default quando não configurados
+              assign phone_placeholder = cf_placeholder
+              if cf_type == 'phone' and cf_placeholder == cf_title
+                assign phone_placeholder = '11 99999-9999'
+              endif
+              assign phone_maxlength = cf_limiter
+              if cf_type == 'phone' and cf_limiter == blank
+                assign phone_maxlength = 13
+              endif
+            -%}
+            <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
+              {{- cf_title -}}
+              {%- if cf_req -%}
+                <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+              {%- endif -%}
+            </label>
+            {%- liquid
+              # Define o max do contador: usa o limiter cadastrado pra qualquer tipo,
+              # ou 13 (máscara completa) como default pro telefone.
+              assign counter_max = cf_limiter
+              if cf_type == 'phone' and cf_limiter == blank
+                assign counter_max = 13
+              endif
+            -%}
+            <div class="pdp__custom-field__input-wrap{% if counter_max != blank %} pdp__custom-field__input-wrap--has-counter{% endif %}">
+              <input
+                id="cf-{{ cf_name | handle }}"
+                type="{{ input_type }}"
+                name="properties[{{ cf_name }}]"
+                placeholder="{% if cf_type == 'phone' %}{{ phone_placeholder }}{% else %}{{ cf_placeholder }}{% endif %}"
+                class="pdp__custom-field__input{% if cf_type == 'date' %} pdp__custom-field__input--date{% endif %}{% if cf_type == 'phone' %} pdp__custom-field__input--phone{% endif %}"
+                {%- if cf_req %}
+                  data-cf-required="true"
+                {% endif %}
+                {%- if cf_type == 'phone' %}
+                  data-cf-phone="true"
+                  inputmode="numeric"
+                  maxlength="{{ phone_maxlength }}"
+                {%- elsif cf_limiter != blank %}
+                  maxlength="{{ cf_limiter }}"
+                {% endif %}
+              >
+              {%- if counter_max != blank -%}
+                <span
+                  class="pdp__custom-field__counter pdp__custom-field__counter--inline"
+                  data-cf-counter
+                  data-cf-max="{{ counter_max }}"
+                  aria-live="polite"
+                  >0 / {{ counter_max -}}
+                </span>
               {%- endif -%}
             </div>
+            {%- if cf_helper != blank -%}
+              <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
+            {%- endif -%}
+            {%- if cf_req -%}
+              <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
+            {%- endif -%}
+          {%- elsif cf_type == 'long_text' -%}
+            <label class="pdp__custom-field__label" for="cf-{{ cf_name | handle }}">
+              {{- cf_title -}}
+              {%- if cf_req -%}
+                <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+              {%- endif -%}
+            </label>
+            <div class="pdp__custom-field__input-wrap pdp__custom-field__input-wrap--textarea">
+              <textarea
+                id="cf-{{ cf_name | handle }}"
+                name="properties[{{ cf_name }}]"
+                placeholder="{{ cf_placeholder }}"
+                class="pdp__custom-field__textarea"
+                {%- if cf_req %}
+                  data-cf-required="true"
+                {% endif %}
+                {%- if cf_limiter != blank %}
+                  maxlength="{{ cf_limiter }}"
+                {% endif %}
+                rows="3"
+              ></textarea>
+              {%- if cf_limiter != blank -%}
+                <span
+                  class="pdp__custom-field__counter pdp__custom-field__counter--inline pdp__custom-field__counter--textarea"
+                  data-cf-counter
+                  data-cf-max="{{ cf_limiter }}"
+                  aria-live="polite"
+                  >0 / {{ cf_limiter -}}
+                </span>
+              {%- endif -%}
+            </div>
+            {%- if cf_helper != blank -%}
+              <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
+            {%- endif -%}
+            {%- if cf_req -%}
+              <p class="pdp__custom-field__error-msg">Este campo é obrigatório.</p>
+            {%- endif -%}
+          {%- elsif cf_type == 'radio' -%}
+            <div class="pdp__custom-field__label">
+              {{- cf_title -}}
+              {%- if cf_req -%}
+                <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
+              {%- endif -%}
+            </div>
+            <div class="pdp__custom-field__radio-group pdp__sizes">
+              {%- assign cf_opts = cf_options | split: ',' -%}
+              {%- for cf_opt in cf_opts -%}
+                {%- assign opt_val = cf_opt | strip -%}
+                <button
+                  type="button"
+                  class="pdp__size-btn"
+                  data-value="{{ opt_val | escape }}"
+                  aria-label="{{ opt_val | escape }}"
+                  title="{{ opt_val | escape }}"
+                  aria-pressed="false"
+                >
+                  {{- opt_val -}}
+                </button>
+              {%- endfor -%}
+            </div>
+            <input
+              type="hidden"
+              name="properties[{{ cf_name }}]"
+              id="cf-hidden-{{ cf_name | handle }}"
+              class="pdp__custom-field__radio-val"
+              {%- if cf_req %}
+                data-cf-required="true"
+              {% endif %}
+            >
+            {%- if cf_helper != blank -%}
+              <p class="pdp__custom-field__helper">{{ cf_helper }}</p>
+            {%- endif -%}
+            {%- if cf_req -%}
+              <p class="pdp__custom-field__error-msg">Selecione uma opção.</p>
+            {%- endif -%}
+          {%- endif -%}
+        </div>
       {%- endfor -%}
 
       <!-- Quantidade -->
@@ -2953,8 +2953,8 @@
     right: 0;
     z-index: 5;
     padding: 0.5rem 1rem;
-    background: linear-gradient(to bottom, rgba(32, 27, 20, 0.55) 0%, rgba(32, 27, 20, 0.2) 70%, transparent 100%);
-    color: #fff;
+    background: var(--color-surface, #fff8f3);
+    color: var(--color-on-background, #201b14);
     border-top: none;
     pointer-events: none;
     opacity: 1;
@@ -3041,7 +3041,7 @@
   @media (max-width: 599px) {
     .pdp__sticky-wrap.is-pinned {
       position: fixed;
-      top: var(--pdp-pinned-top, 0px);
+      top: 81px;
       left: 0;
       right: 0;
       width: 100%;
