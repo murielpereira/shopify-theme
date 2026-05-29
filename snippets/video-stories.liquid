@@ -1223,34 +1223,50 @@
         }
       }
 
+      // Controle de transição via transitionend (com fallback timer).
+      // Sem isso, qualquer reflow durante a animação (ex: URL bar do mobile
+      // escondendo) pode disparar o ResizeObserver, chamar centerActive(false)
+      // e deixar a animação "perdida" — o que travava a próxima seta.
+      let transitionTimer = null;
       let isTransitioning = false;
+      function finishTransition() {
+        if (!isTransitioning) return;
+        isTransitioning = false;
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+        if (!enableLoop) return;
+        if (activeIdx === 0) {
+          activeIdx = origLen;
+          centerActive(false);
+        } else if (activeIdx === displayCards.length - 1) {
+          activeIdx = 1;
+          centerActive(false);
+        }
+      }
+      track.addEventListener('transitionend', (e) => {
+        if (e.propertyName !== 'transform') return;
+        if (e.target !== track) return;
+        finishTransition();
+      });
+
       function goTo(idx, animated = true) {
-        if (isTransitioning && animated) return;
+        // Se ainda estamos em transição, finaliza ela ANTES e dispara a nova.
+        // (Em vez de bloquear silenciosamente — que era o bug "trava após 1 clique".)
+        if (isTransitioning) finishTransition();
         activeIdx = idx;
 
-        if (animated) isTransitioning = true;
-        centerActive(animated);
-
         if (!animated) {
-          isTransitioning = false;
+          centerActive(false);
           return;
         }
 
-        // Após a transição, se caímos num clone, faz salto invisível
-        // pro original equivalente.
-        setTimeout(() => {
-          isTransitioning = false;
-          if (!enableLoop) return;
-          if (activeIdx === 0) {
-            // Clone do último → pula pro último original (índice origLen).
-            activeIdx = origLen;
-            centerActive(false);
-          } else if (activeIdx === displayCards.length - 1) {
-            // Clone do primeiro → pula pro primeiro original (índice 1).
-            activeIdx = 1;
-            centerActive(false);
-          }
-        }, 520); // > duração do transition (0.5s)
+        isTransitioning = true;
+        centerActive(true);
+
+        // Fallback: se transitionend não disparar (ex: transição cancelada
+        // por reflow), libera o flag depois de 600ms pra próxima seta funcionar.
+        clearTimeout(transitionTimer);
+        transitionTimer = setTimeout(finishTransition, 600);
       }
 
       // Autoplay: avança 1 card a cada AUTOPLAY_INTERVAL. Pausa em hover
@@ -1314,16 +1330,32 @@
       window.AmeVideoStories.bindOpenLinks(widget);
 
       // Init — espera o outer ter largura real antes do primeiro centerActive.
+      // Durante transição animada, ignoramos resizes (URL bar do mobile, reflow
+      // do card cresce/encolhe) — senão centerActive(false) cancela a animação
+      // e o flag isTransitioning trava a próxima seta.
       let initialized = false;
+      let lastOuterW = 0;
+      let roTimer = null;
       const ro = new ResizeObserver(() => {
-        if (outer.offsetWidth === 0) return;
+        const w = outer.offsetWidth;
+        if (w === 0) return;
         if (!initialized) {
           initialized = true;
+          lastOuterW = w;
           centerActive(false);
           startAutoplay();
-        } else {
-          centerActive(false);
+          return;
         }
+        // Mudança apenas de altura (card ativo cresce/encolhe) não exige
+        // recentralizar — o cálculo é só horizontal.
+        if (w === lastOuterW) return;
+        lastOuterW = w;
+        // Debounce: vários resizes em sequência (mobile scroll) viram um só.
+        clearTimeout(roTimer);
+        roTimer = setTimeout(() => {
+          if (isTransitioning) return; // não interrompe animação em curso
+          centerActive(false);
+        }, 150);
       });
       ro.observe(outer);
     }

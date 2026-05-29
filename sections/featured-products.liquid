@@ -33,7 +33,14 @@
     </section>
   {%- endif -%}
 {%- else -%}
-  <section class="ame-fp ame-fp--{{ fp_format }} full-width" data-fp-section>
+  {%- comment -%}
+    Section vive dentro do grid normal da .shopify-section (sem .full-width)
+    pra respeitar automaticamente as margens laterais do tema (--content-margin
+    no desktop, --page-margin no mobile). O carrossel internamente faz scroll
+    horizontal só com seu conteúdo, mas as margens das beiradas batem com o
+    resto da home.
+  {%- endcomment -%}
+  <section class="ame-fp ame-fp--{{ fp_format }}" data-fp-section>
     {%- if section.settings.eyebrow != blank or section.settings.title != blank -%}
       <header class="ame-fp__header">
         {%- if section.settings.eyebrow != blank -%}
@@ -93,14 +100,6 @@
       </div>
     </div>
 
-    {%- if section.settings.show_view_all and fp_collection.url != blank -%}
-      <div class="ame-fp__view-all">
-        <a href="{{ fp_collection.url }}" class="ame-btn-secondary">
-          {{ section.settings.view_all_label | default: 'Ver todos' }}
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-        </a>
-      </div>
-    {%- endif -%}
   </section>
 
   {%- if fp_format == 'carousel' -%}
@@ -140,11 +139,11 @@
 
 {% stylesheet %}
   .ame-fp {
-    padding: clamp(2rem, 5vw, 4rem) 0;
+    padding-block: clamp(2rem, 5vw, 4rem);
+    min-width: 0;
   }
   .ame-fp__header {
     text-align: center;
-    padding: 0 var(--page-margin, 16px);
     margin-bottom: 2rem;
   }
   .ame-fp__eyebrow {
@@ -168,9 +167,13 @@
 
   .ame-fp__wrap {
     position: relative;
+    min-width: 0;
   }
 
-  /* ── CARROSSEL ── */
+  /* ── CARROSSEL ──
+     Sem padding lateral aqui (a section já vive dentro do grid pai que
+     reserva --content-margin / --page-margin nas laterais). Cada item
+     ocupa frações fixas do track. */
   .ame-fp--carousel .ame-fp__track {
     display: flex;
     gap: 1rem;
@@ -178,18 +181,24 @@
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 0 var(--page-margin, 16px) 1rem;
-    /* min-width: 0 evita que o flex-track empurre o pai além da coluna. */
+    padding-block: 0.5rem 1rem;
     min-width: 0;
   }
   .ame-fp--carousel .ame-fp__track::-webkit-scrollbar {
     display: none;
   }
+  /* Item é flex pra forçar o .ame-card filho a esticar até o fim — assim
+     todos os cards têm a MESMA ALTURA no track e o botão (com margin-top:
+     auto no .ame-card__buy-btn) fica ALINHADO BOTTOM em todos. */
   .ame-fp--carousel .ame-fp__item {
     flex: 0 0 auto;
-    width: calc(100% - 2rem);
-    scroll-snap-align: start;
+    width: 78%;
     max-width: 18rem;
+    scroll-snap-align: start;
+    display: flex;
+  }
+  .ame-fp__item > .ame-card {
+    width: 100%;
   }
   @media (min-width: 600px) {
     .ame-fp--carousel .ame-fp__item {
@@ -234,8 +243,8 @@
   .ame-fp__nav[hidden] {
     display: none !important;
   }
-  .ame-fp__nav--prev { left: 0.5rem; }
-  .ame-fp__nav--next { right: 0.5rem; }
+  .ame-fp__nav--prev { left: -0.5rem; }
+  .ame-fp__nav--next { right: -0.5rem; }
   @media (min-width: 1024px) {
     .ame-fp__nav {
       display: flex;
@@ -247,7 +256,6 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem 0.75rem;
-    padding: 0 var(--page-margin, 16px);
   }
   @media (min-width: 768px) {
     .ame-fp--grid .ame-fp__track {
@@ -260,11 +268,14 @@
       grid-template-columns: repeat(var(--fp-cols, 4), 1fr);
     }
   }
-
-  .ame-fp__view-all {
-    text-align: center;
-    margin-top: 2rem;
-    padding: 0 var(--page-margin, 16px);
+  /* No grid os cards já vão pra mesma altura por default (align-items:
+     stretch do grid). Mas garante que o .ame-card filho preenche se houver
+     wrapper extra. */
+  .ame-fp--grid .ame-fp__item {
+    display: flex;
+  }
+  .ame-fp--grid .ame-fp__item > .ame-card {
+    width: 100%;
   }
 
   .ame-fp__empty {
@@ -274,7 +285,7 @@
     padding: 2rem;
   }
   .ame-fp--empty {
-    padding: 2rem var(--page-margin, 16px);
+    padding: 2rem;
     text-align: center;
     color: var(--color-on-surface-variant, #4f4442);
     background: rgba(248, 236, 224, 0.4);
@@ -354,22 +365,6 @@
       "step": 1,
       "label": "Colunas no desktop (≥ 1200px)",
       "default": 4
-    },
-    {
-      "type": "header",
-      "content": "Botão 'Ver todos'"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_view_all",
-      "label": "Exibir botão 'Ver todos'",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "view_all_label",
-      "label": "Texto do botão",
-      "default": "Ver todos"
     },
     {
       "type": "header",
