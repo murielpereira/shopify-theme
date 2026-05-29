@@ -18,6 +18,7 @@
         "banner_overlay": 15,
         "cols_desktop": 4,
         "products_per_page": 12,
+        "pagination_mode": "infinite",
         "card_btn_label": "Comprar"
       }
     }
