@@ -1,0 +1,17 @@
+{
+  "sections": {
+    "rastreamento": {
+      "type": "rastreamento",
+      "settings": {
+        "eyebrow": "Rastreio",
+        "title": "Acompanhe seu pedido",
+        "subtitle": "<p>Digite o código que enviamos por email para acompanhar a entrega em tempo real.</p>",
+        "input_placeholder": "Ex: SM123456789BR",
+        "empty_text": "Digite seu código acima para acompanhar a entrega.",
+        "show_account_link": true,
+        "whatsapp_url": "https://wa.me/5548991574943"
+      }
+    }
+  },
+  "order": ["rastreamento"]
+}

@@ -247,6 +247,11 @@
         <div class="ame-footer__company-text-col">
           <p class="ame-footer__nav-title">Atendimento</p>
 
+          <a href="/pages/rastreamento" class="ame-footer__nav-link ame-footer__nav-link--track">
+            <span class="material-symbols-outlined" aria-hidden="true">deployed_code</span>
+            Rastrear meu pedido
+          </a>
+
           {%- if company_phone != blank -%}
             <a href="tel:+55{{ phone_digits }}" class="ame-footer__nav-link">{{ company_phone }}</a>
           {%- endif -%}
@@ -461,8 +466,12 @@
   .ame-footer__company-text-col .ame-footer__nav-link {
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
     min-height: 28px;
     padding-block: 0.25rem;
+  }
+  .ame-footer__nav-link--track .material-symbols-outlined {
+    font-size: 1.05rem;
   }
   @media (min-width: 768px) {
     .ame-footer__company {
