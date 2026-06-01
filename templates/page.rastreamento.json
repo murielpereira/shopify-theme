@@ -1,8 +1,19 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "rastreamento": {
       "type": "rastreamento",
       "settings": {
+        "api_url": "https://waltz.up.railway.app/api/public/rastrear",
+        "api_token": "NY2WulkhIl8n4Ttbqjj25zhmdyvikro",
         "eyebrow": "Rastreio",
         "title": "Acompanhe seu pedido",
         "subtitle": "<p>Digite o código que enviamos por email para acompanhar a entrega em tempo real.</p>",
@@ -13,5 +24,7 @@
       }
     }
   },
-  "order": ["rastreamento"]
+  "order": [
+    "rastreamento"
+  ]
 }
