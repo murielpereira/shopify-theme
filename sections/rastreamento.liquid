@@ -24,7 +24,7 @@
 
     <form class="ame-track__form" data-track-form novalidate>
       <label class="ame-track__field">
-        <span class="material-symbols-outlined ame-track__field-icon" aria-hidden="true">qr_code_2</span>
+        <span class="material-symbols-outlined ame-track__field-icon" aria-hidden="true">search</span>
         <input
           type="text"
           name="codigo"
@@ -47,7 +47,7 @@
 
   {% comment %} Estado vazio (default antes da pesquisa) {% endcomment %}
   <div class="ame-track__empty" data-track-empty>
-    <span class="material-symbols-outlined ame-track__empty-icon" aria-hidden="true">deployed_code</span>
+    <span class="material-symbols-outlined ame-track__empty-icon" aria-hidden="true">shopping_bag</span>
     <p class="ame-track__empty-text">{{ section.settings.empty_text | default: 'Digite seu código acima para acompanhar a entrega.' }}</p>
     {%- if section.settings.show_account_link -%}
       <p class="ame-track__empty-help">
@@ -68,8 +68,11 @@
 
 {% stylesheet %}
   .ame-track {
-    padding: clamp(2rem, 5vw, 4rem) 0;
+    padding: clamp(2rem, 5vw, 4rem) var(--page-margin, 16px);
     color: var(--color-on-background, #201b14);
+    min-width: 0;
+    /* Garante que nada dentro vaze e force scroll horizontal */
+    overflow-x: hidden;
   }
 
   /* ── HERO ── */
@@ -223,7 +226,9 @@
     gap: 1.5rem;
     max-width: 64rem;
     margin: 0 auto;
+    min-width: 0;
   }
+  .ame-track__result > * { min-width: 0; }
   .ame-track__result[hidden] { display: none; }
   @media (min-width: 900px) {
     .ame-track__result {
@@ -238,18 +243,21 @@
     border-radius: 1.25rem;
     padding: clamp(1.25rem, 3vw, 1.75rem);
     box-shadow: 0 2px 10px rgba(32, 27, 20, 0.04);
+    min-width: 0;
+    overflow: hidden;
   }
 
   /* Header do pedido (código + badge status) */
   .ame-track-result__header {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem 1rem;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 1.25rem;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid rgba(210, 195, 192, 0.4);
+    min-width: 0;
   }
   .ame-track-result__code {
     display: inline-flex;
@@ -261,10 +269,18 @@
     cursor: pointer;
     font: inherit;
     color: var(--color-on-background, #201b14);
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     transition: color 0.15s ease;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .ame-track-result__code-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: left;
   }
   .ame-track-result__code:hover { color: var(--color-primary, #5a4742); }
   .ame-track-result__code .material-symbols-outlined {
@@ -296,30 +312,36 @@
     font-size: 1rem;
   }
 
-  /* Progress steps */
+  /* Progress steps.
+     Wrapper interno .ame-track-progress__bar limita a linha (fundo e fill)
+     ao espaço entre o 1º e o 3º dot — assim o fill com width:100% NÃO
+     vaza pra fora do step "Entregue". */
   .ame-track-progress {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     position: relative;
     margin: 0 0 2rem;
-    padding: 0 1.5rem;
+    padding: 0;
+  }
+  .ame-track-progress__bar {
+    position: absolute;
+    top: 1.125rem;
+    left: 16.666%;
+    right: 16.666%;
+    height: 2px;
+    z-index: 0;
   }
   .ame-track-progress__line {
     position: absolute;
-    top: 1.125rem;
-    left: 3rem;
-    right: 3rem;
-    height: 2px;
+    inset: 0;
     background: rgba(210, 195, 192, 0.5);
-    z-index: 0;
   }
   .ame-track-progress__fill {
     position: absolute;
-    top: 1.125rem;
-    left: 3rem;
-    height: 2px;
+    top: 0;
+    left: 0;
+    height: 100%;
     background: var(--color-primary, #5a4742);
-    z-index: 1;
     width: 0;
     transition: width 0.6s ease;
   }
@@ -669,10 +691,10 @@
       result.hidden = false;
       result.innerHTML = `
         <div class="ame-track-error">
-          <span class="material-symbols-outlined ame-track-error__icon" aria-hidden="true">error</span>
+          <span class="material-symbols-outlined ame-track-error__icon" aria-hidden="true">info</span>
           <p class="ame-track-error__title">Não conseguimos encontrar seu código</p>
           <p>${escapeHTML(msg)}</p>
-          ${whatsapp ? `<p style="margin-top:1rem"><a class="ame-track-help" href="${escapeHTML(whatsapp)}" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Fale com a gente</a></p>` : ''}
+          ${whatsapp ? `<p style="margin-top:1rem"><a class="ame-track-help" href="${escapeHTML(whatsapp)}" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">info</span>Fale com a gente</a></p>` : ''}
         </div>
       `;
     }
@@ -702,10 +724,10 @@
       if (isDelivered) {
         statusBadgeClass = 'ame-track-result__badge--entregue';
         statusLabel = 'Entregue';
-        statusIcon = 'check_circle';
+        statusIcon = 'check';
       } else if (events.length <= 1) {
         statusLabel = 'Postado';
-        statusIcon = 'inventory_2';
+        statusIcon = 'shopping_bag';
       }
 
       const previsao = r.delivery_prevision ? new Date(r.delivery_prevision).toLocaleDateString('pt-BR') : 'Sob consulta';
@@ -726,8 +748,8 @@
         <div class="ame-track-card">
           <div class="ame-track-result__header">
             <button type="button" class="ame-track-result__code" data-copy="${escapeHTML(r.tracking_code)}" title="Copiar código">
-              <span class="material-symbols-outlined" aria-hidden="true">qr_code_2</span>
-              <span>${escapeHTML(r.tracking_code)}</span>
+              <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
+              <span class="ame-track-result__code-text">${escapeHTML(r.tracking_code)}</span>
               <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
             </button>
             <span class="ame-track-result__badge ${statusBadgeClass}">
@@ -737,10 +759,12 @@
           </div>
 
           <div class="ame-track-progress">
-            <div class="ame-track-progress__line"></div>
-            <div class="ame-track-progress__fill" style="width: calc(${fillPct}% - 0px)"></div>
+            <div class="ame-track-progress__bar">
+              <div class="ame-track-progress__line"></div>
+              <div class="ame-track-progress__fill" style="width: ${fillPct}%"></div>
+            </div>
             <div class="ame-track-progress__step${stepPosted ? ' is-active' : ''}">
-              <span class="ame-track-progress__dot"><span class="material-symbols-outlined" aria-hidden="true">inventory_2</span></span>
+              <span class="ame-track-progress__dot"><span class="material-symbols-outlined" aria-hidden="true">shopping_bag</span></span>
               <span class="ame-track-progress__label">Postado</span>
             </div>
             <div class="ame-track-progress__step${stepTransit ? ' is-active' : ''}">
@@ -783,13 +807,13 @@
                 <p class="ame-track-info__label">Previsão de entrega</p>
                 <p class="ame-track-info__value" style="margin:0">${escapeHTML(previsao)}</p>
               </div>
-              <span class="material-symbols-outlined" aria-hidden="true" style="color:var(--color-primary);">event</span>
+              <span class="material-symbols-outlined" aria-hidden="true" style="color:var(--color-primary);">info</span>
             </div>
           </div>
 
           ${whatsapp ? `
             <a href="${escapeHTML(whatsapp)}" target="_blank" rel="noopener" class="ame-track-help">
-              <span class="material-symbols-outlined" aria-hidden="true">support_agent</span>
+              <span class="material-symbols-outlined" aria-hidden="true">info</span>
               Precisa de ajuda? Fale conosco
             </a>
           ` : ''}
