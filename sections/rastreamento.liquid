@@ -730,7 +730,11 @@
         statusIcon = 'shopping_bag';
       }
 
-      const previsao = r.delivery_prevision ? new Date(r.delivery_prevision).toLocaleDateString('pt-BR') : 'Sob consulta';
+      const previsaoData = r.delivery_prevision ? new Date(r.delivery_prevision) : null;
+      const previsao = previsaoData && !isNaN(previsaoData)
+        ? previsaoData.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })
+        : 'Sob consulta';
+      const previsaoEstimada = !!r.delivery_prevision_estimada;
 
       const timelineHTML = events.length === 0
         ? '<p style="color:var(--color-on-surface-variant);font-size:0.9375rem;">Nenhum evento registrado ainda. Volte mais tarde.</p>'
@@ -804,7 +808,7 @@
             </div>
             <div class="ame-track-info__row">
               <div>
-                <p class="ame-track-info__label">Previsão de entrega</p>
+                <p class="ame-track-info__label">Previsão de entrega${previsaoEstimada ? ' (estimada)' : ''}</p>
                 <p class="ame-track-info__value" style="margin:0">${escapeHTML(previsao)}</p>
               </div>
               <span class="material-symbols-outlined" aria-hidden="true" style="color:var(--color-primary);">info</span>
