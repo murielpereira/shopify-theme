@@ -124,6 +124,9 @@
     padding: 0.625rem 0.625rem 0.625rem 1.25rem;
     background: var(--color-surface-container, #f8ece0);
     border: 1px solid rgba(210, 195, 192, 0.3);
+    /* Garante que o form respeite o container pai mesmo no mobile */
+    min-width: 0;
+    box-sizing: border-box;
     border-radius: var(--radius-full, 0.75rem);
     transition: border-color 0.2s ease, background 0.2s ease;
   }
@@ -138,6 +141,10 @@
   }
   .ame-search-page-form__input {
     flex: 1;
+    /* Inputs têm min-width implícito (~200px) que impede o flex de
+       encolher. Sem isto, o botão "Buscar" vaza no mobile. */
+    min-width: 0;
+    width: 100%;
     background: transparent;
     border: none;
     outline: none;
@@ -152,6 +159,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-shrink: 0;
+    white-space: nowrap;
     background: var(--color-btn-primary-bg, var(--color-primary, #5a4742));
     color: var(--color-btn-primary-text, #fff);
     border: none;
