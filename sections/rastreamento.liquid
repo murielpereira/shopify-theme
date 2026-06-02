@@ -48,7 +48,17 @@
 
   {% comment %} Estado vazio (default antes da pesquisa) {% endcomment %}
   <div class="ame-track__empty" data-track-empty>
-    <span class="material-symbols-outlined ame-track__empty-icon" aria-hidden="true">shopping_bag</span>
+    <svg
+      class="ame-track__empty-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      width="64"
+      height="64"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+    >
+      <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5zm1.294 7.456A2 2 0 0 1 4.732 11h5.536a2 2 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456M12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+    </svg>
     <p class="ame-track__empty-text">
       {{ section.settings.empty_text | default: 'Digite seu código acima para acompanhar a entrega.' }}
     </p>
@@ -78,11 +88,70 @@
         <div class="ame-track-alert__body">
           {{ section.settings.alerta_text }}
         </div>
-        {%- if section.settings.alerta_canais != blank -%}
+        {%- liquid
+          assign canal_site = section.settings.alerta_site_url
+          assign canal_ig = section.settings.alerta_instagram_url
+          assign canal_wa = section.settings.alerta_whatsapp_url
+          assign tem_canais = false
+          if canal_site != blank or canal_ig != blank or canal_wa != blank
+            assign tem_canais = true
+          endif
+        -%}
+        {%- if tem_canais -%}
           <p class="ame-track-alert__channels-label">Nossos canais oficiais:</p>
-          <div class="ame-track-alert__channels">
-            {{ section.settings.alerta_canais }}
-          </div>
+          <ul class="ame-track-alert__channels">
+            {%- if canal_site != blank -%}
+              <li>
+                <a href="{{ canal_site }}" target="_blank" rel="noopener">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z"/>
+                  </svg>
+                  {{ section.settings.alerta_site_label | default: 'ameacessoriospet.com.br' }}
+                </a>
+              </li>
+            {%- endif -%}
+            {%- if canal_ig != blank -%}
+              <li>
+                <a href="{{ canal_ig }}" target="_blank" rel="noopener">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+                  </svg>
+                  {{ section.settings.alerta_instagram_label | default: '@ameacessoriospet' }}
+                </a>
+              </li>
+            {%- endif -%}
+            {%- if canal_wa != blank -%}
+              <li>
+                <a href="{{ canal_wa }}" target="_blank" rel="noopener">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                  </svg>
+                  {{ section.settings.alerta_whatsapp_label | default: 'WhatsApp (48) 99157-4943' }}
+                </a>
+              </li>
+            {%- endif -%}
+          </ul>
         {%- endif -%}
       </div>
     </aside>
@@ -224,7 +293,7 @@
   /* ── ESTADO VAZIO ── */
   .ame-track__empty {
     text-align: center;
-    padding: 3rem 1.5rem;
+    padding: 1rem;
     color: var(--color-on-surface-variant, #4f4442);
     max-width: 28rem;
     margin: 0 auto;
@@ -233,7 +302,8 @@
     display: none;
   }
   .ame-track__empty-icon {
-    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
     color: rgba(210, 195, 192, 0.7);
     margin-bottom: 1rem;
   }
@@ -680,20 +750,32 @@
     margin: 1rem 0 0.5rem;
   }
   .ame-track-alert__channels {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     font-size: 0.875rem;
     color: var(--color-on-surface-variant, #4f4442);
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
   }
-  .ame-track-alert__channels p {
-    margin: 0 0 0.25rem;
+  .ame-track-alert__channels li {
+    margin: 0;
   }
   .ame-track-alert__channels a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     color: var(--color-primary, #5a4742);
     text-decoration: none;
-    border-bottom: 1px solid rgba(90, 71, 66, 0.3);
-    transition: border-color 0.15s ease;
+    transition: color 0.15s ease;
   }
   .ame-track-alert__channels a:hover {
-    border-bottom-color: var(--color-primary, #5a4742);
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-track-alert__channels svg {
+    flex-shrink: 0;
+    /* SVGs usam currentColor pra herdar a cor do link */
   }
 
   @media (max-width: 599px) {
@@ -1134,11 +1216,11 @@
       "type": "range",
       "id": "buffer_dias_uteis",
       "label": "Buffer de segurança (dias úteis)",
-      "info": "Dias úteis somados à previsão estimada — margem para o cliente não receber data otimista demais. 0 = sem buffer; 2 = padrão.",
+      "info": "Dias úteis somados à previsão estimada — margem para o cliente não receber data otimista demais. 0 = sem buffer; 1 = padrão.",
       "min": 0,
       "max": 10,
       "step": 1,
-      "default": 2
+      "default": 1
     },
     {
       "type": "header",
@@ -1148,7 +1230,7 @@
       "type": "text",
       "id": "eyebrow",
       "label": "Eyebrow",
-      "default": "Rastreio"
+      "default": ""
     },
     {
       "type": "text",
@@ -1210,13 +1292,47 @@
       "type": "richtext",
       "id": "alerta_text",
       "label": "Texto do alerta",
-      "default": "<p>Nenhuma transportadora parceira da Âme Acessórios Pet <strong>entra em contato</strong> pedindo:</p><ul><li>Pagamentos por PIX, boleto ou links externos via WhatsApp/SMS</li><li>Dados pessoais, bancários ou senhas por mensagem</li><li>Taxas extras para liberação ou redirecionamento do pedido</li><li>Foto facial ou documentos fora do site oficial</li></ul><p></br>Se receber uma mensagem suspeita, <strong>não responda nem clique em links</strong>. Confirme conosco pelos canais abaixo.</p>"
+      "default": "<p><strong>Nenhuma</strong> transportadora parceira da Âme Acessórios Pet <strong>entra em contato</strong> pedindo:</p><ul><li>Pagamentos por PIX, boleto ou links externos via WhatsApp/SMS</li><li>Dados pessoais, bancários ou senhas por mensagem</li><li>Taxas extras para liberação ou redirecionamento do pedido</li><li>Foto facial ou documentos fora do site oficial</li></ul><p></br>Se receber uma mensagem suspeita, <strong>não responda nem clique em links</strong>. Confirme conosco pelos canais abaixo.</p>"
     },
     {
-      "type": "richtext",
-      "id": "alerta_canais",
-      "label": "Canais oficiais",
-      "default": "<p>🌐 <a href=\"https://ameacessoriospet.com.br\">ameacessoriospet.com.br</a></p><p>📱 <a href=\"https://instagram.com/ameacessoriospet\">@ameacessoriospet</a> (Instagram)</p><p>💬 <a href=\"https://wa.me/5548991574943\">WhatsApp (48) 99157-4943</a></p>"
+      "type": "header",
+      "content": "Canais oficiais (exibidos no alerta)"
+    },
+    {
+      "type": "url",
+      "id": "alerta_site_url",
+      "label": "URL do site",
+      "default": "https://ameacessoriospet.com.br"
+    },
+    {
+      "type": "text",
+      "id": "alerta_site_label",
+      "label": "Texto exibido (site)",
+      "default": "ameacessoriospet.com.br"
+    },
+    {
+      "type": "url",
+      "id": "alerta_instagram_url",
+      "label": "URL do Instagram",
+      "default": "https://instagram.com/ameacessoriospet"
+    },
+    {
+      "type": "text",
+      "id": "alerta_instagram_label",
+      "label": "Texto exibido (Instagram)",
+      "default": "@ameacessoriospet"
+    },
+    {
+      "type": "url",
+      "id": "alerta_whatsapp_url",
+      "label": "URL do WhatsApp",
+      "default": "https://wa.me/5548991574943"
+    },
+    {
+      "type": "text",
+      "id": "alerta_whatsapp_label",
+      "label": "Texto exibido (WhatsApp)",
+      "default": "WhatsApp (48) 99157-4943"
     }
   ],
   "presets": [
