@@ -79,7 +79,9 @@
   {%- if section.settings.show_alerta_golpes -%}
     <aside class="ame-track-alert" role="note" aria-labelledby="ame-track-alert-title">
       <div class="ame-track-alert__icon" aria-hidden="true">
-        <span class="material-symbols-outlined">lock</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+        </svg>
       </div>
       <div class="ame-track-alert__content">
         <h2 class="ame-track-alert__title" id="ame-track-alert-title">
@@ -706,8 +708,9 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  .ame-track-alert__icon .material-symbols-outlined {
-    font-size: 1.25rem;
+  .ame-track-alert__icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
   }
   .ame-track-alert__title {
     font-size: 1rem;
@@ -787,8 +790,9 @@
       width: 2rem;
       height: 2rem;
     }
-    .ame-track-alert__icon .material-symbols-outlined {
-      font-size: 1rem;
+    .ame-track-alert__icon svg {
+      width: 1rem;
+      height: 1rem;
     }
   }
 
