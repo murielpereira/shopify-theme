@@ -117,7 +117,9 @@
       "Bash(grep -oE '.{0,200}ze869tziyg4[^\"]*\"[^>]*>' /tmp/home.html)",
       "Bash(curl -s \"https://ame-acessorios-pet.myshopify.com/products/guia-de-couro-atena.js\" -o /tmp/guia.json)",
       "Bash(cp /tmp/guia.json *)",
-      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/logistica.js\")"
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/logistica.js\")",
+      "WebFetch(domain:dev.smartenvios.com)",
+      "WebFetch(domain:community.shopify.dev)"
     ],
     "additionalDirectories": [
       "\\tmp"

@@ -222,13 +222,15 @@
     {%- liquid
       assign company_phone = section.settings.company_phone
       assign company_email = section.settings.company_email
+      assign company_email_mkt = section.settings.company_email_mkt
+      assign company_email_financeiro = section.settings.company_email_financeiro
       assign company_hours = section.settings.company_hours
       assign company_name = section.settings.company_name
       assign company_cnpj = section.settings.company_cnpj
       assign company_address = section.settings.company_address
 
       assign has_company_info = false
-      if company_phone != blank or company_email != blank or company_hours != blank or company_name != blank or company_cnpj != blank or company_address != blank
+      if company_phone != blank or company_email != blank or company_email_mkt != blank or company_email_financeiro != blank or company_hours != blank or company_name != blank or company_cnpj != blank or company_address != blank
         assign has_company_info = true
       endif
 
@@ -257,6 +259,18 @@
           {%- endif -%}
           {%- if company_email != blank -%}
             <a href="mailto:{{ company_email }}" class="ame-footer__nav-link">{{ company_email }}</a>
+          {%- endif -%}
+          {%- if company_email_mkt != blank -%}
+            <a href="mailto:{{ company_email_mkt }}" class="ame-footer__nav-link ame-footer__nav-link--labeled">
+              <span class="ame-footer__nav-link-label">Marketing:</span>
+              {{ company_email_mkt }}
+            </a>
+          {%- endif -%}
+          {%- if company_email_financeiro != blank -%}
+            <a href="mailto:{{ company_email_financeiro }}" class="ame-footer__nav-link ame-footer__nav-link--labeled">
+              <span class="ame-footer__nav-link-label">Financeiro:</span>
+              {{ company_email_financeiro }}
+            </a>
           {%- endif -%}
           {%- if company_hours != blank -%}
             <p class="ame-footer__company-text">{{ company_hours | newline_to_br }}</p>
@@ -472,6 +486,16 @@
   }
   .ame-footer__nav-link--track .material-symbols-outlined {
     font-size: 1.05rem;
+  }
+  /* Labels "Marketing:" / "Financeiro:" antes do email — discretos pro
+     cliente bater o olho e saber pra qual área é cada endereço. */
+  .ame-footer__nav-link--labeled {
+    flex-wrap: wrap;
+  }
+  .ame-footer__nav-link-label {
+    opacity: 0.65;
+    margin-right: 0.25rem;
+    font-weight: 500;
   }
   @media (min-width: 768px) {
     .ame-footer__company {
@@ -738,6 +762,20 @@
       "id": "company_email",
       "label": "E-mail de contato",
       "default": "contato@ameacessoriospet.com.br"
+    },
+    {
+      "type": "text",
+      "id": "company_email_mkt",
+      "label": "E-mail de marketing",
+      "info": "Opcional. Aparece no rodapé com o rótulo 'Marketing'.",
+      "default": "mkt@ameacessoriospet.com.br"
+    },
+    {
+      "type": "text",
+      "id": "company_email_financeiro",
+      "label": "E-mail financeiro",
+      "info": "Opcional. Aparece no rodapé com o rótulo 'Financeiro'.",
+      "default": "financeiro@ameacessoriospet.com.br"
     },
     {
       "type": "textarea",
