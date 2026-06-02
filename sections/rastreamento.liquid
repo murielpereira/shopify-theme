@@ -15,9 +15,6 @@
   data-buffer-dias="{{ section.settings.buffer_dias_uteis | default: 2 }}"
 >
   <div class="ame-track__hero">
-    {%- if section.settings.eyebrow != blank -%}
-      <p class="ame-eyebrow ame-eyebrow--center ame-track__eyebrow">{{ section.settings.eyebrow }}</p>
-    {%- endif -%}
     <h1 class="ame-track__title">{{ section.settings.title | default: 'Acompanhe seu pedido' }}</h1>
     {%- if section.settings.subtitle != blank -%}
       <div class="ame-track__subtitle">{{ section.settings.subtitle }}</div>
@@ -177,9 +174,6 @@
     text-align: center;
     max-width: 42rem;
     margin: 0 auto 3rem;
-  }
-  .ame-track__eyebrow {
-    margin-bottom: 0.75rem;
   }
   .ame-track__title {
     font-size: clamp(1.75rem, 4vw, 2.75rem);
@@ -1229,12 +1223,6 @@
     {
       "type": "header",
       "content": "Conteúdo"
-    },
-    {
-      "type": "text",
-      "id": "eyebrow",
-      "label": "Eyebrow",
-      "default": ""
     },
     {
       "type": "text",

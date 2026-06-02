@@ -14,7 +14,6 @@
       "settings": {
         "api_url": "https://waltz.up.railway.app/api/public/rastrear",
         "api_token": "NY2WulkhIl8n4Ttbqjj25zhmdyvikro",
-        "eyebrow": "Rastreio",
         "title": "Acompanhe seu pedido",
         "subtitle": "<p>Digite o código que enviamos por email para acompanhar a entrega em tempo real.</p>",
         "input_placeholder": "Ex: SM123456789BR",
