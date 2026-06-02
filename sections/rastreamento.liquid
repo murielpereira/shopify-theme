@@ -12,6 +12,7 @@
   data-api-url="{{ section.settings.api_url | escape }}"
   data-api-token="{{ section.settings.api_token | escape }}"
   data-whatsapp="{{ section.settings.whatsapp_url | escape }}"
+  data-buffer-dias="{{ section.settings.buffer_dias_uteis | default: 2 }}"
 >
   <div class="ame-track__hero">
     {%- if section.settings.eyebrow != blank -%}
@@ -48,7 +49,9 @@
   {% comment %} Estado vazio (default antes da pesquisa) {% endcomment %}
   <div class="ame-track__empty" data-track-empty>
     <span class="material-symbols-outlined ame-track__empty-icon" aria-hidden="true">shopping_bag</span>
-    <p class="ame-track__empty-text">{{ section.settings.empty_text | default: 'Digite seu código acima para acompanhar a entrega.' }}</p>
+    <p class="ame-track__empty-text">
+      {{ section.settings.empty_text | default: 'Digite seu código acima para acompanhar a entrega.' }}
+    </p>
     {%- if section.settings.show_account_link -%}
       <p class="ame-track__empty-help">
         Não tem o código?
@@ -121,7 +124,9 @@
     line-height: 1.6;
     margin-bottom: 2rem;
   }
-  .ame-track__subtitle p { margin: 0; }
+  .ame-track__subtitle p {
+    margin: 0;
+  }
 
   .ame-track__form {
     display: flex;
@@ -193,7 +198,9 @@
     display: inline-block;
   }
   @keyframes ame-track-spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @media (max-width: 599px) {
@@ -222,7 +229,9 @@
     max-width: 28rem;
     margin: 0 auto;
   }
-  .ame-track__empty[hidden] { display: none; }
+  .ame-track__empty[hidden] {
+    display: none;
+  }
   .ame-track__empty-icon {
     font-size: 4rem;
     color: rgba(210, 195, 192, 0.7);
@@ -251,8 +260,12 @@
     margin: 0 auto;
     min-width: 0;
   }
-  .ame-track__result > * { min-width: 0; }
-  .ame-track__result[hidden] { display: none; }
+  .ame-track__result > * {
+    min-width: 0;
+  }
+  .ame-track__result[hidden] {
+    display: none;
+  }
   @media (min-width: 900px) {
     .ame-track__result {
       grid-template-columns: 1.6fr 1fr;
@@ -305,7 +318,9 @@
     overflow-wrap: anywhere;
     text-align: left;
   }
-  .ame-track-result__code:hover { color: var(--color-primary, #5a4742); }
+  .ame-track-result__code:hover {
+    color: var(--color-primary, #5a4742);
+  }
   .ame-track-result__code .material-symbols-outlined {
     font-size: 1.125rem;
     color: var(--color-on-surface-variant, #4f4442);
@@ -428,7 +443,7 @@
     padding-bottom: 1.5rem;
   }
   .ame-track-timeline__item::before {
-    content: "";
+    content: '';
     position: absolute;
     left: 0.5rem;
     top: 0.75rem;
@@ -440,7 +455,7 @@
     display: none;
   }
   .ame-track-timeline__item::after {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     top: 0.375rem;
@@ -636,8 +651,12 @@
     line-height: 1.6;
     color: var(--color-on-surface-variant, #4f4442);
   }
-  .ame-track-alert__body p { margin: 0 0 0.5rem; }
-  .ame-track-alert__body p:last-child { margin-bottom: 0; }
+  .ame-track-alert__body p {
+    margin: 0 0 0.5rem;
+  }
+  .ame-track-alert__body p:last-child {
+    margin-bottom: 0;
+  }
   .ame-track-alert__body ul {
     margin: 0;
     padding-left: 1.25rem;
@@ -664,7 +683,9 @@
     font-size: 0.875rem;
     color: var(--color-on-surface-variant, #4f4442);
   }
-  .ame-track-alert__channels p { margin: 0 0 0.25rem; }
+  .ame-track-alert__channels p {
+    margin: 0 0 0.25rem;
+  }
   .ame-track-alert__channels a {
     color: var(--color-primary, #5a4742);
     text-decoration: none;
@@ -727,6 +748,7 @@
     const apiUrl = section.dataset.apiUrl || '';
     const apiToken = section.dataset.apiToken || '';
     const whatsapp = section.dataset.whatsapp || '';
+    const bufferDias = Number(section.dataset.bufferDias);
 
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
@@ -782,7 +804,9 @@
         const dd = d.toLocaleDateString('pt-BR');
         const hh = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         return `${dd} às ${hh}`;
-      } catch (e) { return ''; }
+      } catch (e) {
+        return '';
+      }
     }
 
     function copyCode(code) {
@@ -793,11 +817,19 @@
         ta.style.opacity = '0';
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
+        try {
+          document.execCommand('copy');
+        } catch (e) {}
         document.body.removeChild(ta);
       };
       if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(code).then(() => showToast('Código copiado!')).catch(() => { fallback(); showToast('Código copiado!'); });
+        navigator.clipboard
+          .writeText(code)
+          .then(() => showToast('Código copiado!'))
+          .catch(() => {
+            fallback();
+            showToast('Código copiado!');
+          });
       } else {
         fallback();
         showToast('Código copiado!');
@@ -812,7 +844,13 @@
           <span class="material-symbols-outlined ame-track-error__icon" aria-hidden="true">info</span>
           <p class="ame-track-error__title">Não conseguimos encontrar seu código</p>
           <p>${escapeHTML(msg)}</p>
-          ${whatsapp ? `<p style="margin-top:1rem"><a class="ame-track-help" href="${escapeHTML(whatsapp)}" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">info</span>Fale com a gente</a></p>` : ''}
+          ${
+            whatsapp
+              ? `<p style="margin-top:1rem"><a class="ame-track-help" href="${escapeHTML(
+                  whatsapp
+                )}" target="_blank" rel="noopener"><span class="material-symbols-outlined" aria-hidden="true">info</span>Fale com a gente</a></p>`
+              : ''
+          }
         </div>
       `;
     }
@@ -826,10 +864,15 @@
       const isDelivered = !!latest && latest.code?.tracking_type === 'DELIVERED';
       const isInTransit = !!latest && (latest.code?.tracking_type === 'IN TRANSIT' || events.length > 1);
 
-      let stepPosted = false, stepTransit = false, stepDelivered = false;
+      let stepPosted = false,
+        stepTransit = false,
+        stepDelivered = false;
       if (events.length > 0) stepPosted = true;
       if (events.length > 1 || isInTransit) stepTransit = true;
-      if (isDelivered) { stepTransit = true; stepDelivered = true; }
+      if (isDelivered) {
+        stepTransit = true;
+        stepDelivered = true;
+      }
 
       let fillPct = 0;
       if (stepPosted) fillPct = 0;
@@ -849,27 +892,35 @@
       }
 
       const previsaoData = r.delivery_prevision ? new Date(r.delivery_prevision) : null;
-      const previsao = previsaoData && !isNaN(previsaoData)
-        ? previsaoData.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })
-        : 'Sob consulta';
+      const previsao =
+        previsaoData && !isNaN(previsaoData)
+          ? previsaoData.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' })
+          : 'Sob consulta';
       const previsaoEstimada = !!r.delivery_prevision_estimada;
 
-      const timelineHTML = events.length === 0
-        ? '<p style="color:var(--color-on-surface-variant);font-size:0.9375rem;">Nenhum evento registrado ainda. Volte mais tarde.</p>'
-        : events.map((ev) => `
+      const timelineHTML =
+        events.length === 0
+          ? '<p style="color:var(--color-on-surface-variant);font-size:0.9375rem;">Nenhum evento registrado ainda. Volte mais tarde.</p>'
+          : events
+              .map(
+                (ev) => `
             <div class="ame-track-timeline__item ame-track-timeline__item--${eventClass(ev.code?.tracking_type)}">
               <p class="ame-track-timeline__status">${escapeHTML(ev.code?.name || '')}</p>
               ${ev.observation ? `<p class="ame-track-timeline__desc">${escapeHTML(ev.observation)}</p>` : ''}
               <p class="ame-track-timeline__date">${formatDate(ev.date)}</p>
             </div>
-          `).join('');
+          `
+              )
+              .join('');
 
       const logo = carrierLogo(r.service_name);
 
       result.innerHTML = `
         <div class="ame-track-card">
           <div class="ame-track-result__header">
-            <button type="button" class="ame-track-result__code" data-copy="${escapeHTML(r.tracking_code)}" title="Copiar código">
+            <button type="button" class="ame-track-result__code" data-copy="${escapeHTML(
+              r.tracking_code
+            )}" title="Copiar código">
               <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
               <span class="ame-track-result__code-text">${escapeHTML(r.tracking_code)}</span>
               <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
@@ -904,16 +955,26 @@
         </div>
 
         <div class="ame-track-side">
-          ${r.destiny_name ? `
+          ${
+            r.destiny_name
+              ? `
             <div class="ame-track-info">
               <div class="ame-track-info__header">
                 <span class="material-symbols-outlined" aria-hidden="true">person</span>
                 <span class="ame-track-info__label">Destinatário</span>
               </div>
               <p class="ame-track-info__value">${escapeHTML(r.destiny_name)}</p>
-              ${(r.destiny_city_name || r.destiny_uf) ? `<p class="ame-track-info__sub">${escapeHTML(r.destiny_city_name || '')}${r.destiny_uf ? ' - ' + escapeHTML(r.destiny_uf) : ''}</p>` : ''}
+              ${
+                r.destiny_city_name || r.destiny_uf
+                  ? `<p class="ame-track-info__sub">${escapeHTML(r.destiny_city_name || '')}${
+                      r.destiny_uf ? ' - ' + escapeHTML(r.destiny_uf) : ''
+                    }</p>`
+                  : ''
+              }
             </div>
-          ` : ''}
+          `
+              : ''
+          }
 
           <div class="ame-track-info">
             <div class="ame-track-info__header">
@@ -921,7 +982,9 @@
               <span class="ame-track-info__label">Transportadora</span>
             </div>
             <div class="ame-track-info__carrier">
-              ${logo ? `<img class="ame-track-info__carrier-logo" src="${escapeHTML(logo)}" alt="" loading="lazy">` : ''}
+              ${
+                logo ? `<img class="ame-track-info__carrier-logo" src="${escapeHTML(logo)}" alt="" loading="lazy">` : ''
+              }
               <p class="ame-track-info__value" style="margin:0">${escapeHTML(r.service_name || 'Não informado')}</p>
             </div>
             <div class="ame-track-info__row">
@@ -933,12 +996,16 @@
             </div>
           </div>
 
-          ${whatsapp ? `
+          ${
+            whatsapp
+              ? `
             <a href="${escapeHTML(whatsapp)}" target="_blank" rel="noopener" class="ame-track-help">
               <span class="material-symbols-outlined" aria-hidden="true">info</span>
               Precisa de ajuda? Fale conosco
             </a>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
       `;
 
@@ -971,21 +1038,26 @@
         if (cache.has(code)) {
           data = cache.get(code);
         } else {
-          const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+          const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
           if (apiToken) headers.token = apiToken;
+          const payload = { tracking_code: code };
+          if (Number.isFinite(bufferDias)) payload.buffer_dias_uteis = bufferDias;
           const resp = await fetch(apiUrl, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ tracking_code: code })
+            body: JSON.stringify(payload),
           });
-          if (!resp.ok) throw new Error('Não conseguimos contactar o servidor de rastreio. Tente novamente em instantes.');
+          if (!resp.ok)
+            throw new Error('Não conseguimos contactar o servidor de rastreio. Tente novamente em instantes.');
           const json = await resp.json();
           data = json.result || json;
           if (data?.tracking_code) cache.set(code, data);
         }
 
         if (!data || !data.tracking_code) {
-          renderError('Verifique se o código está correto. Se acabou de receber, pode levar algumas horas até estar disponível.');
+          renderError(
+            'Verifique se o código está correto. Se acabou de receber, pode levar algumas horas até estar disponível.'
+          );
           return;
         }
         renderResult(data);
@@ -999,7 +1071,10 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const code = input.value.trim().toUpperCase();
-      if (!code) { input.focus(); return; }
+      if (!code) {
+        input.focus();
+        return;
+      }
       // Atualiza URL sem reload pra permitir compartilhar link
       try {
         const url = new URL(window.location.href);
@@ -1054,6 +1129,16 @@
       "id": "api_token",
       "label": "Token (opcional)",
       "info": "Se seu proxy exige um header 'token'. Deixe em branco se o proxy é público."
+    },
+    {
+      "type": "range",
+      "id": "buffer_dias_uteis",
+      "label": "Buffer de segurança (dias úteis)",
+      "info": "Dias úteis somados à previsão estimada — margem para o cliente não receber data otimista demais. 0 = sem buffer; 2 = padrão.",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 2
     },
     {
       "type": "header",
@@ -1125,7 +1210,7 @@
       "type": "richtext",
       "id": "alerta_text",
       "label": "Texto do alerta",
-      "default": "<p>A Âme Acessórios Pet <strong>nunca</strong> entra em contato pedindo:</p><ul><li>Pagamentos por PIX, boleto ou links externos via WhatsApp/SMS</li><li>Dados pessoais, bancários ou senhas por mensagem</li><li>Taxas extras para liberação ou redirecionamento do pedido</li><li>Foto facial ou documentos fora do site oficial</li></ul><p>Se receber uma mensagem suspeita, <strong>não responda nem clique em links</strong>. Confirme conosco pelos canais abaixo.</p>"
+      "default": "<p>Nenhuma transportadora parceira da Âme Acessórios Pet <strong>entra em contato</strong> pedindo:</p><ul><li>Pagamentos por PIX, boleto ou links externos via WhatsApp/SMS</li><li>Dados pessoais, bancários ou senhas por mensagem</li><li>Taxas extras para liberação ou redirecionamento do pedido</li><li>Foto facial ou documentos fora do site oficial</li></ul><p></br>Se receber uma mensagem suspeita, <strong>não responda nem clique em links</strong>. Confirme conosco pelos canais abaixo.</p>"
     },
     {
       "type": "richtext",
