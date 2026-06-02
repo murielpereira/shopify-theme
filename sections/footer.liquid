@@ -285,7 +285,23 @@
                 <span>CNPJ: {{ company_cnpj }}</span>
               {%- endif -%}
               {%- if company_address != blank -%}
-                <span>{{ company_address | newline_to_br }}</span>
+                {%- comment -%}
+                  Injeta bandeirinhas inline no endereço (texto livre):
+                  - " — SC" → miniatura SVG da bandeira de Santa Catarina
+                  - "Brasil" → emoji 🇧🇷
+                  Faz em 2 passos com placeholder pra evitar conflito caso
+                  o SVG contenha a string "Brasil" (não contém, mas é mais
+                  seguro). Se você mudar o texto da setting de endereço,
+                  basta ajustar os termos abaixo.
+                {%- endcomment -%}
+                {%- capture flag_sc_html -%}<span class="ame-footer__flag" role="img" aria-label="Santa Catarina"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect width="18" height="12" fill="#fff"/><rect width="18" height="4" fill="#009C3B"/><rect y="8" width="18" height="4" fill="#CE1126"/></svg></span>{%- endcapture -%}
+                {%- capture flag_br_html -%}<span class="ame-footer__flag" role="img" aria-label="Brasil">🇧🇷</span>{%- endcapture -%}
+                {%- assign address_html = company_address | newline_to_br -%}
+                {%- assign address_html = address_html | replace: ' — SC', ' — SC ##FLAG_SC##' -%}
+                {%- assign address_html = address_html | replace: 'Brasil', 'Brasil ##FLAG_BR##' -%}
+                {%- assign address_html = address_html | replace: '##FLAG_SC##', flag_sc_html -%}
+                {%- assign address_html = address_html | replace: '##FLAG_BR##', flag_br_html -%}
+                <span>{{ address_html }}</span>
               {%- endif -%}
             </address>
           {%- endif -%}
@@ -486,6 +502,20 @@
   }
   .ame-footer__nav-link--track .material-symbols-outlined {
     font-size: 1.05rem;
+  }
+  /* Bandeirinhas inline no endereço da empresa (UF + país).
+     Alinhamento vertical com text-bottom pra ficar sobre a linha de base
+     do texto, e gap visual com pequeno margin-left. */
+  .ame-footer__flag {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+    line-height: 1;
+  }
+  .ame-footer__flag svg {
+    display: block;
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
   }
   /* Labels "Marketing:" / "Financeiro:" antes do email — discretos pro
      cliente bater o olho e saber pra qual área é cada endereço. */

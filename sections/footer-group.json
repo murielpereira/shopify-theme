@@ -16,9 +16,9 @@
       "settings": {
         "logo": "shopify://shop_images/Logo_AME_Branco.png",
         "tagline": "Feito com amor.",
-        "menu_1_title": "Empresa",
-        "menu_1": "footer",
-        "menu_2_title": "Loja",
+        "menu_1_title": "",
+        "menu_1": "",
+        "menu_2_title": "",
         "menu_2": "",
         "show_pages": true,
         "pages_title": "Páginas",
