@@ -840,23 +840,28 @@
 
   <script>
   (() => {
+    // escapeHTML fica FORA do `if (!window.AmeVideoStories)` porque
+    // `initSpotlight` (definida abaixo, fora do if) usa essa função. Se o
+    // snippet renderizar mais de uma vez na página, o if é falso na 2ª
+    // execução e escapeHTML ficaria undefined no novo escopo do IIFE,
+    // quebrando o spotlight com "escapeHTML is not a function".
+    function escapeHTML(str) {
+      return String(str ?? '').replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+          }[c])
+      );
+    }
+
     if (!window.AmeVideoStories) {
       const AUTOPLAY_DEFAULT = {{ vs_autoplay | json }};
       const STORY_DURATION = 30000;
-
-      function escapeHTML(str) {
-        return String(str ?? '').replace(
-          /[&<>"']/g,
-          (c) =>
-            ({
-              '&': '&amp;',
-              '<': '&lt;',
-              '>': '&gt;',
-              '"': '&quot;',
-              "'": '&#39;',
-            }[c])
-        );
-      }
 
       const state = {
         videos: [],

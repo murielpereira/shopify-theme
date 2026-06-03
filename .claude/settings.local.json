@@ -119,7 +119,8 @@
       "Bash(cp /tmp/guia.json *)",
       "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/logistica.js\")",
       "WebFetch(domain:dev.smartenvios.com)",
-      "WebFetch(domain:community.shopify.dev)"
+      "WebFetch(domain:community.shopify.dev)",
+      "Bash(awk 'NR>=841 && NR<=1145 && /^\\\\s*\\\\}\\\\s*$/' \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/snippets/video-stories.liquid\")"
     ],
     "additionalDirectories": [
       "\\tmp"

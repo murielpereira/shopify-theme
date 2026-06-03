@@ -179,34 +179,6 @@
           {% endif %}
         </div>
 
-        {%- comment -%}
-          Formas de pagamento — usa o helper nativo do Shopify
-          `payment_type_svg_tag` que retorna o SVG oficial de cada bandeira
-          conforme o que está ativo no admin (Settings → Payments).
-          Atualizado automaticamente quando você habilita/desabilita métodos.
-        {%- endcomment -%}
-        {%- if shop.enabled_payment_types.size > 0 -%}
-          <div class="ame-footer__payments">
-            <p class="ame-footer__payments-title">Formas de pagamento</p>
-            <ul class="ame-footer__payments-list" aria-label="Formas de pagamento aceitas">
-              {%- for type in shop.enabled_payment_types -%}
-                <li>{{ type | payment_type_svg_tag: class: 'ame-footer__payment-icon' }}</li>
-              {%- endfor -%}
-            </ul>
-          </div>
-        {%- endif -%}
-
-        {%- comment -%}
-          Selo de segurança — comunica confiança no checkout. Sem app
-          externo, sem dependência. Texto e ícone em opacity reduzida pra
-          ser sutil (não competir com o conteúdo principal).
-        {%- endcomment -%}
-        <p class="ame-footer__security">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
-          </svg>
-          <span>Compra 100% segura · SSL</span>
-        </p>
       </div>
     {% endif %}
 
@@ -241,6 +213,30 @@
         </div>
       {%- endif -%}
     {% endif %}
+
+    {%- comment -%}
+      Coluna lateral à de Páginas (no desktop) com formas de pagamento e
+      selo de segurança. No mobile, vira sua própria linha empilhada.
+      Usa `shop.enabled_payment_types` + `payment_type_svg_tag` (helper
+      nativo Shopify) — atualiza automaticamente quando você habilita/
+      desabilita métodos em Configurações → Pagamentos.
+    {%- endcomment -%}
+    {%- if shop.enabled_payment_types.size > 0 -%}
+      <div class="ame-footer__nav ame-footer__payments-col">
+        <p class="ame-footer__nav-title">Formas de pagamento</p>
+        <ul class="ame-footer__payments-list" aria-label="Formas de pagamento aceitas">
+          {%- for type in shop.enabled_payment_types -%}
+            <li>{{ type | payment_type_svg_tag: class: 'ame-footer__payment-icon' }}</li>
+          {%- endfor -%}
+        </ul>
+        <p class="ame-footer__security">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
+          </svg>
+          <span>Compra 100% segura · SSL</span>
+        </p>
+      </div>
+    {%- endif -%}
 
     {%- comment -%}
       Coluna de Atendimento + Dados da empresa.
@@ -462,18 +458,7 @@
     gap: 0.625rem;
   }
 
-  /* ── Formas de pagamento ── */
-  .ame-footer__payments {
-    margin-top: 1.5rem;
-  }
-  .ame-footer__payments-title {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    opacity: 0.7;
-    margin: 0 0 0.625rem;
-  }
+  /* ── Formas de pagamento (coluna lateral ao "Páginas" no desktop) ── */
   .ame-footer__payments-list {
     list-style: none;
     padding: 0;
