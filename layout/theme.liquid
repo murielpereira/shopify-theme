@@ -778,7 +778,7 @@
           const selectorsHtml = unmatched.map(function (r) {
             const optIdx = resolutions.indexOf(r);
             const btns = r.option.values.map(function (v) {
-              return '<button type="button" class="ame-cart-crosssell__len-btn" data-cs-opt-idx="' +
+              return '<button type="button" class="ame-cart-crosssell__len-btn" aria-pressed="false" data-cs-opt-idx="' +
                 optIdx + '" data-cs-opt-val="' + escapeHTML(v) + '">' + escapeHTML(v) + '</button>';
             }).join('');
             return '<div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="' +
@@ -793,7 +793,7 @@
           if (comprimentoValues.length) {
             const compName = escapeHTML(COMPRIMENTO_GUIA_CONFIG.name || 'Comprimento');
             const compBtns = comprimentoValues.map(function (v) {
-              return '<button type="button" class="ame-cart-crosssell__len-btn" data-cs-prop-val="' +
+              return '<button type="button" class="ame-cart-crosssell__len-btn" aria-pressed="false" data-cs-prop-val="' +
                 escapeHTML(v) + '">' + escapeHTML(v) + '</button>';
             }).join('');
             comprimentoHtml = '<div class="ame-cart-crosssell__lengths" role="radiogroup" aria-label="' +
@@ -854,6 +854,7 @@
             const btn = newCard.querySelector('[data-cs-prop-val="' + escapeHTML(prevPropVal).replace(/"/g, '&quot;') + '"]');
             if (btn) {
               btn.classList.add('is-active');
+              btn.setAttribute('aria-pressed', 'true');
               newCard.dataset.csPropVal = prevPropVal;
             }
           }
@@ -861,7 +862,10 @@
             newCard.dataset[key] = val;
             const idx = key.replace('csSel', '');
             const btn = newCard.querySelector('[data-cs-opt-idx="' + idx + '"][data-cs-opt-val="' + val.replace(/"/g, '&quot;') + '"]');
-            if (btn) btn.classList.add('is-active');
+            if (btn) {
+              btn.classList.add('is-active');
+              btn.setAttribute('aria-pressed', 'true');
+            }
           });
           updateAddBtnState(newCard);
 
@@ -885,8 +889,12 @@
             btn.addEventListener('click', (e) => {
               e.stopPropagation();
               const idx = btn.dataset.csOptIdx;
-              card.querySelectorAll('[data-cs-opt-idx="' + idx + '"]').forEach(b => b.classList.remove('is-active'));
+              card.querySelectorAll('[data-cs-opt-idx="' + idx + '"]').forEach(b => {
+                b.classList.remove('is-active');
+                b.setAttribute('aria-pressed', 'false');
+              });
               btn.classList.add('is-active');
+              btn.setAttribute('aria-pressed', 'true');
               card.dataset['csSel' + idx] = btn.dataset.csOptVal;
               updateAddBtnState(card);
             });
@@ -895,8 +903,12 @@
           card.querySelectorAll('[data-cs-prop-val]').forEach((btn) => {
             btn.addEventListener('click', (e) => {
               e.stopPropagation();
-              card.querySelectorAll('[data-cs-prop-val]').forEach(b => b.classList.remove('is-active'));
+              card.querySelectorAll('[data-cs-prop-val]').forEach(b => {
+                b.classList.remove('is-active');
+                b.setAttribute('aria-pressed', 'false');
+              });
               btn.classList.add('is-active');
+              btn.setAttribute('aria-pressed', 'true');
               card.dataset.csPropVal = btn.dataset.csPropVal;
               updateAddBtnState(card);
             });
