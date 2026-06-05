@@ -39,7 +39,23 @@
       assign hero_video_id = hero_video_url | split: 'youtu.be/' | last | split: '?' | first
     endif
   endif
+
 -%}
+
+{%- comment -%}
+  Preload do poster do vídeo hero — LCP candidato típico desta page.
+  Sem isso, o browser baixa o poster com prioridade média depois dos
+  scripts de apps (Easify, Optis, etc), atrasando o LCP em segundos.
+  Usa `media` pra carregar APENAS o poster do breakpoint atual.
+{%- endcomment -%}
+{%- if hero_native_video.preview_image != blank -%}
+  {%- if hero_mobile_video.preview_image != blank -%}
+    {{ hero_native_video.preview_image | image_url: width: 1600 | preload_tag: as: 'image', media: '(min-width: 768px)' }}
+    {{ hero_mobile_video.preview_image | image_url: width: 900 | preload_tag: as: 'image', media: '(max-width: 767px)' }}
+  {%- else -%}
+    {{ hero_native_video.preview_image | image_url: width: 1600 | preload_tag: as: 'image' }}
+  {%- endif -%}
+{%- endif -%}
 
 <section class="ame-hero full-width">
   <!-- Fundo (lado direito): vídeo ou imagem -->

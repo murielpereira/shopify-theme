@@ -1658,6 +1658,16 @@
     .pdp__main-img-wrap {
       aspect-ratio: 1 / 1;
       border-radius: var(--radius-lg, 0.5rem);
+      /* Em telas largas com sticky ativo, evita que a imagem quadrada
+         exceda a viewport e fique cortada na rolagem. Reserva espaço
+         pra: top sticky (6.5rem ≈ 104px) + thumbnails (~6rem) + respiro
+         inferior (~1rem). max-width casa com max-height pra manter o
+         aspect-ratio 1:1 — quando a viewport é baixa, a imagem encolhe
+         proporcionalmente em vez de distorcer. margin-inline: auto
+         centraliza a imagem quando ela fica menor que a coluna. */
+      max-height: calc(100vh - 13rem);
+      max-width: calc(100vh - 13rem);
+      margin-inline: auto;
     }
   }
 
