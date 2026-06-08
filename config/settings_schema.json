@@ -189,8 +189,14 @@
         "id": "cart_type",
         "label": "Tipo de carrinho",
         "options": [
-          { "value": "page",   "label": "Página de carrinho" },
-          { "value": "drawer", "label": "Gaveta lateral" }
+          {
+            "value": "page",
+            "label": "Página de carrinho"
+          },
+          {
+            "value": "drawer",
+            "label": "Gaveta lateral"
+          }
         ],
         "default": "drawer"
       }
@@ -421,329 +427,1812 @@
         "id": "swatch_solido_cores",
         "label": "Mapa nome → hex",
         "info": "Um par por entrada separados por vírgula, no formato 'Nome:#hex'. Ex: Allure:#8391a3, Off White:#d3cec3",
-        "default": "Allure:#8391a3, Azul Bebê:#8391a3, Branco:#ffffff, Borgonha:#713232, Café:#664732, Camel:#855e43, Chiclete:#D95B8A, Lilás Candy:#DFC9F4, Marinho:#414463, Militar:#5f624b, Nude:#b59981, Off White:#d3cec3, Preto:#000000, Rosa Bebê:#d7c2b1, Rosa Seco:#c8a0a7, Sépia:#b6b79d"
+        "default": "Allure:#8391a3, Azul Bebê:#8391a3, Branco:#ffffff, Bordô:#5b2c30, Borgonha:#713232, Café:#664732, Camel:#855e43, Chiclete:#D95B8A, Lilás Candy:#DFC9F4, Marinho:#414463, Militar:#5f624b, Nude:#b59981, Off White:#d3cec3, Preto:#000000, Rosa Bebê:#d7c2b1, Rosa Seco:#c8a0a7, Sépia:#b6b79d, Smoke:#656565"
       }
     ]
   },
   {
     "name": "Campo Personalizado 1",
     "settings": [
-      { "type": "paragraph", "content": "Campos extras exibidos na página do produto, ativados por tag. Adicione a tag ao produto no Shopify Admin (ex: campo_gravacao) e insira o mesmo valor em 'Tag de ativação' abaixo." },
-      { "type": "checkbox", "id": "custom_field_1_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_1_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_1_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_1_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_1_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_1_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_1_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_1_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_1_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_1_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 1.", "default": 1 },
-      { "type": "checkbox", "id": "custom_field_1_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "paragraph",
+        "content": "Campos extras exibidos na página do produto, ativados por tag. Adicione a tag ao produto no Shopify Admin (ex: campo_gravacao) e insira o mesmo valor em 'Tag de ativação' abaixo."
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_1_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_1_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_1_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_1_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 1.",
+        "default": 1
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_1_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 2",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_2_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_2_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_2_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_2_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_2_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_2_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_2_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_2_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_2_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_2_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 2.", "default": 2 },
-      { "type": "checkbox", "id": "custom_field_2_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_2_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_2_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_2_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_2_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 2.",
+        "default": 2
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_2_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 3",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_3_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_3_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_3_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_3_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_3_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_3_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_3_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_3_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_3_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_3_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 3.", "default": 3 },
-      { "type": "checkbox", "id": "custom_field_3_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_3_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_3_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_3_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_3_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 3.",
+        "default": 3
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_3_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 4",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_4_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_4_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_4_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_4_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_4_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_4_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_4_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_4_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_4_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_4_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 4.", "default": 4 },
-      { "type": "checkbox", "id": "custom_field_4_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_4_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_4_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_4_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_4_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 4.",
+        "default": 4
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_4_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 5",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_5_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_5_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_5_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_5_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_5_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_5_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_5_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_5_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_5_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_5_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 5.", "default": 5 },
-      { "type": "checkbox", "id": "custom_field_5_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_5_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_5_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_5_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_5_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 5.",
+        "default": 5
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_5_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 6",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_6_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_6_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_6_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_6_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_6_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_6_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_6_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_6_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_6_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_6_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 6.", "default": 6 },
-      { "type": "checkbox", "id": "custom_field_6_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_6_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_6_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_6_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_6_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 6.",
+        "default": 6
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_6_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 7",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_7_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_7_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_7_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_7_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_7_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_7_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_7_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_7_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_7_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_7_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 7.", "default": 7 },
-      { "type": "checkbox", "id": "custom_field_7_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_7_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_7_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_7_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_7_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 7.",
+        "default": 7
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_7_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 8",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_8_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_8_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_8_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_8_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_8_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_8_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_8_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_8_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_8_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_8_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 8.", "default": 8 },
-      { "type": "checkbox", "id": "custom_field_8_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_8_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_8_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_8_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_8_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 8.",
+        "default": 8
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_8_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 9",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_9_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_9_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_9_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_9_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_9_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_9_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_9_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_9_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_9_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_9_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 9.", "default": 9 },
-      { "type": "checkbox", "id": "custom_field_9_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_9_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_9_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_9_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_9_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 9.",
+        "default": 9
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_9_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 10",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_10_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_10_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_10_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_10_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_10_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_10_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_10_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_10_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_10_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_10_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 10.", "default": 10 },
-      { "type": "checkbox", "id": "custom_field_10_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_10_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_10_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_10_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_10_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 10.",
+        "default": 10
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_10_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 11",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_11_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_11_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_11_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_11_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_11_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_11_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_11_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_11_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_11_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_11_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 11.", "default": 11 },
-      { "type": "checkbox", "id": "custom_field_11_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_11_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_11_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_11_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_11_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 11.",
+        "default": 11
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_11_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 12",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_12_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_12_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_12_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_12_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_12_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_12_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_12_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_12_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_12_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_12_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 12.", "default": 12 },
-      { "type": "checkbox", "id": "custom_field_12_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_12_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_12_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_12_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_12_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 12.",
+        "default": 12
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_12_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 13",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_13_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_13_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_13_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_13_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_13_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_13_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_13_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_13_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_13_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_13_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 13.", "default": 13 },
-      { "type": "checkbox", "id": "custom_field_13_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_13_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_13_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_13_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_13_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 13.",
+        "default": 13
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_13_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 14",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_14_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_14_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_14_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_14_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_14_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_14_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_14_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_14_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_14_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_14_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 14.", "default": 14 },
-      { "type": "checkbox", "id": "custom_field_14_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_14_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_14_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_14_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_14_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 14.",
+        "default": 14
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_14_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 15",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_15_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_15_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_15_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_15_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_15_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_15_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_15_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_15_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_15_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_15_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 15.", "default": 15 },
-      { "type": "checkbox", "id": "custom_field_15_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_15_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_15_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_15_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_15_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 15.",
+        "default": 15
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_15_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 16",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_16_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_16_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_16_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_16_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_16_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_16_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_16_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_16_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_16_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_16_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 16.", "default": 16 },
-      { "type": "checkbox", "id": "custom_field_16_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_16_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_16_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_16_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_16_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 16.",
+        "default": 16
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_16_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 17",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_17_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_17_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_17_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_17_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_17_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_17_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_17_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_17_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_17_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_17_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 17.", "default": 17 },
-      { "type": "checkbox", "id": "custom_field_17_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_17_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_17_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_17_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_17_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 17.",
+        "default": 17
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_17_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 18",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_18_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_18_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_18_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_18_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_18_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_18_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_18_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_18_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_18_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_18_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 18.", "default": 18 },
-      { "type": "checkbox", "id": "custom_field_18_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_18_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_18_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_18_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_18_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 18.",
+        "default": 18
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_18_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 19",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_19_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_19_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_19_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_19_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_19_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_19_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_19_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_19_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_19_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_19_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 19.", "default": 19 },
-      { "type": "checkbox", "id": "custom_field_19_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_19_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_19_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_19_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_19_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 19.",
+        "default": 19
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_19_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   },
   {
     "name": "Campo Personalizado 20",
     "settings": [
-      { "type": "checkbox", "id": "custom_field_20_enable", "label": "Ativar campo", "default": false },
-      { "type": "text", "id": "custom_field_20_tag", "label": "Tag de ativação" },
-      { "type": "text", "id": "custom_field_20_name", "label": "Nome interno", "info": "Identificador enviado como properties[nome] no pedido" },
-      { "type": "text", "id": "custom_field_20_title", "label": "Label do campo (texto acima)" },
-      { "type": "text", "id": "custom_field_20_placeholder", "label": "Placeholder (texto cinza dentro do campo)" },
-      { "type": "text", "id": "custom_field_20_helper", "label": "Texto de ajuda (aparece abaixo do campo)" },
-      { "type": "text", "id": "custom_field_20_limiter", "label": "Limite de caracteres", "info": "Apenas para Texto curto e Texto longo" },
-      { "type": "select", "id": "custom_field_20_type", "label": "Tipo do campo", "default": "text", "options": [{ "value": "text", "label": "Texto curto" }, { "value": "long_text", "label": "Texto longo" }, { "value": "date", "label": "Data" }, { "value": "phone", "label": "Telefone" }, { "value": "radio", "label": "Seleção (botões)" }] },
-      { "type": "text", "id": "custom_field_20_options", "label": "Opções para Seleção (separadas por vírgula)", "info": "Apenas para tipo Seleção" },
-      { "type": "number", "id": "custom_field_20_order", "label": "Ordem de exibição", "info": "Número menor aparece primeiro. Padrão: 20.", "default": 20 },
-      { "type": "checkbox", "id": "custom_field_20_required", "label": "Campo obrigatório", "default": false }
+      {
+        "type": "checkbox",
+        "id": "custom_field_20_enable",
+        "label": "Ativar campo",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_tag",
+        "label": "Tag de ativação"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_name",
+        "label": "Nome interno",
+        "info": "Identificador enviado como properties[nome] no pedido"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_title",
+        "label": "Label do campo (texto acima)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_placeholder",
+        "label": "Placeholder (texto cinza dentro do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_helper",
+        "label": "Texto de ajuda (aparece abaixo do campo)"
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_limiter",
+        "label": "Limite de caracteres",
+        "info": "Apenas para Texto curto e Texto longo"
+      },
+      {
+        "type": "select",
+        "id": "custom_field_20_type",
+        "label": "Tipo do campo",
+        "default": "text",
+        "options": [
+          {
+            "value": "text",
+            "label": "Texto curto"
+          },
+          {
+            "value": "long_text",
+            "label": "Texto longo"
+          },
+          {
+            "value": "date",
+            "label": "Data"
+          },
+          {
+            "value": "phone",
+            "label": "Telefone"
+          },
+          {
+            "value": "radio",
+            "label": "Seleção (botões)"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "id": "custom_field_20_options",
+        "label": "Opções para Seleção (separadas por vírgula)",
+        "info": "Apenas para tipo Seleção"
+      },
+      {
+        "type": "number",
+        "id": "custom_field_20_order",
+        "label": "Ordem de exibição",
+        "info": "Número menor aparece primeiro. Padrão: 20.",
+        "default": 20
+      },
+      {
+        "type": "checkbox",
+        "id": "custom_field_20_required",
+        "label": "Campo obrigatório",
+        "default": false
+      }
     ]
   }
 ]
