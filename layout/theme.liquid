@@ -554,12 +554,29 @@
         async function resolveCrossSellProduct(item) {
           if (!item?.handle) return null;
 
-          // 1. Tags `crosssell:<handle>` do próprio produto
+          // EXCLUSÕES — produtos onde guia/peitoral não fazem sentido:
+          //
+          // a) Handle/título contém "gato" — coleiras de gato não usam guia
+          //    (gatos não são passeados com coleira como cachorros). Detecção
+          //    automática evita ter que tagear cada produto manualmente.
+          //    `\bgatos?\b` casa "gato" e "gatos" como palavras inteiras pra
+          //    evitar falso positivo em palavras compostas.
+          const handleLc = item.handle.toLowerCase();
+          if (/\bgatos?\b/.test(handleLc)) return null;
+
           const sourceProduct = await fetchProduct(item.handle);
-          const tags = sourceProduct?.tags || [];
+          if (!sourceProduct) return null;
+          const tags = (sourceProduct.tags || []).map(t => String(t).toLowerCase());
+
+          // b) Tag explícita `crosssell:none` — opt-out manual no admin pra
+          //    casos que a heurística do handle não pega (ex: produto cujo
+          //    nome não tem "gato" mas que mesmo assim não combina com guia).
+          if (tags.includes('crosssell:none') || tags.includes('no-crosssell')) return null;
+
+          // 1. Tags `crosssell:<handle>` do próprio produto
           const csHandles = tags
-            .filter(t => String(t).toLowerCase().startsWith('crosssell:'))
-            .map(t => String(t).slice('crosssell:'.length).trim())
+            .filter(t => t.startsWith('crosssell:') && t !== 'crosssell:none')
+            .map(t => t.slice('crosssell:'.length).trim())
             .filter(Boolean);
           for (const h of csHandles) {
             const p = await fetchProduct(h);
