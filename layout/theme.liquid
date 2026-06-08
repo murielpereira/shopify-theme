@@ -601,14 +601,88 @@
           });
         }
 
+        /* Fingerprint de cor: extrai a parte ESSENCIAL do nome pra casar
+           entre produtos que descrevem a mesma cor com palavras diferentes.
+
+           Exemplo:
+             coleira "Allure com Off White e pedras Denim Blue" →
+               { base: 'allure', pedra: 'denim blue' }
+             guia    "Allure com pedras Denim Blue" →
+               { base: 'allure', pedra: 'denim blue' }
+             → casam (a coleira tem 'Off White' como detalhe extra que a guia
+               não tem; mas a "cor base + pedra" é o que importa pro cliente)
+
+           Regras:
+             - base   = tudo antes do primeiro " com "  (lowercased)
+             - pedra  = palavra(s) depois de "pedras "  (lowercased)
+             - se base não existe (string vazia) → ignora
+        */
+        function extractColorFingerprint(value) {
+          if (!value) return null;
+          const s = String(value).trim();
+          if (!s) return null;
+          // Base = parte antes de " com " (case insensitive).
+          // Se não há " com ", a string toda é a base.
+          let base = s;
+          const parts = s.split(/\s+com\s+/i);
+          if (parts.length > 1) base = parts[0].trim();
+          // Pedra = depois de "pedras " até " e " ou "/" ou fim.
+          let pedra = null;
+          const pedraMatch = s.match(/\bpedras?\s+(.+?)(?:\s+e\s+|\s*\/|$)/i);
+          if (pedraMatch) pedra = pedraMatch[1].trim();
+          return {
+            base: base.toLowerCase(),
+            pedra: pedra ? pedra.toLowerCase() : null,
+          };
+        }
+
+        /* Compara 2 fingerprints. Cor base sempre tem que bater.
+           Pedra: se ambos têm, tem que ser igual; se NENHUM tem, ok;
+           se só um tem, NÃO casam (são qualidades diferentes do produto). */
+        function colorFingerprintMatch(fpA, fpB) {
+          if (!fpA || !fpB) return false;
+          if (fpA.base !== fpB.base) return false;
+          if (fpA.pedra && fpB.pedra) return fpA.pedra === fpB.pedra;
+          if (!fpA.pedra && !fpB.pedra) return true;
+          return false;
+        }
+
+        /* Match SÓ pela cor base, ignorando pedra. Usado como último
+           recurso (fallback Atena). Quando a guia genérica não tem
+           versões com pedra, casa pela cor base e o cliente recebe a
+           versão sem pedra da mesma cor.
+
+           Prefere valores SEM pedra (mais "neutros") sobre valores COM
+           pedra de outra cor, caso ambos existam com a mesma base. */
+        function findByBaseOnly(guiaValues, cartFp) {
+          if (!cartFp?.base) return null;
+          const matches = guiaValues.filter(v => {
+            const fp = extractColorFingerprint(v);
+            return fp?.base === cartFp.base;
+          });
+          if (matches.length === 0) return null;
+          // Prefere o sem pedra (mais simples)
+          const semPedra = matches.find(v => !extractColorFingerprint(v)?.pedra);
+          return semPedra || matches[0];
+        }
+
         /* Tenta achar o valor da `guiaOption` que combine com alguma opção
-           do `cartItem`. Retorna o valor da guia (string) ou null. */
+           do `cartItem`. Retorna o valor da guia (string) ou null.
+
+           Hierarquia de matching (do mais estrito ao mais flexível):
+             1. Match pelo NOME da opção (ex: ambos têm "Cor")
+                a. Valor exato
+                b. Token split por '/'
+                c. Fingerprint (cor base + cor pedra)
+                d. SÓ cor base (último recurso — pra fallback Atena)
+             2. Fallback: valor em qualquer opção do cart (a, b, c, d)
+        */
         function matchOptionValue(cartItem, guiaOption) {
           const cartOptions = cartItem.options_with_values || [];
           const guiaName = String(guiaOption.name).toLowerCase().trim();
           const guiaValues = guiaOption.values || [];
 
-          // 1. Tenta match pelo NOME da opção
+          // 1. Match pelo NOME da opção
           const sameName = cartOptions.find(o =>
             String(o.name).toLowerCase().trim() === guiaName
           );
@@ -622,19 +696,37 @@
               String(v).split('/').some(tok => tok.trim().toLowerCase() === cartVal.toLowerCase())
             );
             if (tokenMatch) return tokenMatch;
+            // 1c. Fingerprint match (cor base + cor pedra)
+            const cartFp = extractColorFingerprint(cartVal);
+            if (cartFp) {
+              const fpMatch = guiaValues.find(v =>
+                colorFingerprintMatch(extractColorFingerprint(v), cartFp)
+              );
+              if (fpMatch) return fpMatch;
+              // 1d. SÓ cor base (ignora pedra) — fallback genérico
+              const baseOnly = findByBaseOnly(guiaValues, cartFp);
+              if (baseOnly) return baseOnly;
+            }
           }
 
           // 2. Fallback: tenta match pelo VALOR em qualquer opção do cart
           for (const cartOpt of cartOptions) {
             const cartVal = String(cartOpt.value).trim();
-            // 2a. Valor exato
             const exact = guiaValues.find(v => String(v).trim() === cartVal);
             if (exact) return exact;
-            // 2b. Token match
             const tokenMatch = guiaValues.find(v =>
               String(v).split('/').some(tok => tok.trim().toLowerCase() === cartVal.toLowerCase())
             );
             if (tokenMatch) return tokenMatch;
+            const cartFp = extractColorFingerprint(cartVal);
+            if (cartFp) {
+              const fpMatch = guiaValues.find(v =>
+                colorFingerprintMatch(extractColorFingerprint(v), cartFp)
+              );
+              if (fpMatch) return fpMatch;
+              const baseOnly = findByBaseOnly(guiaValues, cartFp);
+              if (baseOnly) return baseOnly;
+            }
           }
 
           return null; // não conseguiu match — cliente precisa escolher
