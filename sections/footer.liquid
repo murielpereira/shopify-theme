@@ -229,6 +229,62 @@
             <li>{{ type | payment_type_svg_tag: class: 'ame-footer__payment-icon' }}</li>
           {%- endfor -%}
         </ul>
+
+        {%- comment -%}
+          Transportadoras parceiras. Cada logo é um link que abre a página
+          oficial de rastreio da transportadora em nova aba. Logos vivem em
+          assets/images/transportadoras/* — o Shopify serve qualquer asset
+          local via {{ 'arquivo.ext' | asset_url }} por filename.
+        {%- endcomment -%}
+        <p class="ame-footer__nav-title ame-footer__carriers-title">Transportadoras</p>
+        <ul class="ame-footer__carriers-list" aria-label="Transportadoras parceiras — clique pra rastrear">
+          <li>
+            <a href="https://rastreamento.correios.com.br/app/index.php" target="_blank" rel="noopener" aria-label="Rastrear nos Correios" title="Correios">
+              <img src="{{ 'transportadora-correios.png' | asset_url }}" alt="Correios" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.loggi.com/rastreador/" target="_blank" rel="noopener" aria-label="Rastrear na Loggi" title="Loggi">
+              <img src="{{ 'transportadora-loggi.png' | asset_url }}" alt="Loggi" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.jadlog.com.br/tracking" target="_blank" rel="noopener" aria-label="Rastrear na Jadlog" title="Jadlog">
+              <img src="{{ 'transportadora-jadlog.png' | asset_url }}" alt="Jadlog" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://br.jtexpress.com/index/query/gzquery.html" target="_blank" rel="noopener" aria-label="Rastrear na J&T Express" title="J&T Express">
+              <img src="{{ 'transportadora-jt.png' | asset_url }}" alt="J&T Express" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.gollog.com.br/site/rastreamento_aereo.aspx" target="_blank" rel="noopener" aria-label="Rastrear na Gollog" title="Gollog">
+              <img src="{{ 'transportadora-gollog.png' | asset_url }}" alt="Gollog" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.magazineluiza.com.br/encontre-pedido/" target="_blank" rel="noopener" aria-label="Rastrear na Magalog" title="Magalog">
+              <img src="{{ 'transportadora-magalog.jpg' | asset_url }}" alt="Magalog" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.dhl.com/br-pt/home/tracking.html" target="_blank" rel="noopener" aria-label="Rastrear na DHL" title="DHL">
+              <img src="{{ 'transportadora-dhl.png' | asset_url }}" alt="DHL" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.fedex.com/pt-br/tracking.html" target="_blank" rel="noopener" aria-label="Rastrear na FedEx" title="FedEx">
+              <img src="{{ 'transportadora-fedex.png' | asset_url }}" alt="FedEx" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+          <li>
+            <a href="https://www.ups.com/track?loc=pt_BR" target="_blank" rel="noopener" aria-label="Rastrear na UPS" title="UPS">
+              <img src="{{ 'transportadora-ups.png' | asset_url }}" alt="UPS" width="44" height="22" loading="lazy" decoding="async">
+            </a>
+          </li>
+        </ul>
+
         <p class="ame-footer__security">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
@@ -459,6 +515,41 @@
   }
 
   /* ── Formas de pagamento (coluna lateral ao "Páginas" no desktop) ── */
+  .ame-footer__carriers-title {
+    margin-top: 1.5rem;
+  }
+  .ame-footer__carriers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+  .ame-footer__carriers-list li {
+    margin: 0;
+  }
+  .ame-footer__carriers-list a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.375rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ame-footer__carriers-list a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  }
+  .ame-footer__carriers-list img {
+    display: block;
+    width: 2.75rem;
+    height: 1.375rem;
+    object-fit: contain;
+  }
+
   .ame-footer__payments-list {
     list-style: none;
     padding: 0;
