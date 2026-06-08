@@ -526,7 +526,17 @@
 
             {%- if is_color -%}
               <!-- Grade de swatches por imagem (6 colunas no mobile) -->
-              <div class="pdp__swatches" data-option-index="{{ forloop.index0 }}">
+              {%- comment -%}
+                Produtos com tag `swatch_solido` (peças finas onde a foto não
+                mostra a cor com clareza) usam o snippet de swatch sólido em
+                vez da foto da variante. Cores definidas em
+                settings.swatch_solido_cores.
+              {%- endcomment -%}
+              {%- assign use_swatch_solido = false -%}
+              {%- if product.tags contains 'swatch_solido' -%}
+                {%- assign use_swatch_solido = true -%}
+              {%- endif -%}
+              <div class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}" data-option-index="{{ forloop.index0 }}">
                 {%- for option_value in option.values -%}
                   {%- liquid
                     assign sw_variant = option_value.variant
@@ -555,7 +565,9 @@
                       aria-disabled="true"
                     {% endunless %}
                   >
-                    {%- if sw_img != '' -%}
+                    {%- if use_swatch_solido -%}
+                      {%- render 'swatch-solido', value: option_value -%}
+                    {%- elsif sw_img != '' -%}
                       <img
                         src="{{ sw_img }}"
                         alt="{{ option_value | escape }}"
@@ -2182,6 +2194,23 @@
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  /* Swatch sólido (tag swatch_solido) — bloco de cor pintado em vez da
+     foto da variante. Usado em peças finas (colares, ex: Fifi) onde a
+     foto não renderiza bem a cor.
+     - 1 cor: background sólido
+     - 2 cores: diagonal split 50/50 via linear-gradient */
+  .ame-swatch-solido {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .ame-swatch-solido--single {
+    background: var(--swatch-base);
+  }
+  .ame-swatch-solido--dual {
+    background: linear-gradient(135deg, var(--swatch-base) 50%, var(--swatch-accent) 50%);
   }
 
   /* Tamanhos */

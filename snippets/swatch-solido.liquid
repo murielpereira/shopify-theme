@@ -1,0 +1,71 @@
+{%- comment -%}
+  Renderiza um swatch sólido baseado no nome da cor (em vez da foto da
+  variante). Usado em produtos pequenos onde a foto não mostra bem a cor.
+
+  Params:
+    value: string com o nome da cor (ex: "Allure com Off White e pedras Denim Blue")
+
+  Lógica:
+    1. Remove "e pedras X" / "com pedras X" do final (pedras não entram no swatch)
+    2. Separa por " com " → base + accent
+    3. Lookup hex de cada parte no mapa `settings.swatch_solido_cores`
+    4. Render:
+       - 2 cores: linear-gradient diagonal 50/50
+       - 1 cor: background sólido
+       - Sem mapeamento: fallback cinza neutro (#cccccc)
+{%- endcomment -%}
+
+{%- liquid
+  assign val_clean = value | strip
+  # Remove sufixo "e pedras X", "com pedras X" ou só "pedras X"
+  assign val_clean = val_clean | split: ' e pedras' | first
+  assign val_clean = val_clean | split: ' com pedras' | first
+  assign val_clean = val_clean | split: ' pedras' | first
+  assign val_clean = val_clean | strip
+
+  # Separa base e accent
+  assign color_parts = val_clean | split: ' com '
+  assign base_name = color_parts[0] | strip | downcase
+  assign accent_name = ''
+  if color_parts.size > 1
+    assign accent_name = color_parts[1] | strip | downcase
+  endif
+
+  # Lookup no mapa de cores
+  assign cores_raw = settings.swatch_solido_cores | default: ''
+  assign entries = cores_raw | split: ','
+  assign base_hex = ''
+  assign accent_hex = ''
+  for entry in entries
+    assign pair = entry | split: ':'
+    if pair.size >= 2
+      assign pair_name = pair[0] | strip | downcase
+      assign pair_hex = pair[1] | strip
+      if pair_name == base_name
+        assign base_hex = pair_hex
+      endif
+      if accent_name != '' and pair_name == accent_name
+        assign accent_hex = pair_hex
+      endif
+    endif
+  endfor
+
+  # Fallback se nenhum hex encontrado
+  if base_hex == ''
+    assign base_hex = '#cccccc'
+  endif
+-%}
+
+{%- if accent_hex != '' -%}
+  <span
+    class="ame-swatch-solido ame-swatch-solido--dual"
+    style="--swatch-base: {{ base_hex }}; --swatch-accent: {{ accent_hex }};"
+    aria-hidden="true"
+  ></span>
+{%- else -%}
+  <span
+    class="ame-swatch-solido ame-swatch-solido--single"
+    style="--swatch-base: {{ base_hex }};"
+    aria-hidden="true"
+  ></span>
+{%- endif -%}
