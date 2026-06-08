@@ -34,6 +34,14 @@
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_ApaVh3": {
+          "type": "faq",
+          "settings": {
+            "question": "Quais dados vêm gravados no pingente?",
+            "answer": "<p>O pingente personalizado vem com:<strong>Nome do pet na frente</strong>e<strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>",
+            "tags_filter": "faq_quais_dados_vem_no_pingente"
+          }
+        },
         "faq_fBQQrG": {
           "type": "faq",
           "name": "faq_couro",
@@ -63,6 +71,7 @@
         }
       },
       "block_order": [
+        "faq_ApaVh3",
         "faq_fBQQrG",
         "faq_7MGQ9j",
         "faq_8NKDiL"
