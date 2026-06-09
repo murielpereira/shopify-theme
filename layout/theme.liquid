@@ -18,7 +18,16 @@
       banda baixando um asset que o browser nunca aplicava.
     {%- endcomment -%}
 
-    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+    {%- comment -%}
+      critical.css async-load — economiza ~300ms de render-blocking sem
+      flickerar. Truque: `media="print"` faz o browser baixar sem bloquear
+      o render; `onload` troca pra `all` quando carregou. `<noscript>`
+      garante que clientes sem JS recebam o CSS normalmente.
+      Preload mantido pra prioridade alta no fetch.
+    {%- endcomment -%}
+    {{ 'critical.css' | asset_url | preload_tag: as: 'style' }}
+    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="print" onload="this.media='all'; this.onload=null">
+    <noscript><link rel="stylesheet" href="{{ 'critical.css' | asset_url }}"></noscript>
 
     {%- render 'meta-tags' -%}
 
