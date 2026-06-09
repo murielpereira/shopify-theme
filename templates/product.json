@@ -54,11 +54,11 @@
         },
         "faq_ApaVh3": {
           "type": "faq",
-          "name": "faq__dados_pingente",
+          "name": "faq_dados_pingente",
           "settings": {
             "question": "Quais dados vêm gravados no pingente?",
             "answer": "<p>O pingente personalizado vem com:<strong>Nome do pet na frente</strong>e<strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>",
-            "tags_filter": "faq__dados_pingente"
+            "tags_filter": "faq_dados_pingente"
           }
         },
         "faq_GiLmeF": {
