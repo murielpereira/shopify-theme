@@ -34,6 +34,24 @@
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_fBQQrG": {
+          "type": "faq",
+          "name": "faq_couro",
+          "settings": {
+            "question": "É couro legítimo mesmo?",
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
+            "tags_filter": "faq_couro"
+          }
+        },
+        "faq_8NKDiL": {
+          "type": "faq",
+          "name": "faq_troca",
+          "settings": {
+            "question": "Se eu comprar o tamanho errado, consigo trocar?",
+            "answer": "<p><strong>Sim, pode trocar! </strong>No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante: </strong>peças feitas sob medida (que o cliente passa a medida) ou personalizadas o frete fica por conta do cliente.<br/></p>",
+            "tags_filter": "faq_troca"
+          }
+        },
         "faq_ApaVh3": {
           "type": "faq",
           "name": "faq__dados_pingente",
@@ -52,15 +70,6 @@
             "tags_filter": "faq_como_medir"
           }
         },
-        "faq_fBQQrG": {
-          "type": "faq",
-          "name": "faq_couro",
-          "settings": {
-            "question": "É couro legítimo mesmo?",
-            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
-            "tags_filter": "faq_couro"
-          }
-        },
         "faq_7MGQ9j": {
           "type": "faq",
           "name": "faq_garantia",
@@ -69,23 +78,14 @@
             "answer": "<p>Nossos produtos tem <strong>6 meses de garantia </strong>contra defeitos de fabricação (costuras, metais, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!<br/><br/></p>",
             "tags_filter": "faq_garantia"
           }
-        },
-        "faq_8NKDiL": {
-          "type": "faq",
-          "name": "faq_troca",
-          "settings": {
-            "question": "Se eu comprar o tamanho errado, consigo trocar?",
-            "answer": "<p><strong>Sim, pode trocar! </strong>No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante: </strong>peças feitas sob medida (que o cliente passa a medida) ou personalizadas o frete fica por conta do cliente.<br/></p>",
-            "tags_filter": "faq_troca"
-          }
         }
       },
       "block_order": [
+        "faq_fBQQrG",
+        "faq_8NKDiL",
         "faq_ApaVh3",
         "faq_GiLmeF",
-        "faq_fBQQrG",
-        "faq_7MGQ9j",
-        "faq_8NKDiL"
+        "faq_7MGQ9j"
       ],
       "name": "Detalhes do Produto",
       "settings": {
