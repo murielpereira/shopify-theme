@@ -34,22 +34,6 @@
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
-        "faq_ApaVh3": {
-          "type": "faq",
-          "settings": {
-            "question": "Quais dados vêm gravados no pingente?",
-            "answer": "<p>O pingente personalizado vem com:<strong>Nome do pet na frente</strong>e<strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>",
-            "tags_filter": "faq_quais_dados_vem_no_pingente"
-          }
-        },
-        "faq_GiLmeF": {
-          "type": "faq",
-          "settings": {
-            "question": "Como sei o tamanho certo para meu pet?",
-            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima.<strong>Ainda com dúvida? </strong>Chama a gente no <a href=\"https://wa.me/5548991574943\" target=\"_blank\">WhatsApp </a>que te ajudamos na hora! 💚</p>",
-            "tags_filter": "faq_como_sei_o_tamanho_do_meu_pet"
-          }
-        },
         "faq_fBQQrG": {
           "type": "faq",
           "name": "faq_couro",
@@ -57,15 +41,6 @@
             "question": "É couro legítimo mesmo?",
             "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
             "tags_filter": "faq_couro"
-          }
-        },
-        "faq_7MGQ9j": {
-          "type": "faq",
-          "name": "faq_garantia",
-          "settings": {
-            "question": "Quanto tempo de garantia?",
-            "answer": "<p>Nossos produtos tem <strong>6 meses de garantia </strong>contra defeitos de fabricação (costuras, metais, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!<br/><br/></p>",
-            "tags_filter": "faq_garantia"
           }
         },
         "faq_8NKDiL": {
@@ -76,14 +51,41 @@
             "answer": "<p><strong>Sim, pode trocar! </strong>No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante: </strong>peças feitas sob medida (que o cliente passa a medida) ou personalizadas o frete fica por conta do cliente.<br/></p>",
             "tags_filter": "faq_troca"
           }
+        },
+        "faq_ApaVh3": {
+          "type": "faq",
+          "name": "faq_dados_pingente",
+          "settings": {
+            "question": "Quais dados vêm gravados no pingente?",
+            "answer": "<p>O pingente personalizado vem com:<strong>Nome do pet na frente</strong>e<strong>atrás: nome do tutor + 1 ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>",
+            "tags_filter": "faq_dados_pingente"
+          }
+        },
+        "faq_GiLmeF": {
+          "type": "faq",
+          "name": "faq_como_medir",
+          "settings": {
+            "question": "Como sei o tamanho certo para meu pet?",
+            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima.<strong>Ainda com dúvida? </strong>Chama a gente no <a href=\"https://wa.me/5548991574943\" target=\"_blank\">WhatsApp </a>que te ajudamos na hora! 💚</p>",
+            "tags_filter": "faq_como_medir"
+          }
+        },
+        "faq_7MGQ9j": {
+          "type": "faq",
+          "name": "faq_garantia",
+          "settings": {
+            "question": "Quanto tempo de garantia?",
+            "answer": "<p>Nossos produtos tem <strong>6 meses de garantia </strong>contra defeitos de fabricação (costuras, metais, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!<br/><br/></p>",
+            "tags_filter": "faq_garantia"
+          }
         }
       },
       "block_order": [
+        "faq_fBQQrG",
+        "faq_8NKDiL",
         "faq_ApaVh3",
         "faq_GiLmeF",
-        "faq_fBQQrG",
-        "faq_7MGQ9j",
-        "faq_8NKDiL"
+        "faq_7MGQ9j"
       ],
       "name": "Detalhes do Produto",
       "settings": {
