@@ -92,12 +92,13 @@
 
       {%- if shop.customer_accounts_enabled -%}
         {%- comment -%}
-          Cliente logado → /account (vai pro painel hospedado do Shopify).
-          Visitante → /pages/login (página customizada do tema com identidade
-          visual da Âme; o submit do form lá vai pro endpoint /account/login).
+          Cliente logado → /account (dashboard nativo Shopify, estilizado
+          via templates/customers/account.liquid).
+          Visitante → /account/login (login nativo Shopify, estilizado
+          via templates/customers/login.liquid).
         {%- endcomment -%}
         <a
-          href="{% if customer %}{{ routes.account_url }}{% else %}/pages/login{% endif %}"
+          href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
           class="ame-header__icon-btn"
           aria-label="{% if customer %}Minha conta{% else %}Entrar{% endif %}" title="{% if customer %}Minha conta{% else %}Entrar{% endif %}"
         >

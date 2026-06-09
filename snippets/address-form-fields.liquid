@@ -1,0 +1,53 @@
+{% comment %}
+  Campos padrão de endereço (compartilhado entre criar e editar).
+  Params: form (do {% form 'customer_address' %}), address (objeto)
+{% endcomment %}
+
+<label>
+  Nome
+  <input type="text" name="address[first_name]" value="{{ address.first_name }}" autocomplete="given-name">
+</label>
+<label>
+  Sobrenome
+  <input type="text" name="address[last_name]" value="{{ address.last_name }}" autocomplete="family-name">
+</label>
+<label style="grid-column: 1 / -1;">
+  Endereço (rua, número)
+  <input type="text" name="address[address1]" value="{{ address.address1 }}" autocomplete="address-line1" required>
+</label>
+<label style="grid-column: 1 / -1;">
+  Complemento
+  <input type="text" name="address[address2]" value="{{ address.address2 }}" autocomplete="address-line2">
+</label>
+<label>
+  Cidade
+  <input type="text" name="address[city]" value="{{ address.city }}" autocomplete="address-level2" required>
+</label>
+<label>
+  CEP
+  <input type="text" name="address[zip]" value="{{ address.zip }}" autocomplete="postal-code" inputmode="numeric" required>
+</label>
+<label>
+  País
+  <select name="address[country]" data-default="{{ address.country }}" autocomplete="country">
+    {{ all_country_option_tags }}
+  </select>
+</label>
+<label>
+  Estado
+  <select name="address[province]" data-default="{{ address.province }}" autocomplete="address-level1"></select>
+</label>
+<label style="grid-column: 1 / -1;">
+  Telefone
+  <input type="tel" name="address[phone]" value="{{ address.phone }}" autocomplete="tel">
+</label>
+
+<script>
+  // Popula UF baseado no País selecionado (helper nativo Shopify)
+  (function(){
+    var sel = document.querySelector('select[name="address[country]"]');
+    if (sel && typeof Shopify !== 'undefined' && Shopify.CountryProvinceSelector) {
+      new Shopify.CountryProvinceSelector(sel.name, 'address[province]', { hideElement: null });
+    }
+  })();
+</script>

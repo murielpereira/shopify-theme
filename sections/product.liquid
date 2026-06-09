@@ -536,7 +536,10 @@
               {%- if product.tags contains 'swatch_solido' -%}
                 {%- assign use_swatch_solido = true -%}
               {%- endif -%}
-              <div class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}" data-option-index="{{ forloop.index0 }}">
+              <div
+                class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}"
+                data-option-index="{{ forloop.index0 }}"
+              >
                 {%- for option_value in option.values -%}
                   {%- liquid
                     assign sw_variant = option_value.variant
@@ -1631,7 +1634,7 @@
 
   @media (min-width: 1024px) {
     .pdp {
-      grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
       column-gap: clamp(1.5rem, 3.5vw, 4rem);
       row-gap: 0;
       padding-top: 1.5rem;
@@ -1641,7 +1644,7 @@
     .pdp__gallery {
       grid-column: 1;
       position: sticky;
-      top: 6.5rem;
+      top: 10rem; /*era 6.5*/
       align-self: start;
       height: fit-content;
     }

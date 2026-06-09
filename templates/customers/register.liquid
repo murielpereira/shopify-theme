@@ -1,0 +1,192 @@
+{% comment %}
+  Cadastro de cliente — paleta Âme aplicada sobre o flow nativo do Shopify.
+  Apenas os campos padrão do customer_register_form (first_name, last_name,
+  email, password). Campos extras (CPF, Instagram, Pet) ficam pra depois.
+{% endcomment %}
+
+<section class="ame-auth">
+  <div class="ame-auth__inner">
+    <header class="ame-auth__header">
+      <h1 class="ame-auth__title">Criar minha conta</h1>
+      <p class="ame-auth__sub">Acompanhe seus pedidos e salve seus favoritos.</p>
+    </header>
+
+    {% form 'create_customer', class: 'ame-auth__form' %}
+      {%- if form.errors -%}
+        <div class="ame-auth__alert ame-auth__alert--error" role="alert">
+          {{ form.errors | default_errors }}
+        </div>
+      {%- endif -%}
+
+      <div class="ame-auth__row">
+        <label class="ame-auth__field">
+          <span class="ame-auth__label">Nome</span>
+          <input
+            type="text"
+            name="customer[first_name]"
+            id="first_name"
+            autocomplete="given-name"
+            required
+          >
+        </label>
+
+        <label class="ame-auth__field">
+          <span class="ame-auth__label">Sobrenome</span>
+          <input
+            type="text"
+            name="customer[last_name]"
+            id="last_name"
+            autocomplete="family-name"
+            required
+          >
+        </label>
+      </div>
+
+      <label class="ame-auth__field">
+        <span class="ame-auth__label">E-mail</span>
+        <input
+          type="email"
+          name="customer[email]"
+          id="email"
+          autocomplete="email"
+          autocapitalize="off"
+          autocorrect="off"
+          required
+        >
+      </label>
+
+      <label class="ame-auth__field">
+        <span class="ame-auth__label">Senha</span>
+        <input
+          type="password"
+          name="customer[password]"
+          id="password"
+          autocomplete="new-password"
+          minlength="5"
+          required
+        >
+        <span class="ame-auth__hint">Mínimo de 5 caracteres.</span>
+      </label>
+
+      <button type="submit" class="ame-cta ame-auth__submit">
+        Criar conta
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </button>
+
+      <p class="ame-auth__alt">
+        Já tem conta?
+        <a href="{{ routes.account_login_url }}" class="ame-auth__link">Entrar</a>
+      </p>
+    {% endform %}
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-auth {
+    padding: clamp(2rem, 5vw, 4rem) var(--page-margin, 16px);
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-auth__inner {
+    max-width: 32rem;
+    margin: 0 auto;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    border-radius: 1.25rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    box-shadow: 0 2px 12px rgba(32, 27, 20, 0.04);
+  }
+  .ame-auth__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .ame-auth__title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-auth__sub {
+    font-size: 0.9375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .ame-auth__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ame-auth__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 480px) {
+    .ame-auth__row {
+      grid-template-columns: 1fr;
+    }
+  }
+  .ame-auth__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .ame-auth__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-auth__field input {
+    border: 1px solid rgba(210, 195, 192, 0.5);
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--color-on-background, #201b14);
+    background: var(--color-surface-container-lowest, #fff);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ame-auth__field input:focus {
+    outline: none;
+    border-color: var(--color-primary, #5a4742);
+    box-shadow: 0 0 0 3px rgba(90, 71, 66, 0.12);
+  }
+  .ame-auth__hint {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #8a7d7b);
+  }
+  .ame-auth__submit {
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
+  .ame-auth__alt {
+    text-align: center;
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-auth__link {
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ame-auth__alert {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .ame-auth__alert--error {
+    background: rgba(201, 123, 106, 0.12);
+    color: #8a4032;
+    border: 1px solid rgba(201, 123, 106, 0.3);
+  }
+  .ame-auth__alert ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+{% endstylesheet %}

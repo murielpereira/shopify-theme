@@ -1,0 +1,434 @@
+{% comment %}
+  Detalhes do pedido — paleta Âme.
+  Mostra: status, itens, endereço de envio, totais, link de rastreio se houver.
+{% endcomment %}
+
+<section class="ame-order">
+  <header class="ame-order__hero">
+    <a href="{{ routes.account_url }}" class="ame-order__back">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Voltar à conta
+    </a>
+    <h1 class="ame-order__title">Pedido {{ order.name }}</h1>
+    <p class="ame-order__sub">Realizado em {{ order.created_at | date: '%d/%m/%Y' }}</p>
+  </header>
+
+  <div class="ame-order__grid">
+    <!-- Coluna principal: itens + endereços -->
+    <div class="ame-order__main">
+      <!-- Status -->
+      <div class="ame-order__status-row">
+        <div class="ame-order__status-item">
+          <span class="ame-order__status-label">Pagamento</span>
+          <span class="ame-order__status-badge ame-order__status-badge--{{ order.financial_status | default: 'pending' | handle }}">
+            {{ order.financial_status_label }}
+          </span>
+        </div>
+        <div class="ame-order__status-item">
+          <span class="ame-order__status-label">Envio</span>
+          <span class="ame-order__status-badge ame-order__status-badge--{{ order.fulfillment_status | default: 'unfulfilled' | handle }}">
+            {{ order.fulfillment_status_label | default: 'Aguardando' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Itens -->
+      <h2 class="ame-order__section-title">Itens</h2>
+      <ul class="ame-order__items">
+        {%- for line_item in order.line_items -%}
+          <li class="ame-order__item">
+            {%- if line_item.image -%}
+              <a href="{{ line_item.product.url }}" class="ame-order__item-img-link">
+                {{ line_item.image | image_url: width: 200 | image_tag:
+                   widths: '100, 200', loading: 'lazy', alt: line_item.title }}
+              </a>
+            {%- else -%}
+              <div class="ame-order__item-img-link ame-order__item-img-placeholder"></div>
+            {%- endif -%}
+            <div class="ame-order__item-info">
+              <a href="{{ line_item.product.url }}" class="ame-order__item-title">
+                {{ line_item.title }}
+              </a>
+              {%- unless line_item.product.has_only_default_variant -%}
+                <p class="ame-order__item-variant">{{ line_item.variant.title }}</p>
+              {%- endunless -%}
+              {%- if line_item.properties -%}
+                <ul class="ame-order__item-props">
+                  {%- for p in line_item.properties -%}
+                    {%- assign pk = p.first -%}
+                    {%- assign pv = p.last -%}
+                    {%- if pv != blank -%}
+                      {%- assign first_ch = pk | slice: 0 -%}
+                      {%- unless first_ch == '_' -%}
+                        <li><strong>{{ pk }}:</strong> {{ pv }}</li>
+                      {%- endunless -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+              <p class="ame-order__item-qty">Quantidade: {{ line_item.quantity }}</p>
+            </div>
+            <div class="ame-order__item-price">
+              {{ line_item.final_line_price | money }}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <!-- Endereço -->
+      {%- if order.shipping_address -%}
+        <h2 class="ame-order__section-title">Endereço de entrega</h2>
+        <address class="ame-order__address">
+          {{ order.shipping_address.name }}<br>
+          {{ order.shipping_address.street }}<br>
+          {{ order.shipping_address.city }} — {{ order.shipping_address.province_code }}<br>
+          CEP {{ order.shipping_address.zip }}<br>
+          {{ order.shipping_address.country }}
+          {%- if order.shipping_address.phone != blank %}
+            <br>Tel: {{ order.shipping_address.phone }}
+          {%- endif -%}
+        </address>
+      {%- endif -%}
+    </div>
+
+    <!-- Coluna lateral: rastreio + totais -->
+    <aside class="ame-order__side">
+      <!-- Rastreio -->
+      {%- assign tracking_code = '' -%}
+      {%- assign tracking_url = '' -%}
+      {%- for fulfillment in order.fulfillments -%}
+        {%- if fulfillment.tracking_number -%}
+          {%- assign tracking_code = fulfillment.tracking_number -%}
+          {%- assign tracking_url = fulfillment.tracking_url -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if tracking_code != '' -%}
+        <div class="ame-order__card ame-order__card--track">
+          <span class="material-symbols-outlined ame-order__card-icon" aria-hidden="true">local_shipping</span>
+          <h3 class="ame-order__card-title">Rastreamento</h3>
+          <p class="ame-order__card-code">{{ tracking_code }}</p>
+          <a href="/pages/rastreamento?codigo={{ tracking_code | url_encode }}" class="ame-cta ame-order__card-cta">
+            Rastrear no site
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </a>
+          {%- if tracking_url != blank -%}
+            <a href="{{ tracking_url }}" target="_blank" rel="noopener" class="ame-order__card-link">
+              Ver na transportadora
+              <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <!-- Totais -->
+      <div class="ame-order__card">
+        <h3 class="ame-order__card-title">Resumo</h3>
+        <dl class="ame-order__totals">
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{{ order.subtotal_price | money }}</dd>
+          </div>
+          {%- if order.shipping_price > 0 -%}
+            <div>
+              <dt>Frete</dt>
+              <dd>{{ order.shipping_price | money }}</dd>
+            </div>
+          {%- endif -%}
+          {%- if order.discount_applications.size > 0 -%}
+            <div>
+              <dt>Descontos</dt>
+              <dd>-{{ order.total_discounts | money }}</dd>
+            </div>
+          {%- endif -%}
+          {%- if order.tax_price > 0 -%}
+            <div>
+              <dt>Impostos</dt>
+              <dd>{{ order.tax_price | money }}</dd>
+            </div>
+          {%- endif -%}
+          <div class="ame-order__totals-row--final">
+            <dt>Total</dt>
+            <dd>{{ order.total_price | money }}</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% stylesheet %}
+  .ame-order {
+    padding: clamp(2rem, 5vw, 4rem) var(--page-margin, 16px);
+    color: var(--color-on-background, #201b14);
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  .ame-order__hero {
+    margin-bottom: 2rem;
+  }
+  .ame-order__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .ame-order__back .material-symbols-outlined {
+    font-size: 1rem;
+  }
+  .ame-order__title {
+    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.375rem;
+  }
+  .ame-order__sub {
+    color: var(--color-on-surface-variant, #4f4442);
+    font-size: 0.9375rem;
+    margin: 0;
+  }
+
+  .ame-order__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 900px) {
+    .ame-order__grid {
+      grid-template-columns: 2fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+  }
+
+  /* Status row */
+  .ame-order__status-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .ame-order__status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .ame-order__status-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-order__status-badge {
+    display: inline-flex;
+    padding: 0.375rem 0.875rem;
+    background: rgba(248, 236, 224, 0.7);
+    color: var(--color-on-background, #201b14);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .ame-order__status-badge--paid,
+  .ame-order__status-badge--fulfilled {
+    background: rgba(120, 169, 122, 0.18);
+    color: #2f5f33;
+  }
+  .ame-order__status-badge--refunded,
+  .ame-order__status-badge--voided,
+  .ame-order__status-badge--restocked {
+    background: rgba(201, 123, 106, 0.15);
+    color: #8a4032;
+  }
+  .ame-order__status-badge--partial,
+  .ame-order__status-badge--partially-fulfilled {
+    background: rgba(212, 167, 106, 0.2);
+    color: #8a6630;
+  }
+
+  .ame-order__section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 1.75rem 0 1rem;
+  }
+
+  /* Itens */
+  .ame-order__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .ame-order__item {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr auto;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    border-radius: 0.875rem;
+    align-items: start;
+  }
+  .ame-order__item-img-link {
+    display: block;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: rgba(248, 236, 224, 0.5);
+  }
+  .ame-order__item-img-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ame-order__item-info {
+    min-width: 0;
+  }
+  .ame-order__item-title {
+    color: var(--color-on-background, #201b14);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .ame-order__item-variant,
+  .ame-order__item-qty {
+    color: var(--color-on-surface-variant, #4f4442);
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+  .ame-order__item-props {
+    list-style: none;
+    padding: 0;
+    margin: 0.375rem 0;
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-order__item-props li {
+    margin-bottom: 0.125rem;
+  }
+  .ame-order__item-price {
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    white-space: nowrap;
+  }
+
+  /* Endereço */
+  .ame-order__address {
+    padding: 1.25rem;
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    border-radius: 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    font-style: normal;
+  }
+
+  /* Side cards */
+  .ame-order__side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ame-order__card {
+    background: var(--color-surface-container-lowest, #fff);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    border-radius: 1rem;
+    padding: 1.25rem;
+  }
+  .ame-order__card--track {
+    background: rgba(248, 236, 224, 0.5);
+    border-color: rgba(210, 195, 192, 0.6);
+  }
+  .ame-order__card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-primary, #5a4742);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .ame-order__card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0 0 0.5rem;
+  }
+  .ame-order__card-code {
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 1rem;
+    word-break: break-all;
+  }
+  .ame-order__card-cta {
+    width: 100%;
+    justify-content: center;
+  }
+  .ame-order__card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    color: var(--color-primary, #5a4742);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  .ame-order__card-link .material-symbols-outlined {
+    font-size: 1rem;
+  }
+
+  .ame-order__totals {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .ame-order__totals > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.9375rem;
+  }
+  .ame-order__totals dt {
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0;
+  }
+  .ame-order__totals dd {
+    margin: 0;
+    font-weight: 500;
+  }
+  .ame-order__totals-row--final {
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.4);
+    font-size: 1.0625rem !important;
+    font-weight: 700;
+  }
+  .ame-order__totals-row--final dd {
+    font-weight: 700;
+  }
+{% endstylesheet %}
