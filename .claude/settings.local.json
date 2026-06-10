@@ -131,7 +131,13 @@
       "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/videocommerce.js\")",
       "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/grupos.js\")",
       "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\")",
-      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/scripts/limpar-produtos-nuvemshop.js\")"
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/scripts/limpar-produtos-nuvemshop.js\")",
+      "Bash(curl -sS -o /tmp/waltz-core.js -w \"HTTP %{http_code} | size %{size_download} | type %{content_type}\\\\n\" \"https://waltz.up.railway.app/waltz-core.js?cb=$\\(date +%s\\)\")",
+      "Bash(curl -sS -w \"\\\\nHTTP %{http_code} | size %{size_download}\\\\n\" \"https://waltz.up.railway.app/api/loja/modulos-ativos?cb=$\\(date +%s\\)\")",
+      "Bash(curl -sS -o /tmp/widget-ag.js -w \"HTTP %{http_code} | size %{size_download}\\\\n\" \"https://waltz.up.railway.app/widget-agrupamento.js?cb=$\\(date +%s\\)\")",
+      "Bash(node --check public/widget-agrupamento.js)",
+      "Bash(node --check routes/grupos.js)",
+      "Bash(node --check scripts/sync-tudo.js)"
     ],
     "additionalDirectories": [
       "\\tmp"

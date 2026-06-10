@@ -427,7 +427,7 @@
         "id": "swatch_solido_cores",
         "label": "Mapa nome → hex",
         "info": "Um par por entrada separados por vírgula, no formato 'Nome:#hex'. Ex: Allure:#8391a3, Off White:#d3cec3",
-        "default": "Allure:#8391a3, Azul Bebê:#8391a3, Branco:#ffffff, Bordô:#5b2c30, Borgonha:#713232, Café:#664732, Camel:#855e43, Chiclete:#D95B8A, Lilás Candy:#DFC9F4, Marinho:#414463, Militar:#5f624b, Nude:#b59981, Off White:#d3cec3, Preto:#000000, Rosa Bebê:#d7c2b1, Rosa Seco:#c8a0a7, Sépia:#b6b79d, Smoke:#656565"
+        "default": "Allure:#8391a3, Azul Bebê:#B1D4E0, Branco:#ffffff, Bordô:#5b2c30, Borgonha:#713232, Café:#664732, Camel:#855e43, Chiclete:#D95B8A, Lilás Candy:#DFC9F4, Marinho:#414463, Militar:#5f624b, Nude:#b59981, Off White:#d3cec3, Preto:#000000, Rosa Bebê:#F6D4D2, Rosa Seco:#c8a0a7, Sépia:#b6b79d, Smoke:#656565"
       }
     ]
   },
