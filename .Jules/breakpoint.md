@@ -9,3 +9,7 @@
 ## 2026-05-20 - Avoid max-width: 100vw to prevent horizontal scrolling
 **Learning:** Using `max-width: 100vw` on full-width sticky or fixed headers (like `.ame-announce` and `.ame-header-group`) causes horizontal overflow issues on operating systems with visible vertical scrollbars (e.g. Windows). The vertical scrollbar takes up some width, so `100vw` ends up wider than the available 100% width, causing a horizontal scrollbar.
 **Action:** Remove `max-width: 100vw` when `width: 100%` is already defined along with `left: 0; right: 0;`. `100%` is sufficient and responsive without causing overflow.
+
+## 2024-06-10 - Mobile CSS Grid Squishing Fix
+**Learning:** Hardcoding `grid-template-columns: repeat(3, 1fr)` causes content squishing on small mobile screens, violating the mobile-first approach.
+**Action:** Default to `grid-template-columns: repeat(2, 1fr)` or `1fr` in the CSS grid container to allow wrapping on mobile, and apply the multi-column layout using a progressive enhancement media query like `@media (min-width: 600px)` for tablet and desktop views.
