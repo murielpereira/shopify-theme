@@ -1,0 +1,439 @@
+{% comment %}
+  Carrossel de depoimentos — busca top 10 reviews mais positivas da loja na
+  REST API pública do Konfidency. Sem dependência do loader.js (que é PDP/
+  página /avaliacoes). Renderiza cards com nome, estrelinhas, texto e data.
+
+  Endpoint: GET https://reviews.konfidency.com.br/ameacessoriospet/store-reviews/carousel
+{% endcomment %}
+
+<section
+  class="ame-depoimentos full-width"
+  data-ame-depoimentos
+  aria-labelledby="depoimentos-title"
+>
+  <div class="ame-depoimentos__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="ame-depoimentos__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 id="depoimentos-title" class="ame-depoimentos__title">
+      {{ section.settings.title | default: 'O que dizem nossos clientes' }}
+    </h2>
+
+    <div class="ame-depoimentos__viewport" data-ame-depoimentos-viewport>
+      <ul class="ame-depoimentos__track" data-ame-depoimentos-track>
+        {%- comment -%}
+          Skeleton: 3 cards placeholder enquanto o XHR não retorna.
+          Some quando data-loaded="true" é setado no host.
+        {%- endcomment -%}
+        {%- for i in (1..3) -%}
+          <li class="ame-depoimentos__item ame-depoimentos__item--skeleton" aria-hidden="true">
+            <div class="ame-depoimentos__card">
+              <div class="ame-depoimentos__skeleton-bar ame-depoimentos__skeleton-bar--short"></div>
+              <div class="ame-depoimentos__skeleton-bar"></div>
+              <div class="ame-depoimentos__skeleton-bar"></div>
+              <div class="ame-depoimentos__skeleton-bar ame-depoimentos__skeleton-bar--short"></div>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="ame-depoimentos__controls" data-ame-depoimentos-controls hidden>
+      <button
+        type="button"
+        class="ame-depoimentos__nav ame-depoimentos__nav--prev"
+        aria-label="Depoimento anterior"
+        data-ame-depoimentos-prev
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+      </button>
+      <button
+        type="button"
+        class="ame-depoimentos__nav ame-depoimentos__nav--next"
+        aria-label="Próximo depoimento"
+        data-ame-depoimentos-next
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    'use strict';
+    const host = document.querySelector('[data-ame-depoimentos]');
+    if (!host || host.dataset.ameDepoimentosInit) return;
+    host.dataset.ameDepoimentosInit = '1';
+
+    const CUSTOMER = 'ameacessoriospet';
+    const ENDPOINT = `https://reviews.konfidency.com.br/${CUSTOMER}/store-reviews/carousel`;
+
+    const track     = host.querySelector('[data-ame-depoimentos-track]');
+    const viewport  = host.querySelector('[data-ame-depoimentos-viewport]');
+    const controls  = host.querySelector('[data-ame-depoimentos-controls]');
+    const btnPrev   = host.querySelector('[data-ame-depoimentos-prev]');
+    const btnNext   = host.querySelector('[data-ame-depoimentos-next]');
+
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function estrelas(rating) {
+      const n = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        const fill = i <= n ? 1 : 0;
+        const color = i <= n ? 'var(--color-primary, #5a4742)' : 'var(--color-outline-variant, #d2c3c0)';
+        html += `<span class="material-symbols-outlined" aria-hidden="true" style="font-variation-settings:'FILL' ${fill};font-size:1rem;color:${color};">star</span>`;
+      }
+      return html;
+    }
+
+    function dataFmt(iso) {
+      try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+      } catch (_) { return ''; }
+    }
+
+    function inicial(nome) {
+      const s = String(nome || '').trim();
+      return s ? s.charAt(0).toUpperCase() : '?';
+    }
+
+    function render(reviews) {
+      if (!reviews || !reviews.length) {
+        host.hidden = true;
+        return;
+      }
+      const html = reviews.map(r => `
+        <li class="ame-depoimentos__item">
+          <article class="ame-depoimentos__card">
+            <header class="ame-depoimentos__card-head">
+              <span class="ame-depoimentos__avatar" aria-hidden="true">${esc(inicial(r.name))}</span>
+              <div class="ame-depoimentos__meta">
+                <p class="ame-depoimentos__nome">${esc(r.name || 'Cliente')}</p>
+                <div class="ame-depoimentos__estrelas" role="img" aria-label="${r.rating || 0} de 5 estrelas">
+                  ${estrelas(r.rating)}
+                </div>
+              </div>
+            </header>
+            <p class="ame-depoimentos__texto">${esc(r.text || '')}</p>
+            ${r.created ? `<p class="ame-depoimentos__data">${esc(dataFmt(r.created))}</p>` : ''}
+          </article>
+        </li>
+      `).join('');
+      track.innerHTML = html;
+      host.dataset.loaded = 'true';
+      controls.hidden = false;
+      atualizarControles();
+    }
+
+    // XHR (não fetch — apps na loja interceptam window.fetch)
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', ENDPOINT + '?cb=' + Date.now(), true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.timeout = 8000;
+    xhr.onload = () => {
+      if (xhr.status < 200 || xhr.status >= 300) { host.hidden = true; return; }
+      try {
+        const data = JSON.parse(xhr.responseText);
+        const lista = Array.isArray(data) ? data : (data.results || []);
+        render(lista);
+      } catch (_) { host.hidden = true; }
+    };
+    xhr.onerror = () => { host.hidden = true; };
+    xhr.ontimeout = () => { host.hidden = true; };
+    xhr.send();
+
+    // ── Navegação por scroll horizontal ──
+    function passo() {
+      const primeiro = track.querySelector('.ame-depoimentos__item');
+      if (!primeiro) return 320;
+      const gap = parseFloat(getComputedStyle(track).columnGap || '16') || 16;
+      return primeiro.getBoundingClientRect().width + gap;
+    }
+
+    btnPrev?.addEventListener('click', () => {
+      viewport.scrollBy({ left: -passo(), behavior: 'smooth' });
+    });
+    btnNext?.addEventListener('click', () => {
+      viewport.scrollBy({ left: passo(), behavior: 'smooth' });
+    });
+
+    function atualizarControles() {
+      if (!viewport) return;
+      const podeScroll = viewport.scrollWidth > viewport.clientWidth + 4;
+      controls.hidden = !podeScroll;
+    }
+    viewport?.addEventListener('scroll', atualizarControles, { passive: true });
+    window.addEventListener('resize', atualizarControles);
+  })();
+</script>
+
+{% stylesheet %}
+  .ame-depoimentos {
+    background: var(--color-surface-light, #faf3ea);
+    padding: 3rem 0;
+  }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos {
+      padding: 4rem 0;
+    }
+  }
+
+  .ame-depoimentos__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos__inner {
+      padding: 0 2rem;
+    }
+  }
+
+  .ame-depoimentos__eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
+    margin: 0 0 0.5rem;
+    text-align: center;
+  }
+
+  .ame-depoimentos__title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 2rem;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos__title {
+      font-size: 2rem;
+      margin-bottom: 2.5rem;
+    }
+  }
+
+  .ame-depoimentos__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -1rem;
+    padding: 0.5rem 1rem;
+  }
+  .ame-depoimentos__viewport::-webkit-scrollbar { display: none; }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos__viewport { margin: 0; padding: 0.5rem 0; }
+  }
+
+  .ame-depoimentos__track {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos__track { gap: 1.5rem; }
+  }
+
+  .ame-depoimentos__item {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 600px) {
+    .ame-depoimentos__item { flex-basis: calc((100% - 1rem) / 2); }
+  }
+
+  @media (min-width: 1024px) {
+    .ame-depoimentos__item { flex-basis: calc((100% - 3rem) / 3); }
+  }
+
+  .ame-depoimentos__card {
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 1px 3px rgba(90, 71, 66, 0.04);
+  }
+
+  @media (min-width: 768px) {
+    .ame-depoimentos__card { padding: 1.5rem; }
+  }
+
+  .ame-depoimentos__card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ame-depoimentos__avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-surface-container, #f8ece0);
+    color: var(--color-primary, #5a4742);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .ame-depoimentos__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .ame-depoimentos__nome {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ame-depoimentos__estrelas {
+    display: inline-flex;
+    gap: 1px;
+    line-height: 1;
+  }
+
+  .ame-depoimentos__texto {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-on-surface-variant, #4f4442);
+    /* clamp 5 linhas no mobile pra não estourar altura dos cards */
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ame-depoimentos__data {
+    margin: auto 0 0;
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #7a6d68);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Controles desktop ── */
+  .ame-depoimentos__controls {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .ame-depoimentos__controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+  }
+
+  .ame-depoimentos__nav {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    background: var(--color-surface, #fff);
+    color: var(--color-primary, #5a4742);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .ame-depoimentos__nav:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
+
+  .ame-depoimentos__nav:active {
+    transform: scale(0.95);
+  }
+
+  /* ── Skeleton (loading) ── */
+  .ame-depoimentos[data-loaded='true'] .ame-depoimentos__item--skeleton {
+    display: none;
+  }
+
+  .ame-depoimentos__skeleton-bar {
+    height: 0.75rem;
+    background: linear-gradient(90deg, #ece2d6 0%, #f5ebe0 50%, #ece2d6 100%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    animation: ame-depoimentos-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .ame-depoimentos__skeleton-bar--short {
+    width: 40%;
+  }
+
+  @keyframes ame-depoimentos-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Depoimentos (Konfidency)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Carrossel das 10 avaliações mais positivas da loja, puxadas em tempo real da API do Konfidency. Não depende do loader.js — é independente."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow (texto acima do título)",
+      "default": "Avaliações reais"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "O que dizem nossos clientes"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Depoimentos (Konfidency)",
+      "settings": {
+        "title": "O que dizem nossos clientes",
+        "eyebrow": "Avaliações reais"
+      }
+    }
+  ],
+  "enabled_on": { "templates": ["index", "page"] }
+}
+{% endschema %}

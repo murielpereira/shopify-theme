@@ -414,6 +414,19 @@
           </svg>
           <span>Compra 100% segura · SSL</span>
         </p>
+
+        {%- comment -%}
+          Badge Konfidency Reviews — selo dinâmico com média + nº total de
+          avaliações da loja. Renderizado pelo loader.js global (em theme.liquid)
+          que detecta .konfidency-store-review no DOM e injeta o badge clicável.
+        {%- endcomment -%}
+        <div class="ame-footer__konfidency">
+          <div
+            class="konfidency-store-review"
+            data-type="horizontal-small"
+            data-color="light"
+          ></div>
+        </div>
       </div>
     {%- endif -%}
 
@@ -723,6 +736,16 @@
     margin: 1rem 0 0;
     font-size: 0.75rem;
     opacity: 0.7;
+  }
+
+  /* ── Selo Konfidency Reviews (footer) ── */
+  .ame-footer__konfidency {
+    margin-top: 0.75rem;
+  }
+  /* O loader injeta dentro de .konfidency-store-review com posicionamento
+     inline-block — força display block pra ficar abaixo do "Compra segura". */
+  .ame-footer__konfidency .konfidency-store-review {
+    display: inline-block;
   }
   .ame-footer__security svg {
     flex-shrink: 0;

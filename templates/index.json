@@ -611,6 +611,13 @@
       ],
       "settings": {}
     },
+    "depoimentos_konfidency": {
+      "type": "home-depoimentos",
+      "settings": {
+        "eyebrow": "Avaliações reais",
+        "title": "O que dizem nossos clientes"
+      }
+    },
     "newsletter": {
       "type": "home-newsletter",
       "settings": {
@@ -633,6 +640,7 @@
     "brand-story",
     "17774596931163eef4",
     "1777459790c63ec612",
+    "depoimentos_konfidency",
     "newsletter"
   ]
 }

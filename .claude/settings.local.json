@@ -141,7 +141,8 @@
       "WebFetch(domain:docs.konfidency.com.br)",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('templates/product.json','utf8'\\)\\)\")",
       "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/product.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('JSON OK'\\)\")",
-      "Bash(node --check assets/ame-konfidency-card-rating.js)"
+      "Bash(node --check assets/ame-konfidency-card-rating.js)",
+      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/index.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('OK'\\)\")"
     ],
     "additionalDirectories": [
       "\\tmp"
