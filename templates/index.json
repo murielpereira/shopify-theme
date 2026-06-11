@@ -613,10 +613,7 @@
     },
     "depoimentos_konfidency": {
       "type": "home-depoimentos",
-      "settings": {
-        "eyebrow": "Avaliações reais",
-        "title": "O que dizem nossos clientes"
-      }
+      "settings": {}
     },
     "newsletter": {
       "type": "home-newsletter",

@@ -184,8 +184,12 @@
     <!-- Coluna automática: páginas cadastradas em Loja Virtual > Páginas -->
     {% if section.settings.show_pages and pages.size > 0 %}
       {%- liquid
-        # Constrói uma string ",handle1,handle2," pra usar com `contains` (sem espaços)
+        # Constrói uma string ",handle1,handle2," pra usar com `contains` (sem espaços).
+        # `avaliacoes` e `rastreamento` são sempre excluídos do loop genérico porque
+        # já têm links hardcoded na coluna Atendimento (com ícones próprios) — sem
+        # essa exclusão, apareceriam duplicados.
         assign exclude_raw = section.settings.pages_exclude | default: '' | downcase | replace: ' ', ''
+        assign exclude_raw = exclude_raw | append: ',avaliacoes,rastreamento'
         assign exclude_str = ',' | append: exclude_raw | append: ','
       -%}
       {%- capture pages_html -%}
