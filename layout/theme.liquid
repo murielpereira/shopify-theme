@@ -1152,5 +1152,12 @@
       depois do conteúdo principal.
     {%- endcomment -%}
     <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
+
+    {%- comment -%}
+      Badge compacto de rating nos cards de produto (coleções, home, busca).
+      Independente do loader do Konfidency — busca via REST API e popula
+      [data-konfidency-rating] no DOM. Vide snippets/product-card.liquid.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-konfidency-card-rating.js' | asset_url }}"></script>
   </body>
 </html>
