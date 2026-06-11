@@ -160,8 +160,7 @@
             `custom.pet_gallery_title`; senão usa o setting global.
           {%- endcomment -%}
           {%- liquid
-            assign pg_title = product.metafields.custom.pet_gallery_title.value
-              | default: section.settings.pet_gallery_title
+            assign pg_title = product.metafields.custom.pet_gallery_title.value | default: section.settings.pet_gallery_title
             assign pg_eyebrow = section.settings.pet_gallery_eyebrow
           -%}
           {% render 'pdp-pet-gallery', title: pg_title, eyebrow: pg_eyebrow %}
