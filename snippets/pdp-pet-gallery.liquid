@@ -52,11 +52,16 @@
       </header>
     {%- endif -%}
 
+    {%- comment -%}
+      Usa divs em vez de ul/li porque `.ame-accordion__body ul` no
+      [sections/product.liquid] força `flex-direction: column`, o que
+      empilharia o carrossel verticalmente.
+    {%- endcomment -%}
     <div class="pdp-pet-gallery__viewport" data-viewport>
-      <ul class="pdp-pet-gallery__track">
+      <div class="pdp-pet-gallery__track" role="list">
         {%- for media in gallery -%}
           {%- assign img_alt = media.alt | default: product.title | append: ' — foto de cliente' -%}
-          <li class="pdp-pet-gallery__item">
+          <div class="pdp-pet-gallery__item" role="listitem">
             {{
               media
               | image_url: width: 800
@@ -67,9 +72,9 @@
                 class: 'pdp-pet-gallery__img',
                 alt: img_alt
             }}
-          </li>
+          </div>
         {%- endfor -%}
-      </ul>
+      </div>
     </div>
 
     <div class="pdp-pet-gallery__controls" data-controls hidden>
