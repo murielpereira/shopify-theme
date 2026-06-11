@@ -193,6 +193,17 @@
     display: block;
   }
 
+  /* Garante alinhamento horizontal dos cards mesmo com nomes de tamanhos
+     diferentes. O .ame-card global usa `min-height: calc(1.3em * 2)` no
+     título (reserva 2 linhas), mas alguns produtos têm nomes que ocupam
+     3 linhas — gera desalinhamento entre preços e botões na mesma linha
+     da grid. Aqui forçamos 3 linhas reservadas só pro escopo deste bloco. */
+  .ai-product-grid__grid-{{ ai_gen_id }} .ame-card__title {
+    min-height: calc(1.3em * 3);
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
   .ai-product-grid__footer-{{ ai_gen_id }} {
     text-align: center;
   }
@@ -255,7 +266,7 @@
         {% render 'product-card' for products as card_product %}
       </div>
 
-      {% if products.size > initial_count %}
+      {% if products.size > initial_count and block.settings.button_text != blank %}
         <div class="ai-product-grid__footer-{{ ai_gen_id }}">
           <button class="ai-product-grid__button-{{ ai_gen_id }}" data-load-more>
             {{ block.settings.button_text }}

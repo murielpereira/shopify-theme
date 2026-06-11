@@ -13,7 +13,7 @@
       "type": "product",
       "settings": {
         "show_related": true,
-        "pdp_btn_bg_color": "#000000",
+        "pdp_btn_bg_color": "#5a4742",
         "pdp_btn_fg_color": "#ffffff",
         "selection_info_position": "over",
         "videos_enabled": true,
@@ -126,10 +126,18 @@
         "show_faq": true,
         "faq_title": "Perguntas Frequentes"
       }
+    },
+    "pdp_pet_gallery": {
+      "type": "pdp-pet-gallery",
+      "settings": {
+        "eyebrow": "Da nossa comunidade",
+        "title": "Pets que amam essa peça"
+      }
     }
   },
   "order": [
     "main",
+    "pdp_pet_gallery",
     "product_accordions_87ARfi",
     "product_reviews_konfidency"
   ]
