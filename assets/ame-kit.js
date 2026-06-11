@@ -63,14 +63,35 @@
         return lvl4 ? lvl4.value : null;
     }
 
-    // Match de valor entre componentes: literal primeiro (case-insensitive),
-    // depois fingerprint hierárquico. Retorna o valor MATCHED no candidato
-    // ou null se não houver match.
+    // Match de valor entre componentes:
+    //   1. Match literal (case-insensitive)
+    //   2. Token match — ref está em tokens do candidato separados por '/'
+    //      (ex: "XPP" casa com "XPP / XPP+ / 12mm", "Borgonha" casa com
+    //      "Borgonha / M / 20mm")
+    //   3. Token reverso — candidato está em tokens do ref
+    //   4. Fingerprint hierárquico (cores compostas com base+accent+pedra)
     function findValueMatch(refValue, candidates) {
         if (!refValue || !candidates?.length) return null;
         const ref = String(refValue).trim();
-        const exact = candidates.find(v => String(v).trim().toLowerCase() === ref.toLowerCase());
+        const refLower = ref.toLowerCase();
+
+        const exact = candidates.find(v => String(v).trim().toLowerCase() === refLower);
         if (exact) return exact;
+
+        // Token match (ex: "XPP" ∈ ["XPP", "XPP+", "12mm"])
+        for (const cand of candidates) {
+            const tokens = String(cand).split(/\s*\/\s*/).map(t => t.trim().toLowerCase());
+            if (tokens.includes(refLower)) return cand;
+        }
+        // Reverso (caso ref seja composto)
+        const refTokens = ref.split(/\s*\/\s*/).map(t => t.trim().toLowerCase());
+        if (refTokens.length > 1) {
+            for (const cand of candidates) {
+                if (refTokens.includes(String(cand).trim().toLowerCase())) return cand;
+            }
+        }
+
+        // Fingerprint (cores)
         const refFp = extractColorFingerprint(ref);
         if (refFp?.base) {
             const fpMatch = findBestColorMatch(candidates, refFp);
@@ -79,68 +100,92 @@
         return null;
     }
 
+    // Verifica se duas listas de valores são "equivalentes" (mesmo significado
+    // semântico apesar de nomes diferentes). Critério: o menor conjunto tem
+    // match completo no maior. Ex: ["XPP", "XPP+", "PP", "P", "M", "G"]
+    // e ["XPP/XPP+/12mm", "PP/P/15mm", "M/G/20mm"] são equivalentes porque
+    // todos os 3 da Guia têm match nos 6 do Peitoral via token.
+    function valuesCompatible(valuesA, valuesB) {
+        if (!valuesA?.length || !valuesB?.length) return false;
+        const [smaller, larger] = valuesA.length <= valuesB.length ? [valuesA, valuesB] : [valuesB, valuesA];
+        // Pelo menos 2 matches (evita falso positivo com 1 elemento coincidente)
+        if (smaller.length < 2) return smaller.every(v => findValueMatch(v, larger) !== null);
+        return smaller.every(v => findValueMatch(v, larger) !== null);
+    }
+
     // ── Unificação de opções ──
-    // Pra cada nome de option (case-insensitive), determina qual componente tem,
-    // computa valores unificados (intersection via fingerprint pros compartilhados,
-    // união pros exclusivos). Resultado descreve o que renderizar na UI + como
-    // mapear seleção → variants de cada componente.
+    // Agrupa options de componentes diferentes que representem a MESMA escolha,
+    // mesmo com nomes distintos. Critérios pra agrupar:
+    //   1. Mesmo nome (case-insensitive) → ex: "Cor" + "Cor"
+    //   2. Valores semanticamente compatíveis (token match) → ex: "Tamanho"
+    //      do Peitoral [XPP, PP, M] com "Largura" da Guia [XPP/XPP+/12mm,
+    //      PP/P/15mm, M/G/20mm].
+    //
+    // Quando uma option só aparece em 1 componente (ex: Comprimento, exclusivo
+    // da Guia), entra como grupo solo com label sufixado pelo nome do produto.
     function unifyOptions(components) {
-        // Coleta: nome → { displayName, valuesByComp: { compIdx → [values] }, optIdxByComp: { compIdx → optIdx } }
-        const byName = {};
-        components.forEach((comp, compIdx) => {
-            (comp.options || []).forEach((optName, optIdx) => {
-                const key = String(optName).toLowerCase().trim();
-                if (!byName[key]) byName[key] = { displayName: optName, valuesByComp: {}, optIdxByComp: {} };
+        // Pass 1: coleta cada (compIdx, optIdx) com seus valores únicos
+        const allOpts = [];
+        components.forEach((comp, ci) => {
+            (comp.options || []).forEach((optName, oi) => {
                 const values = Array.from(new Set(
-                    (comp.variants || []).map(v => v[`option${optIdx + 1}`]).filter(Boolean)
+                    (comp.variants || []).map(v => v[`option${oi + 1}`]).filter(Boolean)
                 ));
-                byName[key].valuesByComp[compIdx] = values;
-                byName[key].optIdxByComp[compIdx] = optIdx;
+                allOpts.push({ ci, oi, name: optName, values });
             });
         });
 
-        const unified = [];
-        for (const key of Object.keys(byName)) {
-            const entry = byName[key];
-            const compIdxs = Object.keys(entry.valuesByComp).map(Number);
+        // Pass 2: agrupa opts equivalentes (nunca 2 do mesmo componente no
+        // mesmo grupo). Tenta nome literal primeiro; depois valores compatíveis.
+        const groups = [];
+        for (const opt of allOpts) {
+            const optNameLower = opt.name.toLowerCase().trim();
+            const fit = groups.find(g => {
+                if (g.some(it => it.ci === opt.ci)) return false;
+                const sample = g[0];
+                if (sample.name.toLowerCase().trim() === optNameLower) return true;
+                if (valuesCompatible(sample.values, opt.values)) return true;
+                return false;
+            });
+            if (fit) fit.push(opt);
+            else groups.push([opt]);
+        }
 
-            // Exclusiva: aparece em apenas 1 componente
-            if (compIdxs.length === 1) {
-                const ci = compIdxs[0];
-                unified.push({
-                    name: entry.displayName,
-                    labelSuffix: components.length > 1 ? ` (${components[ci].title})` : '',
-                    values: entry.valuesByComp[ci].map(v => ({ display: v, perComp: { [ci]: v } })),
-                    appliesTo: compIdxs,
-                    optIdxByComp: entry.optIdxByComp,
-                });
-                continue;
-            }
+        // Pass 3: pra cada grupo, computa valores unificados usando o componente
+        // com MAIS valores como referência (ex: Peitoral com 6 tamanhos é a ref;
+        // Guia com 3 larguras mapeia pra cada um via findValueMatch)
+        return groups.map(group => {
+            const sortedByValues = [...group].sort((a, b) => b.values.length - a.values.length);
+            const ref = sortedByValues[0];
+            const others = group.filter(o => o.ci !== ref.ci);
 
-            // Compartilhada: usa o primeiro componente como referência, faz matching
-            // pros demais. Mantém só valores que TODOS resolveram.
-            const [refIdx, ...others] = compIdxs;
-            const refValues = entry.valuesByComp[refIdx];
             const values = [];
-            for (const refVal of refValues) {
-                const perComp = { [refIdx]: refVal };
+            for (const refVal of ref.values) {
+                const perComp = { [ref.ci]: refVal };
                 let ok = true;
-                for (const oi of others) {
-                    const m = findValueMatch(refVal, entry.valuesByComp[oi]);
+                for (const o of others) {
+                    const m = findValueMatch(refVal, o.values);
                     if (m === null) { ok = false; break; }
-                    perComp[oi] = m;
+                    perComp[o.ci] = m;
                 }
                 if (ok) values.push({ display: refVal, perComp });
             }
-            unified.push({
-                name: entry.displayName,
-                labelSuffix: '',
+
+            const uniqueNames = Array.from(new Set(group.map(g => g.name)));
+            // Solo (option exclusiva de 1 componente): adiciona "(Nome do produto)"
+            const labelSuffix = (group.length === 1 && components.length > 1)
+                ? ` (${components[group[0].ci].title})`
+                : '';
+            const optIdxByComp = group.reduce((acc, g) => { acc[g.ci] = g.oi; return acc; }, {});
+
+            return {
+                name: uniqueNames[0],
+                labelSuffix,
                 values,
-                appliesTo: compIdxs,
-                optIdxByComp: entry.optIdxByComp,
-            });
-        }
-        return unified;
+                appliesTo: group.map(g => g.ci),
+                optIdxByComp,
+            };
+        });
     }
 
     // Dado o estado de seleção (nome unificado → display value escolhido),
@@ -212,11 +257,12 @@
         if (components.length < 2) return;
 
         const unified = unifyOptions(components);
-        const optionsWrap = host.querySelector('[data-kit-options]');
-        const summaryWrap = host.querySelector('[data-kit-summary]');
-        const priceWrap   = host.querySelector('[data-kit-price]');
-        const ctaBtn      = host.querySelector('[data-kit-cta]');
-        const ctaLabel    = host.querySelector('[data-kit-cta-label]');
+        const optionsWrap  = host.querySelector('[data-kit-options]');
+        const summaryWrap  = host.querySelector('[data-kit-summary]');
+        const showcaseWrap = host.querySelector('[data-kit-showcase]');
+        const priceWrap    = host.querySelector('[data-kit-price]');
+        const ctaBtn       = host.querySelector('[data-kit-cta]');
+        const ctaLabel     = host.querySelector('[data-kit-cta-label]');
 
         // Estado de seleção: nome unificado → display value
         const state = {};
@@ -316,8 +362,31 @@
         function renderSummaryAndPrice() {
             const variants = resolveVariants(state, unified, components);
 
-            // Resumo dos itens incluídos
-            const summaryItems = components.map((comp, i) => {
+            // Showcase: 1 card por componente, com foto da variant selecionada
+            // (fallback: featured_image do produto). Atualiza em cada mudança.
+            if (showcaseWrap) {
+                showcaseWrap.innerHTML = components.map((comp, i) => {
+                    const v = variants[i];
+                    const img = (v && v.featured_image) || comp.featured_image || '';
+                    const variantTitle = v ? v.title : '—';
+                    return `
+                        <div class="pdp-kit__showcase-card">
+                            <div class="pdp-kit__showcase-img-wrap">
+                                ${img
+                                    ? `<img class="pdp-kit__showcase-img" src="${esc(img)}" alt="${esc(comp.title)}" loading="lazy">`
+                                    : ''}
+                            </div>
+                            <div class="pdp-kit__showcase-meta">
+                                <p class="pdp-kit__showcase-title">${esc(comp.title)}</p>
+                                <span class="pdp-kit__showcase-variant">${esc(variantTitle)}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Resumo de itens (texto compacto)
+            summaryWrap.innerHTML = components.map((comp, i) => {
                 const v = variants[i];
                 const variantTitle = v ? v.title : '— (combinação indisponível)';
                 return `
@@ -327,9 +396,7 @@
                     </li>
                 `;
             }).join('');
-            summaryWrap.innerHTML = summaryItems;
 
-            // Preço = soma dos variants. Se algum não resolveu, exibe '—'.
             const allResolved = variants.every(v => v !== null);
             if (allResolved) {
                 const totalCents = variants.reduce((acc, v) => acc + (v.price || 0), 0);
@@ -356,12 +423,41 @@
             renderSummaryAndPrice();
         }
 
+        // Coleta valores de custom fields no DOM (renderizados em
+        // sections/product.liquid baseado em effective_tags). Pra cada CF
+        // anotado com data-cf-tag, mapeia pro componente que TEM essa tag.
+        // Retorna array paralelo a `components` com properties dict ou {}.
+        function collectPropertiesByComponent() {
+            const cfNodes = document.querySelectorAll('.pdp__custom-field[data-cf-tag]');
+            const props = components.map(() => ({}));
+            cfNodes.forEach(node => {
+                const tag = node.dataset.cfTag;
+                const name = node.dataset.cfName;
+                if (!tag || !name) return;
+                const input = node.querySelector('input[name^="properties"], textarea[name^="properties"]');
+                if (!input) return;
+                const value = String(input.value || '').trim();
+                if (!value) return;
+                components.forEach((comp, i) => {
+                    if ((comp.tags || []).includes(tag)) {
+                        props[i][name] = value;
+                    }
+                });
+            });
+            return props;
+        }
+
         async function onSubmit(e) {
             e?.preventDefault?.();
             const variants = resolveVariants(state, unified, components);
             if (variants.some(v => v === null)) return;
 
-            const items = variants.map(v => ({ id: v.id, quantity: 1 }));
+            const propsByComp = collectPropertiesByComponent();
+            const items = variants.map((v, i) => {
+                const item = { id: v.id, quantity: 1 };
+                if (Object.keys(propsByComp[i]).length > 0) item.properties = propsByComp[i];
+                return item;
+            });
             const originalLabel = ctaLabel ? ctaLabel.textContent : '';
             ctaBtn.disabled = true;
             if (ctaLabel) ctaLabel.textContent = 'Adicionando...';

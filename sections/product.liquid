@@ -19,6 +19,17 @@
     assign is_kit = true
   endif
 
+  # Pra renderizar custom fields no kit (campos como "comprimento_guia" e
+  # "customizacao_raca"), as tags efetivas são a UNIÃO das tags dos
+  # componentes (e do produto-pai). O JS coleta valores por componente
+  # via data-cf-tag e envia properties só no item que tem aquela tag.
+  assign effective_tags = product.tags
+  if is_kit
+    for comp in kit_components
+      assign effective_tags = effective_tags | concat: comp.tags
+    endfor
+  endif
+
   # Quando o produto é um "produto principal" do agrupador de cores, oculta o sufixo " - <cor>" no nome visível.
   # Ex: "Coleira Atena - Azul" → "Coleira Atena". O title original continua sendo usado em meta tags e propriedades.
   assign display_title = product.title
@@ -657,19 +668,14 @@
 
       {%- endif -%}{%- comment -%} fim do else do is_kit (variant picker padrão){%- endcomment -%}
 
-      {%- comment -%}
-        Tudo daqui pra baixo dentro do form (slot apps, custom fields,
-        quantity, CTA, wishlist) só é renderizado pra produtos NÃO-kit.
-        Kits têm o próprio resumo + CTA dentro do snippet kit-picker.
-      {%- endcomment -%}
-      {%- unless is_kit -%}
-
       {%- comment -%} Slot pra apps: depois das variantes {%- endcomment -%}
-      <div class="pdp__app-slot pdp__app-slot--after-variants">
-        {% content_for 'block', type: '@app', id: 'pdp-app-after-variants' %}
-      </div>
+      {%- unless is_kit -%}
+        <div class="pdp__app-slot pdp__app-slot--after-variants">
+          {% content_for 'block', type: '@app', id: 'pdp-app-after-variants' %}
+        </div>
 
-      {%- render 'pingente-customization', product: product -%}
+        {%- render 'pingente-customization', product: product -%}
+      {%- endunless -%}
 
       <!-- ── Campos Personalizados ── -->
       {%- comment -%}
@@ -686,7 +692,7 @@
           assign cf_enabled = settings[cf_en_key]
           assign cf_cfg_tag = settings[cf_tag_key]
 
-          if cf_enabled and product.tags contains cf_cfg_tag
+          if cf_enabled and effective_tags contains cf_cfg_tag
             assign cf_or_key = 'custom_field_' | append: cf_i | append: '_order'
             assign cf_order = settings[cf_or_key] | default: cf_i
             # Padds order with 0 if single digit to ensure correct string sorting
@@ -725,8 +731,13 @@
           assign cf_type = settings[cf_tp_key]
           assign cf_options = settings[cf_op_key]
           assign cf_req = settings[cf_rq_key]
+          # Re-resolve a tag desse CF pra anotar no DOM. O JS do kit usa pra
+          # decidir em qual item da requisição /cart/add.js essa property entra
+          # (só vai pro componente que tem a tag).
+          assign cf_tag_key2 = 'custom_field_' | append: cf_i | append: '_tag'
+          assign cf_field_tag = settings[cf_tag_key2]
         -%}
-        <div class="pdp__custom-field">
+        <div class="pdp__custom-field" data-cf-tag="{{ cf_field_tag | escape }}" data-cf-name="{{ cf_name | escape }}">
           {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
             {%- liquid
               # Mapeia o tipo do campo pro input HTML correspondente
@@ -873,6 +884,11 @@
         </div>
       {%- endfor -%}
 
+      {%- comment -%}
+        Quantidade e CTA padrão — escondidos pra kit (que tem seu próprio
+        CTA com qty=1 implícita dentro do kit-picker).
+      {%- endcomment -%}
+      {%- unless is_kit -%}
       <!-- Quantidade -->
       <div class="pdp__qty">
         <span class="pdp__option-label">Quantidade</span>
@@ -961,8 +977,8 @@
       <div class="pdp__app-slot pdp__app-slot--after-cta">
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
+      {%- endunless -%}{%- comment -%} fim do unless is_kit (qty + cta padrão){%- endcomment -%}
 
-      {%- endunless -%}{%- comment -%} fim do unless is_kit que envolve form interno{%- endcomment -%}
     {%- endform -%}
   </div>
   <!-- /pdp__info -->
