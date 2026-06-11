@@ -31,6 +31,12 @@
         "videos_autoplay": true
       }
     },
+    "product_reviews_konfidency": {
+      "type": "product-reviews",
+      "settings": {
+        "title": "Avaliações"
+      }
+    },
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
@@ -124,6 +130,7 @@
   },
   "order": [
     "main",
-    "product_accordions_87ARfi"
+    "product_accordions_87ARfi",
+    "product_reviews_konfidency"
   ]
 }

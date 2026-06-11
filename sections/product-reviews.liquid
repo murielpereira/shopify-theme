@@ -1,0 +1,68 @@
+{% comment %}
+  Âme — Bloco de avaliações Konfidency Reviews.
+
+  Renderiza o container .konfidency-reviews-details que o loader (carregado
+  em theme.liquid) preenche em runtime com toda a UI de reviews: filtros,
+  notas detalhadas, comentários, paginação e formulário de avaliação.
+
+  Aparece sempre, mesmo em produtos sem reviews — o próprio Konfidency
+  exibe estado vazio + CTA "Seja o primeiro a avaliar".
+{% endcomment %}
+
+<section class="pdp-reviews full-width" aria-labelledby="pdp-reviews-title">
+  <h2 id="pdp-reviews-title" class="pdp-reviews__title">
+    {{ section.settings.title | default: 'Avaliações' }}
+  </h2>
+  <div class="konfidency-reviews-details"></div>
+</section>
+
+{% stylesheet %}
+  .pdp-reviews {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .pdp-reviews {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .pdp-reviews__title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 1.5rem;
+  }
+
+  /* Reserva espaço mínimo enquanto o loader injeta — evita layout shift */
+  .pdp-reviews .konfidency-reviews-details {
+    min-height: 6rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Avaliações (Konfidency)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Renderiza o widget de avaliações do Konfidency Reviews na página do produto. O loader é carregado globalmente em theme.liquid. O conteúdo (estrelinhas, comentários, formulário) é populado em runtime — não edite o HTML aqui."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título da seção",
+      "default": "Avaliações"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Avaliações (Konfidency)"
+    }
+  ],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}

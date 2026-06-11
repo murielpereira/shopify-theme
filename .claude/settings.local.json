@@ -137,7 +137,10 @@
       "Bash(curl -sS -o /tmp/widget-ag.js -w \"HTTP %{http_code} | size %{size_download}\\\\n\" \"https://waltz.up.railway.app/widget-agrupamento.js?cb=$\\(date +%s\\)\")",
       "Bash(node --check public/widget-agrupamento.js)",
       "Bash(node --check routes/grupos.js)",
-      "Bash(node --check scripts/sync-tudo.js)"
+      "Bash(node --check scripts/sync-tudo.js)",
+      "WebFetch(domain:docs.konfidency.com.br)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('templates/product.json','utf8'\\)\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/product.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('JSON OK'\\)\")"
     ],
     "additionalDirectories": [
       "\\tmp"

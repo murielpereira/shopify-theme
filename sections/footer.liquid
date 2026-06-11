@@ -458,6 +458,13 @@
             Rastrear meu pedido
           </a>
 
+          {%- if pages['avaliacoes'] != blank -%}
+            <a href="{{ pages['avaliacoes'].url }}" class="ame-footer__nav-link ame-footer__nav-link--track">
+              <span class="material-symbols-outlined" aria-hidden="true">star</span>
+              Avaliações
+            </a>
+          {%- endif -%}
+
           {%- if company_phone != blank -%}
             <a href="tel:+55{{ phone_digits }}" class="ame-footer__nav-link">{{ company_phone }}</a>
           {%- endif -%}

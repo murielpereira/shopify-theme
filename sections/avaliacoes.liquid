@@ -1,0 +1,99 @@
+{% comment %}
+  Página dedicada de avaliações (Konfidency Smart SEO). Renderiza o
+  container .konfidency-all-reviews que o loader (em theme.liquid) preenche
+  com a agregação de TODAS as avaliações da loja. Útil pra SEO — gera URL
+  indexável com conteúdo único.
+{% endcomment %}
+
+<section class="ame-avaliacoes" aria-labelledby="avaliacoes-title">
+  <div class="ame-avaliacoes__hero">
+    <h1 id="avaliacoes-title" class="ame-avaliacoes__title">
+      {{ section.settings.title | default: 'Avaliações dos nossos clientes' }}
+    </h1>
+    {%- if section.settings.subtitle != blank -%}
+      <div class="ame-avaliacoes__subtitle">{{ section.settings.subtitle }}</div>
+    {%- endif -%}
+  </div>
+
+  <div class="konfidency-all-reviews"></div>
+</section>
+
+{% stylesheet %}
+  .ame-avaliacoes {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .ame-avaliacoes {
+      padding: 3rem 1.5rem 4rem;
+    }
+  }
+
+  .ame-avaliacoes__hero {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .ame-avaliacoes__title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 768px) {
+    .ame-avaliacoes__title {
+      font-size: 2.25rem;
+    }
+  }
+
+  .ame-avaliacoes__subtitle {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-on-surface-variant, #4f4442);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .ame-avaliacoes__subtitle p:first-child { margin-top: 0; }
+  .ame-avaliacoes__subtitle p:last-child  { margin-bottom: 0; }
+
+  /* Reserva espaço enquanto o loader injeta */
+  .ame-avaliacoes .konfidency-all-reviews {
+    min-height: 12rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Avaliações (página)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Renderiza a página dedicada de avaliações (Konfidency Smart SEO). O conteúdo (lista agregada de todas as avaliações da loja) é injetado em runtime pelo loader carregado em theme.liquid."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Título",
+      "default": "Avaliações dos nossos clientes"
+    },
+    {
+      "type": "richtext",
+      "id": "subtitle",
+      "label": "Subtítulo",
+      "default": "<p>Veja o que quem já comprou está dizendo sobre nossos produtos.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Avaliações (Konfidency)"
+    }
+  ],
+  "enabled_on": { "templates": ["page"] }
+}
+{% endschema %}

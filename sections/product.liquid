@@ -344,36 +344,15 @@
 
     {%- if pdp_videos_pos == 'below-title' -%}{{ pdp_videos_widget }}{%- endif -%}
 
-    <!-- Rating (placeholder — substituir por app) -->
-    <div class="pdp__rating" aria-label="4.8 de 5 estrelas">
-      <div class="pdp__stars" aria-hidden="true">
-        <span
-          class="material-symbols-outlined"
-          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
-          >star</span
-        >
-        <span
-          class="material-symbols-outlined"
-          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
-          >star</span
-        >
-        <span
-          class="material-symbols-outlined"
-          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
-          >star</span
-        >
-        <span
-          class="material-symbols-outlined"
-          style="font-variation-settings:'FILL' 1;font-size:0.9rem;color:var(--color-primary);"
-          >star</span
-        >
-        <span
-          class="material-symbols-outlined"
-          style="font-variation-settings:'FILL' 0;font-size:0.9rem;color:var(--color-outline-variant);"
-          >star</span
-        >
-      </div>
-      <span class="pdp__rating-text">4.8 · 32 avaliações</span>
+    {%- comment -%}
+      Resumo de avaliações renderizado pelo Konfidency Reviews (estrelinhas +
+      contagem + link "ver avaliações"). O loader em theme.liquid procura
+      .konfidency-reviews-summary no DOM e injeta o conteúdo via JS. O atributo
+      data-sku recebe o ID numérico do produto Shopify — convenção definida
+      junto com a Konfidency.
+    {%- endcomment -%}
+    <div class="pdp__rating">
+      <div class="konfidency-reviews-summary" data-sku="{{ product.id }}"></div>
     </div>
 
     {%- comment -%} Slot pra apps: antes do preço {%- endcomment -%}
@@ -1936,22 +1915,8 @@
   }
 
   .pdp__rating {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     margin-bottom: 0.75rem;
-  }
-
-  .pdp__stars {
-    display: flex;
-    gap: 1px;
-  }
-
-  .pdp__rating-text {
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-on-surface-variant, #4f4442);
+    min-height: 1.25rem;
   }
 
   /* ── Bloco de preços ── */

@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "avaliacoes": {
+      "type": "avaliacoes",
+      "settings": {
+        "title": "Avaliações dos nossos clientes",
+        "subtitle": "<p>Veja o que quem já comprou está dizendo sobre nossos produtos.</p>"
+      }
+    }
+  },
+  "order": [
+    "avaliacoes"
+  ]
+}

@@ -1143,5 +1143,14 @@
         window.AmeCart = { open: openCart, close: closeCart, refresh: refreshDrawer };
       })();
     </script>
+
+    {%- comment -%}
+      Loader do Konfidency Reviews. Renderiza os widgets de avaliação
+      (.konfidency-reviews-summary, .konfidency-reviews-details,
+      .konfidency-all-reviews) onde estiverem presentes no DOM. Carregado
+      com `defer` pra não bloquear o render — as estrelinhas aparecem ~200ms
+      depois do conteúdo principal.
+    {%- endcomment -%}
+    <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
   </body>
 </html>
