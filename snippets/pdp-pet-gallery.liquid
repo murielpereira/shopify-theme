@@ -1,0 +1,231 @@
+{% comment %}
+  PDP — Galeria de pets usando o produto.
+
+  Renderiza um carrossel horizontal com as imagens cadastradas no metafield
+  `custom.pet_gallery` do produto. Auto-esconde quando produto não tem
+  imagens (zero peso no DOM).
+
+  Renderizado DENTRO do accordion de Descrição em [sections/product-accordions.liquid],
+  antes do bloco "O que acontece depois da compra".
+
+  Parâmetros (passados via render):
+    title    — string. Título exibido sobre o carrossel.
+    eyebrow  — string. Texto pequeno acima do título (opcional).
+
+  Title pode vir do metafield `custom.pet_gallery_title` (override por produto)
+  ou cair pro setting global da section pai. A resolução é feita pelo caller.
+
+  Como criar os metafields no admin Shopify (1 vez só):
+    Configurações → Custom data → Produtos → Adicionar definição
+      Definição 1:
+        Nome: "Galeria de pets"
+        Namespace e chave: custom.pet_gallery
+        Tipo: File reference (lista)
+        Validação: aceitar apenas imagens
+      Definição 2 (opcional, para título customizado por produto):
+        Nome: "Título da galeria de pets"
+        Namespace e chave: custom.pet_gallery_title
+        Tipo: Single line text
+
+  Usa <style> tag plain (não {% stylesheet %}) porque vive dentro de
+  condicionais — vide [CLAUDE.md].
+{% endcomment %}
+
+{%- liquid
+  assign gallery = product.metafields.custom.pet_gallery.value
+  assign has_gallery = false
+  if gallery != blank and gallery.size > 0
+    assign has_gallery = true
+  endif
+-%}
+
+{%- if has_gallery -%}
+  <div class="pdp-pet-gallery" data-pdp-pet-gallery>
+    {%- if title != blank or eyebrow != blank -%}
+      <header class="pdp-pet-gallery__header">
+        {%- if eyebrow != blank -%}
+          <p class="pdp-pet-gallery__eyebrow">{{ eyebrow }}</p>
+        {%- endif -%}
+        {%- if title != blank -%}
+          <h3 class="pdp-pet-gallery__title">{{ title }}</h3>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="pdp-pet-gallery__viewport" data-viewport>
+      <ul class="pdp-pet-gallery__track">
+        {%- for media in gallery -%}
+          {%- assign img_alt = media.alt | default: product.title | append: ' — foto de cliente' -%}
+          <li class="pdp-pet-gallery__item">
+            {{
+              media
+              | image_url: width: 800
+              | image_tag:
+                loading: 'lazy',
+                widths: '300, 500, 700, 900',
+                sizes: '(min-width: 1024px) 22vw, (min-width: 600px) 33vw, 70vw',
+                class: 'pdp-pet-gallery__img',
+                alt: img_alt
+            }}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="pdp-pet-gallery__controls" data-controls hidden>
+      <button type="button" class="pdp-pet-gallery__nav pdp-pet-gallery__nav--prev" aria-label="Imagem anterior" data-prev>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+      </button>
+      <button type="button" class="pdp-pet-gallery__nav pdp-pet-gallery__nav--next" aria-label="Próxima imagem" data-next>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+      </button>
+    </div>
+  </div>
+
+  <style>
+    .pdp-pet-gallery {
+      margin: 2rem 0;
+    }
+
+    .pdp-pet-gallery__header {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .pdp-pet-gallery__eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-primary, #5a4742);
+      margin: 0 0 0.375rem;
+    }
+
+    .pdp-pet-gallery__title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-on-background, #201b14);
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    @media (min-width: 768px) {
+      .pdp-pet-gallery__title {
+        font-size: 1.25rem;
+      }
+    }
+
+    .pdp-pet-gallery__viewport {
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -0.5rem;
+      padding: 0.5rem;
+    }
+    .pdp-pet-gallery__viewport::-webkit-scrollbar { display: none; }
+
+    .pdp-pet-gallery__track {
+      display: flex;
+      gap: 0.75rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .pdp-pet-gallery__item {
+      flex: 0 0 70%;
+      scroll-snap-align: start;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--color-surface-container, #f8ece0);
+      box-shadow: 0 1px 3px rgba(90, 71, 66, 0.04);
+    }
+
+    @media (min-width: 600px) {
+      .pdp-pet-gallery__item { flex-basis: calc((100% - 0.75rem) / 2); }
+    }
+
+    @media (min-width: 1024px) {
+      .pdp-pet-gallery__item { flex-basis: calc((100% - 2.25rem) / 4); }
+    }
+
+    .pdp-pet-gallery__img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pdp-pet-gallery__controls {
+      display: none;
+    }
+
+    @media (min-width: 1024px) {
+      .pdp-pet-gallery__controls {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+    }
+
+    .pdp-pet-gallery__nav {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      background: var(--color-surface, #fff);
+      color: var(--color-primary, #5a4742);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .pdp-pet-gallery__nav:hover {
+      background: var(--color-surface-container, #f8ece0);
+    }
+
+    .pdp-pet-gallery__nav:active {
+      transform: scale(0.95);
+    }
+  </style>
+
+  <script>
+    (function () {
+      const host = document.querySelector('[data-pdp-pet-gallery]');
+      if (!host || host.dataset.init) return;
+      host.dataset.init = '1';
+
+      const viewport = host.querySelector('[data-viewport]');
+      const controls = host.querySelector('[data-controls]');
+      const btnPrev  = host.querySelector('[data-prev]');
+      const btnNext  = host.querySelector('[data-next]');
+      if (!viewport) return;
+
+      function passo() {
+        const item = viewport.querySelector('.pdp-pet-gallery__item');
+        if (!item) return 320;
+        const track = viewport.querySelector('.pdp-pet-gallery__track');
+        const gap = parseFloat(getComputedStyle(track).columnGap || '12') || 12;
+        return item.getBoundingClientRect().width + gap;
+      }
+
+      btnPrev?.addEventListener('click', () => viewport.scrollBy({ left: -passo(), behavior: 'smooth' }));
+      btnNext?.addEventListener('click', () => viewport.scrollBy({ left:  passo(), behavior: 'smooth' }));
+
+      function atualizar() {
+        const podeScroll = viewport.scrollWidth > viewport.clientWidth + 4;
+        controls.hidden = !podeScroll;
+      }
+      const ro = new ResizeObserver(atualizar);
+      ro.observe(viewport);
+      window.addEventListener('load', atualizar);
+      atualizar();
+    })();
+  </script>
+{%- endif -%}

@@ -154,6 +154,19 @@
           {%- endif -%}
 
           {%- comment -%}
+            Galeria de pets — renderiza fotos cadastradas no metafield
+            `custom.pet_gallery` do produto. Auto-esconde se vazio.
+            Título pode ser sobrescrito por produto via metafield
+            `custom.pet_gallery_title`; senão usa o setting global.
+          {%- endcomment -%}
+          {%- liquid
+            assign pg_title = product.metafields.custom.pet_gallery_title.value
+              | default: section.settings.pet_gallery_title
+            assign pg_eyebrow = section.settings.pet_gallery_eyebrow
+          -%}
+          {% render 'pdp-pet-gallery', title: pg_title, eyebrow: pg_eyebrow %}
+
+          {%- comment -%}
             Bloco "Depois da compra" — 8 etapas configuráveis na section.
             has_steps já foi calculado no topo do template (junto com filtros
             de tag por etapa). Aparece embutido no acordeão de Descrição.
@@ -476,6 +489,27 @@
       "id": "description_title",
       "label": "Título do acordeão de descrição",
       "default": "Descrição"
+    },
+    {
+      "type": "header",
+      "content": "Galeria de pets"
+    },
+    {
+      "type": "paragraph",
+      "content": "Carrossel de fotos dos pets dos clientes usando o produto. Imagens são puxadas do metafield `custom.pet_gallery` (File reference list) de cada produto. Se o produto não tem imagens cadastradas, a galeria não aparece automaticamente. Para customizar o título por produto, crie também o metafield `custom.pet_gallery_title` (Single line text) — sobrescreve os defaults abaixo."
+    },
+    {
+      "type": "text",
+      "id": "pet_gallery_eyebrow",
+      "label": "Eyebrow padrão (texto acima do título)",
+      "default": "Da nossa comunidade"
+    },
+    {
+      "type": "text",
+      "id": "pet_gallery_title",
+      "label": "Título padrão",
+      "info": "Override por produto via metafield custom.pet_gallery_title.",
+      "default": "Pets que amam essa peça"
     },
     {
       "type": "header",

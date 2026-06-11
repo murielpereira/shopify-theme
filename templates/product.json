@@ -97,6 +97,8 @@
       "settings": {
         "show_description": true,
         "description_title": "Descrição",
+        "pet_gallery_eyebrow": "Da nossa comunidade",
+        "pet_gallery_title": "Pets que amam essa peça",
         "show_after_purchase": true,
         "after_purchase_title": "O que acontece depois da compra",
         "step_1_emoji": "🔍",
@@ -126,18 +128,10 @@
         "show_faq": true,
         "faq_title": "Perguntas Frequentes"
       }
-    },
-    "pdp_pet_gallery": {
-      "type": "pdp-pet-gallery",
-      "settings": {
-        "eyebrow": "Da nossa comunidade",
-        "title": "Pets que amam essa peça"
-      }
     }
   },
   "order": [
     "main",
-    "pdp_pet_gallery",
     "product_accordions_87ARfi",
     "product_reviews_konfidency"
   ]
