@@ -611,19 +611,19 @@
       ],
       "settings": {}
     },
-    "depoimentos_konfidency": {
-      "type": "home-depoimentos",
-      "settings": {
-        "eyebrow": "Avaliações reais",
-        "title": "O que dizem nossos clientes"
-      }
-    },
     "newsletter": {
       "type": "home-newsletter",
       "settings": {
         "eyebrow": "Atelier Exclusivo",
         "title": "Acesso Antecipado às Novas Peças.",
         "button_label": "Entrar"
+      }
+    },
+    "depoimentos_konfidency": {
+      "type": "home-depoimentos",
+      "settings": {
+        "eyebrow": "Avaliações reais",
+        "title": "O que dizem nossos clientes"
       }
     }
   },
@@ -640,7 +640,7 @@
     "brand-story",
     "17774596931163eef4",
     "1777459790c63ec612",
-    "depoimentos_konfidency",
-    "newsletter"
+    "newsletter",
+    "depoimentos_konfidency"
   ]
 }
