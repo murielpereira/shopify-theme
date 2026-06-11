@@ -9,6 +9,16 @@
   endif
   assign media_size = product.media.size
 
+  # Kit de produtos — produto-pai com metafield `custom.kit_componentes`
+  # (Product reference, list). Quando presente, substitui o variant picker
+  # padrão pelo snippet kit-picker e o submit padrão pelo handler atomico
+  # em assets/ame-kit.js. Vide [snippets/kit-picker.liquid] pra detalhes.
+  assign kit_components = product.metafields.custom.kit_componentes.value
+  assign is_kit = false
+  if kit_components != blank and kit_components.size > 1
+    assign is_kit = true
+  endif
+
   # Quando o produto é um "produto principal" do agrupador de cores, oculta o sufixo " - <cor>" no nome visível.
   # Ex: "Coleira Atena - Azul" → "Coleira Atena". O title original continua sendo usado em meta tags e propriedades.
   assign display_title = product.title
@@ -396,7 +406,15 @@
       assign inst_value = effective_price | divided_by: inst_count
     -%}
 
-    <div class="pdp__price-block" id="pdp-price-block">
+    {%- comment -%}
+      Quando produto é Kit, o bloco de preço padrão é substituído pelo
+      preço dinâmico (soma dos componentes) renderizado pelo kit-picker
+      mais abaixo. Mantemos o wrapper #pdp-price-block (com display:none)
+      pra não quebrar o JS de Section Rendering API que faz DOM-swap nele
+      em caso de mudança de variante via Section Rendering — embora o Kit
+      não use isso, deixar o wrapper evita NullReferenceError em listeners.
+    {%- endcomment -%}
+    <div class="pdp__price-block" id="pdp-price-block"{% if is_kit %} style="display:none"{% endif %}>
       <!-- Linha "De:" riscado -->
       {%- if has_compare -%}
         <div class="pdp__price-compare-row">
@@ -487,6 +505,18 @@
         Módulos → Agrupamento de Produtos no painel Waltz). Tema não
         renderiza mais nada aqui.
       {%- endcomment -%}
+
+      {%- comment -%}
+        Kit: substitui as opções padrão (que viriam do produto-pai com
+        apenas default variant) pelo picker unificado dos componentes.
+        Renderizado dentro do wrapper #pdp-options-wrap pra manter a
+        compatibilidade com o JS de Section Rendering API.
+      {%- endcomment -%}
+      {%- if is_kit -%}
+        <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
+          {% render 'kit-picker', kit_components: kit_components %}
+        </div>
+      {%- else -%}
 
       <!-- Opções (Cor, Tamanho...) — renderizadas sob demanda via Section Rendering API -->
       <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
@@ -624,6 +654,15 @@
           </div>
         {%- endfor -%}
       </div>
+
+      {%- endif -%}{%- comment -%} fim do else do is_kit (variant picker padrão){%- endcomment -%}
+
+      {%- comment -%}
+        Tudo daqui pra baixo dentro do form (slot apps, custom fields,
+        quantity, CTA, wishlist) só é renderizado pra produtos NÃO-kit.
+        Kits têm o próprio resumo + CTA dentro do snippet kit-picker.
+      {%- endcomment -%}
+      {%- unless is_kit -%}
 
       {%- comment -%} Slot pra apps: depois das variantes {%- endcomment -%}
       <div class="pdp__app-slot pdp__app-slot--after-variants">
@@ -922,6 +961,8 @@
       <div class="pdp__app-slot pdp__app-slot--after-cta">
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
+
+      {%- endunless -%}{%- comment -%} fim do unless is_kit que envolve form interno{%- endcomment -%}
     {%- endform -%}
   </div>
   <!-- /pdp__info -->

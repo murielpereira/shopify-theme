@@ -145,7 +145,8 @@
       "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/index.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('OK'\\)\")",
       "Bash(curl -sS -w \"\\\\n--HTTP %{http_code}--\\\\n\" \"https://reviews.konfidency.com.br/ameacessoriospet/store-reviews/carousel\")",
       "Bash(curl -sS -w \"\\\\n--HTTP %{http_code}--\\\\n\" \"https://reviews.konfidency.com.br/ameacessoriospet/store-reviews/summary\")",
-      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/index.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('JSON OK'\\)\")"
+      "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/index.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('JSON OK'\\)\")",
+      "Bash(node --check assets/ame-kit.js)"
     ],
     "additionalDirectories": [
       "\\tmp"

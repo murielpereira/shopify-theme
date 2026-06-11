@@ -1159,5 +1159,13 @@
       [data-konfidency-rating] no DOM. Vide snippets/product-card.liquid.
     {%- endcomment -%}
     <script defer src="{{ 'ame-konfidency-card-rating.js' | asset_url }}"></script>
+
+    {%- comment -%}
+      Kit de produtos — substitui o variant picker padrão no PDP quando o
+      produto tem `custom.kit_componentes`. Vide snippets/kit-picker.liquid.
+    {%- endcomment -%}
+    {%- if template contains 'product' -%}
+      <script defer src="{{ 'ame-kit.js' | asset_url }}"></script>
+    {%- endif -%}
   </body>
 </html>

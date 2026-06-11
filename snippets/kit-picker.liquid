@@ -1,0 +1,226 @@
+{% comment %}
+  Kit Picker — substitui o variant picker padrão quando o produto é um kit.
+
+  Parâmetros:
+    kit_components — array de produtos (vindo de
+                     product.metafields.custom.kit_componentes.value)
+
+  Como funciona:
+    - Emite o JSON dos componentes (com options + variants) num <script
+      type="application/json"> que o ame-kit.js consome.
+    - Renderiza um skeleton + área de opções vazia. O JS preenche com base
+      em unifyOptions(): junta options de mesmo nome entre componentes,
+      resolve cores via fingerprint (mesmo algoritmo do cross-sell).
+    - Estado de seleção, resolução de variants, preço dinâmico e
+      submit atomico (1 line item por componente) ficam todos no JS.
+
+  Como cadastrar um kit (admin Shopify):
+    1. Cria produto normal ("Kit Primula") com fotos + descrição
+    2. Em Metafields → "Componentes do Kit" → seleciona os produtos
+       que compõem (ex: Peitoral Primula, Guia Primula)
+    3. Salva. PDP do kit detecta o metafield e renderiza este picker
+       em vez do variant picker padrão.
+
+  Definição do metafield (1 vez só, em Configurações → Custom data):
+    Nome: "Componentes do Kit"
+    Namespace e chave: custom.kit_componentes
+    Tipo: Referência de produto (lista de produtos)
+{% endcomment %}
+
+<div class="pdp-kit" data-kit-host>
+  {%- comment -%}
+    JSON dos componentes — o filtro `| json` em product no Liquid
+    serializa título, handle, options, variants (com option1/2/3 + preço +
+    available), featured_image, etc. Suficiente pro JS resolver tudo.
+  {%- endcomment -%}
+  <script type="application/json" data-kit-data>
+    {
+      "components": [
+        {%- for comp in kit_components -%}
+          {
+            "id": {{ comp.id | json }},
+            "title": {{ comp.title | json }},
+            "handle": {{ comp.handle | json }},
+            "options": {{ comp.options | json }},
+            "variants": [
+              {%- for v in comp.variants -%}
+                {
+                  "id": {{ v.id | json }},
+                  "title": {{ v.title | json }},
+                  "price": {{ v.price | json }},
+                  "available": {{ v.available | json }},
+                  "option1": {{ v.option1 | json }},
+                  "option2": {{ v.option2 | json }},
+                  "option3": {{ v.option3 | json }}
+                }{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            ]
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+
+  {%- comment -%} Opções unificadas — JS popula via renderOptions() {%- endcomment -%}
+  <div class="pdp-kit__options" data-kit-options>
+    <div class="pdp-kit__skeleton" aria-hidden="true">
+      <div class="pdp-kit__skeleton-bar"></div>
+      <div class="pdp-kit__skeleton-bar"></div>
+      <div class="pdp-kit__skeleton-bar pdp-kit__skeleton-bar--short"></div>
+    </div>
+  </div>
+
+  {%- comment -%} Resumo do kit (itens incluídos) — JS popula {%- endcomment -%}
+  <div class="pdp-kit__summary-wrap">
+    <p class="pdp-kit__summary-title">
+      <span class="material-symbols-outlined" aria-hidden="true">redeem</span>
+      Itens inclusos no kit
+    </p>
+    <ul class="pdp-kit__summary" data-kit-summary></ul>
+  </div>
+
+  {%- comment -%} Preço dinâmico + CTA {%- endcomment -%}
+  <div class="pdp-kit__cta-wrap">
+    <div class="pdp-kit__price-row">
+      <span class="pdp-kit__price-label">Total do kit:</span>
+      <strong class="pdp-kit__price" data-kit-price>—</strong>
+    </div>
+    <button
+      type="button"
+      class="ame-cta pdp-kit__cta"
+      data-kit-cta
+    >
+      <span data-kit-cta-label>Adicionar Kit ao Carrinho</span>
+      <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .pdp-kit {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .pdp-kit__options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pdp-kit__option-empty {
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin: 0.5rem 0 0;
+    opacity: 0.75;
+  }
+
+  .pdp__option--kit-disabled {
+    opacity: 0.55;
+  }
+
+  /* Resumo: itens inclusos no kit */
+  .pdp-kit__summary-wrap {
+    background: var(--color-surface-container, #f8ece0);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.875rem 1rem;
+  }
+
+  .pdp-kit__summary-title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
+  }
+
+  .pdp-kit__summary-title .material-symbols-outlined {
+    font-size: 0.875rem;
+    font-variation-settings: 'FILL' 1;
+  }
+
+  .pdp-kit__summary {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .pdp-kit__summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--color-on-background, #201b14);
+  }
+
+  .pdp-kit__summary-item strong {
+    font-weight: 600;
+  }
+
+  .pdp-kit__summary-item span {
+    font-size: 0.75rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    text-align: right;
+  }
+
+  /* Preço + CTA */
+  .pdp-kit__cta-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .pdp-kit__price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .pdp-kit__price-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+
+  .pdp-kit__price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-on-background, #201b14);
+    letter-spacing: -0.015em;
+  }
+
+  /* Skeleton (loading) */
+  .pdp-kit__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pdp-kit__skeleton-bar {
+    height: 2.5rem;
+    background: linear-gradient(90deg, #ece2d6 0%, #f5ebe0 50%, #ece2d6 100%);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    animation: pdp-kit-shimmer 1.4s ease-in-out infinite;
+  }
+
+  .pdp-kit__skeleton-bar--short { width: 60%; }
+
+  @keyframes pdp-kit-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
