@@ -911,28 +911,40 @@
 
       /* ── Coleira selection ── */
       function readColeiraSelection() {
-        const wrap = document.getElementById('pdp-options-wrap');
+        // Em kits, lê de [data-kit-options] (renderizado por ame-kit.js).
+        // No PDP normal, lê de #pdp-options-wrap.
+        const wrap = document.getElementById('pdp-options-wrap')
+                  || document.querySelector('[data-kit-options]');
         const sel = { cor: null, corMetal: null, tamanho: null, raw: {} };
         if (!wrap) return sel;
         wrap.querySelectorAll('.pdp__option').forEach((opt) => {
           const label = opt.querySelector('.pdp__option-label')?.textContent.trim();
           const active = opt.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
           if (!label || !active) return;
-          sel.raw[label] = active.dataset.value;
+          // PDP normal usa data-value; kit usa data-kit-val. Lê o que existir.
+          const value = active.dataset.value || active.dataset.kitVal || '';
+          sel.raw[label] = value;
           const norm = String(label)
             .toLowerCase()
             .normalize('NFD')
             .replace(/\p{Diacritic}/gu, '')
             .trim();
-          if (norm === 'cor') sel.cor = active.dataset.value;
-          else if (norm === 'cor do metal' || norm === 'metal') sel.corMetal = active.dataset.value;
-          else if (norm === 'tamanho' || norm === 'size') sel.tamanho = active.dataset.value;
+          if (norm === 'cor') sel.cor = value;
+          else if (norm === 'cor do metal' || norm === 'metal') sel.corMetal = value;
+          else if (norm === 'tamanho' || norm === 'size') sel.tamanho = value;
         });
         return sel;
       }
 
       /* ── Coleira completa? Esconde/exibe a section toda em função disso ── */
       function isColeiraComplete() {
+        // Em kits, ame-kit.js sempre seta um valor default por opção, então
+        // está sempre completo após o boot.
+        if (document.querySelector('[data-kit-options]')) {
+          // Garante que o kit já renderizou opções (não está em skeleton)
+          const renderedOpts = document.querySelectorAll('[data-kit-options] .pdp__option');
+          return renderedOpts.length > 0;
+        }
         const groups = document.querySelectorAll('#pdp-options-wrap [data-option-index]');
         if (!groups.length) return true;
         return Array.from(groups).every((g) => g.querySelector('.pdp__swatch--active, .pdp__size-btn--active'));

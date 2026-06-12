@@ -157,6 +157,7 @@
         const installmentValueEl = document.querySelector('[data-kit-price-installment]');
         const productForm        = document.getElementById('pdp-form');
         const ctaBtn             = document.getElementById('pdp-add-btn');
+        const cashbackEl         = document.querySelector('#pdp-cashback-wrap [data-cashback]');
 
         // ── Fetch dos dados do Waltz ──
         let data;
@@ -273,10 +274,10 @@
             const variants = resolveVariants(state, unified, components);
 
             if (showcaseWrap) {
+                showcaseWrap.dataset.kitCount = String(components.length);
                 showcaseWrap.innerHTML = components.map((comp, i) => {
                     const v = variants[i];
                     const img = (v && v.featured_image) || comp.featured_image || '';
-                    const variantTitle = v ? v.title : '—';
                     return `
                         <div class="pdp-kit__showcase-card">
                             <div class="pdp-kit__showcase-img-wrap">
@@ -284,7 +285,6 @@
                             </div>
                             <div class="pdp-kit__showcase-meta">
                                 <p class="pdp-kit__showcase-title">${esc(comp.title)}</p>
-                                <span class="pdp-kit__showcase-variant">${esc(variantTitle)}</span>
                             </div>
                         </div>
                     `;
@@ -323,6 +323,25 @@
                     installmentsRow.hidden = false;
                 }
 
+                // Cashback: recalcula em centavos. Reconstrói o texto pra incluir/omitir
+                // a "R$" — porque snippet só renderiza a cifra quando o valor passa do
+                // mínimo, e o kit começa com cashback_price=0 (sem cifra no DOM).
+                if (cashbackEl) {
+                    const cbPct = parseFloat(cashbackEl.dataset.pct || '0');
+                    const cbMin = parseFloat(cashbackEl.dataset.min || '0');
+                    const textEl = cashbackEl.querySelector('.ame-cashback__text');
+                    if (textEl && cbPct > 0) {
+                        const cashbackCents = Math.floor(totalCents * cbPct / 100);
+                        const minCents = Math.round(cbMin * 100);
+                        if (cashbackCents >= minCents) {
+                            const fmtVal = (cashbackCents / 100).toFixed(2).replace('.', ',');
+                            textEl.innerHTML = `Ganhe <strong class="ame-cashback__cifra">R$</strong> <strong class="ame-cashback__value" data-cashback-value>${fmtVal}</strong> de cashback.`;
+                        } else {
+                            textEl.innerHTML = `Ganhe <strong class="ame-cashback__value" data-cashback-value>${Math.round(cbPct)}%</strong> de cashback.`;
+                        }
+                    }
+                }
+
                 if (ctaBtn) {
                     ctaBtn.disabled = false;
                     ctaBtn.removeAttribute('aria-disabled');
@@ -354,6 +373,9 @@
             state[btn.dataset.kitOpt] = btn.dataset.kitVal;
             renderOptions();
             renderSummaryAndPrice();
+            // Notifica o pingente (e quaisquer outros listeners de variante)
+            // sobre a mudança — análogo ao que o PDP normal faz.
+            document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
         }
 
         function collectPropertiesByComponent() {
@@ -407,12 +429,38 @@
             if (variants.some(v => v === null)) return;
             if (!validateRequiredCustomFields()) return;
 
+            // Pingente opcional: valida ANTES do POST. Se inválido, aborta.
+            if (window.amePingente?.isActive()) {
+                const pv = window.amePingente.validate();
+                if (!pv.ok) {
+                    (window.AmePdpToast || ((m) => alert(m)))(pv.msg);
+                    return;
+                }
+            }
+
             const propsByComp = collectPropertiesByComponent();
+            // Gera uma chave que vincula o pingente ao primeiro componente do kit
+            // (a "coleira" do kit). Cliente removendo esse item no carrinho remove
+            // o pingente junto — mesma convenção do PDP normal.
+            const willAddPingente = window.amePingente?.isActive() && window.amePingente.getCartItem;
+            let coleiraKey = '';
+            if (willAddPingente) {
+                coleiraKey = 'ck-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+            }
+
             const items = variants.map((v, i) => {
                 const item = { id: v.id, quantity: 1 };
-                if (Object.keys(propsByComp[i]).length > 0) item.properties = propsByComp[i];
+                const props = { ...propsByComp[i] };
+                // Vincula só o PRIMEIRO componente do kit com a _coleira_key.
+                if (willAddPingente && i === 0) props['_coleira_key'] = coleiraKey;
+                if (Object.keys(props).length > 0) item.properties = props;
                 return item;
             });
+
+            if (willAddPingente) {
+                const pingenteItem = window.amePingente.getCartItem(1, coleiraKey);
+                if (pingenteItem) items.push(pingenteItem);
+            }
 
             const labelTextNode = ctaBtn && ctaBtn.childNodes[0];
             const originalLabel = (labelTextNode && labelTextNode.nodeType === 3) ? labelTextNode.textContent : '';

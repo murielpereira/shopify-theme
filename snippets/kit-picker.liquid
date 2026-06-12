@@ -88,12 +88,16 @@
   }
 
   /* Showcase dos componentes — cards com foto da variant selecionada.
-     2 colunas em todos os breakpoints (inclusive mobile) — cliente vê os
-     dois itens do kit lado a lado, reforçando que está comprando ambos. */
+     Grid se adapta ao número de componentes (atributo data-kit-count
+     setado pelo JS): 2 ou 3 itens → mesma linha no mobile, 4+ → 2 cols. */
   .pdp-kit__showcase {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
+  }
+
+  .pdp-kit__showcase[data-kit-count="3"] {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   @media (min-width: 600px) {
@@ -110,9 +114,6 @@
     }
     .pdp-kit__showcase-title {
       font-size: 0.75rem;
-    }
-    .pdp-kit__showcase-variant {
-      font-size: 0.625rem;
     }
   }
 
@@ -150,12 +151,6 @@
     font-weight: 600;
     color: var(--color-on-background, #201b14);
     margin: 0;
-    line-height: 1.3;
-  }
-
-  .pdp-kit__showcase-variant {
-    font-size: 0.6875rem;
-    color: var(--color-on-surface-variant, #4f4442);
     line-height: 1.3;
   }
 

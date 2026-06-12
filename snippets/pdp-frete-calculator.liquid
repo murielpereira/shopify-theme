@@ -14,7 +14,14 @@
     <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
     Calcular frete e prazo
   </p>
-  <form class="ame-pdp-freight__form" data-pdp-freight-form novalidate>
+  {%- comment -%}
+    NÃO usar <form> aqui — o widget vive DENTRO do {% form 'product' %} do
+    Shopify e <form> aninhado faz o navegador delegar o submit pro form
+    externo (= adicionar ao cart). Botão é type="button" + click handler.
+    Input também precisa de keypress Enter handler porque sem form não
+    dispara submit nativamente.
+  {%- endcomment -%}
+  <div class="ame-pdp-freight__form" data-pdp-freight-form>
     <input
       type="text"
       inputmode="numeric"
@@ -25,10 +32,10 @@
       class="ame-pdp-freight__input"
       data-pdp-freight-input
     >
-    <button type="submit" class="ame-pdp-freight__btn" data-pdp-freight-submit>
+    <button type="button" class="ame-pdp-freight__btn" data-pdp-freight-submit>
       <span data-pdp-freight-btn-label>Calcular</span>
     </button>
-  </form>
+  </div>
   <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener" class="ame-pdp-freight__cep-link">
     Não sei meu CEP
   </a>
@@ -218,9 +225,18 @@
       xhr.send(JSON.stringify({ cep, weight, quantity, price }));
     }
 
-    form.addEventListener('submit', (e) => {
+    btn.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       calcular(input.value);
+    });
+    // Enter no input também calcula (sem submeter o form do produto)
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        calcular(input.value);
+      }
     });
 
     // Restaura CEP salvo (compartilhado com o cart)

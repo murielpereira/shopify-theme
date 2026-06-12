@@ -308,11 +308,14 @@
   </div>
 
   {%- comment -%}
-    Kit: showcase dos componentes vira a "galeria" — coluna esquerda
-    sticky (igual `.pdp__gallery` na PDP normal). Renderizado pelo
-    ame-kit.js após fetch do Waltz.
+    Kit: no mobile, título precisa aparecer ANTES do showcase (UX),
+    mas no desktop continua na coluna direita junto com o preço. Por isso
+    sai do `.pdp__info` e vira child direto do grid `.pdp` — `grid-column: 2`
+    no desktop o realinha. No mobile (grid 1-col), a ordem natural do markup
+    coloca título → showcase → resto-do-info.
   {%- endcomment -%}
   {%- if is_kit -%}
+    <h1 class="pdp__title pdp__title--kit-outside">{{ display_title }}</h1>
     <div class="pdp-kit__showcase" data-kit-showcase></div>
   {%- endif -%}
 
@@ -364,8 +367,10 @@
       {% content_for 'block', type: '@app', id: 'pdp-app-before-title' %}
     </div>
 
-    <!-- Título -->
-    <h1 class="pdp__title">{{ display_title }}</h1>
+    <!-- Título (no kit, renderizado FORA do .pdp__info pra que mobile mostre antes do showcase) -->
+    {%- unless is_kit -%}
+      <h1 class="pdp__title">{{ display_title }}</h1>
+    {%- endunless -%}
 
     {%- comment -%} Slot pra apps: depois do título {%- endcomment -%}
     <div class="pdp__app-slot pdp__app-slot--after-title">
@@ -447,6 +452,10 @@
           Até <strong>{{ settings.installments_count | default: 3 }}x</strong>
           de <strong data-kit-price-installment>—</strong> sem juros
         </p>
+        <!-- Cashback no kit — valor atualizado pelo ame-kit.js conforme seleção -->
+        <div id="pdp-cashback-wrap">
+          {%- render 'cashback', cashback_price: 0, cashback_mode: 'pdp' -%}
+        </div>
       {%- else -%}
       <!-- Linha "De:" riscado -->
       {%- if has_compare -%}
@@ -696,9 +705,15 @@
         <div class="pdp__app-slot pdp__app-slot--after-variants">
           {% content_for 'block', type: '@app', id: 'pdp-app-after-variants' %}
         </div>
-
-        {%- render 'pingente-customization', product: product -%}
       {%- endunless -%}
+
+      {%- comment -%}
+        Pingente customizado: pro kit, render exige que o produto-pai (kit)
+        tenha a tag `customizacao_pingente` no admin Shopify. O snippet
+        renderiza checando `product.tags`. Em kits, o snippet adapta a
+        leitura das opções pra ler `[data-kit-options]` (vide JS interno).
+      {%- endcomment -%}
+      {%- render 'pingente-customization', product: product -%}
 
       <!-- ── Campos Personalizados ── -->
       {%- comment -%}
@@ -1753,6 +1768,15 @@
     }
     .pdp--is-kit .pdp__info {
       grid-column: 2;
+    }
+
+    /* No desktop, título do kit (renderizado fora do .pdp__info por
+       conta da ordem mobile) volta pra coluna direita. Auto-placement
+       coloca ele em (col 2, row 1) — showcase fica em (col 1, row 1)
+       e .pdp__info cai em (col 2, row 2). */
+    .pdp--is-kit .pdp__title--kit-outside {
+      grid-column: 2;
+      margin: 0 0 0.5rem 0;
     }
 
     /* PDP do kit: galeria do produto-pai não fica sticky — o cliente

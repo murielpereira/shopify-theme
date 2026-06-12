@@ -199,26 +199,6 @@
 
   <!-- Footer fixo com totais e CTA -->
   <div class="ame-cart-drawer__footer" data-cart-footer {% if cart.item_count == 0 %}style="display:none"{% endif %}>
-    <!-- Discount code -->
-    <div class="ame-cart-discount">
-      <div class="ame-cart-discount__wrap">
-        <span class="material-symbols-outlined ame-cart-discount__icon" aria-hidden="true">sell</span>
-        <input
-          type="text"
-          id="cart-discount-input"
-          class="ame-cart-discount__input"
-          placeholder="Código de desconto"
-          aria-label="Código de desconto"
-          data-cart-discount-input
-          autocomplete="off"
-          autocapitalize="characters"
-          aria-describedby="cart-discount-feedback"
-        >
-      </div>
-      <button type="button" class="ame-cart-discount__btn" data-cart-discount-apply>Aplicar</button>
-    </div>
-    <p class="ame-cart-discount__feedback" id="cart-discount-feedback" data-cart-discount-feedback aria-live="polite"></p>
-
     <!-- Calculadora de frete (CEP) — Shopify Ajax shipping_rates -->
     {%- render 'cart-shipping-calculator' -%}
 
