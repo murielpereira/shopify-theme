@@ -41,8 +41,11 @@
     }
   </script>
 
-  {%- comment -%} Showcase + opções renderizadas pelo JS após fetch do Waltz {%- endcomment -%}
-  <div class="pdp-kit__showcase" data-kit-showcase></div>
+  {%- comment -%}
+    Showcase saiu daqui — virou coluna LATERAL sticky (igual a galeria do
+    PDP normal), renderizado em sections/product.liquid como child direto
+    de .pdp. JS continua procurando [data-kit-showcase] no document.
+  {%- endcomment -%}
 
   <div class="pdp-kit__options" data-kit-options>
     <div class="pdp-kit__skeleton" aria-hidden="true">

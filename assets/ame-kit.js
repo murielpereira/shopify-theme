@@ -129,15 +129,14 @@
         const { swatchBg } = makeColorResolver(config.swatch_colors);
 
         const optionsWrap     = host.querySelector('[data-kit-options]');
-        const showcaseWrap    = host.querySelector('[data-kit-showcase]');
-
-        // Summary "Itens inclusos no kit" agora fica ACIMA do bloco de preço,
-        // num host injetado em sections/product.liquid. Vamos criar o markup
-        // interno do host na primeira render.
-        const summaryTopHost = document.querySelector('[data-kit-summary-top]');
+        // Showcase virou child direto de .pdp (coluna lateral sticky no
+        // desktop) e summary fica logo antes do CTA — ambos hosts injetados
+        // em sections/product.liquid via Liquid quando is_kit.
+        const showcaseWrap    = document.querySelector('[data-kit-showcase]');
+        const summaryBottomHost = document.querySelector('[data-kit-summary-bottom]');
         let summaryWrap = null;
-        if (summaryTopHost) {
-            summaryTopHost.innerHTML = `
+        if (summaryBottomHost) {
+            summaryBottomHost.innerHTML = `
                 <div class="pdp-kit__summary-wrap" data-kit-summary-wrap>
                     <p class="pdp-kit__summary-title">
                         <span class="material-symbols-outlined" aria-hidden="true">redeem</span>
@@ -146,9 +145,9 @@
                     <ul class="pdp-kit__summary" data-kit-summary></ul>
                 </div>
             `;
-            summaryWrap = summaryTopHost.querySelector('[data-kit-summary]');
+            summaryWrap = summaryBottomHost.querySelector('[data-kit-summary]');
         }
-        const summaryWrapBox = summaryTopHost?.querySelector('[data-kit-summary-wrap]');
+        const summaryWrapBox = summaryBottomHost?.querySelector('[data-kit-summary-wrap]');
 
         // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP
         const priceTotalEl       = document.querySelector('[data-kit-price-total]');

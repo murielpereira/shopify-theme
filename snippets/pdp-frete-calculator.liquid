@@ -1,0 +1,383 @@
+{% comment %}
+  Calculadora de frete na PDP — chama o endpoint /api/public/cotacao do
+  Waltz que repassa pra SmartEnvios. NÃO mexe no cart (diferente do
+  /cart/shipping_rates.json da Shopify Ajax que exige items no cart).
+
+  Lê peso/preço da variant atualmente selecionada via #pdp-variant-id
+  + window.AmeProductJson (se exposto), ou fallback pra weight padrão.
+
+  Renderizado em sections/product.liquid imediatamente antes de .pdp__ctas.
+{% endcomment %}
+
+<div class="ame-pdp-freight" data-pdp-freight>
+  <p class="ame-pdp-freight__title">
+    <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
+    Calcular frete e prazo
+  </p>
+  <form class="ame-pdp-freight__form" data-pdp-freight-form novalidate>
+    <input
+      type="text"
+      inputmode="numeric"
+      autocomplete="postal-code"
+      placeholder="00000-000"
+      maxlength="9"
+      aria-label="CEP de entrega"
+      class="ame-pdp-freight__input"
+      data-pdp-freight-input
+    >
+    <button type="submit" class="ame-pdp-freight__btn" data-pdp-freight-submit>
+      <span data-pdp-freight-btn-label>Calcular</span>
+    </button>
+  </form>
+  <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener" class="ame-pdp-freight__cep-link">
+    Não sei meu CEP
+  </a>
+  <ul class="ame-pdp-freight__results" data-pdp-freight-results hidden></ul>
+  <p class="ame-pdp-freight__error" data-pdp-freight-error hidden></p>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+    const host = document.querySelector('[data-pdp-freight]');
+    if (!host || host.dataset.init) return;
+    host.dataset.init = '1';
+
+    const WALTZ_BASE = 'https://waltz.up.railway.app';
+    const STORAGE_KEY = 'ame:cep'; // mesma chave do cart (compartilha)
+
+    const form     = host.querySelector('[data-pdp-freight-form]');
+    const input    = host.querySelector('[data-pdp-freight-input]');
+    const btn      = host.querySelector('[data-pdp-freight-submit]');
+    const btnLabel = host.querySelector('[data-pdp-freight-btn-label]');
+    const results  = host.querySelector('[data-pdp-freight-results]');
+    const errorEl  = host.querySelector('[data-pdp-freight-error]');
+
+    function maskCep(v) {
+      const d = String(v || '').replace(/\D/g, '').slice(0, 8);
+      if (d.length > 5) return d.slice(0, 5) + '-' + d.slice(5);
+      return d;
+    }
+    input.addEventListener('input', () => { input.value = maskCep(input.value); });
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+      results.hidden = true;
+    }
+    function clearMessages() {
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+    }
+    function setLoading(isLoading) {
+      btn.disabled = isLoading;
+      btnLabel.textContent = isLoading ? 'Calculando...' : 'Calcular';
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+    function fmtMoney(value) {
+      const n = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : Number(value);
+      if (!isFinite(n)) return '—';
+      return 'R$ ' + n.toFixed(2).replace('.', ',');
+    }
+    function sanitizeRateName(name) {
+      if (!name) return name;
+      return String(name)
+        .replace(/\s*[-–|]?\s*via\s+smartenvios\s*$/i, '')
+        .replace(/\s*[-–|]?\s*smartenvios\s*$/i, '')
+        .trim();
+    }
+
+    // Lê variant atual + peso + preço do PDP. Estratégia em camadas:
+    //   1. window.AmeProductJson (se o tema exponha)
+    //   2. fetch /products/<handle>.js (cache na sessão)
+    //   3. fallback pra null → backend usa defaults
+    let cachedProduct = null;
+    function getProductHandle() {
+      const m = window.location.pathname.match(/^\/products\/([^/?#]+)/);
+      return m ? m[1] : null;
+    }
+    function getSelectedVariantId() {
+      const el = document.getElementById('pdp-variant-id');
+      return el ? parseInt(el.value, 10) || null : null;
+    }
+    function getQuantity() {
+      const el = document.getElementById('pdp-qty');
+      return el ? Math.max(1, parseInt(el.value, 10) || 1) : 1;
+    }
+    function fetchProductJson() {
+      if (cachedProduct) return Promise.resolve(cachedProduct);
+      const handle = getProductHandle();
+      if (!handle) return Promise.resolve(null);
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/products/' + encodeURIComponent(handle) + '.js', true);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.timeout = 5000;
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { cachedProduct = JSON.parse(xhr.responseText); resolve(cachedProduct); }
+            catch (_) { resolve(null); }
+          } else resolve(null);
+        };
+        xhr.onerror = () => resolve(null);
+        xhr.ontimeout = () => resolve(null);
+        xhr.send();
+      });
+    }
+
+    async function resolveVariantData() {
+      const variantId = getSelectedVariantId();
+      const product = await fetchProductJson();
+      if (!product || !variantId) return { weight: 0, price: 0 };
+      const variant = (product.variants || []).find(v => v.id === variantId);
+      if (!variant) return { weight: 0, price: 0 };
+      // Shopify retorna grams; converte pra kg. Price em centavos.
+      return {
+        weight: (variant.grams || product.variants[0]?.grams || 300) / 1000,
+        price: (variant.price || 0) / 100,
+      };
+    }
+
+    function renderRates(rates) {
+      if (!rates || rates.length === 0) {
+        showError('Nenhuma opção de entrega disponível para este CEP.');
+        return;
+      }
+      const sorted = [...rates].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+      // Tags mais barato/mais rápido (mesma lógica do cart)
+      const cheapestIdx = 0;
+      let fastestIdx = 0;
+      let fastestDays = Infinity;
+      sorted.forEach((r, i) => {
+        const d = Array.isArray(r.delivery_days) && r.delivery_days[0] != null
+          ? r.delivery_days[0]
+          : Infinity;
+        if (d < fastestDays) { fastestDays = d; fastestIdx = i; }
+      });
+
+      results.innerHTML = sorted.map((rate, i) => {
+        const nome  = sanitizeRateName(rate.presentment_name || rate.name || rate.source || 'Frete');
+        const preco = parseFloat(rate.price) === 0 ? 'Grátis' : fmtMoney(rate.price);
+        const days  = Array.isArray(rate.delivery_days) && rate.delivery_days[0] != null
+          ? rate.delivery_days[0]
+          : null;
+        const prazo = days != null ? `${days} dia${days === 1 ? '' : 's'} úteis` : (rate.description || '');
+        const tags = [];
+        if (i === cheapestIdx && cheapestIdx !== fastestIdx) tags.push('<span class="ame-pdp-freight__tag ame-pdp-freight__tag--cheap">Mais barato</span>');
+        if (i === fastestIdx && fastestIdx !== cheapestIdx) tags.push('<span class="ame-pdp-freight__tag ame-pdp-freight__tag--fast">Mais rápido</span>');
+        if (i === fastestIdx && fastestIdx === cheapestIdx) tags.push('<span class="ame-pdp-freight__tag ame-pdp-freight__tag--best">Melhor opção</span>');
+        return `
+          <li class="ame-pdp-freight__result">
+            <div class="ame-pdp-freight__result-top">
+              <span class="ame-pdp-freight__result-name">${escapeHtml(nome)}</span>
+              <strong class="ame-pdp-freight__result-price">${escapeHtml(preco)}</strong>
+            </div>
+            ${prazo ? `<div class="ame-pdp-freight__result-prazo">${escapeHtml(prazo)}</div>` : ''}
+            ${tags.length ? `<div class="ame-pdp-freight__tags">${tags.join('')}</div>` : ''}
+          </li>
+        `;
+      }).join('');
+      results.hidden = false;
+    }
+
+    async function calcular(cepRaw) {
+      const cep = String(cepRaw || '').replace(/\D/g, '');
+      if (cep.length !== 8) { showError('CEP inválido.'); return; }
+      clearMessages();
+      setLoading(true);
+
+      const { weight, price } = await resolveVariantData();
+      const quantity = getQuantity();
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', WALTZ_BASE + '/api/public/cotacao', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.timeout = 12000;
+      xhr.onload = () => {
+        setLoading(false);
+        if (xhr.status < 200 || xhr.status >= 300) {
+          showError('Não foi possível calcular o frete agora.');
+          return;
+        }
+        try {
+          const data = JSON.parse(xhr.responseText);
+          renderRates(data.rates || []);
+          try { localStorage.setItem(STORAGE_KEY, cep); } catch (_) {}
+        } catch (_) {
+          showError('Resposta inválida do servidor.');
+        }
+      };
+      xhr.onerror = () => { setLoading(false); showError('Erro de rede.'); };
+      xhr.ontimeout = () => { setLoading(false); showError('Tempo esgotado. Tente novamente.'); };
+      xhr.send(JSON.stringify({ cep, weight, quantity, price }));
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      calcular(input.value);
+    });
+
+    // Restaura CEP salvo (compartilhado com o cart)
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && /^\d{8}$/.test(saved)) {
+        input.value = maskCep(saved);
+        // NÃO auto-calcula no load — cliente deve clicar pra cotar
+      }
+    } catch (_) {}
+  })();
+</script>
+
+<style>
+  .ame-pdp-freight {
+    padding: 0.875rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 8px);
+    background: var(--color-surface-container-lowest, #fff);
+  }
+
+  .ame-pdp-freight__title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0 0 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
+  }
+  .ame-pdp-freight__title .material-symbols-outlined {
+    font-size: 0.95rem;
+    font-variation-settings: 'wght' 300;
+  }
+
+  .ame-pdp-freight__form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .ame-pdp-freight__input {
+    flex: 1;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 0.25rem);
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    color: var(--color-on-background, #201b14);
+    background: var(--color-surface, #fff);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .ame-pdp-freight__input:focus { border-color: var(--color-primary, #5a4742); }
+
+  .ame-pdp-freight__btn {
+    flex-shrink: 0;
+    background: var(--color-primary, #5a4742);
+    color: var(--color-on-primary, #fff);
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-md, 0.25rem);
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: opacity 0.15s ease;
+  }
+  .ame-pdp-freight__btn:hover:not(:disabled) { opacity: 0.9; }
+  .ame-pdp-freight__btn:disabled { opacity: 0.6; cursor: default; }
+
+  .ame-pdp-freight__cep-link {
+    display: inline-block;
+    margin-top: 0.375rem;
+    font-size: 0.6875rem;
+    color: rgba(90, 71, 66, 0.55);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ame-pdp-freight__cep-link:hover { color: var(--color-primary, #5a4742); }
+
+  .ame-pdp-freight__error {
+    margin: 0.625rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(192, 57, 43, 0.08);
+    color: #a8392b;
+    border-radius: var(--radius-md, 0.25rem);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .ame-pdp-freight__results {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .ame-pdp-freight__result {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed rgba(210, 195, 192, 0.4);
+    font-size: 0.8125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .ame-pdp-freight__result:last-child { border-bottom: none; }
+
+  .ame-pdp-freight__result-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+  }
+  .ame-pdp-freight__result-name {
+    flex: 1;
+    color: var(--color-on-background, #201b14);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ame-pdp-freight__result-prazo {
+    font-size: 0.6875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-pdp-freight__result-price {
+    font-weight: 700;
+    color: var(--color-on-background, #201b14);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .ame-pdp-freight__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+  }
+  .ame-pdp-freight__tag {
+    display: inline-block;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 999px;
+    line-height: 1.2;
+  }
+  .ame-pdp-freight__tag--cheap { background: #d4f0db; color: #15803d; }
+  .ame-pdp-freight__tag--fast  { background: #dbeafe; color: #1d4ed8; }
+  .ame-pdp-freight__tag--best  {
+    background: linear-gradient(135deg, #c89b5e 0%, #e9c89a 50%, #c89b5e 100%);
+    color: #fff;
+  }
+</style>

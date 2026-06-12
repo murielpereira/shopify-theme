@@ -1297,7 +1297,7 @@ body::after {
   flex-wrap: wrap;
   /* permite o slot de cross-sell quebrar pra linha de baixo */
   gap: 1rem;
-  padding: 1.25rem 0;
+  padding: 1rem 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.15);
   transition: opacity 0.3s ease, background 0.25s ease;
 }
@@ -1856,10 +1856,12 @@ body::after {
   border-top: 1px solid rgba(210, 195, 192, 0.3);
   margin-top: 0.25rem;
 }
+
 .ame-cart-totals__row--grand span:first-child {
   font-size: 1rem !important;
   font-weight: 600 !important;
 }
+
 .ame-cart-totals__row--grand span:last-child {
   font-size: 1.25rem !important;
   color: var(--color-primary, #5a4742) !important;
