@@ -1010,7 +1010,13 @@ body::after {
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Drawer inteiro scrolla — antes só o __body scrollava e header/footer
+     ficavam fixos. Com a calculadora de frete mostrando até 4 opções, o
+     body ficava espremido. Agora todo o conteúdo (items, cupom, frete,
+     totais, CTA) flui num único scroll vertical. */
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   transition: transform 0.45s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
   will-change: transform;
 }
@@ -1057,9 +1063,12 @@ body::after {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1.5rem 1rem;
-  flex-shrink: 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.18);
   background: #ffffff;
+  /* Header continua "grudado" no topo enquanto o resto do drawer scrolla. */
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
@@ -1131,12 +1140,8 @@ body::after {
 }
 
 .ame-cart-drawer__body {
-  flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* Scroll agora é do drawer inteiro, não interno do body. */
   padding: 0 1.5rem 1rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(210, 195, 192, 0.5) transparent;
 }
 
 @media (min-width: 768px) {
@@ -1145,11 +1150,11 @@ body::after {
   }
 }
 
-.ame-cart-drawer__body::-webkit-scrollbar {
+.ame-cart-drawer::-webkit-scrollbar {
   width: 3px;
 }
 
-.ame-cart-drawer__body::-webkit-scrollbar-thumb {
+.ame-cart-drawer::-webkit-scrollbar-thumb {
   background: rgba(210, 195, 192, 0.5);
   border-radius: 2px;
 }
@@ -1701,7 +1706,7 @@ body::after {
 }
 
 .ame-cart-drawer__footer {
-  flex-shrink: 0;
+  /* Não mais fixo — flui no scroll do drawer junto com o body. */
   padding: 1.25rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
   background: #ffffff;
   border-top: 1px solid rgba(210, 195, 192, 0.18);

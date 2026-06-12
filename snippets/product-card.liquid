@@ -24,6 +24,16 @@
   endif
   assign card_cta_label = card_btn_label | default: 'Comprar'
 
+  # Kit de produtos: produto-pai sem variantes próprias (preço 0) — pra
+  # listagens/busca mostrarem o preço real, soma o `price_min` de cada
+  # componente referenciado no metafield `custom.kit_componentes`. Vide
+  # [sections/product.liquid] e [snippets/kit-picker.liquid].
+  assign card_kit_components = card_product.metafields.custom.kit_componentes.value
+  assign card_is_kit = false
+  if card_kit_components != blank and card_kit_components.size > 1
+    assign card_is_kit = true
+  endif
+
   assign card_has_discount = false
   assign card_discount_pct = 0
   assign card_compare = card_product.compare_at_price_max | default: 0
@@ -32,18 +42,25 @@
     assign card_compare = card_cv.compare_at_price | default: 0
   endif
   assign card_price = card_product.price_min | default: card_product.price
+  if card_is_kit
+    assign card_price = 0
+    for comp in card_kit_components
+      assign comp_price = comp.price_min | default: comp.price
+      assign card_price = card_price | plus: comp_price
+    endfor
+  endif
   if card_compare > card_price
     assign card_has_discount = true
     assign card_discount_pct = card_compare | minus: card_price | times: 100 | divided_by: card_compare | round
   endif
 
-  assign card_effective_price = card_product.price
+  assign card_effective_price = card_price
   if card_has_discount == false and settings.auto_discount_enabled and settings.auto_discount_percent > 0
     assign card_has_discount = true
     assign card_discount_pct = settings.auto_discount_percent
-    assign card_compare_price = card_product.price
-    assign card_discount_cents = card_product.price | times: card_discount_pct | divided_by: 100
-    assign card_effective_price = card_product.price | minus: card_discount_cents
+    assign card_compare_price = card_price
+    assign card_discount_cents = card_price | times: card_discount_pct | divided_by: 100
+    assign card_effective_price = card_price | minus: card_discount_cents
   else
     assign card_compare_price = card_compare
   endif

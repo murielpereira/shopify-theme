@@ -138,24 +138,17 @@
       const sorted = [...rates].sort((a, b) =>
         parseFloat(a.price) - parseFloat(b.price)
       );
-      // Pra cada rate, exibe o total estimado (subtotal + frete). Cliente
-      // vê o impacto real no bolso pra cada opção, igual o checkout faz.
-      const cartCents = getCartTotalCents();
       resultsEl.innerHTML = sorted.map(rate => {
         const nome  = rate.presentment_name || rate.name || rate.source || 'Frete';
-        const precoCents = Math.round(parseFloat(String(rate.price).replace(',', '.')) * 100);
         const preco = fmtMoney(rate.price);
-        const totalCents = cartCents + precoCents;
-        const totalFmt = 'R$ ' + (totalCents / 100).toFixed(2).replace('.', ',');
         const prazo = fmtPrazo(rate);
         return `
           <li class="ame-cart-freight__result">
             <div class="ame-cart-freight__result-top">
               <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
-              ${prazo ? `<span class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</span>` : ''}
               <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
             </div>
-            <div class="ame-cart-freight__result-total">Total com frete: <strong>${escapeHtml(totalFmt)}</strong></div>
+            ${prazo ? `<div class="ame-cart-freight__result-prazo">Prazo: <strong>${escapeHtml(prazo)}</strong></div>` : ''}
           </li>
         `;
       }).join('');
@@ -515,15 +508,6 @@
     gap: 0.625rem;
   }
 
-  .ame-cart-freight__result-total {
-    font-size: 0.6875rem;
-    color: var(--color-on-surface-variant, #4f4442);
-    margin-left: 0;
-  }
-  .ame-cart-freight__result-total strong {
-    color: var(--color-primary, #5a4742);
-    font-weight: 600;
-  }
 
   .ame-cart-freight__result-name {
     flex: 1;
@@ -538,7 +522,10 @@
   .ame-cart-freight__result-prazo {
     font-size: 0.6875rem;
     color: var(--color-on-surface-variant, #4f4442);
-    white-space: nowrap;
+  }
+  .ame-cart-freight__result-prazo strong {
+    color: var(--color-on-background, #201b14);
+    font-weight: 600;
   }
 
   .ame-cart-freight__result-price {

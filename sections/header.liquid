@@ -367,6 +367,14 @@
     color: rgba(90, 71, 66, 0.45);
     font-size: 0.6875rem;
   }
+  .ame-predictive__price-cta {
+    font-size: 0.75rem;
+    color: var(--color-primary, #5a4742);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   .ame-predictive__price strong {
     font-weight: 600;
     color: var(--color-on-background, #201b14);
@@ -605,6 +613,15 @@
         const priceCents = toCents(p.price_min ?? p.price);
         const compareCents = toCents(p.compare_at_price_min ?? p.compare_at_price);
         const hasCompare = compareCents > priceCents;
+        // Kit: produto-pai tem preço 0 (sem variantes próprias). O endpoint
+        // /search/suggest.json não expõe metafields pra somar componentes,
+        // então detectamos via título começar com "Kit " (heurística da
+        // convenção de nomes da Âme: Kit Prímula, Kit Gabriel...). Pra esses,
+        // troca o preço por CTA "Ver detalhes" — cliente vê o preço real no PDP.
+        const isKitLike = /^kit\b/i.test(p.title || '');
+        const priceHtml = isKitLike
+          ? `<span class="ame-predictive__price-cta">Ver detalhes →</span>`
+          : `${hasCompare ? `<s>${moneyFmt(compareCents)}</s>` : ''}<strong>${moneyFmt(priceCents)}</strong>`;
         return `
           <a class="ame-predictive__item" href="${escapeHTML(url)}">
             <div class="ame-predictive__thumb">
@@ -612,10 +629,7 @@
             </div>
             <div class="ame-predictive__info">
               <p class="ame-predictive__title">${title}</p>
-              <p class="ame-predictive__price">
-                ${hasCompare ? `<s>${moneyFmt(compareCents)}</s>` : ''}
-                <strong>${moneyFmt(priceCents)}</strong>
-              </p>
+              <p class="ame-predictive__price">${priceHtml}</p>
             </div>
           </a>
         `;

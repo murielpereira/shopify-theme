@@ -115,7 +115,7 @@
   <span aria-current="page">{{ display_title }}</span>
 </nav>
 
-<div class="pdp full-width">
+<div class="pdp full-width{% if is_kit %} pdp--is-kit{% endif %}">
   <!-- ── Coluna esquerda: galeria ── -->
   <div class="pdp__gallery">
     {%- assign selection_pos = section.settings.selection_info_position | default: 'below' -%}
@@ -1706,6 +1706,14 @@
       top: 10rem; /*era 6.5*/
       align-self: start;
       height: fit-content;
+    }
+
+    /* PDP do kit: galeria do produto-pai não fica sticky — o cliente
+       precisa rolar pra ver showcase dos componentes + pickers + CFs +
+       CTA. Sticky atrapalha porque a foto principal do kit é genérica,
+       não interativa como nas PDPs normais (variant change → DOM swap). */
+    .pdp--is-kit .pdp__gallery {
+      position: static;
     }
 
     .pdp__info {

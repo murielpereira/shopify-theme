@@ -70,6 +70,21 @@
             "tags": {{ comp.tags | json }},
             "featured_image": {{ comp_img | json }},
             "options": {{ comp.options | json }},
+            {%- comment -%}
+              Emite TODOS os valores únicos de cada option via
+              `options_with_values`. Importante porque `product.variants` no
+              Liquid é capado em 250 variantes — produtos com mais (como o
+              Peitoral Gabriel com ~280) ficam SEM valores no array das
+              últimas variantes (ex: tamanhos M/G sumiam). Esses valores são
+              usados pra montar a UI; pra resolver variant.id usamos o array
+              `variants` (que pode estar incompleto pra produtos grandes —
+              `resolveVariants` retorna null e o CTA fica "indisponível").
+            {%- endcomment -%}
+            "option_values": [
+              {%- for option in comp.options_with_values -%}
+                { "name": {{ option.name | json }}, "values": {{ option.values | json }} }{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            ],
             "variants": [
               {%- for v in comp.variants -%}
                 {%- assign v_img = v.featured_image | image_url: width: 800 | default: '' -%}

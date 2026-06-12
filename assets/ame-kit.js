@@ -138,13 +138,24 @@
     // Quando uma option só aparece em 1 componente (ex: Comprimento, exclusivo
     // da Guia), entra como grupo solo com label sufixado pelo nome do produto.
     function unifyOptions(components) {
-        // Pass 1: coleta cada (compIdx, optIdx) com seus valores únicos
+        // Pass 1: coleta cada (compIdx, optIdx) com seus valores únicos.
+        // Prioriza `option_values` (option.values do Liquid — todos os valores
+        // únicos da option) que NÃO sofre do limite de 250 variantes do array
+        // `variants`. Pra produtos com >250 variantes (caso do Peitoral Gabriel),
+        // derivar de `variants` fazia tamanhos M/G sumirem.
         const allOpts = [];
         components.forEach((comp, ci) => {
             (comp.options || []).forEach((optName, oi) => {
-                const values = Array.from(new Set(
-                    (comp.variants || []).map(v => v[`option${oi + 1}`]).filter(Boolean)
-                ));
+                let values;
+                if (comp.option_values && comp.option_values[oi]) {
+                    values = comp.option_values[oi].values || [];
+                } else {
+                    // Fallback: deriva das variants (compatibilidade caso o
+                    // Liquid não tenha emitido option_values).
+                    values = Array.from(new Set(
+                        (comp.variants || []).map(v => v[`option${oi + 1}`]).filter(Boolean)
+                    ));
+                }
                 allOpts.push({ ci, oi, name: optName, values });
             });
         });
@@ -532,10 +543,45 @@
             return props;
         }
 
+        // Valida custom fields obrigatórios (data-cf-required) na PDP do
+        // kit. Cada wrapper .pdp__custom-field tem data-cf-tag pra saber
+        // a qual componente o CF pertence — só validamos os CFs cujo
+        // componente está realmente sendo adicionado. Marca o wrapper
+        // com .pdp__custom-field--invalid e foca o primeiro inválido.
+        function validateRequiredCustomFields() {
+            const fields = document.querySelectorAll('.pdp__custom-field[data-cf-tag]');
+            const invalids = [];
+            fields.forEach(node => {
+                const tag = node.dataset.cfTag;
+                // Algum componente do kit tem essa tag?
+                const isRelevant = components.some(c => (c.tags || []).includes(tag));
+                if (!isRelevant) return;
+                const input = node.querySelector('[data-cf-required]');
+                if (!input) return;
+                const value = String(input.value || '').trim();
+                if (!value) {
+                    node.classList.add('pdp__custom-field--invalid');
+                    invalids.push({ node, input });
+                } else {
+                    node.classList.remove('pdp__custom-field--invalid');
+                }
+            });
+            if (invalids.length === 0) return true;
+            // Scroll suave até o primeiro inválido + foca
+            const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
+            const top = invalids[0].node.getBoundingClientRect().top + window.scrollY - headerH - 16;
+            window.scrollTo({ top, behavior: 'smooth' });
+            setTimeout(() => invalids[0].input.focus(), 350);
+            return false;
+        }
+
         async function onSubmit(e) {
             e?.preventDefault?.();
             const variants = resolveVariants(state, unified, components);
             if (variants.some(v => v === null)) return;
+
+            // Bloqueia submit se houver custom field obrigatório vazio
+            if (!validateRequiredCustomFields()) return;
 
             const propsByComp = collectPropertiesByComponent();
             const items = variants.map((v, i) => {
