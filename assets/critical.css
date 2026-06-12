@@ -1313,8 +1313,12 @@ body::after {
    antes usava `:has()` pra unir os dois no mesmo container, mas isso fazia
    o cliente achar que a guia já estava no carrinho. Agora: a coleira segue
    o estilo padrão de item (sem fundo destacado) e o cross-sell vira um
-   card de oferta com bordas tracejadas e header chamativo. */
-.ame-cart-item .ame-cart-crosssell {
+   card de oferta com bordas tracejadas e header chamativo.
+
+   `:not(:empty)` evita renderizar o separador dashed + padding quando o
+   slot está vazio (sem cross-sell pra esse item) — antes deixava um espaço
+   fantasma entre items. */
+.ame-cart-item .ame-cart-crosssell:not(:empty) {
   margin-top: 0.625rem;
   padding-top: 0.625rem;
   border-top: 1px dashed rgba(210, 195, 192, 0.5);
@@ -1838,6 +1842,27 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+}
+
+.ame-cart-totals__row--shipping span:first-child,
+.ame-cart-totals__row--shipping span:last-child {
+  font-size: 0.8125rem !important;
+  color: var(--color-on-surface-variant, #4f4442) !important;
+  font-weight: 500 !important;
+}
+
+.ame-cart-totals__row--grand {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(210, 195, 192, 0.3);
+  margin-top: 0.25rem;
+}
+.ame-cart-totals__row--grand span:first-child {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+}
+.ame-cart-totals__row--grand span:last-child {
+  font-size: 1.25rem !important;
+  color: var(--color-primary, #5a4742) !important;
 }
 
 .ame-cart-totals__row span:first-child {

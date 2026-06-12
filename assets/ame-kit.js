@@ -644,6 +644,81 @@
 
         renderOptions();
         renderSummaryAndPrice();
+
+        // Em paralelo, busca o array COMPLETO de variants de cada componente
+        // (Liquid capa em 250). Quando terminar, re-renderiza pra refletir
+        // combinações que agora resolvem (ex: tamanho M+G do Peitoral Gabriel).
+        enrichComponentsVariants(components, () => {
+            renderSummaryAndPrice();
+        });
+    }
+
+    // Liquid `product.variants` é capado em 250 variantes. Pra produtos com
+    // mais (Peitoral Gabriel tem ~280 com M/G), as últimas variantes ficam
+    // fora do JSON embedado — `resolveVariants` retorna null e cliente vê
+    // "Combinação indisponível". Endpoint /products/<handle>.js retorna
+    // TODAS as variantes. Faz fetch em paralelo no boot e substitui o
+    // array `variants` de cada componente.
+    function xhrJsonProduct(handle) {
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/products/' + encodeURIComponent(handle) + '.js', true);
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.timeout = 8000;
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try { resolve(JSON.parse(xhr.responseText)); }
+                    catch (e) { reject(e); }
+                } else reject(new Error('HTTP ' + xhr.status));
+            };
+            xhr.onerror = () => reject(new Error('Network'));
+            xhr.ontimeout = () => reject(new Error('Timeout'));
+            xhr.send();
+        });
+    }
+
+    function normalizeVariants(raw) {
+        return (raw || []).map(v => ({
+            id: v.id,
+            title: v.title || '',
+            price: v.price,
+            available: v.available,
+            option1: v.option1 || null,
+            option2: v.option2 || null,
+            option3: v.option3 || null,
+            featured_image: (v.featured_image && (v.featured_image.src || v.featured_image)) || '',
+        }));
+    }
+
+    async function enrichComponentsVariants(components, onUpdated) {
+        const CACHE_PREFIX = 'kit:variants:';
+        await Promise.all(components.map(async (comp, i) => {
+            if (!comp.handle) return;
+            const key = CACHE_PREFIX + comp.handle;
+            // Cache 15min em sessionStorage
+            try {
+                const raw = sessionStorage.getItem(key);
+                if (raw) {
+                    const obj = JSON.parse(raw);
+                    if (obj && obj.at && (Date.now() - obj.at) < 15 * 60 * 1000) {
+                        components[i].variants = obj.variants;
+                        return;
+                    }
+                }
+            } catch (_) {}
+            try {
+                const data = await xhrJsonProduct(comp.handle);
+                const variants = normalizeVariants(data.variants);
+                components[i].variants = variants;
+                try {
+                    sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), variants }));
+                } catch (_) {}
+            } catch (e) {
+                console.warn('[Kit] Falha ao carregar variants completas de', comp.handle, e.message);
+                // Mantém as variantes parciais do JSON embedado
+            }
+        }));
+        if (typeof onUpdated === 'function') onUpdated();
     }
 
     function boot() {
