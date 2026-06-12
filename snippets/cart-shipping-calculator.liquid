@@ -44,6 +44,28 @@
     if (!host || host.dataset.init) return;
     host.dataset.init = '1';
 
+    // Expõe atualização da barra de frete grátis pro JS global do cart.
+    // Quando o cliente remove/altera item, AmeCart.refresh dispara um
+    // re-render do cart drawer; o subtotal pode mudar e a barra precisa
+    // refletir. Como o script do snippet é inline (não global), expomos
+    // a função que recalcula via window pro hook ser instalado uma vez só.
+    if (!window.__ameShippingBarHooked) {
+      window.__ameShippingBarHooked = true;
+      const origRefresh = window.AmeCart && window.AmeCart.refresh;
+      if (origRefresh) {
+        window.AmeCart.refresh = function (cart) {
+          origRefresh.apply(this, arguments);
+          // Aguarda re-render do cart drawer terminar (synchronous via JS
+          // do AmeCart) e dispara atualização da barra usando o CEP atual
+          // do input se houver, ou vazio (default regional).
+          if (typeof window.__ameUpdateShippingBar === 'function') {
+            const currentInput = document.querySelector('[data-cart-freight-input]');
+            window.__ameUpdateShippingBar(currentInput ? currentInput.value : '');
+          }
+        };
+      }
+    }
+
     const STORAGE_KEY = 'ame:cep';
     const form        = host.querySelector('[data-cart-freight-form]');
     const input       = host.querySelector('[data-cart-freight-input]');
@@ -116,15 +138,24 @@
       const sorted = [...rates].sort((a, b) =>
         parseFloat(a.price) - parseFloat(b.price)
       );
+      // Pra cada rate, exibe o total estimado (subtotal + frete). Cliente
+      // vê o impacto real no bolso pra cada opção, igual o checkout faz.
+      const cartCents = getCartTotalCents();
       resultsEl.innerHTML = sorted.map(rate => {
         const nome  = rate.presentment_name || rate.name || rate.source || 'Frete';
+        const precoCents = Math.round(parseFloat(String(rate.price).replace(',', '.')) * 100);
         const preco = fmtMoney(rate.price);
+        const totalCents = cartCents + precoCents;
+        const totalFmt = 'R$ ' + (totalCents / 100).toFixed(2).replace('.', ',');
         const prazo = fmtPrazo(rate);
         return `
           <li class="ame-cart-freight__result">
-            <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
-            ${prazo ? `<span class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</span>` : ''}
-            <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
+            <div class="ame-cart-freight__result-top">
+              <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
+              ${prazo ? `<span class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</span>` : ''}
+              <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
+            </div>
+            <div class="ame-cart-freight__result-total">Total com frete: <strong>${escapeHtml(totalFmt)}</strong></div>
           </li>
         `;
       }).join('');
@@ -206,7 +237,38 @@
       }
     }
 
-    function calcular(cep) {
+    // ── Wrapper XHR (Promise) ──
+    function xhrRequest(method, url, options) {
+      options = options || {};
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url, true);
+        xhr.setRequestHeader('Accept', 'application/json');
+        if (options.contentType) xhr.setRequestHeader('Content-Type', options.contentType);
+        xhr.timeout = options.timeout || 12000;
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try { resolve(JSON.parse(xhr.responseText)); }
+            catch (e) { resolve({}); }
+          } else {
+            const err = new Error('HTTP ' + xhr.status);
+            err.status = xhr.status;
+            err.body = xhr.responseText;
+            reject(err);
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network'));
+        xhr.ontimeout = () => reject(new Error('Timeout'));
+        xhr.send(options.body || null);
+      });
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ── Cálculo via prepare + async (correto pra Carrier Service externa
+    // como a SmartEnvios). O endpoint síncrono /cart/shipping_rates.json
+    // não funciona com Carrier Service que faz HTTP em runtime. ──
+    async function calcular(cep) {
       const digits = String(cep || '').replace(/\D/g, '');
       if (digits.length !== 8) {
         showError('CEP inválido. Use o formato 00000-000.');
@@ -220,48 +282,62 @@
       clearMessages();
       setLoading(true);
 
-      // XHR (apps na storefront sobrescrevem fetch)
-      const xhr = new XMLHttpRequest();
-      const url = '/cart/shipping_rates.json'
-        + '?shipping_address%5Bcountry%5D=Brazil'
-        + '&shipping_address%5Bzip%5D=' + encodeURIComponent(digits);
-      xhr.open('GET', url, true);
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.timeout = 12000;
-      xhr.onload = () => {
-        setLoading(false);
-        if (xhr.status === 422) {
-          // CEP inválido ou sem cobertura — Shopify retorna 422 com mensagem
+      const addrParams = 'shipping_address%5Bzip%5D=' + encodeURIComponent(digits)
+        + '&shipping_address%5Bcountry%5D=Brazil';
+
+      try {
+        // 1. POST /cart/prepare_shipping_rates.json — dispara cálculo
+        await xhrRequest('POST', '/cart/prepare_shipping_rates.json?' + addrParams, {
+          contentType: 'application/x-www-form-urlencoded',
+        });
+
+        // 2. Polling no async — até 10 tentativas (200ms cada = 2s total)
+        let rates = null;
+        for (let i = 0; i < 10; i++) {
+          await sleep(300);
           try {
-            const err = JSON.parse(xhr.responseText);
-            showError(err.shipping_address || 'CEP inválido ou sem cobertura.');
+            const data = await xhrRequest('GET', '/cart/async_shipping_rates.json?' + addrParams);
+            if (data.shipping_rates) {
+              rates = data.shipping_rates;
+              break;
+            }
+          } catch (e) {
+            if (e.status === 422) throw e; // propaga erro de CEP inválido
+            // outros erros: tenta de novo
+          }
+        }
+
+        setLoading(false);
+        if (!rates) {
+          showError('Cálculo demorou demais. Tente novamente em alguns segundos.');
+          return;
+        }
+        renderRates(rates);
+        try { localStorage.setItem(STORAGE_KEY, digits); } catch (_) {}
+      } catch (err) {
+        setLoading(false);
+        if (err.status === 422) {
+          try {
+            const obj = JSON.parse(err.body);
+            const msg = obj.shipping_address || obj.zip || obj.country || 'CEP inválido ou sem cobertura.';
+            showError(Array.isArray(msg) ? msg.join(' ') : String(msg));
           } catch (_) {
             showError('CEP inválido ou sem cobertura.');
           }
           return;
         }
-        if (xhr.status < 200 || xhr.status >= 300) {
-          showError('Não foi possível calcular o frete agora. Tente novamente.');
-          return;
-        }
-        try {
-          const data = JSON.parse(xhr.responseText);
-          renderRates(data.shipping_rates || []);
-          // Salva CEP só se obteve cotação válida
-          try { localStorage.setItem(STORAGE_KEY, digits); } catch (_) {}
-        } catch (e) {
-          showError('Resposta inválida do servidor.');
-        }
-      };
-      xhr.onerror = () => { setLoading(false); showError('Erro de rede.'); };
-      xhr.ontimeout = () => { setLoading(false); showError('Tempo esgotado. Tente novamente.'); };
-      xhr.send();
+        console.error('[Frete]', err);
+        showError('Não foi possível calcular o frete agora. Tente novamente.');
+      }
     }
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       calcular(input.value);
     });
+
+    // Expõe globalmente pra ser chamada pelo hook do AmeCart.refresh
+    window.__ameUpdateShippingBar = updateShippingBar;
 
     // Restaura CEP salvo entre sessões e auto-calcula (se houver items)
     try {
@@ -375,13 +451,29 @@
 
   .ame-cart-freight__result {
     display: flex;
-    align-items: baseline;
-    gap: 0.625rem;
+    flex-direction: column;
+    gap: 0.125rem;
     padding: 0.5rem 0;
     border-bottom: 1px dashed rgba(210, 195, 192, 0.4);
     font-size: 0.8125rem;
   }
   .ame-cart-freight__result:last-child { border-bottom: none; }
+
+  .ame-cart-freight__result-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+  }
+
+  .ame-cart-freight__result-total {
+    font-size: 0.6875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    margin-left: 0;
+  }
+  .ame-cart-freight__result-total strong {
+    color: var(--color-primary, #5a4742);
+    font-weight: 600;
+  }
 
   .ame-cart-freight__result-name {
     flex: 1;
