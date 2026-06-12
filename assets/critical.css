@@ -1201,6 +1201,72 @@ body::after {
   transition: width 0.6s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
+/* Barra com 2 thresholds (regional + nacional) */
+.ame-cart-shipping-bar--multi .ame-cart-shipping-bar__text {
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
+.ame-cart-shipping-bar__marks {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant, #4f4442);
+  line-height: 1.3;
+}
+
+.ame-cart-shipping-bar__mark {
+  flex: 0 1 auto;
+  max-width: 45%;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-container, #f8ece0);
+  text-align: center;
+}
+
+.ame-cart-shipping-bar__mark--t1 { text-align: left; }
+.ame-cart-shipping-bar__mark--t2 { text-align: right; }
+
+.ame-cart-shipping-bar__mark.is-achieved {
+  background: var(--color-primary, #5a4742);
+  color: var(--color-on-primary, #fff);
+}
+
+/* Track expandido pra acomodar dots */
+.ame-cart-shipping-bar--multi .ame-cart-shipping-bar__track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.ame-cart-shipping-bar--multi .ame-cart-shipping-bar__fill {
+  border-radius: 3px;
+}
+
+/* Dots de marcadores na track */
+.ame-cart-shipping-bar__dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-surface-container, #f8ece0);
+  border: 2px solid var(--color-outline-variant, #d2c3c0);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.ame-cart-shipping-bar__dot--t1 { left: 50%; }
+.ame-cart-shipping-bar__dot--t2 { left: 100%; }
+
+.ame-cart-shipping-bar__dot.is-achieved {
+  background: var(--color-primary, #5a4742);
+  border-color: var(--color-primary, #5a4742);
+}
+
 .ame-cart-items {
   list-style: none;
   padding: 0;
@@ -1226,24 +1292,15 @@ body::after {
   padding: 0;
 }
 
-/* Quando há card de cross-sell dentro do item, agrupa visualmente:
-   fundo sutil + borda + arredondamento mostrando que produto e sugestão
-   pertencem ao mesmo "grupo". `:has()` tem suporte amplo em 2026 (Chrome
-   105+, Safari 15.4+, Firefox 121+). */
-.ame-cart-item:has(.ame-cart-crosssell__card) {
-  background: rgba(248, 236, 224, 0.4);
-  border: 1px solid rgba(210, 195, 192, 0.3);
-  border-radius: var(--radius-md, 0.5rem);
-  padding: 1rem;
-  margin: 0.5rem 0;
-}
-
-/* Dentro do agrupamento, o card de cross-sell pode ficar mais simples
-   (sem duplicar fundo). */
-.ame-cart-item:has(.ame-cart-crosssell__card) .ame-cart-crosssell__card {
-  background: rgba(255, 248, 243, 0.7);
-  border-color: rgba(210, 195, 192, 0.35);
-  margin-top: 0.25rem;
+/* Cross-sell aparece como CARD DE OFERTA visualmente separado da coleira —
+   antes usava `:has()` pra unir os dois no mesmo container, mas isso fazia
+   o cliente achar que a guia já estava no carrinho. Agora: a coleira segue
+   o estilo padrão de item (sem fundo destacado) e o cross-sell vira um
+   card de oferta com bordas tracejadas e header chamativo. */
+.ame-cart-item .ame-cart-crosssell {
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px dashed rgba(210, 195, 192, 0.5);
 }
 
 .ame-cart-item.is-loading {
@@ -1472,12 +1529,15 @@ body::after {
 .ame-cart-crosssell__card {
   display: flex;
   gap: 0.75rem;
-  padding: 0.75rem;
-  background: var(--color-surface-container, #f8ece0);
-  border: 1px solid rgba(210, 195, 192, 0.3);
+  padding: 0.875rem;
+  /* Borda tracejada + fundo claro sinaliza "oferta opcional" em vez de
+     "item do cart" (que tem fundo creme + borda sólida). */
+  background: var(--color-surface-container-lowest, #fff);
+  border: 1.5px dashed var(--color-primary, #5a4742);
   border-radius: var(--radius-md, 0.5rem);
   align-items: flex-start;
   position: relative;
+  box-shadow: 0 2px 8px rgba(90, 71, 66, 0.04);
 }
 
 /* Botão "×" pra recusar sugestão. Topo direito do card. */
@@ -1528,12 +1588,24 @@ body::after {
 }
 
 .ame-cart-crosssell__eyebrow {
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-primary, #5a4742);
-  margin: 0;
+  color: var(--color-on-primary, #fff);
+  background: var(--color-primary, #5a4742);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  margin: 0 0 0.25rem;
   font-weight: 600;
+  width: fit-content;
+}
+
+.ame-cart-crosssell__eyebrow .material-symbols-outlined {
+  font-size: 0.875rem;
+  font-variation-settings: 'FILL' 1;
 }
 
 .ame-cart-crosssell__title {

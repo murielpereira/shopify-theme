@@ -45,27 +45,48 @@
         </a>
       </div>
     {%- else -%}
-      <!-- Free shipping progress bar -->
-      {%- assign free_shipping_threshold = 300 -%}
-      {%- assign cart_total_price = cart.total_price | divided_by: 100.0 -%}
-      {%- if cart_total_price < free_shipping_threshold -%}
-        {%- assign remaining = free_shipping_threshold | minus: cart_total_price -%}
-        {%- assign progress = cart_total_price | divided_by: free_shipping_threshold | times: 100 -%}
-        <div class="ame-cart-shipping-bar">
-          <p class="ame-cart-shipping-bar__text">
-            Frete grátis a partir de {{ free_shipping_threshold | money_without_trailing_zeros }} — faltam
-            <strong>{{ remaining | money }}</strong>
+      {%- comment -%}
+        Barra de frete grátis com threshold DINÂMICO por região do CEP.
+        Os valores vêm de settings (shipping_bar_t_regional pra SUL/SE,
+        shipping_bar_t_nacional pro resto). Quando o cliente digita CEP no
+        widget de cálculo, o JS detecta a região via prefixo do CEP e
+        atualiza data-current-threshold + a barra. Sem CEP: usa o threshold
+        nacional (cenário pior — incentiva o cliente a digitar pra ver melhor).
+      {%- endcomment -%}
+      {%- liquid
+        assign t_regional_cents = settings.shipping_bar_t_regional | default: 30000
+        assign t_nacional_cents = settings.shipping_bar_t_nacional | default: 50000
+        # Default antes do cliente digitar CEP: usa o regional (mais otimista)
+        assign initial_threshold = t_regional_cents
+        assign cart_cents = cart.total_price
+        assign initial_remaining = initial_threshold | minus: cart_cents
+        assign initial_progress = cart_cents | times: 100 | divided_by: initial_threshold | at_most: 100
+        if initial_remaining < 0
+          assign initial_remaining = 0
+        endif
+      -%}
+      <div
+        class="ame-cart-shipping-bar"
+        data-shipping-bar
+        data-t-regional="{{ t_regional_cents }}"
+        data-t-nacional="{{ t_nacional_cents }}"
+        data-current-threshold="{{ initial_threshold }}"
+      >
+        {%- if cart_cents >= initial_threshold -%}
+          <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
+            <span class="material-symbols-outlined" aria-hidden="true" style="font-size:0.95rem;vertical-align:middle;">local_shipping</span>
+            Você ganhou <strong>frete grátis</strong>!
           </p>
-          <div class="ame-cart-shipping-bar__track">
-            <div class="ame-cart-shipping-bar__fill" style="width: {{ progress | round }}%"></div>
-          </div>
+        {%- else -%}
+          <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
+            Faltam <strong data-shipping-bar-remaining>{{ initial_remaining | money }}</strong>
+            para <strong>frete grátis</strong>
+          </p>
+        {%- endif -%}
+        <div class="ame-cart-shipping-bar__track">
+          <div class="ame-cart-shipping-bar__fill" data-shipping-bar-fill style="width: {{ initial_progress | round }}%"></div>
         </div>
-      {%- else -%}
-        <div class="ame-cart-shipping-bar ame-cart-shipping-bar--achieved">
-          <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
-          <p>Você ganhou <strong>frete grátis</strong>!</p>
-        </div>
-      {%- endif -%}
+      </div>
 
       <!-- Lista de itens -->
       <ul class="ame-cart-items" data-cart-items>
@@ -197,6 +218,9 @@
       <button type="button" class="ame-cart-discount__btn" data-cart-discount-apply>Aplicar</button>
     </div>
     <p class="ame-cart-discount__feedback" id="cart-discount-feedback" data-cart-discount-feedback aria-live="polite"></p>
+
+    <!-- Calculadora de frete (CEP) — Shopify Ajax shipping_rates -->
+    {%- render 'cart-shipping-calculator' -%}
 
     <!-- Totals -->
     <div class="ame-cart-totals">

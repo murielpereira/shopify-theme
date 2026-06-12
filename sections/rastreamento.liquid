@@ -940,7 +940,27 @@
       empty.hidden = true;
       result.hidden = false;
 
-      const events = (r.trackings || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      const eventsRaw = (r.trackings || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      // Dedup: a SmartEnvios pode retornar o mesmo evento múltiplas vezes
+      // (um por checkpoint interno da transportadora — várias "bases da
+      // Loggi" no mesmo minuto, etc). Considera duas entradas idênticas
+      // quando tipo + nome do status + observação + data (até o minuto)
+      // coincidem. Em ordem decrescente, mantém o primeiro do grupo.
+      const seenEvents = new Set();
+      const events = [];
+      for (const ev of eventsRaw) {
+        const dateKey = ev.date ? String(ev.date).slice(0, 16) : '';
+        const key = [
+          ev.code?.tracking_type || '',
+          ev.code?.name || '',
+          ev.observation || '',
+          dateKey,
+        ].join('|');
+        if (seenEvents.has(key)) continue;
+        seenEvents.add(key);
+        events.push(ev);
+      }
       const latest = events[0];
       const isDelivered = !!latest && latest.code?.tracking_type === 'DELIVERED';
       const isInTransit = !!latest && (latest.code?.tracking_type === 'IN TRANSIT' || events.length > 1);

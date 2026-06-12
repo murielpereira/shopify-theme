@@ -1,0 +1,408 @@
+{% comment %}
+  Calculadora de frete no carrinho — chama a Shopify Ajax API
+  `/cart/shipping_rates.json` que delega pra TODAS as carrier services
+  configuradas (SmartEnvios incluída). Mesmo cálculo que aparece no
+  checkout — zero divergência.
+
+  CEP fica salvo em localStorage entre sessões. Quando o cart muda
+  (item adicionado/removido), o cliente clica "Recalcular" pra atualizar.
+
+  Vide [snippets/cart-drawer.liquid] onde é renderizado.
+{% endcomment %}
+
+<div class="ame-cart-freight" data-cart-freight>
+  <p class="ame-cart-freight__title">
+    <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
+    Calcular frete
+  </p>
+  <form class="ame-cart-freight__form" data-cart-freight-form novalidate>
+    <input
+      type="text"
+      inputmode="numeric"
+      autocomplete="postal-code"
+      placeholder="00000-000"
+      maxlength="9"
+      aria-label="CEP de entrega"
+      class="ame-cart-freight__input"
+      data-cart-freight-input
+    >
+    <button type="submit" class="ame-cart-freight__btn" data-cart-freight-submit>
+      <span data-cart-freight-btn-label>Calcular</span>
+    </button>
+  </form>
+  <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" rel="noopener" class="ame-cart-freight__cep-link">
+    Não sei meu CEP
+  </a>
+  <ul class="ame-cart-freight__results" data-cart-freight-results hidden></ul>
+  <p class="ame-cart-freight__error" data-cart-freight-error hidden></p>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+    const host = document.querySelector('[data-cart-freight]');
+    if (!host || host.dataset.init) return;
+    host.dataset.init = '1';
+
+    const STORAGE_KEY = 'ame:cep';
+    const form        = host.querySelector('[data-cart-freight-form]');
+    const input       = host.querySelector('[data-cart-freight-input]');
+    const btn         = host.querySelector('[data-cart-freight-submit]');
+    const btnLabel    = host.querySelector('[data-cart-freight-btn-label]');
+    const resultsEl   = host.querySelector('[data-cart-freight-results]');
+    const errorEl     = host.querySelector('[data-cart-freight-error]');
+
+    // Máscara simples 00000-000
+    function maskCep(v) {
+      const d = String(v || '').replace(/\D/g, '').slice(0, 8);
+      if (d.length > 5) return d.slice(0, 5) + '-' + d.slice(5);
+      return d;
+    }
+    let debounceTimer = null;
+    input.addEventListener('input', () => {
+      input.value = maskCep(input.value);
+      // Atualiza a barra de frete grátis dinamicamente ao digitar — quando
+      // o cliente colocar pelo menos 2 dígitos (suficiente pra inferir UF).
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => updateShippingBar(input.value), 200);
+    });
+
+    function fmtMoney(value) {
+      // Shopify retorna o price como STRING decimal (ex: "12.50") em vez
+      // de cents. Normaliza pra centavos pra usar nosso formatter.
+      const n = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : Number(value);
+      if (!isFinite(n)) return '—';
+      return 'R$ ' + n.toFixed(2).replace('.', ',');
+    }
+
+    function fmtPrazo(rate) {
+      // delivery_days é array [min, max] em alguns formatos, ou número único
+      const d = rate.delivery_days || rate.delivery_range_days;
+      if (Array.isArray(d) && d.length === 2) {
+        if (d[0] === d[1]) return `${d[0]} dia útil`;
+        return `${d[0]}-${d[1]} dias úteis`;
+      }
+      if (typeof d === 'number') return `${d} dias úteis`;
+      if (rate.delivery_date) {
+        try {
+          const dt = new Date(rate.delivery_date);
+          return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        } catch (_) {}
+      }
+      return '';
+    }
+
+    function showError(msg) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+      resultsEl.hidden = true;
+    }
+    function clearMessages() {
+      errorEl.hidden = true;
+      errorEl.textContent = '';
+    }
+
+    function setLoading(isLoading) {
+      btn.disabled = isLoading;
+      btnLabel.textContent = isLoading ? 'Calculando...' : 'Calcular';
+    }
+
+    function renderRates(rates) {
+      if (!rates || rates.length === 0) {
+        showError('Nenhuma opção de entrega disponível para este CEP.');
+        return;
+      }
+      // Ordena por preço crescente — mais barato primeiro
+      const sorted = [...rates].sort((a, b) =>
+        parseFloat(a.price) - parseFloat(b.price)
+      );
+      resultsEl.innerHTML = sorted.map(rate => {
+        const nome  = rate.presentment_name || rate.name || rate.source || 'Frete';
+        const preco = fmtMoney(rate.price);
+        const prazo = fmtPrazo(rate);
+        return `
+          <li class="ame-cart-freight__result">
+            <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
+            ${prazo ? `<span class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</span>` : ''}
+            <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
+          </li>
+        `;
+      }).join('');
+      resultsEl.hidden = false;
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Shopify Ajax: precisa de items no cart. Verifica antes.
+    function cartHasItems() {
+      const countEl = document.querySelector('[data-cart-count]');
+      if (countEl && countEl.textContent) {
+        const n = parseInt(countEl.textContent, 10);
+        if (!isNaN(n)) return n > 0;
+      }
+      // Fallback: presença de items na lista
+      return !!document.querySelector('.ame-cart-item');
+    }
+
+    // ── Barra de frete grátis dinâmica ──
+    // Detecta região via prefixo do CEP e atualiza a barra com o threshold
+    // correspondente. SUL/SE = 01-39 (SP, RJ, ES, MG) + 80-99 (PR, SC, RS).
+    function regionFromCep(cep) {
+      const digits = String(cep).replace(/\D/g, '');
+      if (digits.length < 2) return null;
+      const prefix = parseInt(digits.slice(0, 2), 10);
+      if (isNaN(prefix)) return null;
+      const isRegional = (prefix >= 1 && prefix <= 39) || (prefix >= 80 && prefix <= 99);
+      return isRegional ? 'regional' : 'nacional';
+    }
+
+    function getCartTotalCents() {
+      // Tenta meta global (Shopify expõe em algumas storefronts) → fallback
+      // pra parse do texto do subtotal renderizado pelo cart drawer.
+      if (window.Shopify?.cart?.total_price != null) return window.Shopify.cart.total_price;
+      const subtotalEl = document.querySelector('[data-cart-subtotal]');
+      if (subtotalEl) {
+        // "R$ 1.820,50" → 182050
+        const txt = subtotalEl.textContent || '';
+        const digits = txt.replace(/[^\d,]/g, '').replace(',', '.');
+        const reais = parseFloat(digits);
+        if (!isNaN(reais)) return Math.round(reais * 100);
+      }
+      return 0;
+    }
+
+    function updateShippingBar(cep) {
+      const bar = document.querySelector('[data-shipping-bar]');
+      if (!bar) return;
+      const tRegional = parseInt(bar.dataset.tRegional, 10) || 30000;
+      const tNacional = parseInt(bar.dataset.tNacional, 10) || 50000;
+      const region = regionFromCep(cep);
+      // Sem CEP → mantém o threshold atual (regional default). Com CEP →
+      // ajusta pra região correta.
+      let threshold;
+      if (region === 'nacional') threshold = tNacional;
+      else if (region === 'regional') threshold = tRegional;
+      else threshold = tRegional; // default
+
+      bar.dataset.currentThreshold = threshold;
+      const cartCents = getCartTotalCents();
+      const remaining = Math.max(0, threshold - cartCents);
+      const progress = Math.min(100, Math.round(cartCents * 100 / threshold));
+
+      const textEl = bar.querySelector('[data-shipping-bar-text]');
+      const fillEl = bar.querySelector('[data-shipping-bar-fill]');
+      if (fillEl) fillEl.style.width = progress + '%';
+      if (!textEl) return;
+      if (cartCents >= threshold) {
+        textEl.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true" style="font-size:0.95rem;vertical-align:middle;">local_shipping</span> Você ganhou <strong>frete grátis</strong>!';
+      } else {
+        const remainingFmt = 'R$ ' + (remaining / 100).toFixed(2).replace('.', ',');
+        const regionHint = region === 'nacional' ? ' (sua região)' : (region === 'regional' ? ' (sua região)' : '');
+        textEl.innerHTML = 'Faltam <strong>' + escapeHtml(remainingFmt) + '</strong> para <strong>frete grátis</strong>' + escapeHtml(regionHint);
+      }
+    }
+
+    function calcular(cep) {
+      const digits = String(cep || '').replace(/\D/g, '');
+      if (digits.length !== 8) {
+        showError('CEP inválido. Use o formato 00000-000.');
+        return;
+      }
+      if (!cartHasItems()) {
+        showError('Adicione um produto ao carrinho pra calcular o frete.');
+        return;
+      }
+
+      clearMessages();
+      setLoading(true);
+
+      // XHR (apps na storefront sobrescrevem fetch)
+      const xhr = new XMLHttpRequest();
+      const url = '/cart/shipping_rates.json'
+        + '?shipping_address%5Bcountry%5D=Brazil'
+        + '&shipping_address%5Bzip%5D=' + encodeURIComponent(digits);
+      xhr.open('GET', url, true);
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.timeout = 12000;
+      xhr.onload = () => {
+        setLoading(false);
+        if (xhr.status === 422) {
+          // CEP inválido ou sem cobertura — Shopify retorna 422 com mensagem
+          try {
+            const err = JSON.parse(xhr.responseText);
+            showError(err.shipping_address || 'CEP inválido ou sem cobertura.');
+          } catch (_) {
+            showError('CEP inválido ou sem cobertura.');
+          }
+          return;
+        }
+        if (xhr.status < 200 || xhr.status >= 300) {
+          showError('Não foi possível calcular o frete agora. Tente novamente.');
+          return;
+        }
+        try {
+          const data = JSON.parse(xhr.responseText);
+          renderRates(data.shipping_rates || []);
+          // Salva CEP só se obteve cotação válida
+          try { localStorage.setItem(STORAGE_KEY, digits); } catch (_) {}
+        } catch (e) {
+          showError('Resposta inválida do servidor.');
+        }
+      };
+      xhr.onerror = () => { setLoading(false); showError('Erro de rede.'); };
+      xhr.ontimeout = () => { setLoading(false); showError('Tempo esgotado. Tente novamente.'); };
+      xhr.send();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      calcular(input.value);
+    });
+
+    // Restaura CEP salvo entre sessões e auto-calcula (se houver items)
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved && /^\d{8}$/.test(saved)) {
+        input.value = maskCep(saved);
+        updateShippingBar(saved); // atualiza barra com região do CEP salvo
+        if (cartHasItems()) calcular(saved);
+      } else {
+        updateShippingBar(''); // recalcula com cart atual (sem CEP)
+      }
+    } catch (_) {
+      updateShippingBar('');
+    }
+  })();
+</script>
+
+<style>
+  .ame-cart-freight {
+    padding: 0.875rem 0 0.5rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.25);
+    margin-top: 0.5rem;
+  }
+
+  .ame-cart-freight__title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0 0 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary, #5a4742);
+  }
+
+  .ame-cart-freight__title .material-symbols-outlined {
+    font-size: 0.95rem;
+    font-variation-settings: 'wght' 300;
+  }
+
+  .ame-cart-freight__form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .ame-cart-freight__input {
+    flex: 1;
+    border: 1px solid var(--color-outline-variant, #d2c3c0);
+    border-radius: var(--radius-md, 0.25rem);
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    color: var(--color-on-background, #201b14);
+    background: var(--color-surface, #fff);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .ame-cart-freight__input::placeholder {
+    color: rgba(90, 71, 66, 0.4);
+  }
+  .ame-cart-freight__input:focus {
+    border-color: var(--color-primary, #5a4742);
+  }
+
+  .ame-cart-freight__btn {
+    flex-shrink: 0;
+    background: var(--color-primary, #5a4742);
+    color: var(--color-on-primary, #fff);
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-md, 0.25rem);
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: opacity 0.15s ease;
+  }
+  .ame-cart-freight__btn:hover:not(:disabled) { opacity: 0.9; }
+  .ame-cart-freight__btn:disabled { opacity: 0.6; cursor: default; }
+
+  .ame-cart-freight__cep-link {
+    display: inline-block;
+    margin-top: 0.375rem;
+    font-size: 0.6875rem;
+    color: rgba(90, 71, 66, 0.55);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ame-cart-freight__cep-link:hover { color: var(--color-primary, #5a4742); }
+
+  .ame-cart-freight__error {
+    margin: 0.625rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(192, 57, 43, 0.08);
+    color: #a8392b;
+    border-radius: var(--radius-md, 0.25rem);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .ame-cart-freight__results {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .ame-cart-freight__result {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed rgba(210, 195, 192, 0.4);
+    font-size: 0.8125rem;
+  }
+  .ame-cart-freight__result:last-child { border-bottom: none; }
+
+  .ame-cart-freight__result-name {
+    flex: 1;
+    color: var(--color-on-background, #201b14);
+    font-weight: 500;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ame-cart-freight__result-prazo {
+    font-size: 0.6875rem;
+    color: var(--color-on-surface-variant, #4f4442);
+    white-space: nowrap;
+  }
+
+  .ame-cart-freight__result-price {
+    font-weight: 700;
+    color: var(--color-on-background, #201b14);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+</style>

@@ -470,6 +470,16 @@
       gap: 6px;
       will-change: transform;
       transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      /* Esconde até o JS centralizar o card ativo (translateX). Sem isso,
+         o track renderiza em translateX(0) — primeiro card colado na borda
+         esquerda — até o ResizeObserver disparar e centerActive() rodar,
+         causando um "salto" visível no primeiro paint. Quando o JS termina
+         a inicialização, adiciona .is-initialized e o fade-in acontece. */
+      opacity: 0;
+    }
+    .ame-vs__spot-track.is-initialized {
+      opacity: 1;
+      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
     }
     /* Quando o JS faz o salto invisível do loop (clones nas pontas),
        desabilita a transição pra não ver o pulo. */
@@ -1348,6 +1358,10 @@
           initialized = true;
           lastOuterW = w;
           centerActive(false);
+          // Revela o track após o primeiro translateX correto (evita o
+          // "salto" do primeiro paint com translateX(0)). CSS faz fade
+          // suave via opacity transition.
+          track.classList.add('is-initialized');
           startAutoplay();
           return;
         }

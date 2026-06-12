@@ -27,14 +27,38 @@
     Tipo: Referência de produto (lista de produtos)
 {% endcomment %}
 
-<div class="pdp-kit" data-kit-host>
+<div
+  class="pdp-kit"
+  data-kit-host
+  data-pix-pct="{{ settings.pix_discount | default: 5 }}"
+  data-inst-count="{{ settings.installments_count | default: 3 }}"
+>
   {%- comment -%}
     JSON dos componentes — o filtro `| json` em product no Liquid
     serializa título, handle, options, variants (com option1/2/3 + preço +
     available), featured_image, etc. Suficiente pro JS resolver tudo.
   {%- endcomment -%}
+  {%- comment -%}
+    Parseia o setting `swatch_solido_cores` (mesmo formato do snippet
+    swatch-solido.liquid) em um JSON {nome_lowercase: "#hex"}. Assim o JS
+    do kit usa a MESMA paleta cadastrada no theme editor (cores e suas
+    edições propagam automaticamente — não precisa atualizar JS).
+  {%- endcomment -%}
+  {%- assign cores_raw = settings.swatch_solido_cores | default: '' -%}
+  {%- assign entries = cores_raw | split: ',' -%}
+
   <script type="application/json" data-kit-data>
     {
+      "swatch_colors": {
+        {%- for entry in entries -%}
+          {%- assign pair = entry | split: ':' -%}
+          {%- if pair.size >= 2 -%}
+            {%- assign cname = pair[0] | strip | downcase -%}
+            {%- assign chex = pair[1] | strip -%}
+            {{ cname | json }}: {{ chex | json }}{% unless forloop.last %},{% endunless %}
+          {%- endif -%}
+        {%- endfor -%}
+      },
       "components": [
         {%- for comp in kit_components -%}
           {%- assign comp_img = comp.featured_image | image_url: width: 800 | default: '' -%}
@@ -92,21 +116,11 @@
     <ul class="pdp-kit__summary" data-kit-summary></ul>
   </div>
 
-  {%- comment -%} Preço dinâmico + CTA {%- endcomment -%}
-  <div class="pdp-kit__cta-wrap">
-    <div class="pdp-kit__price-row">
-      <span class="pdp-kit__price-label">Total do kit:</span>
-      <strong class="pdp-kit__price" data-kit-price>—</strong>
-    </div>
-    <button
-      type="button"
-      class="ame-cta pdp-kit__cta"
-      data-kit-cta
-    >
-      <span data-kit-cta-label>Adicionar Kit ao Carrinho</span>
-      <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
-    </button>
-  </div>
+  {%- comment -%}
+    Preço e CTA NÃO ficam aqui — preço é renderizado no #pdp-price-block
+    do PDP (logo após o nome do produto) e o CTA é o submit padrão do form
+    de produto. Vide sections/product.liquid → branch is_kit.
+  {%- endcomment -%}
 </div>
 
 <style>
@@ -242,34 +256,6 @@
     font-size: 0.75rem;
     color: var(--color-on-surface-variant, #4f4442);
     text-align: right;
-  }
-
-  /* Preço + CTA */
-  .pdp-kit__cta-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
-
-  .pdp-kit__price-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .pdp-kit__price-label {
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-on-surface-variant, #4f4442);
-  }
-
-  .pdp-kit__price {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-on-background, #201b14);
-    letter-spacing: -0.015em;
   }
 
   /* Skeleton (loading) */

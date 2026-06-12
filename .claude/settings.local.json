@@ -146,7 +146,14 @@
       "Bash(curl -sS -w \"\\\\n--HTTP %{http_code}--\\\\n\" \"https://reviews.konfidency.com.br/ameacessoriospet/store-reviews/carousel\")",
       "Bash(curl -sS -w \"\\\\n--HTTP %{http_code}--\\\\n\" \"https://reviews.konfidency.com.br/ameacessoriospet/store-reviews/summary\")",
       "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('templates/index.json','utf8'\\).replace\\(/\\\\/\\\\*[\\\\s\\\\S]*?\\\\*\\\\//g,''\\).replace\\(/^\\\\s*\\\\/\\\\/.*$/gm,''\\);JSON.parse\\(s\\);console.log\\('JSON OK'\\)\")",
-      "Bash(node --check assets/ame-kit.js)"
+      "Bash(node --check assets/ame-kit.js)",
+      "Bash(mv images/favicon.png ./favicon.png)",
+      "Bash(mv images/logo.jpg ./logo.jpg)",
+      "Bash(mv images/logo2.png ./logo2.png)",
+      "Bash(mv images/logonuvem.png ./logonuvem.png)",
+      "Bash(rmdir images *)",
+      "WebFetch(domain:documentos.smartenvios.com)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\);console.log\\('settings_schema OK'\\)\")"
     ],
     "additionalDirectories": [
       "\\tmp"

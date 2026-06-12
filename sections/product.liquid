@@ -418,14 +418,27 @@
     -%}
 
     {%- comment -%}
-      Quando produto é Kit, o bloco de preço padrão é substituído pelo
-      preço dinâmico (soma dos componentes) renderizado pelo kit-picker
-      mais abaixo. Mantemos o wrapper #pdp-price-block (com display:none)
-      pra não quebrar o JS de Section Rendering API que faz DOM-swap nele
-      em caso de mudança de variante via Section Rendering — embora o Kit
-      não use isso, deixar o wrapper evita NullReferenceError em listeners.
+      Quando produto é Kit, este bloco mostra um placeholder de preço
+      atualizado dinamicamente pelo ame-kit.js (soma dos preços dos
+      componentes selecionados). Mesmo wrapper #pdp-price-block é usado
+      pra manter compatibilidade com Section Rendering API e CSS herdado.
     {%- endcomment -%}
-    <div class="pdp__price-block" id="pdp-price-block"{% if is_kit %} style="display:none"{% endif %}>
+    <div class="pdp__price-block" id="pdp-price-block">
+      {%- if is_kit -%}
+        <div class="pdp__price-card-row">
+          <span class="pdp__price-label">a partir de</span>
+          <strong class="pdp__price-main" data-kit-price-total>—</strong>
+        </div>
+        <div class="pdp__price-pix-row" data-kit-pix-row hidden>
+          <span class="pdp__price-label">ou</span>
+          <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
+          <span class="pdp__price-label">com Pix</span>
+        </div>
+        <p class="pdp__installments" data-kit-installments-row hidden>
+          Até <strong>{{ settings.installments_count | default: 3 }}x</strong>
+          de <strong data-kit-price-installment>—</strong> sem juros
+        </p>
+      {%- else -%}
       <!-- Linha "De:" riscado -->
       {%- if has_compare -%}
         <div class="pdp__price-compare-row">
@@ -467,6 +480,7 @@
       <div id="pdp-cashback-wrap">
         {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
       </div>
+      {%- endif -%}{%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
     </div>
 
     {%- comment -%} Slot pra apps: depois do preço {%- endcomment -%}
@@ -885,8 +899,10 @@
       {%- endfor -%}
 
       {%- comment -%}
-        Quantidade e CTA padrão — escondidos pra kit (que tem seu próprio
-        CTA com qty=1 implícita dentro do kit-picker).
+        Quantidade — escondida pra kit (qty é sempre 1 por componente; o
+        cliente pode aumentar manualmente no drawer depois). O CTA padrão
+        ABAIXO continua visível: o ame-kit.js intercepta o submit do form
+        e dispara cart/add.js com N items em vez do submit padrão.
       {%- endcomment -%}
       {%- unless is_kit -%}
       <!-- Quantidade -->
@@ -908,6 +924,7 @@
           <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar" title="Aumentar">+</button>
         </div>
       </div>
+      {%- endunless -%}
 
       {%- if pdp_videos_pos == 'above-cta' -%}{{ pdp_videos_widget }}{%- endif -%}
 
@@ -977,7 +994,6 @@
       <div class="pdp__app-slot pdp__app-slot--after-cta">
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
-      {%- endunless -%}{%- comment -%} fim do unless is_kit (qty + cta padrão){%- endcomment -%}
 
     {%- endform -%}
   </div>

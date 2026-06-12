@@ -101,16 +101,30 @@
     }
 
     // Verifica se duas listas de valores são "equivalentes" (mesmo significado
-    // semântico apesar de nomes diferentes). Critério: o menor conjunto tem
-    // match completo no maior. Ex: ["XPP", "XPP+", "PP", "P", "M", "G"]
-    // e ["XPP/XPP+/12mm", "PP/P/15mm", "M/G/20mm"] são equivalentes porque
-    // todos os 3 da Guia têm match nos 6 do Peitoral via token.
+    // semântico apesar de nomes diferentes). Critério: PELO MENOS metade do
+    // menor conjunto (com mínimo absoluto de 2) tem match no maior. Permite
+    // unificar Tamanho do Peitoral [XPP, XPP+, PP, P] com Largura da Guia
+    // [XPP/XPP+/12mm, PP/P/15mm, M/G/20mm] — só 2 dos 3 da Guia batem
+    // (M/G/20mm fica sem match), mas tudo bem: os valores não-mapeáveis do
+    // ref são filtrados na unificação. Cor + Cor do Metal não fundem porque
+    // os valores são completamente diferentes (zero matches).
     function valuesCompatible(valuesA, valuesB) {
         if (!valuesA?.length || !valuesB?.length) return false;
         const [smaller, larger] = valuesA.length <= valuesB.length ? [valuesA, valuesB] : [valuesB, valuesA];
-        // Pelo menos 2 matches (evita falso positivo com 1 elemento coincidente)
-        if (smaller.length < 2) return smaller.every(v => findValueMatch(v, larger) !== null);
-        return smaller.every(v => findValueMatch(v, larger) !== null);
+        let matches = 0;
+        for (const v of smaller) {
+            if (findValueMatch(v, larger) !== null) matches++;
+        }
+        const minNeeded = Math.max(2, Math.ceil(smaller.length / 2));
+        return matches >= minNeeded;
+    }
+
+    // Score de "compactness" — quanto MENOS barras nos valores, mais compacto.
+    // Usado pra escolher qual componente vira REF da UI: o Peitoral tem
+    // tamanhos compactos ("XPP", "PP") e vence a Guia que tem "XPP / XPP+ / 12mm".
+    function compactScore(values) {
+        if (!values?.length) return 0;
+        return values.filter(v => !String(v).includes('/')).length;
     }
 
     // ── Unificação de opções ──
@@ -151,12 +165,19 @@
             else groups.push([opt]);
         }
 
-        // Pass 3: pra cada grupo, computa valores unificados usando o componente
-        // com MAIS valores como referência (ex: Peitoral com 6 tamanhos é a ref;
-        // Guia com 3 larguras mapeia pra cada um via findValueMatch)
-        return groups.map(group => {
-            const sortedByValues = [...group].sort((a, b) => b.values.length - a.values.length);
-            const ref = sortedByValues[0];
+        // Pass 3: pra cada grupo, computa valores unificados. Escolha de
+        // referência (define os valores apresentados na UI):
+        //   1º critério: maior compactness (valores sem barra "/") — prefere
+        //                Peitoral "XPP" sobre Guia "XPP / XPP+ / 12mm"
+        //   2º critério (tiebreaker): mais valores
+        const out = groups.map(group => {
+            const sortedByPref = [...group].sort((a, b) => {
+                const sa = compactScore(a.values);
+                const sb = compactScore(b.values);
+                if (sa !== sb) return sb - sa;
+                return b.values.length - a.values.length;
+            });
+            const ref = sortedByPref[0];
             const others = group.filter(o => o.ci !== ref.ci);
 
             const values = [];
@@ -186,6 +207,21 @@
                 optIdxByComp,
             };
         });
+
+        // Pass 4: ordenação preferencial — Tamanho > Cor > Cor do Metal >
+        // Comprimento > demais. Match por substring no nome (case-insensitive)
+        // pra cobrir "Largura", "Size", etc — mas como o agrupamento já
+        // funde Largura+Tamanho com nome "Tamanho", suficiente.
+        const ORDER = ['tamanho', 'size', 'cor do metal', 'cor', 'color', 'comprimento'];
+        function orderScore(name) {
+            const n = String(name).toLowerCase();
+            for (let i = 0; i < ORDER.length; i++) {
+                if (n.includes(ORDER[i])) return i;
+            }
+            return ORDER.length;
+        }
+        out.sort((a, b) => orderScore(a.name) - orderScore(b.name));
+        return out;
     }
 
     // Dado o estado de seleção (nome unificado → display value escolhido),
@@ -218,28 +254,36 @@
             .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    // ── Cor → hex (replicado do widget de agrupamento) ──
-    const COR_MAP = {
-        'allure': '#8391a3', 'azul bebê': '#8391a3', 'branco': '#ffffff',
-        'borgonha': '#713232', 'bordô': '#5b2c30', 'café': '#664732', 'cafe': '#664732',
-        'camel': '#855e43', 'chiclete': '#d95b8a', 'lilás candy': '#dfc9f4',
-        'lilas candy': '#dfc9f4', 'marinho': '#414463', 'militar': '#5f624b',
-        'nude': '#b59981', 'off white': '#d3cec3', 'preto': '#000000',
-        'rosa bebê': '#d7c2b1', 'rosa bebe': '#d7c2b1', 'rosa seco': '#c8a0a7',
+    // ── Cor → hex ──
+    // Fonte principal: settings.swatch_solido_cores (injetado pelo
+    // kit-picker.liquid em data.swatch_colors). Mantém o COR_MAP hardcoded
+    // como fallback caso o setting esteja vazio. Por instância de host
+    // (cada PDP renderiza só 1, mas o factory recebe o mapa via closure).
+    const COR_MAP_FALLBACK = {
+        'allure': '#8391a3', 'azul bebê': '#b1d4e0', 'azul bebe': '#b1d4e0',
+        'branco': '#ffffff', 'borgonha': '#713232', 'bordô': '#5b2c30', 'bordo': '#5b2c30',
+        'café': '#664732', 'cafe': '#664732', 'camel': '#855e43', 'chiclete': '#d95b8a',
+        'lilás candy': '#dfc9f4', 'lilas candy': '#dfc9f4', 'marinho': '#414463',
+        'militar': '#5f624b', 'nude': '#b59981', 'off white': '#d3cec3', 'preto': '#000000',
+        'rosa bebê': '#f6d4d2', 'rosa bebe': '#f6d4d2', 'rosa seco': '#c8a0a7',
         'sépia': '#b6b79d', 'sepia': '#b6b79d', 'smoke': '#656565',
     };
-    function corHex(nome) {
-        return COR_MAP[String(nome || '').toLowerCase().trim()] || '#cccccc';
-    }
-    function swatchBg(value) {
-        const fp = extractColorFingerprint(value);
-        if (!fp?.base) return '#cccccc';
-        const baseHex = corHex(fp.base);
-        if (fp.accent) {
-            const accentHex = corHex(fp.accent);
-            return `linear-gradient(135deg, ${baseHex} 50%, ${accentHex} 50%)`;
+    function makeColorResolver(themeColors) {
+        const map = Object.assign({}, COR_MAP_FALLBACK, themeColors || {});
+        function corHex(nome) {
+            return map[String(nome || '').toLowerCase().trim()] || '#cccccc';
         }
-        return baseHex;
+        function swatchBg(value) {
+            const fp = extractColorFingerprint(value);
+            if (!fp?.base) return '#cccccc';
+            const baseHex = corHex(fp.base);
+            if (fp.accent) {
+                const accentHex = corHex(fp.accent);
+                return `linear-gradient(135deg, ${baseHex} 50%, ${accentHex} 50%)`;
+            }
+            return baseHex;
+        }
+        return { corHex, swatchBg };
     }
 
     // ── Componente principal ──
@@ -256,13 +300,24 @@
         const components = data.components || [];
         if (components.length < 2) return;
 
+        // Resolver de cor usa settings.swatch_solido_cores do tema
+        // (injetado em data.swatch_colors), com fallback hardcoded.
+        const { swatchBg } = makeColorResolver(data.swatch_colors);
+
         const unified = unifyOptions(components);
         const optionsWrap  = host.querySelector('[data-kit-options]');
         const summaryWrap  = host.querySelector('[data-kit-summary]');
         const showcaseWrap = host.querySelector('[data-kit-showcase]');
-        const priceWrap    = host.querySelector('[data-kit-price]');
-        const ctaBtn       = host.querySelector('[data-kit-cta]');
-        const ctaLabel     = host.querySelector('[data-kit-cta-label]');
+
+        // Preço/CTA agora ficam FORA do snippet (no #pdp-price-block padrão
+        // do PDP + no #pdp-add-btn padrão do form). Vide sections/product.liquid.
+        const priceTotalEl       = document.querySelector('[data-kit-price-total]');
+        const pricePixEl         = document.querySelector('[data-kit-price-pix]');
+        const pixRow             = document.querySelector('[data-kit-pix-row]');
+        const installmentsRow    = document.querySelector('[data-kit-installments-row]');
+        const installmentValueEl = document.querySelector('[data-kit-price-installment]');
+        const productForm        = document.getElementById('pdp-form');
+        const ctaBtn             = document.getElementById('pdp-add-btn');
 
         // Estado de seleção: nome unificado → display value
         const state = {};
@@ -400,15 +455,42 @@
             const allResolved = variants.every(v => v !== null);
             if (allResolved) {
                 const totalCents = variants.reduce((acc, v) => acc + (v.price || 0), 0);
-                priceWrap.textContent = fmtMoney(totalCents);
-                ctaBtn.disabled = false;
-                ctaBtn.removeAttribute('aria-disabled');
-                if (ctaLabel) ctaLabel.textContent = 'Adicionar Kit ao Carrinho';
+                if (priceTotalEl) priceTotalEl.textContent = fmtMoney(totalCents);
+
+                // Pix (% lido do data-attribute pra evitar duplicar config no JS)
+                const pixPct  = parseInt(host.dataset.pixPct  || '5', 10);
+                const inst    = parseInt(host.dataset.instCount || '3', 10);
+                if (pricePixEl && pixRow) {
+                    const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
+                    pricePixEl.textContent = fmtMoney(pixCents);
+                    pixRow.hidden = false;
+                }
+                if (installmentValueEl && installmentsRow && inst > 1) {
+                    installmentValueEl.textContent = fmtMoney(Math.floor(totalCents / inst));
+                    installmentsRow.hidden = false;
+                }
+
+                if (ctaBtn) {
+                    ctaBtn.disabled = false;
+                    ctaBtn.removeAttribute('aria-disabled');
+                    ctaBtn.classList.remove('pdp__add-btn--sold-out');
+                    const labelTextNode = ctaBtn.childNodes[0];
+                    if (labelTextNode && labelTextNode.nodeType === 3) {
+                        labelTextNode.textContent = 'Adicionar Kit ao Carrinho';
+                    }
+                }
             } else {
-                priceWrap.textContent = '—';
-                ctaBtn.disabled = true;
-                ctaBtn.setAttribute('aria-disabled', 'true');
-                if (ctaLabel) ctaLabel.textContent = 'Combinação indisponível';
+                if (priceTotalEl) priceTotalEl.textContent = '—';
+                if (pixRow) pixRow.hidden = true;
+                if (installmentsRow) installmentsRow.hidden = true;
+                if (ctaBtn) {
+                    ctaBtn.disabled = true;
+                    ctaBtn.setAttribute('aria-disabled', 'true');
+                    const labelTextNode = ctaBtn.childNodes[0];
+                    if (labelTextNode && labelTextNode.nodeType === 3) {
+                        labelTextNode.textContent = 'Combinação indisponível';
+                    }
+                }
             }
         }
 
@@ -458,9 +540,13 @@
                 if (Object.keys(propsByComp[i]).length > 0) item.properties = propsByComp[i];
                 return item;
             });
-            const originalLabel = ctaLabel ? ctaLabel.textContent : '';
-            ctaBtn.disabled = true;
-            if (ctaLabel) ctaLabel.textContent = 'Adicionando...';
+
+            // Restaura o label "Adicionando..." só na primeira text node do CTA
+            // (o ícone shopping_bag fica como segundo filho).
+            const labelTextNode = ctaBtn && ctaBtn.childNodes[0];
+            const originalLabel = (labelTextNode && labelTextNode.nodeType === 3) ? labelTextNode.textContent : '';
+            if (ctaBtn) ctaBtn.disabled = true;
+            if (labelTextNode && labelTextNode.nodeType === 3) labelTextNode.textContent = 'Adicionando...';
 
             try {
                 // XHR em vez de fetch (memory: feedback_apps_sobrescrevem_fetch_loja)
@@ -496,13 +582,16 @@
                 console.error('[Kit] erro ao adicionar', err);
                 alert('Não foi possível adicionar o kit. Tente novamente.');
             } finally {
-                ctaBtn.disabled = false;
-                if (ctaLabel) ctaLabel.textContent = originalLabel;
+                if (ctaBtn) ctaBtn.disabled = false;
+                if (labelTextNode && labelTextNode.nodeType === 3) labelTextNode.textContent = originalLabel;
             }
         }
 
         optionsWrap.addEventListener('click', onOptionClick);
-        ctaBtn.addEventListener('click', onSubmit);
+        // Intercepta submit do form padrão do produto — o CTA visível na PDP
+        // é #pdp-add-btn (mesmo botão que produtos normais usam).
+        if (productForm) productForm.addEventListener('submit', onSubmit);
+        else if (ctaBtn) ctaBtn.addEventListener('click', onSubmit);
 
         renderOptions();
         renderSummaryAndPrice();
