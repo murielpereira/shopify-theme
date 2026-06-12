@@ -129,9 +129,26 @@
         const { swatchBg } = makeColorResolver(config.swatch_colors);
 
         const optionsWrap     = host.querySelector('[data-kit-options]');
-        const summaryWrap     = host.querySelector('[data-kit-summary]');
-        const summaryWrapBox  = host.querySelector('[data-kit-summary-wrap]');
         const showcaseWrap    = host.querySelector('[data-kit-showcase]');
+
+        // Summary "Itens inclusos no kit" agora fica ACIMA do bloco de preço,
+        // num host injetado em sections/product.liquid. Vamos criar o markup
+        // interno do host na primeira render.
+        const summaryTopHost = document.querySelector('[data-kit-summary-top]');
+        let summaryWrap = null;
+        if (summaryTopHost) {
+            summaryTopHost.innerHTML = `
+                <div class="pdp-kit__summary-wrap" data-kit-summary-wrap>
+                    <p class="pdp-kit__summary-title">
+                        <span class="material-symbols-outlined" aria-hidden="true">redeem</span>
+                        Itens inclusos no kit
+                    </p>
+                    <ul class="pdp-kit__summary" data-kit-summary></ul>
+                </div>
+            `;
+            summaryWrap = summaryTopHost.querySelector('[data-kit-summary]');
+        }
+        const summaryWrapBox = summaryTopHost?.querySelector('[data-kit-summary-wrap]');
 
         // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP
         const priceTotalEl       = document.querySelector('[data-kit-price-total]');
@@ -276,16 +293,18 @@
             }
 
             if (summaryWrapBox) summaryWrapBox.hidden = false;
-            summaryWrap.innerHTML = components.map((comp, i) => {
-                const v = variants[i];
-                const variantTitle = v ? v.title : '— (combinação indisponível)';
-                return `
-                    <li class="pdp-kit__summary-item">
-                        <strong>${esc(comp.title)}</strong>
-                        <span>${esc(variantTitle)}</span>
-                    </li>
-                `;
-            }).join('');
+            if (summaryWrap) {
+                summaryWrap.innerHTML = components.map((comp, i) => {
+                    const v = variants[i];
+                    const variantTitle = v ? v.title : '— (combinação indisponível)';
+                    return `
+                        <li class="pdp-kit__summary-item">
+                            <strong>${esc(comp.title)}</strong>
+                            <span>${esc(variantTitle)}</span>
+                        </li>
+                    `;
+                }).join('');
+            }
 
             const allResolved = variants.every(v => v !== null);
             if (allResolved) {

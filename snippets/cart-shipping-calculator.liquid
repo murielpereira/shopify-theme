@@ -44,23 +44,27 @@
     if (!host || host.dataset.init) return;
     host.dataset.init = '1';
 
-    // Expõe atualização da barra de frete grátis pro JS global do cart.
-    // Quando o cliente remove/altera item, AmeCart.refresh dispara um
-    // re-render do cart drawer; o subtotal pode mudar e a barra precisa
-    // refletir. Como o script do snippet é inline (não global), expomos
-    // a função que recalcula via window pro hook ser instalado uma vez só.
+    // Hook em AmeCart.refresh — dispara quando o cart muda (add/remove
+    // item, alteração de qty). Atualiza a barra de frete grátis E re-cota
+    // o frete (subtotal mudou → preços/totais precisam refletir).
     if (!window.__ameShippingBarHooked) {
       window.__ameShippingBarHooked = true;
       const origRefresh = window.AmeCart && window.AmeCart.refresh;
       if (origRefresh) {
         window.AmeCart.refresh = function (cart) {
           origRefresh.apply(this, arguments);
-          // Aguarda re-render do cart drawer terminar (synchronous via JS
-          // do AmeCart) e dispara atualização da barra usando o CEP atual
-          // do input se houver, ou vazio (default regional).
+          const currentInput = document.querySelector('[data-cart-freight-input]');
+          const cep = currentInput ? currentInput.value : '';
           if (typeof window.__ameUpdateShippingBar === 'function') {
-            const currentInput = document.querySelector('[data-cart-freight-input]');
-            window.__ameUpdateShippingBar(currentInput ? currentInput.value : '');
+            window.__ameUpdateShippingBar(cep);
+          }
+          // Re-cota se houver CEP válido + items no cart. Função exposta
+          // via window pelo init mais abaixo.
+          if (typeof window.__ameRecotarFrete === 'function') {
+            const digits = String(cep).replace(/\D/g, '');
+            if (digits.length === 8) {
+              window.__ameRecotarFrete(digits);
+            }
           }
         };
       }
@@ -84,16 +88,21 @@
     let debounceTimer = null;
     input.addEventListener('input', () => {
       input.value = maskCep(input.value);
-      // Se o cliente apagou tudo, esconde cotações + total do frete e
-      // limpa estado (remove seleção salva).
-      if (input.value.replace(/\D/g, '').length === 0) {
-        currentRates = [];
-        selectedRateKey = null;
-        try { localStorage.removeItem(SELECTED_KEY); } catch (_) {}
+      const digits = input.value.replace(/\D/g, '');
+      // Esconde cotações e total enquanto CEP estiver incompleto (< 8 dígitos).
+      // Isso cobre tanto "apagou tudo" quanto "apagou parcialmente" — o frete
+      // antigo NUNCA permanece visível ao mudar o CEP. Quando o cliente
+      // completar 8 dígitos e clicar Calcular, os novos dados aparecem.
+      if (digits.length < 8) {
         resultsEl.hidden = true;
-        resultsEl.innerHTML = '';
-        clearMessages();
         updateCartFreightDisplay(null);
+        if (digits.length === 0) {
+          resultsEl.innerHTML = '';
+          currentRates = [];
+          selectedRateKey = null;
+          try { localStorage.removeItem(SELECTED_KEY); } catch (_) {}
+          clearMessages();
+        }
       }
       // Atualiza a barra de frete grátis dinamicamente ao digitar — quando
       // o cliente colocar pelo menos 2 dígitos (suficiente pra inferir UF).
@@ -215,6 +224,47 @@
       return (rate.name || rate.source || '') + '|' + rate.price;
     }
 
+    // Remove sufixos de provedor do nome da transportadora pra deixar só
+    // o nome real. Ex: "J&T Express via SmartEnvios" → "J&T Express".
+    function sanitizeRateName(name) {
+      if (!name) return name;
+      return String(name)
+        .replace(/\s*[-–|]?\s*via\s+smartenvios\s*$/i, '')
+        .replace(/\s*[-–|]?\s*smartenvios\s*$/i, '')
+        .trim();
+    }
+
+    // Estima dias úteis de uma rate pra ordenar por velocidade. Retorna
+    // Infinity se não há info de prazo (cai pro fim do ranking).
+    function rateMinDays(rate) {
+      // 1. delivery_days [min, max]
+      if (Array.isArray(rate.delivery_days) && rate.delivery_days.length > 0 && rate.delivery_days[0] != null) {
+        return Number(rate.delivery_days[0]);
+      }
+      // 2. delivery_range — calcula diferença de hoje
+      if (Array.isArray(rate.delivery_range) && rate.delivery_range.length > 0 && rate.delivery_range[0]) {
+        const dt = new Date(rate.delivery_range[0]);
+        if (!isNaN(dt.getTime())) {
+          const diffMs = dt.getTime() - Date.now();
+          return Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+        }
+      }
+      // 3. delivery_date
+      if (rate.delivery_date) {
+        const dt = new Date(rate.delivery_date);
+        if (!isNaN(dt.getTime())) {
+          const diffMs = dt.getTime() - Date.now();
+          return Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+        }
+      }
+      // 4. description tipo "13 dias úteis"
+      if (rate.description) {
+        const parsed = parseDiasUteis(rate.description);
+        if (parsed) return parsed.min;
+      }
+      return Infinity;
+    }
+
     // Cache local da lista atual de rates — usado quando o user clica
     // num card pra atualizar o display sem refazer a request.
     let currentRates = [];
@@ -234,6 +284,17 @@
       );
       currentRates = sorted;
 
+      // Identifica idx de "mais barato" (sempre 0 após sort) e "mais rápido"
+      // (menor rateMinDays). Pode ser o mesmo card. Empate de prazo: mantém
+      // o primeiro encontrado (que é o mais barato entre os empatados).
+      const cheapestIdx = 0;
+      let fastestIdx = 0;
+      let fastestDays = rateMinDays(sorted[0]);
+      for (let i = 1; i < sorted.length; i++) {
+        const d = rateMinDays(sorted[i]);
+        if (d < fastestDays) { fastestDays = d; fastestIdx = i; }
+      }
+
       // Restaura seleção do localStorage; senão, usa a mais barata (primeira)
       let savedKey = null;
       try { savedKey = localStorage.getItem(SELECTED_KEY); } catch (_) {}
@@ -242,10 +303,18 @@
       selectedRateKey = rateKey(sorted[selectedIdx]);
 
       resultsEl.innerHTML = sorted.map((rate, i) => {
-        const nome  = rate.presentment_name || rate.name || rate.source || 'Frete';
+        const nomeOrig = rate.presentment_name || rate.name || rate.source || 'Frete';
+        const nome  = sanitizeRateName(nomeOrig);
         const preco = parseFloat(rate.price) === 0 ? 'Grátis' : fmtMoney(rate.price);
         const prazo = fmtPrazo(rate);
         const isSelected = i === selectedIdx;
+        const tags = [];
+        if (i === cheapestIdx) tags.push('<span class="ame-cart-freight__tag ame-cart-freight__tag--cheap">Mais barato</span>');
+        if (i === fastestIdx && fastestIdx !== cheapestIdx) tags.push('<span class="ame-cart-freight__tag ame-cart-freight__tag--fast">Mais rápido</span>');
+        if (i === fastestIdx && fastestIdx === cheapestIdx) {
+          // Mesma rate é a mais barata E mais rápida — substitui o tag por um destacado
+          tags[0] = '<span class="ame-cart-freight__tag ame-cart-freight__tag--best">Melhor opção</span>';
+        }
         return `
           <li class="ame-cart-freight__result${isSelected ? ' is-selected' : ''}" data-rate-idx="${i}">
             <button type="button" class="ame-cart-freight__result-btn" data-rate-idx="${i}" aria-pressed="${isSelected}">
@@ -256,6 +325,7 @@
                   <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
                 </div>
                 ${prazo ? `<div class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</div>` : ''}
+                ${tags.length ? `<div class="ame-cart-freight__tags">${tags.join('')}</div>` : ''}
               </div>
             </button>
           </li>
@@ -300,7 +370,7 @@
         return;
       }
       const priceCents = Math.round(parseFloat(String(rate.price).replace(',', '.')) * 100);
-      const nome = rate.presentment_name || rate.name || rate.source || 'Frete';
+      const nome = sanitizeRateName(rate.presentment_name || rate.name || rate.source || 'Frete');
 
       if (shippingName) shippingName.textContent = nome;
       if (shippingValue) {
@@ -540,6 +610,7 @@
 
     // Expõe globalmente pra ser chamada pelo hook do AmeCart.refresh
     window.__ameUpdateShippingBar = updateShippingBar;
+    window.__ameRecotarFrete = calcular;
 
     // Restaura CEP salvo entre sessões e auto-calcula (se houver items)
     try {
@@ -735,6 +806,38 @@
   .ame-cart-freight__result-prazo strong {
     color: var(--color-on-background, #201b14);
     font-weight: 600;
+  }
+
+  /* Tags "Mais barato" / "Mais rápido" / "Melhor opção" */
+  .ame-cart-freight__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .ame-cart-freight__tag {
+    display: inline-block;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.4rem;
+    border-radius: 999px;
+    line-height: 1.2;
+  }
+
+  .ame-cart-freight__tag--cheap {
+    background: #d4f0db;
+    color: #15803d;
+  }
+  .ame-cart-freight__tag--fast {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+  .ame-cart-freight__tag--best {
+    background: linear-gradient(135deg, #c89b5e 0%, #e9c89a 50%, #c89b5e 100%);
+    color: #fff;
   }
 
   .ame-cart-freight__result-price {

@@ -418,6 +418,15 @@
     -%}
 
     {%- comment -%}
+      Host pro resumo "Itens inclusos no kit" — renderizado pelo ame-kit.js
+      em cima do bloco de preço (cliente vê o que está comprando antes de
+      ver o total). Só aparece quando is_kit.
+    {%- endcomment -%}
+    {%- if is_kit -%}
+      <div data-kit-summary-top></div>
+    {%- endif -%}
+
+    {%- comment -%}
       Quando produto é Kit, este bloco mostra um placeholder de preço
       atualizado dinamicamente pelo ame-kit.js (soma dos preços dos
       componentes selecionados). Mesmo wrapper #pdp-price-block é usado
@@ -1681,6 +1690,14 @@
     min-width: 0;
   }
 
+  /* Kit em qualquer breakpoint: sem galeria, conteúdo centralizado. */
+  .pdp--is-kit .pdp__gallery {
+    display: none;
+  }
+  .pdp--is-kit {
+    max-width: 800px;
+  }
+
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
      tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
      conteúdo intrinsicamente largo empurra a coluna do grid pra fora. */
@@ -1706,6 +1723,20 @@
       top: 10rem; /*era 6.5*/
       align-self: start;
       height: fit-content;
+    }
+
+    /* PDP do kit (desktop): esconde a galeria do produto-pai e centraliza
+       o conteúdo. O showcase dos componentes (Peitoral + Guia) já mostra
+       as fotos relevantes — galeria do kit ficaria redundante. */
+    .pdp--is-kit {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 800px;
+    }
+    .pdp--is-kit .pdp__gallery {
+      display: none;
+    }
+    .pdp--is-kit .pdp__info {
+      grid-column: 1;
     }
 
     /* PDP do kit: galeria do produto-pai não fica sticky — o cliente
