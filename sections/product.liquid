@@ -3146,6 +3146,14 @@
       will-change: transform;
       background: var(--color-surface, #fff8f3);
     }
+    /* Kit: cancela o pin mobile também — galeria do kit não é interativa
+       como nas PDPs normais (sem section rendering API por variant change),
+       então sticky no mobile só atrapalha quando cliente rola pros pickers. */
+    .pdp--is-kit .pdp__sticky-wrap.is-pinned {
+      position: static;
+      padding: 0;
+      background: transparent;
+    }
     /* Imagem fica quadrada com borda lateral + sombra (efeito de flutuar) */
     .pdp__sticky-wrap.is-pinned .pdp__main-img-wrap {
       /*width: min(100%, 38vh);*/

@@ -691,7 +691,10 @@
     }
 
     async function enrichComponentsVariants(components, onUpdated) {
-        const CACHE_PREFIX = 'kit:variants:';
+        // v2 = invalida caches antigos que tinham apenas as 250 primeiras
+        // variants (do JSON do Liquid). v2 sempre vem do /products/X.js que
+        // retorna o array completo.
+        const CACHE_PREFIX = 'kit:variants:v2:';
         await Promise.all(components.map(async (comp, i) => {
             if (!comp.handle) return;
             const key = CACHE_PREFIX + comp.handle;
@@ -709,6 +712,7 @@
             try {
                 const data = await xhrJsonProduct(comp.handle);
                 const variants = normalizeVariants(data.variants);
+                console.log('[Kit] variants completas de', comp.handle, '→', variants.length, 'variantes');
                 components[i].variants = variants;
                 try {
                     sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), variants }));

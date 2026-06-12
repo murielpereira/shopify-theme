@@ -212,15 +212,15 @@
         "type": "number",
         "id": "shipping_bar_t_regional",
         "label": "Threshold regional — SUL e SUDESTE (em centavos)",
-        "info": "Ex: 30000 = R$ 300,00",
-        "default": 30000
+        "info": "Ex: 19000 = R$ 190,00",
+        "default": 19000
       },
       {
         "type": "number",
         "id": "shipping_bar_t_nacional",
         "label": "Threshold nacional — demais regiões (em centavos)",
-        "info": "Ex: 50000 = R$ 500,00",
-        "default": 50000
+        "info": "Ex: 29000 = R$ 290,00",
+        "default": 29000
       }
     ]
   },

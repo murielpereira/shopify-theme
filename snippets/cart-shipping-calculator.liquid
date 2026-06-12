@@ -84,6 +84,17 @@
     let debounceTimer = null;
     input.addEventListener('input', () => {
       input.value = maskCep(input.value);
+      // Se o cliente apagou tudo, esconde cotações + total do frete e
+      // limpa estado (remove seleção salva).
+      if (input.value.replace(/\D/g, '').length === 0) {
+        currentRates = [];
+        selectedRateKey = null;
+        try { localStorage.removeItem(SELECTED_KEY); } catch (_) {}
+        resultsEl.hidden = true;
+        resultsEl.innerHTML = '';
+        clearMessages();
+        updateCartFreightDisplay(null);
+      }
       // Atualiza a barra de frete grátis dinamicamente ao digitar — quando
       // o cliente colocar pelo menos 2 dígitos (suficiente pra inferir UF).
       clearTimeout(debounceTimer);
@@ -126,13 +137,19 @@
         const d = fmtDataEntrega(rate.delivery_date);
         if (d) return 'Chega ' + d;
       }
-      // 3. Fallback pra delivery_days (cotação não retornou data específica)
+      // 3. delivery_days [min, max] (cotação retornou dias mas não data)
       const days = rate.delivery_days || rate.delivery_range_days;
       if (Array.isArray(days) && days.length === 2) {
         if (days[0] === days[1]) return days[0] + ' dia útil';
         return days[0] + '-' + days[1] + ' dias úteis';
       }
       if (typeof days === 'number') return days + ' dias úteis';
+      // 4. Fallback final pra `description` — Carrier Service externa (caso
+      //    da SmartEnvios) coloca texto livre tipo "13 dias úteis" aqui em
+      //    vez de usar os campos estruturados acima.
+      if (rate.description && typeof rate.description === 'string') {
+        return rate.description.trim();
+      }
       return '';
     }
 
