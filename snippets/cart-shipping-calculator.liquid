@@ -191,6 +191,48 @@
       return isRegional ? 'regional' : 'nacional';
     }
 
+    // Mapeia CEP → UF do Brasil. A Shopify Ajax exige `shipping_address[province]`
+    // (sem isso retorna 422 "Selecione um estado"). Tabela completa baseada
+    // nos blocos dos Correios. Returns sigla ISO (SP, RJ, ...) ou null.
+    function ufFromCep(cep) {
+      const d = String(cep).replace(/\D/g, '');
+      if (d.length < 5) return null;
+      const n = parseInt(d.slice(0, 5), 10);
+      if (isNaN(n)) return null;
+      if (n <= 19999) return 'SP';
+      if (n <= 28999) return 'RJ';
+      if (n <= 29999) return 'ES';
+      if (n <= 39999) return 'MG';
+      if (n <= 48999) return 'BA';
+      if (n <= 49999) return 'SE';
+      if (n <= 56999) return 'PE';
+      if (n <= 57999) return 'AL';
+      if (n <= 58999) return 'PB';
+      if (n <= 59999) return 'RN';
+      if (n <= 63999) return 'CE';
+      if (n <= 64999) return 'PI';
+      if (n <= 65999) return 'MA';
+      if (n <= 68899) return 'PA';
+      if (n <= 68999) return 'AP';
+      if (n <= 69299) return 'AM';
+      if (n <= 69399) return 'RR';
+      if (n <= 69899) return 'AM';
+      if (n <= 69999) return 'AC';
+      if (n <= 72799) return 'DF';
+      if (n <= 72999) return 'GO';
+      if (n <= 73699) return 'DF';
+      if (n <= 76799) return 'GO';
+      if (n <= 76999) return 'RO';
+      if (n <= 77999) return 'TO';
+      if (n <= 78899) return 'MT';
+      if (n <= 78999) return 'RO';
+      if (n <= 79999) return 'MS';
+      if (n <= 87999) return 'PR';
+      if (n <= 89999) return 'SC';
+      if (n <= 99999) return 'RS';
+      return null;
+    }
+
     function getCartTotalCents() {
       // Tenta meta global (Shopify expõe em algumas storefronts) → fallback
       // pra parse do texto do subtotal renderizado pelo cart drawer.
@@ -282,8 +324,16 @@
       clearMessages();
       setLoading(true);
 
+      const uf = ufFromCep(digits);
+      if (!uf) {
+        setLoading(false);
+        showError('CEP fora do Brasil.');
+        return;
+      }
+
       const addrParams = 'shipping_address%5Bzip%5D=' + encodeURIComponent(digits)
-        + '&shipping_address%5Bcountry%5D=Brazil';
+        + '&shipping_address%5Bcountry%5D=Brazil'
+        + '&shipping_address%5Bprovince%5D=' + encodeURIComponent(uf);
 
       try {
         // 1. POST /cart/prepare_shipping_rates.json — dispara cálculo

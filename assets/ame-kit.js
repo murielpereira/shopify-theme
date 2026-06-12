@@ -192,15 +192,18 @@
                 if (ok) values.push({ display: refVal, perComp });
             }
 
-            const uniqueNames = Array.from(new Set(group.map(g => g.name)));
-            // Solo (option exclusiva de 1 componente): adiciona "(Nome do produto)"
+            // Usa o nome do REF (componente com mais valores compactos) em
+            // vez do primeiro do array — assim "Tamanho" do Peitoral vence
+            // "Largura" da Guia quando fundem. Também garante que orderScore
+            // (Pass 4) consiga ordenar corretamente — "Largura" cai pro
+            // final, "Tamanho" vai pro topo.
             const labelSuffix = (group.length === 1 && components.length > 1)
                 ? ` (${components[group[0].ci].title})`
                 : '';
             const optIdxByComp = group.reduce((acc, g) => { acc[g.ci] = g.oi; return acc; }, {});
 
             return {
-                name: uniqueNames[0],
+                name: ref.name,
                 labelSuffix,
                 values,
                 appliesTo: group.map(g => g.ci),

@@ -1005,7 +1005,9 @@ body::after {
 .ame-cart-drawer {
   position: fixed;
   z-index: 200;
-  background: var(--color-surface, #fff8f3);
+  /* Branco puro pra dar mais contraste e legibilidade — antes era #fff8f3
+     (cream) que confundia com cor de itens e do cross-sell. */
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1057,7 +1059,7 @@ body::after {
   padding: 1.5rem 1.5rem 1rem;
   flex-shrink: 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.18);
-  background: var(--color-surface, #fff8f3);
+  background: #ffffff;
 }
 
 @media (min-width: 768px) {
@@ -1701,7 +1703,7 @@ body::after {
 .ame-cart-drawer__footer {
   flex-shrink: 0;
   padding: 1.25rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
-  background: var(--color-surface, #fff8f3);
+  background: #ffffff;
   border-top: 1px solid rgba(210, 195, 192, 0.18);
   display: flex;
   flex-direction: column;
