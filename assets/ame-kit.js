@@ -223,16 +223,15 @@
         });
 
         // Pass 4: ordenação preferencial — Tamanho > Cor > Cor do Metal >
-        // Comprimento > demais. Match por substring no nome (case-insensitive)
-        // pra cobrir "Largura", "Size", etc — mas como o agrupamento já
-        // funde Largura+Tamanho com nome "Tamanho", suficiente.
-        const ORDER = ['tamanho', 'size', 'cor do metal', 'cor', 'color', 'comprimento'];
+        // Comprimento. Usa match EXATO (não substring) pra evitar que
+        // "Cor do Metal" seja interpretado como "Cor" pela inclusão.
         function orderScore(name) {
-            const n = String(name).toLowerCase();
-            for (let i = 0; i < ORDER.length; i++) {
-                if (n.includes(ORDER[i])) return i;
-            }
-            return ORDER.length;
+            const n = String(name).toLowerCase().trim();
+            if (n === 'tamanho' || n === 'size' || n === 'largura') return 0;
+            if (n === 'cor' || n === 'color' || n === 'acabamento') return 1;
+            if (n === 'cor do metal' || n === 'metal') return 2;
+            if (n === 'comprimento') return 3;
+            return 99;
         }
         out.sort((a, b) => orderScore(a.name) - orderScore(b.name));
         return out;

@@ -109,11 +109,11 @@
       return 'R$ ' + n.toFixed(2).replace('.', ',');
     }
 
-    // Formata data ISO ("2026-07-06") em "segunda 06/07" (BRL, dia da
+    // Formata data ISO ou Date object em "segunda 06/07" (BRL, dia da
     // semana sem "-feira"). Retorna null se data inválida.
-    function fmtDataEntrega(iso) {
-      if (!iso) return null;
-      const dt = new Date(iso);
+    function fmtDataEntrega(input) {
+      if (!input) return null;
+      const dt = input instanceof Date ? input : new Date(input);
       if (isNaN(dt.getTime())) return null;
       const weekday = dt.toLocaleDateString('pt-BR', { weekday: 'long' });
       // "segunda-feira" → "segunda"; "sábado" continua "sábado"
@@ -123,10 +123,38 @@
       return dayName + ' ' + dd + '/' + mm;
     }
 
+    // Soma N dias úteis (pulando sábado/domingo) a partir de hoje. Não
+    // considera feriados — a SmartEnvios já faz isso no cálculo deles
+    // (o número que vem é "X dias úteis" já com isso embutido).
+    function addBusinessDays(days) {
+      const dt = new Date();
+      let added = 0;
+      while (added < days) {
+        dt.setDate(dt.getDate() + 1);
+        const d = dt.getDay();
+        if (d !== 0 && d !== 6) added++;
+      }
+      return dt;
+    }
+
+    // Extrai número de dias úteis de strings tipo "13 dias úteis",
+    // "5-7 dias", "3 a 5 dias". Retorna { min, max } ou null.
+    function parseDiasUteis(str) {
+      if (!str) return null;
+      const s = String(str).toLowerCase();
+      // Range: "5-7 dias" ou "3 a 5 dias úteis"
+      const range = s.match(/(\d+)\s*(?:-|a|até)\s*(\d+)\s*dia/);
+      if (range) return { min: parseInt(range[1], 10), max: parseInt(range[2], 10) };
+      // Single: "13 dias úteis"
+      const single = s.match(/(\d+)\s*dia/);
+      if (single) { const n = parseInt(single[1], 10); return { min: n, max: n }; }
+      return null;
+    }
+
     function fmtPrazo(rate) {
       // 1. delivery_range = [dataMin, dataMax] em ISO — formato preferencial.
-      //    Mostra "Chega entre segunda 06/07 e terça 07/07".
-      if (Array.isArray(rate.delivery_range) && rate.delivery_range.length === 2) {
+      if (Array.isArray(rate.delivery_range) && rate.delivery_range.length === 2
+          && rate.delivery_range[0]) {
         const min = fmtDataEntrega(rate.delivery_range[0]);
         const max = fmtDataEntrega(rate.delivery_range[1]);
         if (min && max && min !== max) return 'Chega entre ' + min + ' e ' + max;
@@ -137,17 +165,30 @@
         const d = fmtDataEntrega(rate.delivery_date);
         if (d) return 'Chega ' + d;
       }
-      // 3. delivery_days [min, max] (cotação retornou dias mas não data)
+      // 3. delivery_days [min, max] (cotação retornou dias mas não data) —
+      //    SOMA ao dia atual (pulando finais de semana) e formata como data.
       const days = rate.delivery_days || rate.delivery_range_days;
-      if (Array.isArray(days) && days.length === 2) {
-        if (days[0] === days[1]) return days[0] + ' dia útil';
-        return days[0] + '-' + days[1] + ' dias úteis';
+      if (Array.isArray(days) && days.length === 2 && days[0] != null) {
+        const minDt = fmtDataEntrega(addBusinessDays(days[0]));
+        const maxDt = fmtDataEntrega(addBusinessDays(days[1]));
+        if (minDt && maxDt && minDt !== maxDt) return 'Chega entre ' + minDt + ' e ' + maxDt;
+        if (minDt) return 'Chega ' + minDt;
       }
-      if (typeof days === 'number') return days + ' dias úteis';
-      // 4. Fallback final pra `description` — Carrier Service externa (caso
-      //    da SmartEnvios) coloca texto livre tipo "13 dias úteis" aqui em
-      //    vez de usar os campos estruturados acima.
+      if (typeof days === 'number') {
+        const d = fmtDataEntrega(addBusinessDays(days));
+        if (d) return 'Chega ' + d;
+      }
+      // 4. Fallback pra `description` — Carrier Service externa (SmartEnvios)
+      //    coloca texto livre tipo "13 dias úteis". Parseia e calcula data.
       if (rate.description && typeof rate.description === 'string') {
+        const parsed = parseDiasUteis(rate.description);
+        if (parsed) {
+          const minDt = fmtDataEntrega(addBusinessDays(parsed.min));
+          const maxDt = fmtDataEntrega(addBusinessDays(parsed.max));
+          if (minDt && maxDt && minDt !== maxDt) return 'Chega entre ' + minDt + ' e ' + maxDt;
+          if (minDt) return 'Chega ' + minDt;
+        }
+        // Não conseguiu parsear — mostra o texto cru
         return rate.description.trim();
       }
       return '';
