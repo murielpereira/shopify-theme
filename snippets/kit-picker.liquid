@@ -160,6 +160,7 @@
     background: var(--color-surface-container, #f8ece0);
     border-radius: var(--radius-md, 8px);
     padding: 0.875rem 1rem;
+    margin-bottom: 10px;
   }
 
   .pdp-kit__summary-title {
@@ -222,10 +223,16 @@
     animation: pdp-kit-shimmer 1.4s ease-in-out infinite;
   }
 
-  .pdp-kit__skeleton-bar--short { width: 60%; }
+  .pdp-kit__skeleton-bar--short {
+    width: 60%;
+  }
 
   @keyframes pdp-kit-shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 </style>
