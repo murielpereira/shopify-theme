@@ -42,7 +42,8 @@
       "pingente-de-couro-branco",
       "pingente-de-couro-allure",
       "pingente-de-couro-rosa-bebe",
-      "pingente-de-couro-rosa-seco"
+      "pingente-de-couro-rosa-seco",
+      "pingente-de-couro-sepia"
     ],
     "pingente_metal_couro_products": [
       "pingente-de-metal-com-couro-off-white",
@@ -52,7 +53,8 @@
       "pingente-de-metal-com-couro-allure",
       "pingente-de-metal-com-couro-branco",
       "pingente-de-metal-com-couro-lilas-candy",
-      "pingente-de-metal-com-couro-rosa-seco"
+      "pingente-de-metal-com-couro-rosa-seco",
+      "pingente-de-metal-com-couro-sepia"
     ],
     "pingente_ignore_terms": "pedras, strass, brilhos, cristais, glitter",
     "pingente_strip_terms": "e pedras Crystal, e pedras Light Sapphire, e pedras Light Peach, e pedras Vintage Rose, e pedras Violet, e pedras Montana, e pedras Emerald, e pedras Crysolite, e pedras Montana, e pedras Topaz, e pedras Light Rose, e pedras Padparadscha, e pedras Amethyst, e pedras Denim Blue, e pedras Golden Shadow, e pedras Fuchsia, e pedras Turquoise",
@@ -171,18 +173,6 @@
     "min_page_margin": 250,
     "content_for_index": [],
     "blocks": {
-      "9741741230116411038": {
-        "type": "shopify://apps/optis-color-swatch/blocks/bss-se-script/ad128d8f-5ebd-45ad-954a-7dd4c4226109",
-        "disabled": false,
-        "settings": {}
-      },
-      "316487575649303945": {
-        "type": "shopify://apps/easify-options/blocks/app-embed-block/d2288b18-c1ba-42f5-b3b3-26c75c8820bf",
-        "disabled": false,
-        "settings": {
-          "theme_app_version": "none"
-        }
-      },
       "2200952712151285029": {
         "type": "shopify://apps/microsoft-clarity/blocks/brandAgents_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
         "disabled": false,
