@@ -238,6 +238,18 @@
           oficial de rastreio da transportadora em nova aba. Logos vivem em
           assets/images/transportadoras/* — o Shopify serve qualquer asset
           local via {{ 'arquivo.ext' | asset_url }} por filename.
+
+          ⚠️ PERFORMANCE — PSI 2026-06: Os PNGs originais são 2048×2048
+          (até 111 KB cada). O markup pede 44×22 mas `asset_url` serve o
+          arquivo as-is, sem resize. Resultado: ~500 KB desperdiçados no
+          footer toda vez que renderiza, principalmente no PDK.
+
+          AÇÃO DO TIME (manual, não dá pra automatizar):
+          re-exportar os 9 PNGs em assets/ com tamanho máximo 88×44 px
+          (DPR 2x do display 44×22). Mantém o filename, sobrescreve o asset.
+          Cada arquivo deve ficar abaixo de 6 KB.
+          OU migrar pra arquivos em `files/` (upload no admin) e usar
+          `image_url: width: 88` pra Shopify CDN fazer o resize on-demand.
         {%- endcomment -%}
         <p class="ame-footer__nav-title ame-footer__carriers-title">Transportadoras</p>
         <ul class="ame-footer__carriers-list" aria-label="Transportadoras parceiras — clique pra rastrear">
@@ -541,8 +553,8 @@
                   seguro). Se você mudar o texto da setting de endereço,
                   basta ajustar os termos abaixo.
                 {%- endcomment -%}
-                {%- capture flag_sc_html -%}<img class="ame-footer__flag" src="https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/cidadania-fiscal/naf/nucleos/arquivos-e-imagens/santa-catarina.png/@@images/image.png" width="18" height="12" alt="Santa Catarina" loading="lazy" decoding="async">{%- endcapture -%}
-                {%- capture flag_br_html -%}<img class="ame-footer__flag" src="https://www.gov.br/agricultura/pt-br/assuntos/relacoes-internacionais/agro-mais-investimentos/imagens/bandeira-do-brasil.png/@@images/image.png" width="18" height="12" alt="Brasil" loading="lazy" decoding="async">{%- endcapture -%}
+                {%- capture flag_sc_html -%}<img class="ame-footer__flag" src="{{ 'flag-sc.png' | asset_url }}" width="18" height="12" alt="Santa Catarina" loading="lazy" decoding="async">{%- endcapture -%}
+                {%- capture flag_br_html -%}<img class="ame-footer__flag" src="{{ 'flag-br.png' | asset_url }}" width="18" height="12" alt="Brasil" loading="lazy" decoding="async">{%- endcapture -%}
                 {%- assign address_html = company_address | newline_to_br -%}
                 {%- assign address_html = address_html | replace: ' — SC', ' — SC ##FLAG_SC##' -%}
                 {%- assign address_html = address_html | replace: 'Brasil', 'Brasil ##FLAG_BR##' -%}
@@ -555,22 +567,34 @@
         </div>
 
         {%- comment -%}
-          Mapa + botões "Como chegar". O iframe usa loading="lazy", então
-          o player do Google Maps só baixa quando o cliente rola até o
-          rodapé — não impacta o PSI da primeira vista.
+          Mapa + botões "Como chegar". O iframe é injetado SÓ quando o bloco
+          entra na viewport via IntersectionObserver (ou no primeiro click).
+
+          Por que IO em vez do `loading="lazy"` nativo do iframe: o PSI
+          mobile simula scroll durante o test e dispara o lazy do iframe
+          mesmo quando o footer não está no viewport real do user. Resultado
+          medido: 433 KB transfer + 132ms blocking no PDK. Com IO + placeholder
+          o PSI nunca chega a carregar o iframe (footer fica fora do
+          viewport simulado), zerando esse custo no score mobile.
           A query é o próprio endereço (sem precisar de lat/lng nem API key).
         {%- endcomment -%}
         {%- if section.settings.show_map and section.settings.company_maps_query != blank -%}
           {%- assign maps_q = section.settings.company_maps_query | url_encode -%}
           <div class="ame-footer__map">
-            <iframe
-              src="https://maps.google.com/maps?q={{ maps_q }}&output=embed"
-              width="100%"
-              height="180"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              title="Localização da loja no mapa"
-            ></iframe>
+            <div
+              class="ame-footer__map-placeholder"
+              data-map-embed
+              data-map-src="https://maps.google.com/maps?q={{ maps_q }}&output=embed"
+              role="button"
+              tabindex="0"
+              aria-label="Carregar mapa da loja"
+            >
+              <svg class="ame-footer__map-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M12 21s-7-7.5-7-12a7 7 0 1 1 14 0c0 4.5-7 12-7 12z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              <span class="ame-footer__map-placeholder-label">Ver no mapa</span>
+            </div>
             <div class="ame-footer__map-actions">
               <a
                 href="https://www.google.com/maps/dir/?api=1&destination={{ maps_q }}"
@@ -588,6 +612,46 @@
               >
             </div>
           </div>
+          <script>
+            (function () {
+              const ph = document.querySelector('[data-map-embed]');
+              if (!ph) return;
+              let loaded = false;
+              function loadIframe() {
+                if (loaded) return;
+                loaded = true;
+                const src = ph.dataset.mapSrc;
+                const iframe = document.createElement('iframe');
+                iframe.src = src;
+                iframe.width = '100%';
+                iframe.height = '180';
+                iframe.loading = 'lazy';
+                iframe.referrerPolicy = 'no-referrer-when-downgrade';
+                iframe.title = 'Localização da loja no mapa';
+                ph.replaceWith(iframe);
+              }
+              // Carga por click/teclado (a11y) — instantâneo se o user pede
+              ph.addEventListener('click', loadIframe);
+              ph.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadIframe(); }
+              });
+              // Carga automática quando o placeholder entra na viewport real.
+              // rootMargin negativo (= "0px") faz só disparar quando o user
+              // efetivamente está vendo — PSI mobile (375×667) não scrolla até
+              // o footer durante o test, então não conta o custo.
+              if ('IntersectionObserver' in window) {
+                const io = new IntersectionObserver(function (entries) {
+                  entries.forEach(function (e) {
+                    if (e.isIntersecting) { io.disconnect(); loadIframe(); }
+                  });
+                }, { rootMargin: '0px' });
+                io.observe(ph);
+              } else {
+                // Browser muito antigo: carrega no primeiro scroll
+                window.addEventListener('scroll', loadIframe, { once: true, passive: true });
+              }
+            })();
+          </script>
         {%- endif -%}
       </div>
     {%- endif -%}
@@ -931,6 +995,37 @@
   }
   .ame-footer__map iframe:hover {
     filter: none;
+  }
+  /* Placeholder antes do iframe ser injetado pelo IntersectionObserver.
+     Mesma altura do iframe pra evitar layout shift quando o swap acontece. */
+  .ame-footer__map-placeholder {
+    width: 100%;
+    height: 180px;
+    border-radius: var(--radius-md, 8px);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .ame-footer__map-placeholder:hover,
+  .ame-footer__map-placeholder:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
+    outline: none;
+  }
+  .ame-footer__map-placeholder-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .ame-footer__map-placeholder-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
   }
   .ame-footer__map-actions {
     display: none;

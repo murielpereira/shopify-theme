@@ -277,11 +277,26 @@
                 showcaseWrap.dataset.kitCount = String(components.length);
                 showcaseWrap.innerHTML = components.map((comp, i) => {
                     const v = variants[i];
-                    const img = (v && v.featured_image) || comp.featured_image || '';
+                    const imgOriginal = (v && v.featured_image) || comp.featured_image || '';
+                    // CDN da Shopify aceita ?width=N — pedimos 600px (DPR 2x num
+                    // card de ~250px). Sem isso, vinha imagem original (2000×2000
+                    // = 280 KB) pra display de 185px. Fix do PSI image-delivery.
+                    const img = imgOriginal
+                        ? (imgOriginal.includes('?')
+                            ? imgOriginal + '&width=600'
+                            : imgOriginal + '?width=600')
+                        : '';
+                    // O 1º card é (na maioria dos kits) o que renderiza acima do
+                    // fold → é o LCP element. PSI confirmou: lazy nesse img
+                    // adicionava 900ms+ de "resource load delay". Eager-load só
+                    // o primeiro, demais ficam lazy.
+                    const isFirst = i === 0;
+                    const loading = isFirst ? 'eager' : 'lazy';
+                    const fetchprio = isFirst ? ' fetchpriority="high"' : '';
                     return `
                         <div class="pdp-kit__showcase-card">
                             <div class="pdp-kit__showcase-img-wrap">
-                                ${img ? `<img class="pdp-kit__showcase-img" src="${esc(img)}" alt="${esc(comp.title)}" loading="lazy">` : ''}
+                                ${img ? `<img class="pdp-kit__showcase-img" src="${esc(img)}" alt="${esc(comp.title)}" loading="${loading}"${fetchprio} width="600" height="600">` : ''}
                             </div>
                             <div class="pdp-kit__showcase-meta">
                                 <p class="pdp-kit__showcase-title">${esc(comp.title)}</p>

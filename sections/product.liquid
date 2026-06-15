@@ -1072,7 +1072,11 @@
   </div>
 {%- endif -%}
 
-<script>
+<script type="module">
+  /* PERF: type="module" faz o browser deferir esse script automaticamente
+     (executa após o HTML parse, sem bloquear). PSI 2026-06 mediu HTML inline
+     da PDP em 4.6s de script time — quase tudo daqui. Module = auto-defer +
+     strict mode. O IIFE já existia, então scope module não muda nada. */
   (() => {
     /* ── Carousel ── */
     const track   = document.getElementById('pdp-track');
@@ -1555,7 +1559,10 @@
   })();
 </script>
 
-<script>
+<script type="module">
+  /* PERF: type="module" auto-defere a execução (mesma motivação do script
+     anterior na PDP — ver comment acima). Esse aqui é o handler de sticky
+     image, depende de DOM já parseado. */
   /* ── Imagem fixa no scroll mobile até o botão "Adicionar ao Carrinho" aparecer ── */
   (() => {
     // O wrapper sticky inclui imagem + barra "Você selecionou: ..." — vira fixed juntos
@@ -2089,6 +2096,13 @@
     justify-content: center;
     align-items: center;
     border-radius: 15px;
+  }
+
+  /* Kit: bloco maior (preço total + pix + parcelamento + cashback, todos
+     começam com "—" e trocam quando o ame-kit.js termina o fetch+resolve).
+     Sem reservar altura, PSI media CLS 0.446 só desse swap. */
+  .pdp--is-kit .pdp__price-block {
+    min-height: 200px;
   }
 
   @media (min-width: 1024px) {

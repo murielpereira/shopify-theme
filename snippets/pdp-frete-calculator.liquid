@@ -149,9 +149,24 @@
       };
     }
 
-    function renderRates(rates) {
+    function renderRates(rates, meta) {
       if (!rates || rates.length === 0) {
-        showError('Nenhuma opção de entrega disponível para este CEP.');
+        // Usa meta pra dar mensagem mais útil: se a transportadora devolveu
+        // serviços mas todos com erro/inválidos, mostra o motivo.
+        if (meta && meta.raw_count > 0) {
+          const errs = (meta.services || [])
+            .filter(s => s.error)
+            .map(s => `${s.service}: ${s.error}`)
+            .slice(0, 2)
+            .join('; ');
+          if (errs) {
+            showError(`Sem cobertura pra este CEP. ${errs}`);
+          } else {
+            showError(`A transportadora encontrou ${meta.raw_count} ${meta.raw_count === 1 ? 'opção' : 'opções'}, mas nenhuma cobre seu CEP no momento.`);
+          }
+        } else {
+          showError('Nenhuma opção de entrega disponível para este CEP.');
+        }
         return;
       }
       const sorted = [...rates].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
@@ -214,7 +229,7 @@
         }
         try {
           const data = JSON.parse(xhr.responseText);
-          renderRates(data.rates || []);
+          renderRates(data.rates || [], data.meta || null);
           try { localStorage.setItem(STORAGE_KEY, cep); } catch (_) {}
         } catch (_) {
           showError('Resposta inválida do servidor.');

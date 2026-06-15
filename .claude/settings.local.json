@@ -153,10 +153,29 @@
       "Bash(mv images/logonuvem.png ./logonuvem.png)",
       "Bash(rmdir images *)",
       "WebFetch(domain:documentos.smartenvios.com)",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\);console.log\\('settings_schema OK'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config/settings_schema.json','utf8'\\)\\);console.log\\('settings_schema OK'\\)\")",
+      "Bash(mkdir -p /tmp/psi)",
+      "Bash(curl -sS -o /tmp/psi/home.json -w \"HTTP:%{http_code} SIZE:%{size_download}\\\\n\" \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2F&strategy=mobile&category=performance&category=accessibility&category=best-practices&category=seo\")",
+      "Bash(curl -sS -o /tmp/psi/home.json -w \"HTTP:%{http_code} SIZE:%{size_download}\\\\n\" \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2F&strategy=mobile&category=performance\")",
+      "Bash(curl -sS -o /tmp/psi/test.json -w \"HTTP:%{http_code} SIZE:%{size_download}\\\\n\" \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fwww.example.com%2F&strategy=mobile&category=performance\")",
+      "WebFetch(domain:www.googleapis.com)",
+      "Bash(curl -sS --max-time 90 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2F&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" > c:/tmp/psi-home.json && echo \"Home OK: $\\(wc -c < c:/tmp/psi-home.json\\) bytes\")",
+      "Bash(curl -sS --max-time 90 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" > c:/tmp/psi-pdp.json && echo \"PDP OK: $\\(wc -c < c:/tmp/psi-pdp.json\\) bytes\")",
+      "Bash(curl -sS --max-time 90 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fkit-tereza&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" > c:/tmp/psi-pdk.json && echo \"PDK OK: $\\(wc -c < c:/tmp/psi-pdk.json\\) bytes\")",
+      "Bash(node c:/tmp/psi-parse.js c:/tmp/psi-home.json)",
+      "Bash(curl -sS --max-time 180 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\")",
+      "Bash(curl -sS --max-time 180 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fkit-tereza&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\")",
+      "Bash(node -e \"const d=require\\('c:/tmp/psi-home.json'\\);const a=d.lighthouseResult.audits;const rb=a['render-blocking-resources'];console.log\\('render-blocking:', JSON.stringify\\(rb?.score\\), rb?.displayValue, '| items:', rb?.details?.items?.length\\);console.log\\('items:'\\); \\(rb?.details?.items||[]\\).forEach\\(it=>console.log\\(' -', it.url.slice\\(-90\\), '| total', Math.round\\(\\(it.totalBytes||0\\)/1024\\)+'KB', '| wasted', it.wastedMs+'ms'\\)\\);\")",
+      "Bash(node -e \"const d=require\\('c:/tmp/psi-home.json'\\);const a=d.lighthouseResult.audits;console.log\\('Audits com details.items > 0:'\\); Object.keys\\(a\\).filter\\(k=>a[k]?.details?.items?.length>0\\).slice\\(0,40\\).forEach\\(k=>console.log\\(' -', k, '\\(items:', a[k].details.items.length, ', score:', a[k].score, '\\)'\\)\\);\")",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdp.json)",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fkit-tereza&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdk.json)",
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-home.json)",
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdk.json)",
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdp.json)"
     ],
     "additionalDirectories": [
-      "\\tmp"
+      "\\tmp",
+      "c:\\tmp"
     ]
   }
 }

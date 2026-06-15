@@ -8,6 +8,15 @@
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
     {%- endif -%}
 
+    {%- comment -%}
+      Preconnect pros origens de assets de terceiros que carregam no fold
+      (selo Reclame Aqui no footer e API que ele consulta). PSI mediu
+      -333ms de LCP no PDK só com preconnect do s3 + -252ms com o do
+      api.reclameaqui. crossorigin é necessário pra o handshake TLS valer.
+    {%- endcomment -%}
+    <link rel="preconnect" href="https://s3.amazonaws.com" crossorigin>
+    <link rel="preconnect" href="https://api.reclameaqui.com.br" crossorigin>
+
     {%- render 'css-variables' -%}
 
     {%- comment -%}
