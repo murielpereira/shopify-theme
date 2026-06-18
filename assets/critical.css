@@ -727,6 +727,21 @@ body::after {
   color: #f5a623;
 }
 
+/* No mobile, cards ficam estreitos (2 por linha em viewport pequena) e a
+   pílula "LANÇAMENTO"/"Heritage" no top-left colide com o rating-badge no
+   top-right. Move o rating pra bottom-left da imagem (área livre — wishlist
+   é bottom-right). */
+@media (max-width: 600px) {
+  .ame-card__rating-badge {
+    top: auto;
+    right: auto;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    padding: 0.25rem 0.5rem 0.25rem 0.35rem;
+    font-size: 0.75rem;
+  }
+}
+
 /* Wishlist — bottom-right (sobre a imagem, acima do link clicável). */
 .ame-card__wishlist {
   position: absolute;
