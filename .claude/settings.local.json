@@ -171,7 +171,8 @@
       "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fkit-tereza&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdk.json)",
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-home.json)",
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdk.json)",
-      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdp.json)"
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdp.json)",
+      "Bash(node c:/tmp/konf-map-build.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

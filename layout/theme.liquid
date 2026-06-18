@@ -40,6 +40,33 @@
 
     {%- render 'meta-tags' -%}
 
+    {%- comment -%}
+      Expõe o mapa de cores (settings.swatch_solido_cores) globalmente como
+      window.AmeColorMap. Widgets externos (ex: agrupamento de produtos do
+      Waltz) consomem essa global pra renderizar swatches com as MESMAS
+      cores configuradas em Customize → Produto → Swatch sólido. Sem isso,
+      o widget Waltz mantinha um COR_MAP hardcoded que ficava desatualizado.
+
+      Formato: { "nome-lower-trim": "#hex", ... }. Inline pra evitar FOUC
+      no widget (script roda síncrono pra estar disponível antes do widget).
+    {%- endcomment -%}
+    <script>
+      window.AmeColorMap = (function () {
+        const map = {};
+        {%- assign cores_raw = settings.swatch_solido_cores | default: '' -%}
+        {%- assign entries = cores_raw | split: ',' -%}
+        {%- for entry in entries -%}
+          {%- assign pair = entry | split: ':' -%}
+          {%- if pair.size >= 2 -%}
+            {%- assign pname = pair[0] | strip | downcase -%}
+            {%- assign phex = pair[1] | strip -%}
+            map[{{ pname | json }}] = {{ phex | json }};
+          {%- endif -%}
+        {%- endfor -%}
+        return map;
+      })();
+    </script>
+
     {{ content_for_header }}
   </head>
 
