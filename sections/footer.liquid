@@ -217,22 +217,13 @@
       {%- endif -%}
     {% endif %}
 
-    {%- comment -%}
-      Coluna lateral à de Páginas (no desktop) com formas de pagamento e
-      selo de segurança. No mobile, vira sua própria linha empilhada.
-      Usa `shop.enabled_payment_types` + `payment_type_svg_tag` (helper
-      nativo Shopify) — atualiza automaticamente quando você habilita/
-      desabilita métodos em Configurações → Pagamentos.
-    {%- endcomment -%}
-    {%- if shop.enabled_payment_types.size > 0 -%}
-      <div class="ame-footer__nav ame-footer__payments-col">
-        <p class="ame-footer__nav-title">Formas de pagamento</p>
-        <ul class="ame-footer__payments-list" aria-label="Formas de pagamento aceitas">
-          {%- for type in shop.enabled_payment_types -%}
-            <li>{{ type | payment_type_svg_tag: class: 'ame-footer__payment-icon' }}</li>
-          {%- endfor -%}
-        </ul>
 
+{%- comment -%}
+      Coluna lateral à de Páginas (no desktop) com Transportadoras + selos
+      de segurança/Konfidency/Reclame Aqui. Formas de pagamento foram
+      removidas daqui (duplicavam com o bloco em .ame-footer__bottom).
+    {%- endcomment -%}
+    <div class="ame-footer__nav ame-footer__payments-col">
         {%- comment -%}
           Transportadoras parceiras. Cada logo é um link que abre a página
           oficial de rastreio da transportadora em nova aba. Logos vivem em
@@ -417,20 +408,6 @@
           </li>
         </ul>
 
-        <p class="ame-footer__security">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
-          </svg>
-          <span>Compra 100% segura · SSL</span>
-        </p>
-
         {%- comment -%}
           Badge Konfidency Reviews — selo dinâmico com média + nº total de
           avaliações da loja. Renderizado pelo loader.js global (em theme.liquid)
@@ -463,7 +440,6 @@
           </div>
         </div>
       </div>
-    {%- endif -%}
 
     {%- comment -%}
       Coluna de Atendimento + Dados da empresa.
@@ -589,7 +565,14 @@
               tabindex="0"
               aria-label="Carregar mapa da loja"
             >
-              <svg class="ame-footer__map-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <svg
+                class="ame-footer__map-placeholder-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
                 <path d="M12 21s-7-7.5-7-12a7 7 0 1 1 14 0c0 4.5-7 12-7 12z"/>
                 <circle cx="12" cy="9" r="2.5"/>
               </svg>
@@ -633,18 +616,27 @@
               // Carga por click/teclado (a11y) — instantâneo se o user pede
               ph.addEventListener('click', loadIframe);
               ph.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadIframe(); }
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  loadIframe();
+                }
               });
               // Carga automática quando o placeholder entra na viewport real.
               // rootMargin negativo (= "0px") faz só disparar quando o user
               // efetivamente está vendo — PSI mobile (375×667) não scrolla até
               // o footer durante o test, então não conta o custo.
               if ('IntersectionObserver' in window) {
-                const io = new IntersectionObserver(function (entries) {
-                  entries.forEach(function (e) {
-                    if (e.isIntersecting) { io.disconnect(); loadIframe(); }
-                  });
-                }, { rootMargin: '0px' });
+                const io = new IntersectionObserver(
+                  function (entries) {
+                    entries.forEach(function (e) {
+                      if (e.isIntersecting) {
+                        io.disconnect();
+                        loadIframe();
+                      }
+                    });
+                  },
+                  { rootMargin: '0px' }
+                );
                 io.observe(ph);
               } else {
                 // Browser muito antigo: carrega no primeiro scroll
@@ -676,7 +668,7 @@
 {% stylesheet %}
   .ame-footer {
     background: var(--color-primary, #5a4742);
-    padding: 3rem var(--page-margin, 2rem);
+    padding: 3rem var(--page-margin, 2rem) 1rem;
     margin-top: 10px;
     color: var(--color-on-primary, #ffffff);
   }
@@ -790,25 +782,6 @@
     transform-origin: center;
   }
 
-  .ame-footer__payments-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-  }
-  .ame-footer__payments-list li {
-    margin: 0;
-    background: #fff;
-    border-radius: 0.25rem;
-    padding: 0.125rem 0.25rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    /* Pequena sombra pra "destacar" do fundo escuro do footer */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  }
   .ame-footer__payment-icon {
     display: block;
     width: 2.25rem;
