@@ -1137,8 +1137,24 @@
       .konfidency-all-reviews) onde estiverem presentes no DOM. Carregado
       com `defer` pra não bloquear o render — as estrelinhas aparecem ~200ms
       depois do conteúdo principal.
+
+      ⚠️ Konfidency ainda em modo platform="nuvemshop" — o loader detecta
+      a plataforma e NÃO renderiza widget no PDP da Shopify (cards funcionam
+      via ame-konfidency-card-rating.js que consulta a API REST direto).
+      Pro PDP usamos o widget custom em ame-konfidency-pdp.js (vide abaixo).
+      Quando a Konfidency integrar oficialmente com Shopify, o loader passa
+      a renderizar e o widget custom se desativa (detecta children
+      pré-existentes via data-ame-konf-rendered).
     {%- endcomment -%}
     <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
+
+    {%- comment -%}
+      Widget custom de reviews no PDP — solução temporária enquanto a
+      Konfidency não integra com Shopify. Consulta endpoint público
+      /summary/{sort} e renderiza summary (estrelas + count) e lista
+      paginada de reviews. Vide assets/ame-konfidency-pdp.js.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>
 
     {%- comment -%}
       Badge compacto de rating nos cards de produto (coleções, home, busca).
