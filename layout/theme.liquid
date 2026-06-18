@@ -9,13 +9,17 @@
     {%- endif -%}
 
     {%- comment -%}
-      Preconnect pros origens de assets de terceiros que carregam no fold
-      (selo Reclame Aqui no footer e API que ele consulta). PSI mediu
-      -333ms de LCP no PDK só com preconnect do s3 + -252ms com o do
-      api.reclameaqui. crossorigin é necessário pra o handshake TLS valer.
+      Preconnect/dns-prefetch pros origens de assets de terceiros que
+      carregam no fold (selo Reclame Aqui no footer e API que ele consulta).
+      Spec recomenda ≤4 preconnects — Konfidency loader já adiciona 2
+      (fonts.googleapis + fonts.gstatic) + Shopify CDN (cdn.shopify.com).
+      Pra ficar dentro do limite, mantemos preconnect só pro s3.amazonaws
+      (que serve vários assets do badge RA: logo, css, bundle) e o
+      api.reclameaqui.com.br vira dns-prefetch (sem TLS handshake antecipado,
+      menos custo mas ainda economiza ~100ms de DNS lookup).
     {%- endcomment -%}
     <link rel="preconnect" href="https://s3.amazonaws.com" crossorigin>
-    <link rel="preconnect" href="https://api.reclameaqui.com.br" crossorigin>
+    <link rel="dns-prefetch" href="https://api.reclameaqui.com.br">
 
     {%- render 'css-variables' -%}
 
@@ -32,9 +36,13 @@
       flickerar. Truque: `media="print"` faz o browser baixar sem bloquear
       o render; `onload` troca pra `all` quando carregou. `<noscript>`
       garante que clientes sem JS recebam o CSS normalmente.
-      Preload mantido pra prioridade alta no fetch.
+
+      ⚠️ Removido o `preload_tag` extra que tínhamos antes — o browser
+      já considera o `<link media=print>` um download high-priority não
+      bloqueante. O preload separado causava o warning "preloaded but not
+      used within a few seconds" porque o stylesheet vencia o preload e
+      este virava órfão.
     {%- endcomment -%}
-    {{ 'critical.css' | asset_url | preload_tag: as: 'style' }}
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="print" onload="this.media='all'; this.onload=null">
     <noscript><link rel="stylesheet" href="{{ 'critical.css' | asset_url }}"></noscript>
 

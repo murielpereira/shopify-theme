@@ -146,7 +146,7 @@
         return `
             <li class="ame-konfpdp-review">
                 <header class="ame-konfpdp-review__header">
-                    <div class="ame-konfpdp-review__stars" aria-label="Nota ${nota} de 5">${estrelas(r.rating)}</div>
+                    <div class="ame-konfpdp-review__stars" role="img" aria-label="Nota ${nota} de 5">${estrelas(r.rating)}</div>
                     <strong class="ame-konfpdp-review__author">${esc(r.name || 'Anônimo')}</strong>
                     ${dataRel ? `<span class="ame-konfpdp-review__date">${esc(dataRel)}</span>` : ''}
                     ${r.verified ? `<span class="ame-konfpdp-review__verified" title="Comprador verificado">✓ comprador verificado</span>` : ''}

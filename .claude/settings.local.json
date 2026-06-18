@@ -212,7 +212,9 @@
       "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/223237673/summary/created,desc?page=1&pageSize=5\")",
       "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/223237673/summary/created,desc?page=2&pageSize=5\")",
       "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/223237673/summary/rating,desc?page=1&pageSize=3\")",
-      "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/223237673/summary/helpfulScore,desc?page=1&pageSize=3\")"
+      "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/223237673/summary/helpfulScore,desc?page=1&pageSize=3\")",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdp-atena2.json)",
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdp-atena2.json)"
     ],
     "additionalDirectories": [
       "\\tmp",

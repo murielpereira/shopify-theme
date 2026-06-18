@@ -8,6 +8,15 @@
   margin: 0;
 }
 
+/* Chrome vai mudar o default de `overflow` em img/video/canvas de `visible`
+   pra `clip`. Aplicar proativamente evita a chamada API obsoleta no Lighthouse
+   e garante que conteúdo não vaze visualmente dos limites do elemento. */
+img,
+video,
+canvas {
+  overflow: clip;
+}
+
 html,
 body {
   max-width: 100%;

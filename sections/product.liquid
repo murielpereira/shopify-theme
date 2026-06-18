@@ -285,13 +285,18 @@
     {%- if media_size > 1 -%}
       <div class="pdp__thumbs-wrap">
         <div class="pdp__thumbs-fade pdp__thumbs-fade--top" aria-hidden="true"></div>
-        <div class="pdp__thumbs" role="list">
+        {%- comment -%}
+          Cada thumb é um <button> interativo. ARIA proíbe role="listitem"
+          em elemento com role implícito "button" (PSI/agente flagged).
+          Mantemos buttons individuais; o container ganha aria-label pra
+          contexto sem forçar semântica de lista.
+        {%- endcomment -%}
+        <div class="pdp__thumbs" aria-label="Miniaturas do produto">
           {%- for media in product.media -%}
             <button
               class="pdp__thumb{% if forloop.first %} pdp__thumb--active{% endif %}"
               data-index="{{ forloop.index0 }}"
               aria-label="Imagem {{ forloop.index }}"
-              role="listitem"
               type="button"
             >
               {{-
