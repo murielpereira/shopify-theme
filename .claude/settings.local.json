@@ -172,7 +172,21 @@
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-home.json)",
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdk.json)",
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-pdp.json)",
-      "Bash(node c:/tmp/konf-map-build.js)"
+      "Bash(node c:/tmp/konf-map-build.js)",
+      "Bash(curl -sS \"https://reviews.konfidency.com.br/ameacessoriospet/ratings?skus=222197197,287535014,224417867,250800056,344835576\")",
+      "Bash(curl -sS \"https://reviews.konfidency.com.br/ameacessoriospet/loader.js\")",
+      "Bash(node -e \"const c=require\\('fs'\\).readFileSync\\('c:/tmp/konf-loader.js','utf8'\\); const urls=c.match\\(/https?:\\\\/\\\\/[a-zA-Z0-9.\\\\-_/?=&%]+/g\\) || []; console.log\\([...new Set\\(urls\\)].join\\('\\\\n'\\)\\);\")",
+      "Bash(node -e \"const c=require\\('fs'\\).readFileSync\\('c:/tmp/konf-loader.js','utf8'\\); const re=/\\\\\\\\\\\\\"\\(https?:[^\\\\\\\\\\\\\"]+|\\\\\\\\\\\\\\\\u002F\\\\\\\\\\\\\\\\u002F[^\\\\\\\\\\\\\"]+\\)\\\\\\\\\\\\\"/g; let m; const seen=new Set\\(\\); while\\(m=re.exec\\(c\\)\\){seen.add\\(m[1]\\);} console.log\\([...seen].join\\('\\\\n'\\)\\); console.log\\('---'\\); const re2=/[a-z]+\\\\\\\\.[a-z]+\\\\\\\\.com\\\\\\\\.br/g; while\\(m=re2.exec\\(c\\)\\){seen.add\\(m[0]\\);} console.log\\([...seen].join\\('\\\\n'\\)\\);\")",
+      "Bash(curl -sS \"https://reviews.konfidency.com.br/ameacessoriospet/0.js\")",
+      "Bash(curl -sS \"https://reviews.konfidency.com.br/ameacessoriospet/1.js\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const all=fs.readFileSync\\('c:/tmp/konf-0.js','utf8'\\)+fs.readFileSync\\('c:/tmp/konf-1.js','utf8'\\); const re=/[\\\\\"'\\\\`]\\(https?:\\\\/\\\\/[^\\\\\"'\\\\`\\\\\\\\s<>]+\\)[\\\\\"'\\\\`]/g; const urls=new Set\\(\\); let m; while\\(m=re.exec\\(all\\)\\){urls.add\\(m[1]\\);} console.log\\('=== URLs hardcoded ==='\\); [...urls].sort\\(\\).forEach\\(u=>console.log\\(u\\)\\);\")",
+      "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings/?skus=222197197,287535014,224417867,250800056,344835576&_v=3\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\\\\n\" \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings?skus=222197197\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\\\\n\" \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings/?skus=222197197\")",
+      "Bash(curl -sS -o /dev/null -w \"%{http_code}\\\\n\" \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings?skus=222197197&_v=3\")",
+      "Bash(node c:/tmp/konf-map-build2.js)",
+      "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings/?skus=323095119,278835625,278845787,278866521,279125229,279131429,279137508,279139297,279174203,279176443,279181176,279183986,279187687,279204788,279214114,279223503,279227239,279230408,220386889,291937183,291937322,291937489,291937664,291937786,291937954,291938054,291938175,291938293,291938783,291938940,291939106,291939446,291939655,291939956,291940222,223041563&_v=3\")",
+      "Bash(curl -sS \"https://reviews-api.konfidency.com.br/ameacessoriospet/ratings/?skus=344835576,287535014,287540385,287541583,328857445,328854820,287542801,287545877,287546882,287548079&_v=3\")"
     ],
     "additionalDirectories": [
       "\\tmp",

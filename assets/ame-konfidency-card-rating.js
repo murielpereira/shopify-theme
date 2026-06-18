@@ -3,12 +3,19 @@
  * e da página /avaliacoes) — é um caminho independente porque o widget JS
  * do Konfidency é grande demais pra caber num badge compacto sobre a imagem.
  *
+ * Suporta AGREGAÇÃO de SKUs: quando `data-konfidency-rating` traz uma lista
+ * CSV (ex: "id1,id2,id3"), soma todos os reviewCount e calcula a média
+ * ponderada. Necessário pq muitos produtos Shopify novos consolidam vários
+ * produtos Nuvemshop antigos — vide snippets/konfidency-id.liquid.
+ *
  * Como funciona:
- *   1. Coleta todos [data-konfidency-rating] visíveis no DOM que ainda
- *      estão `hidden` (sem fallback de metafield)
- *   2. Agrupa IDs únicos, filtra os que já estão no sessionStorage
- *   3. Faz 1 request batch pra /ratings?skus=id1,id2,id3
- *   4. Popula cada elemento + cacheia em sessionStorage por 15min
+ *   1. Coleta todos `data-konfidency-rating` no DOM (cada valor pode ser
+ *      um ID singular ou CSV de IDs)
+ *   2. Junta todos os IDs únicos em um Set; tenta cache (chave = grupo CSV
+ *      original); chama API só pros grupos não cacheados
+ *   3. Faz request batch /ratings/?skus=id1,id2,... com todos os IDs flat
+ *   4. Pra cada grupo, agrega os ratings dos IDs que retornaram e popula
+ *   5. Cacheia o resultado AGREGADO por grupo (15min sessionStorage)
  *
  * Usa XMLHttpRequest porque a loja Shopify Âme tem apps que sobrescrevem
  * window.fetch (adsagent/Microsoft Clarity) — vide memory.
@@ -20,14 +27,18 @@
     window.__ameKonfRatingLoaded = true;
 
     const CUSTOMER = 'ameacessoriospet';
-    const API_BASE = `https://reviews.konfidency.com.br/${CUSTOMER}`;
-    const CACHE_KEY_PREFIX = 'konf:rating:';
+    // Endpoint API real é `reviews-api.konfidency.com.br` — o host
+    // `reviews.konfidency.com.br` serve só o loader.js (CDN/S3 estático,
+    // 404 em /ratings). Sufixo `/?_v=3` espelha o loader oficial.
+    const API_BASE = `https://reviews-api.konfidency.com.br/${CUSTOMER}`;
+    // v3: introduzimos agregação de CSV (formato de cache mudou).
+    const CACHE_KEY_PREFIX = 'konf:rating:v3:';
     const CACHE_TTL_MS = 15 * 60 * 1000;
-    const BATCH_SIZE = 50; // limite seguro pra URL não estourar 2KB
+    const BATCH_SIZE = 80; // URLs do Shopify CDN suportam até ~4 KB; grupos de 80 IDs ≈ 1 KB
 
-    function lerCache(id) {
+    function lerCache(grupoKey) {
         try {
-            const raw = sessionStorage.getItem(CACHE_KEY_PREFIX + id);
+            const raw = sessionStorage.getItem(CACHE_KEY_PREFIX + grupoKey);
             if (!raw) return null;
             const obj = JSON.parse(raw);
             if (!obj || typeof obj.at !== 'number') return null;
@@ -36,23 +47,53 @@
         } catch (_) { return null; }
     }
 
-    function gravarCache(id, data) {
+    function gravarCache(grupoKey, data) {
         try {
-            sessionStorage.setItem(CACHE_KEY_PREFIX + id, JSON.stringify({ at: Date.now(), data }));
+            sessionStorage.setItem(CACHE_KEY_PREFIX + grupoKey, JSON.stringify({ at: Date.now(), data }));
         } catch (_) { /* quota cheia, ignora */ }
     }
 
-    function aplicar(id, data) {
+    // Agrega N respostas individuais num único {aggregateRating, reviewCount}.
+    //
+    // Por que dedup por assinatura: a Konfidency armazena reviews por "produto
+    // pai Nuvemshop" e devolve as MESMAS reviews pra todas as variantes-de-cor
+    // (ex: 36 SKUs do Atena retornam `5 × 115` idêntico). Somar direto inflaria
+    // pra 4140 reviews falsas. Heurística: assinatura (rating, count) idêntica
+    // = mesma pool de reviews, conta uma vez. Variantes genuinamente diferentes
+    // (lançadas depois com reviews próprias) terão `count` diferente e somam OK.
+    function agregar(respostasDoGrupo) {
+        const seen = new Set();
+        let totalCount = 0;
+        let weightedSum = 0;
+        respostasDoGrupo.forEach(r => {
+            if (!r || typeof r.aggregateRating !== 'number') return;
+            const c = parseInt(r.reviewCount, 10) || 0;
+            if (c <= 0) return;
+            // Round o rating pra evitar drift de float em assinaturas (5 vs 5.0000001)
+            const sig = r.aggregateRating.toFixed(3) + ':' + c;
+            if (seen.has(sig)) return;
+            seen.add(sig);
+            totalCount += c;
+            weightedSum += r.aggregateRating * c;
+        });
+        if (totalCount === 0) return { aggregateRating: 0, reviewCount: 0 };
+        return {
+            aggregateRating: weightedSum / totalCount,
+            reviewCount: totalCount,
+        };
+    }
+
+    function aplicar(grupoKey, data) {
         if (!data || typeof data.aggregateRating !== 'number' || data.aggregateRating <= 0) {
-            // Sem reviews — esconde os badges desse produto
-            document.querySelectorAll(`[data-konfidency-rating="${id}"]`).forEach(el => {
+            // Sem reviews em nenhum SKU do grupo — esconde os badges
+            document.querySelectorAll(`[data-konfidency-rating="${grupoKey}"]`).forEach(el => {
                 el.setAttribute('hidden', '');
             });
             return;
         }
         const nota = data.aggregateRating.toFixed(1).replace('.', ',');
         const ariaLabel = `Avaliação: ${nota} de 5${data.reviewCount ? ` em ${data.reviewCount} avaliações` : ''}`;
-        document.querySelectorAll(`[data-konfidency-rating="${id}"]`).forEach(el => {
+        document.querySelectorAll(`[data-konfidency-rating="${grupoKey}"]`).forEach(el => {
             const valor = el.querySelector('[data-konfidency-rating-value]');
             if (valor) valor.textContent = nota;
             el.setAttribute('aria-label', ariaLabel);
@@ -62,7 +103,7 @@
 
     function xhrBatch(ids) {
         return new Promise((resolve) => {
-            const url = `${API_BASE}/ratings?skus=${encodeURIComponent(ids.join(','))}`;
+            const url = `${API_BASE}/ratings/?skus=${encodeURIComponent(ids.join(','))}&_v=3`;
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url, true);
             xhr.setRequestHeader('Accept', 'application/json');
@@ -82,36 +123,48 @@
         const elementos = document.querySelectorAll('[data-konfidency-rating]');
         if (!elementos.length) return;
 
-        const idsTodos = new Set();
+        // Coleta grupos únicos (cada grupo é a string CSV original do atributo).
+        const gruposTodos = new Set();
         elementos.forEach(el => {
-            const id = el.dataset.konfidencyRating;
-            if (id) idsTodos.add(id);
+            const grupo = el.dataset.konfidencyRating;
+            if (grupo) gruposTodos.add(grupo);
         });
 
-        const idsPraBuscar = [];
-        idsTodos.forEach(id => {
-            const cached = lerCache(id);
+        // Aplica do cache + identifica grupos que precisam de fetch
+        const gruposPraBuscar = [];
+        const idsParaApi = new Set();
+        gruposTodos.forEach(grupo => {
+            const cached = lerCache(grupo);
             if (cached) {
-                aplicar(id, cached);
-            } else {
-                idsPraBuscar.push(id);
+                aplicar(grupo, cached);
+                return;
             }
+            gruposPraBuscar.push(grupo);
+            grupo.split(',').forEach(id => {
+                const trimmed = id.trim();
+                if (trimmed) idsParaApi.add(trimmed);
+            });
         });
 
-        if (!idsPraBuscar.length) return;
+        if (idsParaApi.size === 0) return;
 
-        // Batch em chunks de BATCH_SIZE
-        for (let i = 0; i < idsPraBuscar.length; i += BATCH_SIZE) {
-            const chunk = idsPraBuscar.slice(i, i + BATCH_SIZE);
+        // Batch fetch de todos os IDs únicos (1 ou múltiplas requests se passar BATCH_SIZE)
+        const idsFlat = [...idsParaApi];
+        const porSku = new Map();
+        for (let i = 0; i < idsFlat.length; i += BATCH_SIZE) {
+            const chunk = idsFlat.slice(i, i + BATCH_SIZE);
             const respostas = await xhrBatch(chunk);
-            const porSku = new Map();
             respostas.forEach(r => { if (r && r.sku) porSku.set(String(r.sku), r); });
-            chunk.forEach(id => {
-                const data = porSku.get(String(id)) || null;
-                gravarCache(id, data || { aggregateRating: 0, reviewCount: 0 });
-                aplicar(id, data);
-            });
         }
+
+        // Pra cada grupo, agrega os ratings dos SKUs que retornaram, cacheia e aplica
+        gruposPraBuscar.forEach(grupo => {
+            const skus = grupo.split(',').map(s => s.trim()).filter(Boolean);
+            const respostasDoGrupo = skus.map(sku => porSku.get(sku)).filter(Boolean);
+            const dataAgregada = agregar(respostasDoGrupo);
+            gravarCache(grupo, dataAgregada);
+            aplicar(grupo, dataAgregada);
+        });
     }
 
     // Roda no load inicial
