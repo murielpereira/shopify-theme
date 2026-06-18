@@ -2791,17 +2791,75 @@ shopify-account {
   overflow: hidden;
   background: var(--color-surface, #fff);
   border: 1px solid var(--color-outline-variant, #d2c3c0);
+  padding: 0;
+  cursor: zoom-in;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .ame-konfpdp-review__pic:hover {
   transform: translateY(-1px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
 }
+.ame-konfpdp-review__pic:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
 .ame-konfpdp-review__pic img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* ── Lightbox (popup) pra fotos de avaliação ── */
+.ame-konfpdp-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 12, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  cursor: zoom-out;
+  animation: ame-konfpdp-lb-fade 0.2s ease;
+}
+@keyframes ame-konfpdp-lb-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ame-konfpdp-lightbox[hidden] {
+  display: none;
+}
+.ame-konfpdp-lightbox__img {
+  max-width: min(90vw, 900px);
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface, #fff);
+  cursor: default;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.ame-konfpdp-lightbox__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: background 0.15s ease;
+}
+.ame-konfpdp-lightbox__close:hover,
+.ame-konfpdp-lightbox__close:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+  outline: none;
 }
 
 .ame-konfpdp-details__more-wrap {

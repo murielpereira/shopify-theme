@@ -93,10 +93,51 @@
     function fotosHtml(pictures) {
         if (!Array.isArray(pictures) || !pictures.length) return '';
         return `<div class="ame-konfpdp-review__pics">${pictures.map(p => {
-            const url = p.thumb || p.url;
-            if (!url) return '';
-            return `<a class="ame-konfpdp-review__pic" href="${esc(p.url || url)}" target="_blank" rel="noopener"><img src="${esc(url)}" alt="Foto enviada pelo cliente" loading="lazy"></a>`;
+            const thumb = p.thumb || p.url;
+            const full = p.url || p.thumb;
+            if (!thumb) return '';
+            // type=button + data-full → lightbox abre via JS (sem href pra
+            // navegação acidental ou abertura em nova aba).
+            return `<button type="button" class="ame-konfpdp-review__pic" data-ame-konfpdp-pic="${esc(full)}" aria-label="Ampliar foto da avaliação"><img src="${esc(thumb)}" alt="Foto enviada pelo cliente" loading="lazy"></button>`;
         }).join('')}</div>`;
+    }
+
+    // ── Lightbox singleton (criado uma vez na 1ª foto clicada) ──
+    let lightboxEl = null;
+    function ensureLightbox() {
+        if (lightboxEl) return lightboxEl;
+        lightboxEl = document.createElement('div');
+        lightboxEl.className = 'ame-konfpdp-lightbox';
+        lightboxEl.hidden = true;
+        lightboxEl.innerHTML = `
+            <button type="button" class="ame-konfpdp-lightbox__close" aria-label="Fechar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <img class="ame-konfpdp-lightbox__img" src="" alt="">
+        `;
+        document.body.appendChild(lightboxEl);
+        const close = () => {
+            lightboxEl.hidden = true;
+            document.body.style.overflow = '';
+        };
+        lightboxEl.addEventListener('click', (e) => {
+            // Fecha ao clicar no fundo OU no botão de fechar
+            if (e.target === lightboxEl || e.target.closest('.ame-konfpdp-lightbox__close')) close();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !lightboxEl.hidden) close();
+        });
+        return lightboxEl;
+    }
+    function openLightbox(url) {
+        const lb = ensureLightbox();
+        const img = lb.querySelector('.ame-konfpdp-lightbox__img');
+        img.src = url;
+        img.alt = 'Foto enviada pelo cliente em avaliação';
+        lb.hidden = false;
+        document.body.style.overflow = 'hidden'; // trava scroll do background
     }
 
     function reviewHtml(r) {
@@ -158,6 +199,19 @@
         const nota = rating.toFixed(1).replace('.', ',');
         const recHtml = (typeof recPct === 'number' && recPct >= 0)
             ? `<p class="ame-konfpdp-details__recommend">${Math.round(recPct)}% dos avaliadores recomendam o produto</p>` : '';
+
+        // Click delegation pra abrir lightbox quando o cliente clica numa
+        // foto de review. Usa delegation no container — funciona pras reviews
+        // que vão chegar via paginação/sort sem precisar re-bindar.
+        if (!el.dataset.lightboxBound) {
+            el.dataset.lightboxBound = '1';
+            el.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('[data-ame-konfpdp-pic]');
+                if (!btn) return;
+                ev.preventDefault();
+                openLightbox(btn.dataset.ameKonfpdpPic);
+            });
+        }
 
         el.innerHTML = `
             <div id="pdp-reviews-anchor"></div>
