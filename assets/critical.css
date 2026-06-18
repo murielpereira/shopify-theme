@@ -728,17 +728,29 @@ body::after {
 }
 
 /* No mobile, cards ficam estreitos (2 por linha em viewport pequena) e a
-   pílula "LANÇAMENTO"/"Heritage" no top-left colide com o rating-badge no
-   top-right. Move o rating pra bottom-left da imagem (área livre — wishlist
-   é bottom-right). */
+   pílula do canto superior esquerdo (LANÇAMENTO/Heritage/etc) chegava perto
+   do rating-badge no top-right. Encolhe levemente os 2 — texto continua
+   legível e ambos ficam com folga de respiro entre si. */
 @media (max-width: 600px) {
   .ame-card__rating-badge {
-    top: auto;
-    right: auto;
-    bottom: 0.5rem;
-    left: 0.5rem;
+    top: 0.5rem;
+    right: 0.5rem;
     padding: 0.25rem 0.5rem 0.25rem 0.35rem;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    gap: 0.15rem;
+  }
+  .ame-card__rating-star {
+    font-size: 0.65rem !important;
+  }
+  .ame-card__badges {
+    top: 0.5rem;
+    left: 0.5rem;
+    gap: 0.25rem;
+  }
+  .ame-card__badge-pill {
+    font-size: 0.5625rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.5rem;
   }
 }
 
