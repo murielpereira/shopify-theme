@@ -15,9 +15,9 @@
       "type": "countdown-bar",
       "settings": {
         "enabled": true,
-        "message": "Contagem regressiva para o aniversário Âme",
-        "end_date": "2026-10-30",
-        "end_time": "23:59:59",
+        "message": "Contagem regressiva para o lançamento do site",
+        "end_date": "2026-07-06",
+        "end_time": "09:00:00",
         "link": ""
       }
     },
