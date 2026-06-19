@@ -115,9 +115,65 @@
     line-height: 1;
   }
 
+  /* Mobile: alterna mensagem ↔ cronômetro a cada ~4s. Mantém a barra
+     compacta (1 linha) e mostra a info promocional completa que antes
+     ficava escondida. Container vira `relative`; ambos sobrepostos
+     com opacity animada. */
   @media (max-width: 600px) {
+    .ame-countdown__inner {
+      position: relative;
+      width: 100%;
+      max-width: 18rem;
+      height: 100%;
+      gap: 0;
+    }
+    .ame-countdown__message,
+    .ame-countdown__timer {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
     .ame-countdown__message {
-      display: none;
+      white-space: normal;
+      text-align: center;
+      padding: 0 0.5rem;
+      animation: ame-countdown-msg 8s ease-in-out infinite;
+    }
+    .ame-countdown__timer {
+      animation: ame-countdown-tmr 8s ease-in-out infinite;
+    }
+  }
+  @keyframes ame-countdown-msg {
+    0%, 45% { opacity: 1; }
+    50%, 95% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes ame-countdown-tmr {
+    0%, 45% { opacity: 0; }
+    50%, 95% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  /* Acessibilidade: se o cliente desativou animações, empilha em 2 linhas
+     em vez de alternar (mantém info completa visível sem movimento). */
+  @media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+    .ame-countdown {
+      height: auto;
+      padding: 0.3rem 0;
+    }
+    .ame-countdown__inner {
+      position: static;
+      flex-direction: column;
+      gap: 0.15rem;
+      max-width: 100%;
+    }
+    .ame-countdown__message,
+    .ame-countdown__timer {
+      position: static;
+      animation: none;
+      opacity: 1;
     }
   }
 {% endstylesheet %}

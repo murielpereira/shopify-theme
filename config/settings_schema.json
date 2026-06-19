@@ -287,6 +287,20 @@
     "settings": [
       {
         "type": "header",
+        "content": "Cotação de frete na PDP"
+      },
+      {
+        "type": "paragraph",
+        "content": "Quando ativo, exibe um campo de CEP na página do produto que consulta a SmartEnvios via Waltz e mostra as opções de frete antes do cliente adicionar ao carrinho. Não impacta o cálculo no checkout. Não aparece em produtos do tipo Kit (lá o cliente cota no carrinho)."
+      },
+      {
+        "type": "checkbox",
+        "id": "pdp_freight_enabled",
+        "label": "Exibir cotação de frete na PDP",
+        "default": false
+      },
+      {
+        "type": "header",
         "content": "Desconto automático (vitrine)"
       },
       {

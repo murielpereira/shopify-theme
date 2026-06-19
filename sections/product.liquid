@@ -969,10 +969,11 @@
         Calculadora de frete da PDP — chama Waltz que cota direto na
         SmartEnvios sem mexer no cart. Aparece em produtos normais
         (oculta no kit; lá o cliente cota no carrinho após adicionar).
+        Toggle global em Customize → Produto → "Cotação de frete na PDP".
       {%- endcomment -%}
-      {%- unless is_kit -%}
+      {%- if settings.pdp_freight_enabled and is_kit == false -%}
         {%- render 'pdp-frete-calculator' -%}
-      {%- endunless -%}
+      {%- endif -%}
 
       {%- comment -%} Slot pra apps: antes do CTA {%- endcomment -%}
       <div class="pdp__app-slot pdp__app-slot--before-cta">
