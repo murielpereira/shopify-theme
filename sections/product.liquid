@@ -1519,20 +1519,40 @@
           if (pingenteItem) items.push(pingenteItem);
         }
 
-        const res = await fetch('/cart/add.js', {
-          method:  'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ items })
+        /* XHR (não fetch) — apps de terceiro na loja (adsagent/Easify/Clarity)
+           sobrescrevem `window.fetch` e engolem silenciosamente o POST do
+           /cart/add.js. Resultado: drawer abre mas cart fica vazio. XHR não
+           é interceptado pelos apps — caminho confirmado funcional via
+           ame-kit.js (que sempre usou XHR). */
+        const addItems = items;
+        const cartData = await new Promise((resolve, reject) => {
+          const xhrAdd = new XMLHttpRequest();
+          xhrAdd.open('POST', '/cart/add.js', true);
+          xhrAdd.setRequestHeader('Content-Type', 'application/json');
+          xhrAdd.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+          xhrAdd.setRequestHeader('Accept', 'application/json');
+          xhrAdd.onload = () => {
+            if (xhrAdd.status < 200 || xhrAdd.status >= 300) {
+              return reject(new Error('cart/add HTTP ' + xhrAdd.status));
+            }
+            // Busca cart.js depois do add (também via XHR pelo mesmo motivo)
+            const xhrGet = new XMLHttpRequest();
+            xhrGet.open('GET', '/cart.js', true);
+            xhrGet.setRequestHeader('Accept', 'application/json');
+            xhrGet.onload = () => {
+              if (xhrGet.status < 200 || xhrGet.status >= 300) {
+                return reject(new Error('cart.js HTTP ' + xhrGet.status));
+              }
+              try { resolve(JSON.parse(xhrGet.responseText)); }
+              catch (err) { reject(err); }
+            };
+            xhrGet.onerror = () => reject(new Error('cart.js network'));
+            xhrGet.send();
+          };
+          xhrAdd.onerror = () => reject(new Error('cart/add network'));
+          xhrAdd.send(JSON.stringify({ items: addItems }));
         });
 
-        if (!res.ok) throw new Error('cart/add failed');
-
-        /* Busca carrinho atualizado e repassa ao drawer */
-        const cartData = await (await fetch('/cart.js')).json();
         window.AmeCart?.refresh(cartData);
 
         /* Efeito de borboletas — duas variantes pra comparar:
