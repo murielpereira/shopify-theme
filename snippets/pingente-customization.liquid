@@ -83,33 +83,27 @@
       <div class="ame-pingente__tipo-grid">
         <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal">
           <input type="radio" name="ame-pingente-tipo" value="metal" data-pingente-tipo>
-          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
-            </span>
-          </div>
           <span class="ame-pingente__tipo-name">Metal</span>
           <span class="ame-pingente__tipo-price" data-tipo-price></span>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <img src="{{ 'pingente_metal.webp' | asset_url }}" alt="Exemplo do pingente de metal" loading="lazy" width="220" height="220">
+          </div>
         </label>
         <label class="ame-pingente__tipo-card" data-pingente-tipo-card="couro">
           <input type="radio" name="ame-pingente-tipo" value="couro" data-pingente-tipo>
-          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
-            </span>
-          </div>
           <span class="ame-pingente__tipo-name">Couro</span>
           <span class="ame-pingente__tipo-price" data-tipo-price></span>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <img src="{{ 'pingente_couro.webp' | asset_url }}" alt="Exemplo do pingente de couro" loading="lazy" width="220" height="220">
+          </div>
         </label>
         <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal-couro">
           <input type="radio" name="ame-pingente-tipo" value="metal-couro" data-pingente-tipo>
-          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
-            <span class="ame-pingente__tipo-placeholder" aria-hidden="true">
-              <span class="material-symbols-outlined">image</span>
-            </span>
-          </div>
           <span class="ame-pingente__tipo-name">Metal com Couro</span>
           <span class="ame-pingente__tipo-price" data-tipo-price></span>
+          <div class="ame-pingente__tipo-thumb" data-tipo-thumb>
+            <img src="{{ 'pingente_metal_e_couro.webp' | asset_url }}" alt="Exemplo do pingente de metal com couro" loading="lazy" width="220" height="220">
+          </div>
         </label>
       </div>
       <p class="ame-pingente__status" data-pingente-status></p>
@@ -383,21 +377,20 @@
     }
 
     .ame-pingente__tipo-thumb {
-      display: none;
       width: clamp(72px, 70%, 110px);
       aspect-ratio: 1 / 1;
       border-radius: var(--radius-sm, 2px);
       background: var(--color-surface-container-highest, #ece1d5);
       overflow: hidden;
-      /*display: flex;*/
+      display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto;
+      margin: 0.25rem auto 0;
     }
     .ame-pingente__tipo-thumb img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
     }
     .ame-pingente__tipo-placeholder {
@@ -825,36 +818,23 @@
           tipos.map(async (tipo) => {
             const card = root.querySelector(`[data-pingente-tipo-card="${tipo}"]`);
             if (!card) return;
-            const thumb = card.querySelector('[data-tipo-thumb]');
             const priceEl = card.querySelector('[data-tipo-price]');
             const radio = card.querySelector('[data-pingente-tipo]');
 
             const handle = buildHandle(tipo, coleira.cor);
             const product = handle ? await fetchProduct(handle) : null;
 
+            // Imagem do thumb é estática (assets/pingente_*.webp) — só atualizamos
+            // estado do card (disponibilidade + preço). Não sobrescreve o <img>.
             if (!product) {
               card.classList.add('is-unavailable');
               if (radio) radio.disabled = true;
               if (priceEl) priceEl.textContent = '';
-              if (thumb)
-                thumb.innerHTML =
-                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">block</span></span>';
               return;
             }
 
             card.classList.remove('is-unavailable');
             if (radio) radio.disabled = false;
-            const imgSrc = product.featured_image || (product.images && product.images[0]) || '';
-            if (thumb) {
-              if (imgSrc) {
-                thumb.innerHTML = `<img src="${escapeHTML(imgSrc)}" alt="${escapeHTML(
-                  product.title || ''
-                )}" loading="lazy">`;
-              } else {
-                thumb.innerHTML =
-                  '<span class="ame-pingente__tipo-placeholder" aria-hidden="true"><span class="material-symbols-outlined">image</span></span>';
-              }
-            }
             if (priceEl && product.price) priceEl.textContent = '+ ' + moneyFmt(product.price);
           })
         );
