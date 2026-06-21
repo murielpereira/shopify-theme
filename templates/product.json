@@ -34,6 +34,15 @@
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_K6PcTr": {
+          "type": "faq",
+          "name": "faq_comprimento_guias",
+          "settings": {
+            "question": "Posso escolher o comprimento da guia?",
+            "answer": "<p>Sim. As guias estão disponíveis em<strong>1,2 metros</strong>ou<strong>1,5 metros</strong>.<br/><br/>• 1,2 m: ideal para passeios urbanos e maior controle<br/>• 1,5 m: mais liberdade para caminhadas tranquilas</p>",
+            "tags_filter": "faq_comprimento_guias"
+          }
+        },
         "faq_fWkw6E": {
           "type": "faq",
           "name": "largura_guia",
@@ -99,6 +108,7 @@
         }
       },
       "block_order": [
+        "faq_K6PcTr",
         "faq_fWkw6E",
         "faq_6X8rqa",
         "faq_fBQQrG",
