@@ -31,15 +31,18 @@
         "videos_autoplay": true
       }
     },
-    "product_reviews_konfidency": {
-      "type": "product-reviews",
-      "settings": {
-        "title": "Avaliações"
-      }
-    },
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_6X8rqa": {
+          "type": "faq",
+          "name": "guias_resistente",
+          "settings": {
+            "question": "A guia é resistente para o dia a dia?",
+            "answer": "<p>Sim. As guias Âme são feitas para acompanhar a rotina real: passeios diários, viagens e momentos especiais. Utilizamos<strong>costuras reforçadas, bordas pintadas à mão</strong>e<strong>mosquetão com trava de segurança</strong>.</p>",
+            "tags_filter": "guia_resistente"
+          }
+        },
         "faq_fBQQrG": {
           "type": "faq",
           "name": "faq_couro",
@@ -87,6 +90,7 @@
         }
       },
       "block_order": [
+        "faq_6X8rqa",
         "faq_fBQQrG",
         "faq_8NKDiL",
         "faq_ApaVh3",
@@ -127,6 +131,12 @@
         "step_8_tags_filter": "",
         "show_faq": true,
         "faq_title": "Perguntas Frequentes"
+      }
+    },
+    "product_reviews_konfidency": {
+      "type": "product-reviews",
+      "settings": {
+        "title": "Avaliações"
       }
     }
   },
