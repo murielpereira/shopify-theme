@@ -36,11 +36,11 @@
       "blocks": {
         "faq_K6PcTr": {
           "type": "faq",
-          "name": "faq_comprimento_guias",
+          "name": "faq_comprimento_guia",
           "settings": {
             "question": "Posso escolher o comprimento da guia?",
             "answer": "<p>Sim. As guias estão disponíveis em<strong>1,2 metros</strong>ou<strong>1,5 metros</strong>.<br/><br/>• 1,2 m: ideal para passeios urbanos e maior controle<br/>• 1,5 m: mais liberdade para caminhadas tranquilas</p>",
-            "tags_filter": "faq_comprimento_guias"
+            "tags_filter": "faq_comprimento_guia"
           }
         },
         "faq_fWkw6E": {
