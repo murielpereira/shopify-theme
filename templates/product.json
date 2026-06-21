@@ -34,6 +34,15 @@
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_fWkw6E": {
+          "type": "faq",
+          "name": "largura_guia",
+          "settings": {
+            "question": "Qual a largura ideal da guia para meu pet?",
+            "answer": "<p>A largura da guia deve acompanhar o porte e a força do pet:<br/><br/><strong>XPP / XPP+</strong>– 12 mm<br/><strong>PP / P</strong>– 15 mm<br/><strong>M / G</strong>– 20 mm<br/><br/>Se tiver dúvida, nossa equipe analisa cada pedido antes da produção.</p>",
+            "tags_filter": "largura_guia"
+          }
+        },
         "faq_6X8rqa": {
           "type": "faq",
           "name": "guias_resistente",
@@ -90,6 +99,7 @@
         }
       },
       "block_order": [
+        "faq_fWkw6E",
         "faq_6X8rqa",
         "faq_fBQQrG",
         "faq_8NKDiL",
