@@ -46,6 +46,36 @@
     <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="print" onload="this.media='all'; this.onload=null">
     <noscript><link rel="stylesheet" href="{{ 'critical.css' | asset_url }}"></noscript>
 
+    {%- comment -%}
+      CLS fix: reserva padding-top no body pro header fixed + announce bar
+      + countdown bar (se ativo). Sem essa reserva inicial, o JS do
+      header.liquid aplica `body.padding-top = totalPad` SÓ após o parse
+      do <body>, e o paint inicial sai com padding 0 — todo o conteúdo do
+      body é empurrado ~140px depois → CLS catastrófico (PSI media 0.79).
+
+      Valores são levemente conservadores (cobre os 3 elementos no estado
+      "esperado") — o JS continua medindo offsetHeight real e ajustando
+      em runtime se preciso. Margem de erro fica < 10px = CLS desprezível.
+    {%- endcomment -%}
+    <style>
+      body { padding-top: 138px; }
+      @media (min-width: 768px) {
+        body { padding-top: 154px; }
+      }
+      /* FOUC fix: esconde o cart drawer/backdrop ANTES do critical.css carregar.
+         Sem isso, no ~200ms entre o primeiro paint e o load do critical.css
+         (media=print), o drawer renderiza no fluxo da página (position:static
+         default) — daí "aparece e some" pq o CSS aplica transform/transition
+         tardiamente e o cliente vê o slide-out animado. */
+      .ame-cart-drawer { position: fixed; transform: translateY(110%); }
+      @media (min-width: 768px) {
+        .ame-cart-drawer { transform: translateX(110%); }
+      }
+      .ame-cart-backdrop {
+        position: fixed; inset: 0; opacity: 0; pointer-events: none;
+      }
+    </style>
+
     {%- render 'meta-tags' -%}
 
     {%- comment -%}

@@ -218,7 +218,8 @@
       "Bash(curl -sS -X POST -H \"Content-Type: application/json\" -d '{\"cep\":\"01310100\",\"weight\":0.3,\"quantity\":1,\"price\":100}' https://waltz.up.railway.app/api/public/cotacao)",
       "Bash(curl -sS -X POST -H \"Content-Type: application/json\" -d '{\"cep\":\"88240000\",\"weight\":0.3,\"quantity\":1,\"price\":100}' https://waltz.up.railway.app/api/public/cotacao)",
       "Bash(curl -sS -X POST https://api.smartenvios.com/v1/quote/freight -H 'Content-Type: application/json' -H 'Accept: application/json' -H 'token: NY2WulkhIl8n4Ttbqjj25zhmdyvikro' -d '{\"zip_code_start\":\"88240000\",\"zip_code_end\":\"88240000\",\"volumes\":[{\"weight\":0.3,\"height\":7,\"length\":21,\"width\":14,\"quantity\":1,\"price\":100}],\"source\":\"Âme Shopify\"}')",
-      "Bash(curl -sS -X POST https://api.smartenvios.com/v1/quote/freight -H 'Content-Type: application/json' -H 'token: NY2WulkhIl8n4Ttbqjj25zhmdyvikro' -d '{\"zip_code_start\":\"88240000\",\"zip_code_end\":\"88240000\",\"volumes\":[{\"weight\":0.3,\"height\":7,\"length\":21,\"width\":14,\"quantity\":1,\"price\":100}]}')"
+      "Bash(curl -sS -X POST https://api.smartenvios.com/v1/quote/freight -H 'Content-Type: application/json' -H 'token: NY2WulkhIl8n4Ttbqjj25zhmdyvikro' -d '{\"zip_code_start\":\"88240000\",\"zip_code_end\":\"88240000\",\"volumes\":[{\"weight\":0.3,\"height\":7,\"length\":21,\"width\":14,\"quantity\":1,\"price\":100}]}')",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdp-atena3.json)"
     ],
     "additionalDirectories": [
       "\\tmp",
