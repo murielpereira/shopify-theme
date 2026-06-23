@@ -31,15 +31,36 @@
         "videos_autoplay": true
       }
     },
-    "product_reviews_konfidency": {
-      "type": "product-reviews",
-      "settings": {
-        "title": "Avaliações"
-      }
-    },
     "product_accordions_87ARfi": {
       "type": "product-accordions",
       "blocks": {
+        "faq_K6PcTr": {
+          "type": "faq",
+          "name": "faq_comprimento_guia",
+          "settings": {
+            "question": "Posso escolher o comprimento da guia?",
+            "answer": "<p>Sim. As guias estão disponíveis em<strong>1,2 metros</strong>ou<strong>1,5 metros</strong>.<br/><br/>• 1,2 m: ideal para passeios urbanos e maior controle<br/>• 1,5 m: mais liberdade para caminhadas tranquilas</p>",
+            "tags_filter": "faq_comprimento_guia"
+          }
+        },
+        "faq_fWkw6E": {
+          "type": "faq",
+          "name": "faq_largura_guia",
+          "settings": {
+            "question": "Qual a largura ideal da guia para meu pet?",
+            "answer": "<p>A largura da guia deve acompanhar o porte e a força do pet:<br/><br/><strong>XPP / XPP+</strong>– 12 mm<br/><strong>PP / P</strong>– 15 mm<br/><strong>M / G</strong>– 20 mm<br/><br/>Se tiver dúvida, nossa equipe analisa cada pedido antes da produção.</p>",
+            "tags_filter": "faq_largura_guia"
+          }
+        },
+        "faq_6X8rqa": {
+          "type": "faq",
+          "name": "faq_guia_resistente",
+          "settings": {
+            "question": "A guia é resistente para o dia a dia?",
+            "answer": "<p>Sim. As guias Âme são feitas para acompanhar a rotina real: passeios diários, viagens e momentos especiais. Utilizamos<strong>costuras reforçadas, bordas pintadas à mão</strong>e<strong>mosquetão com trava de segurança</strong>.</p>",
+            "tags_filter": "faq_guia_resistente"
+          }
+        },
         "faq_fBQQrG": {
           "type": "faq",
           "name": "faq_couro",
@@ -87,6 +108,9 @@
         }
       },
       "block_order": [
+        "faq_K6PcTr",
+        "faq_fWkw6E",
+        "faq_6X8rqa",
         "faq_fBQQrG",
         "faq_8NKDiL",
         "faq_ApaVh3",
@@ -127,6 +151,12 @@
         "step_8_tags_filter": "",
         "show_faq": true,
         "faq_title": "Perguntas Frequentes"
+      }
+    },
+    "product_reviews_konfidency": {
+      "type": "product-reviews",
+      "settings": {
+        "title": "Avaliações"
       }
     }
   },
