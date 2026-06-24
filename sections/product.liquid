@@ -428,12 +428,6 @@
         assign disc_cents = base_price | times: discount_pct | divided_by: 100
         assign effective_price = base_price | minus: disc_cents
       endif
-
-      assign pix_pct = settings.pix_discount | default: 5
-      assign pix_price_cents = effective_price | times: pix_pct | divided_by: 100
-      assign pix_price_cents = effective_price | minus: pix_price_cents
-      assign inst_count = settings.installments_count | default: 3
-      assign inst_value = effective_price | divided_by: inst_count
     -%}
 
     {%- comment -%}
@@ -448,15 +442,10 @@
           <span class="pdp__price-label">a partir de</span>
           <strong class="pdp__price-main" data-kit-price-total>—</strong>
         </div>
-        <div class="pdp__price-pix-row" data-kit-pix-row hidden>
-          <span class="pdp__price-label">ou</span>
-          <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
-          <span class="pdp__price-label">com Pix</span>
-        </div>
-        <p class="pdp__installments" data-kit-installments-row hidden>
-          Até <strong>{{ settings.installments_count | default: 3 }}x</strong>
-          de <strong data-kit-price-installment>—</strong> sem juros
-        </p>
+        {%- comment -%}
+          Pix/parcelas removidos do kit — mesma motivação da PDP normal: app
+          de pagamento renderiza no slot `pdp__app-slot--after-price` abaixo.
+        {%- endcomment -%}
         <!-- Cashback no kit — valor atualizado pelo ame-kit.js conforme seleção -->
         <div id="pdp-cashback-wrap">
           {%- render 'cashback', cashback_price: 0, cashback_mode: 'pdp' -%}
@@ -473,31 +462,17 @@
       <div class="pdp__price-card-row">
         <span class="pdp__price-label">a partir de</span>
         <strong class="pdp__price-main">{{ effective_price | money }}</strong>
-        <span class="pdp__price-label">no cartão</span>
         {%- if has_compare -%}
           <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
         {%- endif -%}
       </div>
 
-      <!-- Preço no Pix -->
-      {%- if settings.show_pix != false -%}
-        <div class="pdp__price-pix-row">
-          <span class="pdp__price-label">ou</span>
-          <strong class="pdp__price-pix" id="pdp-price-pix">{{ pix_price_cents | money }}</strong>
-          <span class="pdp__price-label">com Pix</span>
-        </div>
-      {%- endif -%}
-
-      <!-- Parcelamento -->
-      {%- if settings.show_installments != false and inst_count > 1 -%}
-        <p class="pdp__installments">
-          Até <strong>{{ inst_count }}x</strong> de <strong id="pdp-inst-value">{{ inst_value | money }}</strong> sem
-          juros
-          {%- if settings.show_installments_link != false -%}
-            <a href="#" class="pdp__installments-link">Ver mais detalhes</a>
-          {%- endif -%}
-        </p>
-      {%- endif -%}
+      {%- comment -%}
+        Pix e parcelamento foram removidos do tema — agora vêm do app de
+        pagamento integrado na Shopify (Mercado Pago / Iugu / etc), que
+        injeta o widget no slot `pdp__app-slot--after-price` logo abaixo.
+        Tema só renderiza preço cheio + cashback (lógica nossa).
+      {%- endcomment -%}
 
       <!-- Cashback -->
       <div id="pdp-cashback-wrap">

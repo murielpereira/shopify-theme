@@ -21,8 +21,6 @@
   class="pdp-kit"
   data-kit-host
   data-kit-handle="{{ product.handle }}"
-  data-pix-pct="{{ settings.pix_discount | default: 5 }}"
-  data-inst-count="{{ settings.installments_count | default: 3 }}"
 >
   {%- assign cores_raw = settings.swatch_solido_cores | default: '' -%}
   {%- assign entries = cores_raw | split: ',' -%}

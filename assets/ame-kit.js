@@ -149,12 +149,11 @@
         }
         const summaryWrapBox = summaryBottomHost?.querySelector('[data-kit-summary-wrap]');
 
-        // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP
+        // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP.
+        // Pix e parcelas saíram do tema — quem renderiza é o app de pagamento
+        // da Shopify (via pdp__app-slot--after-price). Aqui só atualizamos
+        // preço total + cashback conforme o cliente escolhe variantes do kit.
         const priceTotalEl       = document.querySelector('[data-kit-price-total]');
-        const pricePixEl         = document.querySelector('[data-kit-price-pix]');
-        const pixRow             = document.querySelector('[data-kit-pix-row]');
-        const installmentsRow    = document.querySelector('[data-kit-installments-row]');
-        const installmentValueEl = document.querySelector('[data-kit-price-installment]');
         const productForm        = document.getElementById('pdp-form');
         const ctaBtn             = document.getElementById('pdp-add-btn');
         const cashbackEl         = document.querySelector('#pdp-cashback-wrap [data-cashback]');
@@ -326,18 +325,6 @@
                 const totalCents = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
                 if (priceTotalEl) priceTotalEl.textContent = fmtMoney(totalCents / 100);
 
-                const pixPct = parseInt(host.dataset.pixPct || '5', 10);
-                const inst   = parseInt(host.dataset.instCount || '3', 10);
-                if (pricePixEl && pixRow) {
-                    const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
-                    pricePixEl.textContent = fmtMoney(pixCents / 100);
-                    pixRow.hidden = false;
-                }
-                if (installmentValueEl && installmentsRow && inst > 1) {
-                    installmentValueEl.textContent = fmtMoney(Math.floor(totalCents / inst) / 100);
-                    installmentsRow.hidden = false;
-                }
-
                 // Cashback: recalcula em centavos. Reconstrói o texto pra incluir/omitir
                 // a "R$" — porque snippet só renderiza a cifra quando o valor passa do
                 // mínimo, e o kit começa com cashback_price=0 (sem cifra no DOM).
@@ -368,8 +355,6 @@
                 }
             } else {
                 if (priceTotalEl) priceTotalEl.textContent = '—';
-                if (pixRow) pixRow.hidden = true;
-                if (installmentsRow) installmentsRow.hidden = true;
                 if (ctaBtn) {
                     ctaBtn.disabled = true;
                     ctaBtn.setAttribute('aria-disabled', 'true');
