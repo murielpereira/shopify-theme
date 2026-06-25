@@ -21,6 +21,11 @@
   class="pdp-kit"
   data-kit-host
   data-kit-handle="{{ product.handle }}"
+  data-pix-pct="{{ settings.pix_discount | default: 5 }}"
+  data-installments-max="{{ settings.installments_max | default: 12 }}"
+  data-installments-no-interest="{{ settings.installments_no_interest | default: 6 }}"
+  data-installment-min-value="{{ settings.installment_min_value | default: 40 }}"
+  data-installments-table="{{ settings.installments_interest_table | default: '' | escape }}"
 >
   {%- assign cores_raw = settings.swatch_solido_cores | default: '' -%}
   {%- assign entries = cores_raw | split: ',' -%}

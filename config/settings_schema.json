@@ -225,8 +225,91 @@
     ]
   },
   {
-    "name": "Cashback",
+    "name": "Opções de Pagamento",
     "settings": [
+      {
+        "type": "paragraph",
+        "content": "Configurações de Pix, parcelamento e cashback exibidas nos cards e na PDP. São apenas ANÚNCIO — o pagamento real é processado pelo pagar.me no checkout. Mantenha sincronizado com o admin do pagar.me pra cliente não ver valor diferente do que será cobrado."
+      },
+      {
+        "type": "header",
+        "content": "Pix"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_pix",
+        "label": "Exibir preço no Pix",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pix_discount",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "unit": "%",
+        "label": "Desconto Pix",
+        "default": 5
+      },
+      {
+        "type": "header",
+        "content": "Parcelamento"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_installments",
+        "label": "Exibir parcelamento",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "installments_max",
+        "min": 2,
+        "max": 12,
+        "step": 1,
+        "label": "Parcelas máximas oferecidas",
+        "info": "Limite superior de parcelas (com ou sem juros).",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "installments_no_interest",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "label": "Parcelas sem juros",
+        "info": "Até essa quantidade de parcelas o cliente não paga juros. Acima disso, aplica a tabela de juros abaixo.",
+        "default": 6
+      },
+      {
+        "type": "range",
+        "id": "installment_min_value",
+        "min": 5,
+        "max": 200,
+        "step": 5,
+        "unit": "R$",
+        "label": "Valor mínimo da parcela",
+        "info": "Se o preço dividido pelo nº máx. de parcelas ficar abaixo desse valor, o sistema reduz automaticamente o nº de parcelas até a parcela atingir o mínimo.",
+        "default": 40
+      },
+      {
+        "type": "textarea",
+        "id": "installments_interest_table",
+        "label": "Tabela de juros por parcela",
+        "info": "Formato: 'parcelas:taxa%, ...' (uma por linha ou separadas por vírgula). Usado pra calcular o total quando o cliente parcela acima do limite sem juros. Sincronize com a tabela do pagar.me admin.",
+        "default": "1:2.61, 2:3.81, 3:4.59, 4:5.37, 5:6.14, 6:6.92, 7:7.96, 8:8.74, 9:9.51, 10:10.29, 11:11.06, 12:11.83"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_installments_link",
+        "label": "Mostrar link 'Ver mais detalhes'",
+        "info": "Quando ativo, exibe um link que abre um modal com a tabela completa de parcelas (valor e juros de cada).",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Cashback"
+      },
       {
         "type": "checkbox",
         "id": "cashback_enabled",
@@ -251,7 +334,7 @@
         "max": 50,
         "step": 1,
         "unit": "R$",
-        "label": "Valor mínimo para exibir cashback (R$)",
+        "label": "Valor mínimo para exibir cashback",
         "default": 10
       },
       {

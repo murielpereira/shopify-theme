@@ -1,0 +1,64 @@
+{%- comment -%}
+  Renderiza a linha "Em até Nx de R$ Y sem juros" com link opcional pra
+  modal de detalhes. Calcula o MAIOR N sem juros respeitando o valor
+  mínimo da parcela (configurado em Opções de Pagamento).
+
+  Params:
+    price_cents — int (preço em centavos)
+    mode        — 'pdp' | 'card' (controla CSS class + visibilidade do link)
+
+  Pra renderizar a tabela completa no modal: vide snippet
+  `installments-modal.liquid` (renderizado uma vez por PDP).
+{%- endcomment -%}
+{%- liquid
+  assign show_inst = settings.show_installments
+  if show_inst == false
+    assign skip_render = true
+  endif
+-%}
+{%- unless skip_render -%}
+  {%- liquid
+    assign inst_mode = mode | default: 'pdp'
+    assign price_int = price_cents | default: 0 | plus: 0
+    assign max_n = settings.installments_max | default: 12
+    assign no_int_max = settings.installments_no_interest | default: 6
+    assign min_value_brl = settings.installment_min_value | default: 40
+    assign min_value_cents = min_value_brl | times: 100
+
+    # Caps no_int_max pelo max_n
+    if no_int_max > max_n
+      assign no_int_max = max_n
+    endif
+
+    # Procura o MAIOR N (de no_int_max até 1) onde parc >= min_value
+    assign best_n = 0
+    assign best_parc_cents = 0
+    for offset in (0..no_int_max)
+      assign n = no_int_max | minus: offset
+      if n < 1
+        break
+      endif
+      if best_n > 0
+        continue
+      endif
+      assign parc = price_int | divided_by: n
+      if parc >= min_value_cents
+        assign best_n = n
+        assign best_parc_cents = parc
+      endif
+    endfor
+  -%}
+
+  {%- if best_n > 1 -%}
+    <p class="pdp__installments{% if inst_mode == 'card' %} ame-card__installments{% endif %}" data-installments-info>
+      Em até <strong>{{ best_n }}x</strong>
+      de <strong>{{ best_parc_cents | money }}</strong>
+      sem juros
+      {%- if inst_mode == 'pdp' and settings.show_installments_link != false -%}
+        <button type="button" class="pdp__installments-link" data-installments-modal-open>Ver mais detalhes</button>
+      {%- endif -%}
+    </p>
+  {%- elsif best_n == 1 -%}
+    {%- comment -%} Preço só comporta 1x — não vale destacar parcelamento, oculta linha {%- endcomment -%}
+  {%- endif -%}
+{%- endunless -%}

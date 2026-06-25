@@ -102,6 +102,13 @@
   # O metafield `reviews.rating.value` ficou como fallback caso o JS falhe
   # — quando estiver presente, exibimos imediatamente sem esperar o XHR.
   assign card_rating = card_product.metafields.reviews.rating.value
+
+  # Pix — anúncio no card (pagar.me calcula no checkout). Mantenha
+  # sincronizado com o admin pagar.me se mudar lá. Parcelamento está
+  # encapsulado em snippets/installments-info.liquid (modo 'card').
+  assign pix_pct = settings.pix_discount | default: 5
+  assign pix_cents = card_effective_price | times: pix_pct | divided_by: 100
+  assign pix_cents = card_effective_price | minus: pix_cents
 -%}
 
 <div class="ame-card{% if card_is_sold_out %} ame-card--sold-out{% endif %}" data-product-card>
@@ -223,10 +230,24 @@
         </p>
       {%- endif -%}
 
+      {%- comment -%}
+        Ordem: Pix em destaque → preço cartão → parcelas. Mesma decisão da
+        PDP — Pix vai primeiro porque é o desconto que mais converte.
+      {%- endcomment -%}
+      {%- if settings.show_pix != false -%}
+        <p class="ame-card__pix">
+          <strong>{{ pix_cents | money }}</strong>
+          <span>no Pix</span>
+        </p>
+      {%- endif -%}
+
       <p class="ame-card__price-main">
-        <span class="ame-card__price-label">a partir de</span>
+        <span class="ame-card__price-label">ou</span>
         <strong class="ame-card__price-value">{{ card_effective_price | money }}</strong>
+        <span class="ame-card__price-label">no cartão</span>
       </p>
+
+      {%- render 'installments-info', price_cents: card_effective_price, mode: 'card' -%}
     </div>
 
     {%- if settings.cashback_enabled -%}

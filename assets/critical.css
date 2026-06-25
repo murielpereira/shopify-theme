@@ -867,21 +867,39 @@ body::after {
 }
 
 .ame-card__price-value {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.01em;
   color: var(--color-on-background, #201b14);
   line-height: 1;
 }
 
 .ame-card__installments {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: rgba(90, 71, 66, 0.55);
+  margin-top: 0.1rem;
 }
 
+/* Pix em destaque no card — fica como info principal de preço */
 .ame-card__pix {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.1rem;
+}
+.ame-card__pix strong {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-background, #201b14);
+  line-height: 1;
+}
+.ame-card__pix span {
   font-size: 0.75rem;
-  color: rgba(90, 71, 66, 0.55);
+  color: var(--color-primary, #5a4742);
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 /* Cashback no card */

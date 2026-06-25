@@ -150,13 +150,76 @@
         const summaryWrapBox = summaryBottomHost?.querySelector('[data-kit-summary-wrap]');
 
         // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP.
-        // Pix e parcelas saíram do tema — quem renderiza é o app de pagamento
-        // da Shopify (via pdp__app-slot--after-price). Aqui só atualizamos
-        // preço total + cashback conforme o cliente escolhe variantes do kit.
+        // Pix e parcelas são apenas anúncio (pagar.me calcula no checkout —
+        // valores aqui precisam estar sincronizados com o admin pagar.me).
         const priceTotalEl       = document.querySelector('[data-kit-price-total]');
+        const pricePixEl         = document.querySelector('[data-kit-price-pix]');
+        const pixRow             = document.querySelector('[data-kit-pix-row]');
+        const installmentsRow    = document.querySelector('[data-kit-installments-row]');
+        const installmentValueEl = document.querySelector('[data-kit-price-installment]');
+        const installmentNEl     = document.querySelector('[data-kit-installments-n]');
         const productForm        = document.getElementById('pdp-form');
         const ctaBtn             = document.getElementById('pdp-add-btn');
         const cashbackEl         = document.querySelector('#pdp-cashback-wrap [data-cashback]');
+
+        // Config de parcelamento (lida do kit-picker.liquid via data-attrs)
+        const instMax       = parseInt(host.dataset.installmentsMax || '12', 10);
+        const instNoInt     = Math.min(parseInt(host.dataset.installmentsNoInterest || '6', 10), instMax);
+        const instMinCents  = parseFloat(host.dataset.installmentMinValue || '40') * 100;
+        const instTableRaw  = host.dataset.installmentsTable || '';
+
+        // Parse "1:2.61, 2:3.81, ..." → Map<int n, float taxa_pct>
+        const instTable = new Map();
+        instTableRaw.split(',').forEach(p => {
+            const [k, v] = p.split(':').map(s => (s || '').trim());
+            const ki = parseInt(k, 10);
+            const vf = parseFloat(v);
+            if (!isNaN(ki) && !isNaN(vf)) instTable.set(ki, vf);
+        });
+
+        // Retorna o MAIOR N sem juros (1..instNoInt) onde parcela >= min_value
+        function bestNoInterestN(priceCents) {
+            for (let n = instNoInt; n >= 1; n--) {
+                if (Math.floor(priceCents / n) >= instMinCents) return n;
+            }
+            return 0;
+        }
+
+        // Tabela completa pro modal — array de { n, parc, total, taxa, semJuros }
+        function fullInstallmentsTable(priceCents) {
+            const rows = [];
+            for (let n = 1; n <= instMax; n++) {
+                const taxa = n <= instNoInt ? 0 : (instTable.get(n) || 0);
+                const totalCents = Math.round(priceCents * (10000 + taxa * 100) / 10000);
+                const parcCents = Math.floor(totalCents / n);
+                if (parcCents < instMinCents && n > 1) continue;
+                rows.push({ n, parc: parcCents, total: totalCents, taxa, semJuros: taxa === 0 });
+            }
+            return rows;
+        }
+
+        function fmtBR(cents) {
+            return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
+        }
+
+        // Re-popula o <table> do modal com a tabela calculada
+        function repopulateInstallmentsModal(priceCents) {
+            const modal = document.querySelector('[data-installments-modal]');
+            if (!modal) return;
+            const tbody = modal.querySelector('tbody');
+            if (!tbody) return;
+            const rows = fullInstallmentsTable(priceCents);
+            tbody.innerHTML = rows.map(r => `
+                <tr class="ame-installments-modal__row${r.semJuros ? ' ame-installments-modal__row--no-interest' : ''}">
+                    <td><strong>${r.n}x</strong>${r.semJuros
+                        ? '<span class="ame-installments-modal__tag ame-installments-modal__tag--no-interest">sem juros</span>'
+                        : '<span class="ame-installments-modal__tag">+' + r.taxa.toFixed(2) + '%</span>'}
+                    </td>
+                    <td>${fmtBR(r.parc)}</td>
+                    <td>${fmtBR(r.total)}</td>
+                </tr>
+            `).join('');
+        }
 
         // ── Fetch dos dados do Waltz ──
         let data;
@@ -325,6 +388,25 @@
                 const totalCents = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
                 if (priceTotalEl) priceTotalEl.textContent = fmtMoney(totalCents / 100);
 
+                const pixPct = parseInt(host.dataset.pixPct || '5', 10);
+                if (pricePixEl && pixRow) {
+                    const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
+                    pricePixEl.textContent = fmtMoney(pixCents / 100);
+                    pixRow.hidden = false;
+                }
+                // Parcelas: max sem juros viável (respeita min_value)
+                const bestN = bestNoInterestN(totalCents);
+                if (installmentValueEl && installmentsRow && bestN > 1) {
+                    const parc = Math.floor(totalCents / bestN);
+                    if (installmentNEl) installmentNEl.textContent = String(bestN);
+                    installmentValueEl.textContent = fmtMoney(parc / 100);
+                    installmentsRow.hidden = false;
+                } else if (installmentsRow) {
+                    installmentsRow.hidden = true;
+                }
+                // Modal: repopula a tabela completa com base no total atual
+                repopulateInstallmentsModal(totalCents);
+
                 // Cashback: recalcula em centavos. Reconstrói o texto pra incluir/omitir
                 // a "R$" — porque snippet só renderiza a cifra quando o valor passa do
                 // mínimo, e o kit começa com cashback_price=0 (sem cifra no DOM).
@@ -355,6 +437,8 @@
                 }
             } else {
                 if (priceTotalEl) priceTotalEl.textContent = '—';
+                if (pixRow) pixRow.hidden = true;
+                if (installmentsRow) installmentsRow.hidden = true;
                 if (ctaBtn) {
                     ctaBtn.disabled = true;
                     ctaBtn.setAttribute('aria-disabled', 'true');

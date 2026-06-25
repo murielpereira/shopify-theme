@@ -428,6 +428,14 @@
         assign disc_cents = base_price | times: discount_pct | divided_by: 100
         assign effective_price = base_price | minus: disc_cents
       endif
+
+      # Pix é só anúncio no tema — pagar.me processa no checkout. Mantém
+      # `settings.pix_discount` sincronizado com a config do pagar.me admin.
+      # Parcelamento (max sem juros + min_value + tabela de juros) está
+      # encapsulado em snippets/installments-info.liquid e snippets/installments-modal.liquid.
+      assign pix_pct = settings.pix_discount | default: 5
+      assign pix_price_cents = effective_price | times: pix_pct | divided_by: 100
+      assign pix_price_cents = effective_price | minus: pix_price_cents
     -%}
 
     {%- comment -%}
@@ -438,18 +446,32 @@
     {%- endcomment -%}
     <div class="pdp__price-block" id="pdp-price-block">
       {%- if is_kit -%}
-        <div class="pdp__price-card-row">
-          <span class="pdp__price-label">a partir de</span>
-          <strong class="pdp__price-main" data-kit-price-total>—</strong>
-        </div>
         {%- comment -%}
-          Pix/parcelas removidos do kit — mesma motivação da PDP normal: app
-          de pagamento renderiza no slot `pdp__app-slot--after-price` abaixo.
+          Kit segue mesma ordem da PDP normal (Pix → Cartão → Parcelas →
+          Cashback). Valores são placeholders ("—") até ame-kit.js terminar
+          o fetch do Waltz e calcular total dos componentes selecionados.
         {%- endcomment -%}
+        <div class="pdp__price-pix-row pdp__price-pix-row--primary" data-kit-pix-row hidden>
+          <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
+          <span class="pdp__price-label">no Pix</span>
+        </div>
+        <div class="pdp__price-card-row">
+          <span class="pdp__price-label">ou <strong class="pdp__price-main" data-kit-price-total>—</strong> no cartão</span>
+        </div>
+        <p class="pdp__installments" data-kit-installments-row hidden>
+          Em até <strong data-kit-installments-n>—</strong>x
+          de <strong data-kit-price-installment>—</strong> sem juros
+          {%- if settings.show_installments_link != false -%}
+            <button type="button" class="pdp__installments-link" data-installments-modal-open>Ver mais detalhes</button>
+          {%- endif -%}
+        </p>
         <!-- Cashback no kit — valor atualizado pelo ame-kit.js conforme seleção -->
         <div id="pdp-cashback-wrap">
           {%- render 'cashback', cashback_price: 0, cashback_mode: 'pdp' -%}
         </div>
+
+        <!-- Modal de parcelas: vazio inicial (ame-kit.js popula com base no total) -->
+        {%- render 'installments-modal', price_cents: 0 -%}
       {%- else -%}
       <!-- Linha "De:" riscado -->
       {%- if has_compare -%}
@@ -458,26 +480,38 @@
         </div>
       {%- endif -%}
 
+      {%- comment -%}
+        Ordem visual: Pix (com desconto) → Cartão (preço cheio) → Parcelas
+        sem juros → Cashback. Pagar.me processa o pagamento real no checkout
+        — aqui é só anúncio. Manter valores sincronizados com o admin pagar.me.
+      {%- endcomment -%}
+
+      <!-- Preço no Pix (com desconto destacado em primeiro) -->
+      {%- if settings.show_pix != false -%}
+        <div class="pdp__price-pix-row pdp__price-pix-row--primary">
+          <strong class="pdp__price-pix">{{ pix_price_cents | money }}</strong>
+          <span class="pdp__price-label">no Pix</span>
+        </div>
+      {%- endif -%}
+
       <!-- Preço no cartão + badge de desconto -->
       <div class="pdp__price-card-row">
-        <span class="pdp__price-label">a partir de</span>
-        <strong class="pdp__price-main">{{ effective_price | money }}</strong>
+        <span class="pdp__price-label">ou {{ effective_price | money }} no cartão</span>
         {%- if has_compare -%}
           <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
         {%- endif -%}
       </div>
 
-      {%- comment -%}
-        Pix e parcelamento foram removidos do tema — agora vêm do app de
-        pagamento integrado na Shopify (Mercado Pago / Iugu / etc), que
-        injeta o widget no slot `pdp__app-slot--after-price` logo abaixo.
-        Tema só renderiza preço cheio + cashback (lógica nossa).
-      {%- endcomment -%}
+      <!-- Parcelamento: max sem juros viável + link pra modal -->
+      {%- render 'installments-info', price_cents: effective_price, mode: 'pdp' -%}
 
       <!-- Cashback -->
       <div id="pdp-cashback-wrap">
         {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
       </div>
+
+      <!-- Modal de parcelas (popup com tabela completa) -->
+      {%- render 'installments-modal', price_cents: effective_price -%}
       {%- endif -%}{%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
     </div>
 
@@ -2169,34 +2203,47 @@
     font-weight: 400;
   }
 
-  /* valor principal (cartão) */
+  /* valor cartão — secundário agora (Pix tem destaque maior). Quando o
+     preço aparece dentro do texto "ou R$ X no cartão", fica inline com
+     ligeiro destaque. No kit usa fonte um pouco maior porque é placeholder
+     que troca dinamicamente. */
   .pdp__price-main {
-    font-size: 1.625rem;
+    font-size: 1rem;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     color: var(--color-on-background, #201b14);
     line-height: 1;
   }
 
   @media (min-width: 1024px) {
     .pdp__price-main {
-      font-size: 1.875rem;
+      font-size: 1.125rem;
     }
   }
 
-  /* valor pix */
+  /* valor pix — PRIMÁRIO. Maior, mais escuro, primeira coisa que o cliente vê. */
   .pdp__price-pix {
-    font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    color: var(--color-primary, #5a4742);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-on-background, #201b14);
     line-height: 1;
   }
 
   @media (min-width: 1024px) {
     .pdp__price-pix {
-      font-size: 1.375rem;
+      font-size: 2rem;
     }
+  }
+
+  .pdp__price-pix-row--primary {
+    margin-bottom: 0.15rem;
+  }
+  .pdp__price-pix-row--primary .pdp__price-label {
+    font-size: 0.875rem;
+    color: var(--color-primary, #5a4742);
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 
   /* parcelamento */
