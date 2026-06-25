@@ -43,7 +43,16 @@
       <header class="ame-installments-modal__header">
         <h2 id="ame-installments-modal-title" class="ame-installments-modal__title">Formas de pagamento</h2>
         <button type="button" class="ame-installments-modal__close" data-installments-modal-close aria-label="Fechar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
@@ -52,10 +61,22 @@
       {%- if show_pix != false and price_int > 0 -%}
         <div class="ame-installments-modal__pix" data-installments-modal-pix>
           <div class="ame-installments-modal__pix-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-            <span>No Pix com <strong>{{ pix_pct }}%</strong> de desconto</span>
+            <span
+              >No Pix com <strong>{{ pix_pct }}%</strong> de desconto</span
+            >
           </div>
           <div class="ame-installments-modal__pix-value">
             <strong data-installments-modal-pix-value>{{ pix_price_cents | money }}</strong>
@@ -124,7 +145,6 @@
           {%- endfor -%}
         </tbody>
       </table>
-
     </div>
   </dialog>
 
@@ -210,7 +230,8 @@
       border: none;
       cursor: pointer;
       color: var(--color-on-surface-variant, #4f4442);
-      width: 2rem; height: 2rem;
+      width: 2rem;
+      height: 2rem;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -296,7 +317,7 @@
       font-weight: 700;
     }
     .ame-installments-modal__pix-value {
-      display: flex;
+      /*display: flex;*/
       flex-direction: column;
       align-items: flex-end;
       gap: 0.1rem;
