@@ -150,34 +150,50 @@
 
   <script>
     (() => {
-      const dialog = document.querySelector('[data-installments-modal]');
-      if (!dialog || dialog.dataset.bound) return;
-      dialog.dataset.bound = '1';
+      // Singleton — o modal é re-renderizado a cada variante (Section Rendering
+      // substitui #pdp-installments-modal-wrap), então NÃO cacheamos o dialog
+      // no closure. Buscamos via querySelector na hora pra sempre pegar o
+      // dialog ATIVO no DOM. Flag global evita re-bindar os listeners.
+      if (window.__ameInstallmentsModalBound) return;
+      window.__ameInstallmentsModalBound = true;
 
+      function getDialog() {
+        return document.querySelector('[data-installments-modal]');
+      }
       function open() {
+        const dialog = getDialog();
+        if (!dialog) return;
         if (typeof dialog.showModal === 'function') dialog.showModal();
         else dialog.setAttribute('open', '');
       }
       function close() {
+        const dialog = getDialog();
+        if (!dialog) return;
         if (typeof dialog.close === 'function') dialog.close();
         else dialog.removeAttribute('open');
       }
 
-      // Delegação no document — qualquer botão "Ver mais detalhes" abre este modal
+      // Delegação no document — qualquer botão "Ver mais detalhes" abre o
+      // modal ativo. Sobrevive ao Section Rendering swap.
       document.addEventListener('click', (e) => {
         if (e.target.closest('[data-installments-modal-open]')) {
           e.preventDefault();
           open();
+          return;
         }
         if (e.target.closest('[data-installments-modal-close]')) {
           e.preventDefault();
           close();
+          return;
         }
-        // Clique no backdrop (dialog é clicado, conteúdo está em .ame-installments-modal__inner)
-        if (e.target === dialog) close();
+        // Click no backdrop (target é o próprio dialog, não o inner)
+        const dialog = getDialog();
+        if (dialog && e.target === dialog) close();
       });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && dialog.open) close();
+        if (e.key !== 'Escape') return;
+        const dialog = getDialog();
+        if (dialog && dialog.open) close();
       });
     })();
   </script>

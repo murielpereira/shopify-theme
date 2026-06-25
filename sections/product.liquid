@@ -470,9 +470,6 @@
         <div id="pdp-cashback-wrap">
           {%- render 'cashback', cashback_price: 0, cashback_mode: 'pdp' -%}
         </div>
-
-        <!-- Modal de parcelas: vazio inicial (ame-kit.js popula com base no total) -->
-        {%- render 'installments-modal', price_cents: 0 -%}
       {%- else -%}
         <!-- Linha "De:" riscado -->
         {%- if has_compare -%}
@@ -510,11 +507,23 @@
         <div id="pdp-cashback-wrap">
           {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
         </div>
-
-        <!-- Modal de parcelas (popup com tabela completa) -->
-        {%- render 'installments-modal', price_cents: effective_price -%}
       {%- endif -%}
       {%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
+    </div>
+
+    {%- comment -%}
+      Modal de parcelas — wrappado em #pdp-installments-modal-wrap pra que o
+      Section Rendering API substitua tudo (markup + tabela) quando o cliente
+      troca variante. Cada novo preço gera nova tabela. O JS do modal faz
+      delegation no document e busca o dialog ativo via querySelector na
+      hora do click (não cacheia no closure) — sobrevive ao swap.
+    {%- endcomment -%}
+    <div id="pdp-installments-modal-wrap">
+      {%- if is_kit -%}
+        {%- render 'installments-modal', price_cents: 0 -%}
+      {%- else -%}
+        {%- render 'installments-modal', price_cents: effective_price -%}
+      {%- endif -%}
     </div>
 
     {%- comment -%} Slot pra apps: depois do preço {%- endcomment -%}
@@ -1213,7 +1222,7 @@
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');
 
-        ['pdp-options-wrap', 'pdp-price-block', 'pdp-add-btn-wrap', 'pdp-img-badge-wrap'].forEach(id => {
+        ['pdp-options-wrap', 'pdp-price-block', 'pdp-add-btn-wrap', 'pdp-img-badge-wrap', 'pdp-installments-modal-wrap'].forEach(id => {
           const fresh = doc.getElementById(id);
           const current = document.getElementById(id);
           if (fresh && current) current.replaceWith(fresh);

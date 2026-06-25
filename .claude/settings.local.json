@@ -228,7 +228,11 @@
       "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-home4.json)",
       "Bash(curl -sS \"https://ame-acessorios-pet.myshopify.com/products/guia-de-couro-atena.js\")",
       "Bash(grep -rln \"fetchShopify\\\\|SHOPIFY_STORE_DOMAIN\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/kits.js\" 2>&1 | head -10)",
-      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/**)"
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/**)",
+      "Bash(grep -rln \"tiny\\\\|TINY_TOKEN\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" --include='*.js' 2>&1 | head -10)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/**)",
+      "WebFetch(domain:www.tiny.com.br)",
+      "WebFetch(domain:tiny.com.br)"
     ],
     "additionalDirectories": [
       "\\tmp",
