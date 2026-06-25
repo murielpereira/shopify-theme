@@ -221,7 +221,14 @@
       "Bash(curl -sS -X POST https://api.smartenvios.com/v1/quote/freight -H 'Content-Type: application/json' -H 'token: NY2WulkhIl8n4Ttbqjj25zhmdyvikro' -d '{\"zip_code_start\":\"88240000\",\"zip_code_end\":\"88240000\",\"volumes\":[{\"weight\":0.3,\"height\":7,\"length\":21,\"width\":14,\"quantity\":1,\"price\":100}]}')",
       "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-pdp-atena3.json)",
       "WebFetch(domain:docs.pagar.me)",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json', 'utf8'\\)\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/config/settings_schema.json', 'utf8'\\)\\)\")",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2F&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-home4.json)",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fcoleira-de-couro-atena&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-atena4.json)",
+      "Bash(curl -sS --max-time 300 --connect-timeout 30 \"https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fame-acessorios-pet.myshopify.com%2Fproducts%2Fpeitoral-de-couro-tereza&strategy=mobile&category=performance&key=AIzaSyCscVyzAeGMdqRDqfGvIPHLP3B6VOEdDXo\" -o c:/tmp/psi-tereza4.json)",
+      "Bash(node c:/tmp/psi-parse2.js c:/tmp/psi-home4.json)",
+      "Bash(curl -sS \"https://ame-acessorios-pet.myshopify.com/products/guia-de-couro-atena.js\")",
+      "Bash(grep -rln \"fetchShopify\\\\|SHOPIFY_STORE_DOMAIN\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/kits.js\" 2>&1 | head -10)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/**)"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -32,49 +32,13 @@
     {%- endcomment -%}
 
     {%- comment -%}
-      critical.css async-load — economiza ~300ms de render-blocking sem
-      flickerar. Truque: `media="print"` faz o browser baixar sem bloquear
-      o render; `onload` troca pra `all` quando carregou. `<noscript>`
-      garante que clientes sem JS recebam o CSS normalmente.
-
-      ⚠️ Removido o `preload_tag` extra que tínhamos antes — o browser
-      já considera o `<link media=print>` um download high-priority não
-      bloqueante. O preload separado causava o warning "preloaded but not
-      used within a few seconds" porque o stylesheet vencia o preload e
-      este virava órfão.
+      critical.css render-blocking (sync). Antes era async via media=print +
+      onload swap, mas isso causava CLS catastrófico (PSI 1.6): hero, header,
+      drawer e main shiftavam quando o CSS finalmente aplicava ~300ms após o
+      paint inicial. Voltando a sync paga ~300ms de FCP mas CLS cai pra ~0 —
+      net positive no score Lighthouse (CLS pesa 25%, FCP 10%).
     {%- endcomment -%}
-    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}" media="print" onload="this.media='all'; this.onload=null">
-    <noscript><link rel="stylesheet" href="{{ 'critical.css' | asset_url }}"></noscript>
-
-    {%- comment -%}
-      CLS fix: reserva padding-top no body pro header fixed + announce bar
-      + countdown bar (se ativo). Sem essa reserva inicial, o JS do
-      header.liquid aplica `body.padding-top = totalPad` SÓ após o parse
-      do <body>, e o paint inicial sai com padding 0 — todo o conteúdo do
-      body é empurrado ~140px depois → CLS catastrófico (PSI media 0.79).
-
-      Valores são levemente conservadores (cobre os 3 elementos no estado
-      "esperado") — o JS continua medindo offsetHeight real e ajustando
-      em runtime se preciso. Margem de erro fica < 10px = CLS desprezível.
-    {%- endcomment -%}
-    <style>
-      body { padding-top: 138px; }
-      @media (min-width: 768px) {
-        body { padding-top: 154px; }
-      }
-      /* FOUC fix: esconde o cart drawer/backdrop ANTES do critical.css carregar.
-         Sem isso, no ~200ms entre o primeiro paint e o load do critical.css
-         (media=print), o drawer renderiza no fluxo da página (position:static
-         default) — daí "aparece e some" pq o CSS aplica transform/transition
-         tardiamente e o cliente vê o slide-out animado. */
-      .ame-cart-drawer { position: fixed; transform: translateY(110%); }
-      @media (min-width: 768px) {
-        .ame-cart-drawer { transform: translateX(110%); }
-      }
-      .ame-cart-backdrop {
-        position: fixed; inset: 0; opacity: 0; pointer-events: none;
-      }
-    </style>
+    <link rel="stylesheet" href="{{ 'critical.css' | asset_url }}">
 
     {%- render 'meta-tags' -%}
 
@@ -545,10 +509,16 @@
           return null;
         }
 
+        // Cross-sell consulta o Waltz (não /products/X.js) pra contornar o
+        // limite de 250 variantes da Shopify Ajax. Produtos como guia Atena
+        // têm 384 variantes (3 larguras × 32 cores × 4 metais) — o endpoint
+        // nativo da Shopify trunca em 250, fazendo findVariant retornar null
+        // pra combinações cuja variante caiu fora da janela. Waltz pagina
+        // via Admin REST e devolve TODAS. Vide Waltz/routes/produto-variantes.js.
         async function fetchProduct(handle) {
           if (productCache.has(handle)) return productCache.get(handle);
           try {
-            const res = await fetch(`/products/${encodeURIComponent(handle)}.js`);
+            const res = await fetch(`https://waltz.up.railway.app/api/public/produto/${encodeURIComponent(handle)}`);
             if (!res.ok) {
               productCache.set(handle, null);
               return null;
