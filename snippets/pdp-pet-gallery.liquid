@@ -78,10 +78,20 @@
     </div>
 
     <div class="pdp-pet-gallery__controls" data-controls hidden>
-      <button type="button" class="pdp-pet-gallery__nav pdp-pet-gallery__nav--prev" aria-label="Imagem anterior" data-prev>
+      <button
+        type="button"
+        class="pdp-pet-gallery__nav pdp-pet-gallery__nav--prev"
+        aria-label="Imagem anterior"
+        data-prev
+      >
         <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
       </button>
-      <button type="button" class="pdp-pet-gallery__nav pdp-pet-gallery__nav--next" aria-label="Próxima imagem" data-next>
+      <button
+        type="button"
+        class="pdp-pet-gallery__nav pdp-pet-gallery__nav--next"
+        aria-label="Próxima imagem"
+        data-next
+      >
         <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
       </button>
     </div>
@@ -109,7 +119,7 @@
     .pdp-pet-gallery__title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: var(--color-on-background, #201b14);
+      color: var(--color-on-surface-variant);
       margin: 0;
       letter-spacing: -0.01em;
     }
@@ -129,7 +139,9 @@
       margin: 0 -0.5rem;
       padding: 0.5rem;
     }
-    .pdp-pet-gallery__viewport::-webkit-scrollbar { display: none; }
+    .pdp-pet-gallery__viewport::-webkit-scrollbar {
+      display: none;
+    }
 
     .pdp-pet-gallery__track {
       display: flex;
@@ -150,11 +162,15 @@
     }
 
     @media (min-width: 600px) {
-      .pdp-pet-gallery__item { flex-basis: calc((100% - 0.75rem) / 2); }
+      .pdp-pet-gallery__item {
+        flex-basis: calc((100% - 0.75rem) / 2);
+      }
     }
 
     @media (min-width: 1024px) {
-      .pdp-pet-gallery__item { flex-basis: calc((100% - 2.25rem) / 4); }
+      .pdp-pet-gallery__item {
+        flex-basis: calc((100% - 2.25rem) / 4);
+      }
     }
 
     .pdp-pet-gallery__img {
@@ -208,8 +224,8 @@
 
       const viewport = host.querySelector('[data-viewport]');
       const controls = host.querySelector('[data-controls]');
-      const btnPrev  = host.querySelector('[data-prev]');
-      const btnNext  = host.querySelector('[data-next]');
+      const btnPrev = host.querySelector('[data-prev]');
+      const btnNext = host.querySelector('[data-next]');
       if (!viewport) return;
 
       function passo() {
@@ -221,7 +237,7 @@
       }
 
       btnPrev?.addEventListener('click', () => viewport.scrollBy({ left: -passo(), behavior: 'smooth' }));
-      btnNext?.addEventListener('click', () => viewport.scrollBy({ left:  passo(), behavior: 'smooth' }));
+      btnNext?.addEventListener('click', () => viewport.scrollBy({ left: passo(), behavior: 'smooth' }));
 
       function atualizar() {
         const podeScroll = viewport.scrollWidth > viewport.clientWidth + 4;

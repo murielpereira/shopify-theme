@@ -202,10 +202,20 @@
             return 'R$ ' + (cents / 100).toFixed(2).replace('.', ',');
         }
 
-        // Re-popula o <table> do modal com a tabela calculada
+        // Re-popula o <table> do modal com a tabela calculada + bloco Pix
         function repopulateInstallmentsModal(priceCents) {
             const modal = document.querySelector('[data-installments-modal]');
             if (!modal) return;
+            // Atualiza Pix
+            const pixValueEl = modal.querySelector('[data-installments-modal-pix-value]');
+            const pixSavedEl = modal.querySelector('[data-installments-modal-pix-saved]');
+            const pixPct = parseInt(host.dataset.pixPct || '5', 10);
+            if (pixValueEl && pixPct > 0) {
+                const disc = Math.floor(priceCents * pixPct / 100);
+                pixValueEl.textContent = fmtBR(priceCents - disc);
+                if (pixSavedEl) pixSavedEl.textContent = 'Economize ' + fmtBR(disc);
+            }
+            // Re-monta tabela
             const tbody = modal.querySelector('tbody');
             if (!tbody) return;
             const rows = fullInstallmentsTable(priceCents);

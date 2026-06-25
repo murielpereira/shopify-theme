@@ -456,11 +456,12 @@
           <span class="pdp__price-label">no Pix</span>
         </div>
         <div class="pdp__price-card-row">
-          <span class="pdp__price-label">ou <strong class="pdp__price-main" data-kit-price-total>—</strong> no cartão</span>
+          <span class="pdp__price-label"
+            >ou <strong class="pdp__price-main" data-kit-price-total>—</strong> no cartão</span
+          >
         </div>
         <p class="pdp__installments" data-kit-installments-row hidden>
-          Em até <strong data-kit-installments-n>—</strong>x
-          de <strong data-kit-price-installment>—</strong> sem juros
+          Em até <strong data-kit-installments-n>—</strong>x de <strong data-kit-price-installment>—</strong> sem juros
           {%- if settings.show_installments_link != false -%}
             <button type="button" class="pdp__installments-link" data-installments-modal-open>Ver mais detalhes</button>
           {%- endif -%}
@@ -473,46 +474,47 @@
         <!-- Modal de parcelas: vazio inicial (ame-kit.js popula com base no total) -->
         {%- render 'installments-modal', price_cents: 0 -%}
       {%- else -%}
-      <!-- Linha "De:" riscado -->
-      {%- if has_compare -%}
-        <div class="pdp__price-compare-row">
-          <s class="pdp__price-compare">De: {{ displayed_compare | money }}</s>
-        </div>
-      {%- endif -%}
-
-      {%- comment -%}
-        Ordem visual: Pix (com desconto) → Cartão (preço cheio) → Parcelas
-        sem juros → Cashback. Pagar.me processa o pagamento real no checkout
-        — aqui é só anúncio. Manter valores sincronizados com o admin pagar.me.
-      {%- endcomment -%}
-
-      <!-- Preço no Pix (com desconto destacado em primeiro) -->
-      {%- if settings.show_pix != false -%}
-        <div class="pdp__price-pix-row pdp__price-pix-row--primary">
-          <strong class="pdp__price-pix">{{ pix_price_cents | money }}</strong>
-          <span class="pdp__price-label">no Pix</span>
-        </div>
-      {%- endif -%}
-
-      <!-- Preço no cartão + badge de desconto -->
-      <div class="pdp__price-card-row">
-        <span class="pdp__price-label">ou {{ effective_price | money }} no cartão</span>
+        <!-- Linha "De:" riscado -->
         {%- if has_compare -%}
-          <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
+          <div class="pdp__price-compare-row">
+            <s class="pdp__price-compare">De: {{ displayed_compare | money }}</s>
+          </div>
         {%- endif -%}
-      </div>
 
-      <!-- Parcelamento: max sem juros viável + link pra modal -->
-      {%- render 'installments-info', price_cents: effective_price, mode: 'pdp' -%}
+        {%- comment -%}
+          Ordem visual: Pix (com desconto) → Cartão (preço cheio) → Parcelas
+          sem juros → Cashback. Pagar.me processa o pagamento real no checkout
+          — aqui é só anúncio. Manter valores sincronizados com o admin pagar.me.
+        {%- endcomment -%}
 
-      <!-- Cashback -->
-      <div id="pdp-cashback-wrap">
-        {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
-      </div>
+        <!-- Preço no Pix (com desconto destacado em primeiro) -->
+        {%- if settings.show_pix != false -%}
+          <div class="pdp__price-pix-row pdp__price-pix-row--primary">
+            <strong class="pdp__price-pix">{{ pix_price_cents | money }}</strong>
+            <span class="pdp__price-label">no Pix</span>
+          </div>
+        {%- endif -%}
 
-      <!-- Modal de parcelas (popup com tabela completa) -->
-      {%- render 'installments-modal', price_cents: effective_price -%}
-      {%- endif -%}{%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
+        <!-- Preço no cartão + badge de desconto -->
+        <div class="pdp__price-card-row">
+          <span class="pdp__price-label">ou {{ effective_price | money }} no cartão</span>
+          {%- if has_compare -%}
+            <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
+          {%- endif -%}
+        </div>
+
+        <!-- Parcelamento: max sem juros viável + link pra modal -->
+        {%- render 'installments-info', price_cents: effective_price, mode: 'pdp' -%}
+
+        <!-- Cashback -->
+        <div id="pdp-cashback-wrap">
+          {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
+        </div>
+
+        <!-- Modal de parcelas (popup com tabela completa) -->
+        {%- render 'installments-modal', price_cents: effective_price -%}
+      {%- endif -%}
+      {%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
     </div>
 
     {%- comment -%} Slot pra apps: depois do preço {%- endcomment -%}
@@ -574,145 +576,144 @@
           {% render 'kit-picker', kit_components: kit_components %}
         </div>
       {%- else -%}
+        <!-- Opções (Cor, Tamanho...) — renderizadas sob demanda via Section Rendering API -->
+        <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
+          {%- for option in product.options_with_values -%}
+            {%- liquid
+              assign is_color = false
+              if option.name == 'Color' or option.name == 'Cor' or option.name == 'Acabamento'
+                assign is_color = true
+              endif
+              assign is_metal_color = false
+              if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
+                assign is_metal_color = true
+              endif
+            -%}
 
-      <!-- Opções (Cor, Tamanho...) — renderizadas sob demanda via Section Rendering API -->
-      <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
-        {%- for option in product.options_with_values -%}
-          {%- liquid
-            assign is_color = false
-            if option.name == 'Color' or option.name == 'Cor' or option.name == 'Acabamento'
-              assign is_color = true
-            endif
-            assign is_metal_color = false
-            if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
-              assign is_metal_color = true
-            endif
-          -%}
+            <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}">
+              <div class="pdp__option-header">
+                <span class="pdp__option-label">{{ option.name }}</span>
+                <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
+                  {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
+                </span>
+              </div>
 
-          <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}">
-            <div class="pdp__option-header">
-              <span class="pdp__option-label">{{ option.name }}</span>
-              <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
-                {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
-              </span>
-            </div>
-
-            {%- if is_color -%}
-              <!-- Grade de swatches por imagem (6 colunas no mobile) -->
-              {%- comment -%}
-                Produtos com tag `swatch_solido` (peças finas onde a foto não
-                mostra a cor com clareza) usam o snippet de swatch sólido em
-                vez da foto da variante. Cores definidas em
-                settings.swatch_solido_cores.
-              {%- endcomment -%}
-              {%- assign use_swatch_solido = false -%}
-              {%- if product.tags contains 'swatch_solido' -%}
-                {%- assign use_swatch_solido = true -%}
-              {%- endif -%}
-              <div
-                class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}"
-                data-option-index="{{ forloop.index0 }}"
-              >
-                {%- for option_value in option.values -%}
-                  {%- liquid
-                    assign sw_variant = option_value.variant
-                    assign sw_img = ''
-                    assign sw_media_id = ''
-                    if sw_variant.featured_media != blank
-                      assign sw_img = sw_variant.featured_media.preview_image | image_url: width: 120
-                      assign sw_media_id = sw_variant.featured_media.id
-                    elsif sw_variant.featured_image != blank
-                      assign sw_img = sw_variant.featured_image | image_url: width: 120
-                      assign sw_media_id = sw_variant.featured_image.id
-                    endif
-                  -%}
-                  <button
-                    type="button"
-                    class="pdp__swatch{% if has_variant and option_value.selected %} pdp__swatch--active{% endif %}{% unless option_value.available %} pdp__swatch--disabled{% endunless %}"
-                    data-value="{{ option_value | escape }}"
-                    data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                    {% if sw_media_id != '' %}
-                      data-media-id="{{ sw_media_id }}"
-                    {% endif %}
-                    {% unless option_value.available %}
-                      aria-disabled="true"
-                    {% endunless %}
-                  >
-                    {%- if use_swatch_solido -%}
-                      {%- render 'swatch-solido', value: option_value -%}
-                    {%- elsif sw_img != '' -%}
-                      <img
-                        src="{{ sw_img }}"
-                        alt="{{ option_value | escape }}"
-                        class="pdp__swatch-img"
-                        loading="lazy"
-                        width="120"
-                        height="120"
-                      >
-                    {%- else -%}
+              {%- if is_color -%}
+                <!-- Grade de swatches por imagem (6 colunas no mobile) -->
+                {%- comment -%}
+                  Produtos com tag `swatch_solido` (peças finas onde a foto não
+                  mostra a cor com clareza) usam o snippet de swatch sólido em
+                  vez da foto da variante. Cores definidas em
+                  settings.swatch_solido_cores.
+                {%- endcomment -%}
+                {%- assign use_swatch_solido = false -%}
+                {%- if product.tags contains 'swatch_solido' -%}
+                  {%- assign use_swatch_solido = true -%}
+                {%- endif -%}
+                <div
+                  class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}"
+                  data-option-index="{{ forloop.index0 }}"
+                >
+                  {%- for option_value in option.values -%}
+                    {%- liquid
+                      assign sw_variant = option_value.variant
+                      assign sw_img = ''
+                      assign sw_media_id = ''
+                      if sw_variant.featured_media != blank
+                        assign sw_img = sw_variant.featured_media.preview_image | image_url: width: 120
+                        assign sw_media_id = sw_variant.featured_media.id
+                      elsif sw_variant.featured_image != blank
+                        assign sw_img = sw_variant.featured_image | image_url: width: 120
+                        assign sw_media_id = sw_variant.featured_image.id
+                      endif
+                    -%}
+                    <button
+                      type="button"
+                      class="pdp__swatch{% if has_variant and option_value.selected %} pdp__swatch--active{% endif %}{% unless option_value.available %} pdp__swatch--disabled{% endunless %}"
+                      data-value="{{ option_value | escape }}"
+                      data-option-value-id="{{ option_value.id }}"
+                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                      {% if sw_media_id != '' %}
+                        data-media-id="{{ sw_media_id }}"
+                      {% endif %}
+                      {% unless option_value.available %}
+                        aria-disabled="true"
+                      {% endunless %}
+                    >
+                      {%- if use_swatch_solido -%}
+                        {%- render 'swatch-solido', value: option_value -%}
+                      {%- elsif sw_img != '' -%}
+                        <img
+                          src="{{ sw_img }}"
+                          alt="{{ option_value | escape }}"
+                          class="pdp__swatch-img"
+                          loading="lazy"
+                          width="120"
+                          height="120"
+                        >
+                      {%- else -%}
+                        <span
+                          class="pdp__swatch-color"
+                          style="background:var(--swatch-{{ option_value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
+                        ></span>
+                      {%- endif -%}
+                    </button>
+                  {%- endfor -%}
+                </div>
+              {%- elsif is_metal_color -%}
+                <!-- Botões com swatch de cor do metal -->
+                <div class="pdp__sizes pdp__sizes--metal" data-option-index="{{ forloop.index0 }}">
+                  {%- for option_value in option.values -%}
+                    {%- assign metal_slug = option_value | downcase | replace: ' ', '-' -%}
+                    <button
+                      type="button"
+                      class="pdp__size-btn pdp__size-btn--metal{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
+                      data-value="{{ option_value | escape }}"
+                      data-option-value-id="{{ option_value.id }}"
+                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                      {% unless option_value.available %}
+                        aria-disabled="true"
+                      {% endunless %}
+                    >
                       <span
-                        class="pdp__swatch-color"
-                        style="background:var(--swatch-{{ option_value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
+                        class="pdp__metal-dot"
+                        aria-hidden="true"
+                        style="background:var(--metal-{{ metal_slug }}, var(--color-surface-container,#f8ece0));"
                       ></span>
-                    {%- endif -%}
-                  </button>
-                {%- endfor -%}
-              </div>
-            {%- elsif is_metal_color -%}
-              <!-- Botões com swatch de cor do metal -->
-              <div class="pdp__sizes pdp__sizes--metal" data-option-index="{{ forloop.index0 }}">
-                {%- for option_value in option.values -%}
-                  {%- assign metal_slug = option_value | downcase | replace: ' ', '-' -%}
-                  <button
-                    type="button"
-                    class="pdp__size-btn pdp__size-btn--metal{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
-                    data-value="{{ option_value | escape }}"
-                    data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                    {% unless option_value.available %}
-                      aria-disabled="true"
-                    {% endunless %}
-                  >
-                    <span
-                      class="pdp__metal-dot"
-                      aria-hidden="true"
-                      style="background:var(--metal-{{ metal_slug }}, var(--color-surface-container,#f8ece0));"
-                    ></span>
-                    {{ option_value }}
-                  </button>
-                {%- endfor -%}
-              </div>
-            {%- else -%}
-              <!-- Botões de tamanho -->
-              <div class="pdp__sizes" data-option-index="{{ forloop.index0 }}">
-                {%- for option_value in option.values -%}
-                  <button
-                    type="button"
-                    class="pdp__size-btn{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
-                    data-value="{{ option_value | escape }}"
-                    data-option-value-id="{{ option_value.id }}"
-                    aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                    aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                    {% unless option_value.available %}
-                      aria-disabled="true"
-                    {% endunless %}
-                  >
-                    {{ option_value }}
-                  </button>
-                {%- endfor -%}
-              </div>
-            {%- endif -%}
-          </div>
-        {%- endfor -%}
-      </div>
-
-      {%- endif -%}{%- comment -%} fim do else do is_kit (variant picker padrão){%- endcomment -%}
+                      {{ option_value }}
+                    </button>
+                  {%- endfor -%}
+                </div>
+              {%- else -%}
+                <!-- Botões de tamanho -->
+                <div class="pdp__sizes" data-option-index="{{ forloop.index0 }}">
+                  {%- for option_value in option.values -%}
+                    <button
+                      type="button"
+                      class="pdp__size-btn{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
+                      data-value="{{ option_value | escape }}"
+                      data-option-value-id="{{ option_value.id }}"
+                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                      {% unless option_value.available %}
+                        aria-disabled="true"
+                      {% endunless %}
+                    >
+                      {{ option_value }}
+                    </button>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      {%- comment -%} fim do else do is_kit (variant picker padrão){%- endcomment -%}
 
       {%- comment -%} Slot pra apps: depois das variantes {%- endcomment -%}
       {%- unless is_kit -%}
@@ -943,25 +944,34 @@
         e dispara cart/add.js com N items em vez do submit padrão.
       {%- endcomment -%}
       {%- unless is_kit -%}
-      <!-- Quantidade -->
-      <div class="pdp__qty">
-        <span class="pdp__option-label">Quantidade</span>
-        <div class="pdp__qty-ctrl">
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-minus" aria-label="Diminuir" title="Diminuir" disabled>
-            −
-          </button>
-          <input
-            type="number"
-            name="quantity"
-            id="pdp-qty"
-            value="1"
-            min="1"
-            class="pdp__qty-input"
-            aria-label="Quantidade"
-          >
-          <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar" title="Aumentar">+</button>
+        <!-- Quantidade -->
+        <div class="pdp__qty">
+          <span class="pdp__option-label">Quantidade</span>
+          <div class="pdp__qty-ctrl">
+            <button
+              type="button"
+              class="pdp__qty-btn"
+              id="pdp-qty-minus"
+              aria-label="Diminuir"
+              title="Diminuir"
+              disabled
+            >
+              −
+            </button>
+            <input
+              type="number"
+              name="quantity"
+              id="pdp-qty"
+              value="1"
+              min="1"
+              class="pdp__qty-input"
+              aria-label="Quantidade"
+            >
+            <button type="button" class="pdp__qty-btn" id="pdp-qty-plus" aria-label="Aumentar" title="Aumentar">
+              +
+            </button>
+          </div>
         </div>
-      </div>
       {%- endunless -%}
 
       {%- if pdp_videos_pos == 'above-cta' -%}{{ pdp_videos_widget }}{%- endif -%}
@@ -1050,7 +1060,6 @@
       <div class="pdp__app-slot pdp__app-slot--after-cta">
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
-
     {%- endform -%}
   </div>
   <!-- /pdp__info -->
@@ -1087,7 +1096,9 @@
   </div>
 {%- endif -%}
 
-<script type="module">
+<script
+  type="module"
+>
   /* PERF: type="module" faz o browser deferir esse script automaticamente
      (executa após o HTML parse, sem bloquear). PSI 2026-06 mediu HTML inline
      da PDP em 4.6s de script time — quase tudo daqui. Module = auto-defer +
@@ -2097,7 +2108,7 @@
     font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 1.1;
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant);
     margin: 0 0 0.375rem;
   }
 
@@ -2226,7 +2237,7 @@
     font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: -0.02em;
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant);
     line-height: 1;
   }
 
@@ -2259,7 +2270,7 @@
   }
 
   .pdp__installments strong {
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant);
     font-weight: 500;
   }
 
@@ -2272,6 +2283,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
+    border: none;
+    background: none;
+    cursor: pointer;
   }
 
   /* ── Descrição ── */
