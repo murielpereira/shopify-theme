@@ -37,8 +37,8 @@
 
     let _regrasCache = null;
     let _variantsCache = new Map(); // handle → produto completo do Waltz
-    let _ultimaAvaliacao = 0;
     let _aplicandoMudancas = false;
+    let _pendingReavaliacao = false; // se chamado durante execução, roda de novo no fim
     let _seletoresState = new Map(); // regra_id → variant_id selecionada (em memória, sem persist)
 
     // ─── XHR helper ───
@@ -263,12 +263,16 @@
 
     // ─── Loop principal: reavalia regras + sincroniza cart ───
     async function reavaliarBrindes() {
-        if (_aplicandoMudancas) return;
         if (!_regrasCache || !_regrasCache.length) return;
 
-        const agora = Date.now();
-        if (agora - _ultimaAvaliacao < 300) return; // debounce
-        _ultimaAvaliacao = agora;
+        // Se já está rodando, marca pra re-rodar no fim em vez de descartar.
+        // Cenário: cliente remove item → AmeCart.refresh dispara reavaliação →
+        // antes de terminar, outro refresh chega. Sem fila, a 2ª chamada era
+        // descartada e o brinde só sumia na próxima ação manual.
+        if (_aplicandoMudancas) {
+            _pendingReavaliacao = true;
+            return;
+        }
 
         _aplicandoMudancas = true;
         try {
@@ -327,6 +331,12 @@
             console.warn('[Brindes] erro na avaliação:', e.message);
         } finally {
             _aplicandoMudancas = false;
+            // Se foi solicitado durante execução, re-roda (ex: remover trigger
+            // dispara refresh enquanto a primeira reavaliação ainda processa).
+            if (_pendingReavaliacao) {
+                _pendingReavaliacao = false;
+                setTimeout(reavaliarBrindes, 0);
+            }
         }
     }
 
