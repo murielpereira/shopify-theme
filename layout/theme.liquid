@@ -379,7 +379,11 @@
               : '';
           const props = item.properties || {};
           const coleiraKey = props._coleira_key || '';
-          const isBrinde = !!props.Brinde;
+          // Detecta brinde por property _brinde_regra_id (setado pelo ame-gifts.js
+          // quando ele adiciona o item) OU pelo property `Brinde` visível (compat
+          // com pingente cortesia que usa essa label). Em ambos casos, escondemos
+          // os controles de quantidade — cliente não deve alterar brindes.
+          const isBrinde = !!(props._brinde_regra_id || props.Brinde);
           const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
           const propsHTML = propEntries.length
             ? `<ul class="ame-cart-item__props">${propEntries
@@ -389,6 +393,30 @@
           const brindeChip = isBrinde
             ? `<span class="ame-cart-item__brinde-chip"><span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>Brinde</span>`
             : '';
+          // Brinde: qty fixa em 1, sem botões de +/-/remover (cliente não pode
+          // alterar). O JS do ame-gifts.js gerencia entrada/saída automaticamente
+          // baseado nas condições da regra.
+          const qtyHTML = isBrinde
+            ? `<div class="ame-cart-item__qty ame-cart-item__qty--locked" aria-label="Quantidade fixa do brinde">
+                  <span class="ame-cart-item__qty-val" data-qty-val="${esc(item.key)}">${item.quantity}</span>
+               </div>`
+            : `<div class="ame-cart-item__qty">
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${
+                    item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'
+                  }" title="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${
+                    item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`
+                  }>
+                    <span class="material-symbols-outlined" aria-hidden="true">${
+                      item.quantity <= 1 ? 'delete' : 'remove'
+                    }</span>
+                  </button>
+                  <span class="ame-cart-item__qty-val" data-qty-val="${esc(item.key)}">${item.quantity}</span>
+                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" title="Aumentar quantidade" data-qty-plus="${esc(
+                    item.key
+                  )}">
+                    <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                  </button>
+               </div>`;
           return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(
             item.key
           )}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
@@ -405,23 +433,7 @@
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
               ${propsHTML}
               <div class="ame-cart-item__bottom">
-                <div class="ame-cart-item__qty">
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="${
-                    item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'
-                  }" title="${item.quantity <= 1 ? 'Remover item' : 'Diminuir quantidade'}" ${
-            item.quantity <= 1 ? `data-remove="${esc(item.key)}"` : `data-qty-minus="${esc(item.key)}"`
-          }>
-                    <span class="material-symbols-outlined" aria-hidden="true">${
-                      item.quantity <= 1 ? 'delete' : 'remove'
-                    }</span>
-                  </button>
-                  <span class="ame-cart-item__qty-val" data-qty-val="${esc(item.key)}">${item.quantity}</span>
-                  <button type="button" class="ame-cart-item__qty-btn" aria-label="Aumentar quantidade" title="Aumentar quantidade" data-qty-plus="${esc(
-                    item.key
-                  )}">
-                    <span class="material-symbols-outlined" aria-hidden="true">add</span>
-                  </button>
-                </div>
+                ${qtyHTML}
                 <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${esc(
             item.key
           )}">${fmt(item.final_line_price)}</span></div>
@@ -1170,6 +1182,14 @@
       [data-konfidency-rating] no DOM. Vide snippets/product-card.liquid.
     {%- endcomment -%}
     <script defer src="{{ 'ame-konfidency-card-rating.js' | asset_url }}"></script>
+
+    {%- comment -%}
+      Brindes automáticos — consulta regras ativas no Waltz e mantém o cart
+      em sincronia (add/remove brinde a cada update). Preço zerado por
+      Desconto Automático Shopify criado pelo Waltz via Admin API.
+      Vide Waltz/routes/brindes.js + assets/ame-gifts.js.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-gifts.js' | asset_url }}"></script>
 
     {%- comment -%}
       Kit de produtos — substitui o variant picker padrão no PDP quando o

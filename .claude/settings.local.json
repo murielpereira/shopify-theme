@@ -232,7 +232,9 @@
       "Bash(grep -rln \"tiny\\\\|TINY_TOKEN\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" --include='*.js' 2>&1 | head -10)",
       "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/**)",
       "WebFetch(domain:www.tiny.com.br)",
-      "WebFetch(domain:tiny.com.br)"
+      "WebFetch(domain:tiny.com.br)",
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/nfe-tiny.js\")",
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/brindes.js\")"
     ],
     "additionalDirectories": [
       "\\tmp",

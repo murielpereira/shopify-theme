@@ -92,7 +92,17 @@
       <ul class="ame-cart-items" data-cart-items>
         {%- for item in cart.items -%}
           {%- assign coleira_key = item.properties._coleira_key | default: '' -%}
-          {%- assign is_brinde = item.properties.Brinde | default: '' -%}
+          {%- comment -%}
+            Detecta brinde por property `_brinde_regra_id` (ame-gifts.js) OU
+            property `Brinde` (pingente cortesia legado). Em ambos casos, esconde
+            controles de qty/remove — brinde é gerenciado pelo JS automaticamente.
+          {%- endcomment -%}
+          {%- assign brinde_regra_id = item.properties._brinde_regra_id | default: '' -%}
+          {%- assign brinde_label = item.properties.Brinde | default: '' -%}
+          {%- assign is_brinde = '' -%}
+          {%- if brinde_regra_id != '' or brinde_label != '' -%}
+            {%- assign is_brinde = 'true' -%}
+          {%- endif -%}
           <li
             class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}"
             data-item-key="{{ item.key }}"
@@ -150,31 +160,38 @@
               {%- endif -%}
 
               <div class="ame-cart-item__bottom">
-                <!-- Quantity stepper -->
-                <div class="ame-cart-item__qty" data-item-qty="{{ item.key }}">
-                  <button
-                    type="button"
-                    class="ame-cart-item__qty-btn"
-                    aria-label="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
-                    title="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
-                    data-qty-minus="{{ item.key }}"
-                    {% if item.quantity <= 1 %}data-remove="{{ item.key }}"{% endif %}
-                  >
-                    <span class="material-symbols-outlined" aria-hidden="true">
-                      {%- if item.quantity <= 1 -%}delete{%- else -%}remove{%- endif -%}
-                    </span>
-                  </button>
-                  <span class="ame-cart-item__qty-val" data-qty-val="{{ item.key }}">{{ item.quantity }}</span>
-                  <button
-                    type="button"
-                    class="ame-cart-item__qty-btn"
-                    aria-label="Aumentar quantidade"
-                    title="Aumentar quantidade"
-                    data-qty-plus="{{ item.key }}"
-                  >
-                    <span class="material-symbols-outlined" aria-hidden="true">add</span>
-                  </button>
-                </div>
+                {%- if is_brinde != '' -%}
+                  <!-- Brinde: qty fixa, sem controles. JS do ame-gifts.js gerencia. -->
+                  <div class="ame-cart-item__qty ame-cart-item__qty--locked" aria-label="Quantidade fixa do brinde">
+                    <span class="ame-cart-item__qty-val" data-qty-val="{{ item.key }}">{{ item.quantity }}</span>
+                  </div>
+                {%- else -%}
+                  <!-- Quantity stepper -->
+                  <div class="ame-cart-item__qty" data-item-qty="{{ item.key }}">
+                    <button
+                      type="button"
+                      class="ame-cart-item__qty-btn"
+                      aria-label="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
+                      title="{% if item.quantity <= 1 %}Remover item{% else %}Diminuir quantidade{% endif %}"
+                      data-qty-minus="{{ item.key }}"
+                      {% if item.quantity <= 1 %}data-remove="{{ item.key }}"{% endif %}
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">
+                        {%- if item.quantity <= 1 -%}delete{%- else -%}remove{%- endif -%}
+                      </span>
+                    </button>
+                    <span class="ame-cart-item__qty-val" data-qty-val="{{ item.key }}">{{ item.quantity }}</span>
+                    <button
+                      type="button"
+                      class="ame-cart-item__qty-btn"
+                      aria-label="Aumentar quantidade"
+                      title="Aumentar quantidade"
+                      data-qty-plus="{{ item.key }}"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                    </button>
+                  </div>
+                {%- endif -%}
 
                 <!-- Price -->
                 <div class="ame-cart-item__prices">
