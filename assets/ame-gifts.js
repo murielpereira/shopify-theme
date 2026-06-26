@@ -202,8 +202,18 @@
                 const variantId = variantBtn.dataset.giftVariant;
                 if (!regraId || !variantId) return;
                 _seletoresState.set(regraId, variantId);
-                // Re-render só esse card (re-roda render — barato)
-                renderizarTodosCards();
+                // Atualiza UI in-place — chamar renderizarTodosCards() sem args
+                // removia o card e não re-renderizava (o brinde sumia).
+                card.querySelectorAll('[data-gift-variant]').forEach(b => {
+                    const sel = b.dataset.giftVariant === variantId;
+                    b.classList.toggle('is-active', sel);
+                    b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+                });
+                const addBtn = card.querySelector('[data-gift-add]');
+                if (addBtn) {
+                    addBtn.disabled = false;
+                    addBtn.textContent = 'Resgatar meu brinde';
+                }
                 return;
             }
 
