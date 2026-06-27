@@ -175,31 +175,11 @@
             "cta_label": "",
             "cta_url": ""
           }
-        },
-        "video_JmNNLx": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 7.mp4",
-            "title": "Teste 2",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_itxBrA": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/J6NFjXdTA0t1RcgN0JQbK_concat_video_1776106522_0 (1).mp4",
-            "title": "Teste 3",
-            "cta_label": "",
-            "cta_url": ""
-          }
         }
       },
       "block_order": [
         "video_DHbMjJ",
-        "video_9NCbzb",
-        "video_JmNNLx",
-        "video_itxBrA"
+        "video_9NCbzb"
       ],
       "name": "Vídeos (stories)",
       "settings": {
@@ -256,68 +236,18 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
-        "video_URaCMw": {
+        "video_A9C3wb": {
           "type": "video",
           "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 4.mp4",
-            "title": "",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_4xnDcG": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 1.mp4",
-            "title": "",
-            "cta_label": "Coleira Sara",
-            "cta_url": ""
-          }
-        },
-        "video_9ApKnh": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 2.mp4",
-            "title": "",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_WVK8cR": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 5.mp4",
-            "title": "",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_hXUiAF": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 6.mp4",
-            "title": "",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_KBX4NR": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Âme - Agosto - Reels - 8.mp4",
-            "title": "",
+            "video": "shopify://files/videos/copy_99B70347-EA57-4E1D-A68E-FAA597370A79.MOV",
+            "title": "Bolsa Ollie",
             "cta_label": "",
             "cta_url": ""
           }
         }
       },
       "block_order": [
-        "video_URaCMw",
-        "video_4xnDcG",
-        "video_9ApKnh",
-        "video_WVK8cR",
-        "video_hXUiAF",
-        "video_KBX4NR"
+        "video_A9C3wb"
       ],
       "name": "Vídeos (destaques)",
       "settings": {
