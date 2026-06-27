@@ -158,6 +158,15 @@
     "home_video_stories_MErTLy": {
       "type": "home-video-stories",
       "blocks": {
+        "video_DHbMjJ": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Nosso processo.mp4",
+            "title": "Nosso processo",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_9NCbzb": {
           "type": "video",
           "settings": {
@@ -187,6 +196,7 @@
         }
       },
       "block_order": [
+        "video_DHbMjJ",
         "video_9NCbzb",
         "video_JmNNLx",
         "video_itxBrA"
