@@ -161,16 +161,8 @@
         "video_9NCbzb": {
           "type": "video",
           "settings": {
-            "title": "",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_AttiH7": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/LIVE 2.mov",
-            "title": "Teste 1",
+            "video": "shopify://files/videos/Nossa Essência.mov",
+            "title": "Nossa Essência",
             "cta_label": "",
             "cta_url": ""
           }
@@ -196,7 +188,6 @@
       },
       "block_order": [
         "video_9NCbzb",
-        "video_AttiH7",
         "video_JmNNLx",
         "video_itxBrA"
       ],
@@ -611,10 +602,6 @@
       ],
       "settings": {}
     },
-    "depoimentos_konfidency": {
-      "type": "home-depoimentos",
-      "settings": {}
-    },
     "newsletter": {
       "type": "home-newsletter",
       "settings": {
@@ -622,6 +609,10 @@
         "title": "Acesso Antecipado às Novas Peças.",
         "button_label": "Entrar"
       }
+    },
+    "depoimentos_konfidency": {
+      "type": "home-depoimentos",
+      "settings": {}
     }
   },
   "order": [
