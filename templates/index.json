@@ -236,12 +236,20 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_b6TfbJ": {
+          "type": "video",
+          "settings": {
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_4HzbYq": {
           "type": "video",
           "settings": {
             "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
             "title": "bolsa lis",
-            "cta_label": "",
+            "cta_label": "Bolsa de passeio lis",
             "cta_url": ""
           }
         },
@@ -268,12 +276,13 @@
           "settings": {
             "video": "shopify://files/videos/copy_99B70347-EA57-4E1D-A68E-FAA597370A79.MOV",
             "title": "Bolsa Ollie",
-            "cta_label": "",
+            "cta_label": "Bolsa de transporte Ollie",
             "cta_url": ""
           }
         }
       },
       "block_order": [
+        "video_b6TfbJ",
         "video_4HzbYq",
         "video_jQWfFH",
         "video_4QgQpW",
