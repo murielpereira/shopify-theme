@@ -158,6 +158,15 @@
     "home_video_stories_MErTLy": {
       "type": "home-video-stories",
       "blocks": {
+        "video_HNQ4y4": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/prazo fabricacao.MOV",
+            "title": "Feito com amor",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_WFczj7": {
           "type": "video",
           "settings": {
@@ -187,6 +196,7 @@
         }
       },
       "block_order": [
+        "video_HNQ4y4",
         "video_WFczj7",
         "video_DHbMjJ",
         "video_9NCbzb"
