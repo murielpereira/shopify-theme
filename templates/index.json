@@ -158,6 +158,15 @@
     "home_video_stories_MErTLy": {
       "type": "home-video-stories",
       "blocks": {
+        "video_7rAmLE": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/a ame é especialista em coleira.mov",
+            "title": "Somos especialistas",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_nkxYgz": {
           "type": "video",
           "settings": {
@@ -196,6 +205,7 @@
         }
       },
       "block_order": [
+        "video_7rAmLE",
         "video_nkxYgz",
         "video_WFczj7",
         "video_DHbMjJ",
