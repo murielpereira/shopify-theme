@@ -176,15 +176,6 @@
             "cta_url": ""
           }
         },
-        "video_WFczj7": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/garantia.MOV",
-            "title": "Garantia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
         "video_DHbMjJ": {
           "type": "video",
           "settings": {
@@ -202,14 +193,23 @@
             "cta_label": "",
             "cta_url": ""
           }
+        },
+        "video_WFczj7": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/garantia.MOV",
+            "title": "Garantia",
+            "cta_label": "",
+            "cta_url": ""
+          }
         }
       },
       "block_order": [
         "video_7rAmLE",
         "video_nkxYgz",
-        "video_WFczj7",
         "video_DHbMjJ",
-        "video_9NCbzb"
+        "video_9NCbzb",
+        "video_WFczj7"
       ],
       "name": "Vídeos (stories)",
       "settings": {
@@ -266,6 +266,15 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_KVFnxd": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/salsicha.mov",
+            "title": "Coleira Prímula",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_b6TfbJ": {
           "type": "video",
           "settings": {
@@ -312,6 +321,7 @@
         }
       },
       "block_order": [
+        "video_KVFnxd",
         "video_b6TfbJ",
         "video_4HzbYq",
         "video_4QgQpW",
