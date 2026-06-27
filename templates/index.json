@@ -158,11 +158,11 @@
     "home_video_stories_MErTLy": {
       "type": "home-video-stories",
       "blocks": {
-        "video_HNQ4y4": {
+        "video_nkxYgz": {
           "type": "video",
           "settings": {
-            "video": "shopify://files/videos/prazo fabricacao.MOV",
-            "title": "Feito com amor",
+            "video": "shopify://files/videos/seu pedido é unico.mov",
+            "title": "Seu pedido é único",
             "cta_label": "",
             "cta_url": ""
           }
@@ -196,7 +196,7 @@
         }
       },
       "block_order": [
-        "video_HNQ4y4",
+        "video_nkxYgz",
         "video_WFczj7",
         "video_DHbMjJ",
         "video_9NCbzb"
