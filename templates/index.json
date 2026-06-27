@@ -236,6 +236,23 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_4HzbYq": {
+          "type": "video",
+          "settings": {
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_jQWfFH": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
+            "title": "kit amelia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_4QgQpW": {
           "type": "video",
           "settings": {
@@ -256,6 +273,8 @@
         }
       },
       "block_order": [
+        "video_4HzbYq",
+        "video_jQWfFH",
         "video_4QgQpW",
         "video_A9C3wb"
       ],
