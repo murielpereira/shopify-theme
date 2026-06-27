@@ -239,7 +239,8 @@
         "video_4HzbYq": {
           "type": "video",
           "settings": {
-            "title": "",
+            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
+            "title": "bolsa lis",
             "cta_label": "",
             "cta_url": ""
           }
