@@ -236,6 +236,15 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_4QgQpW": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Kit cecilia (ANGULOS 1) (1).MOV",
+            "title": "Kit cecilia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_A9C3wb": {
           "type": "video",
           "settings": {
@@ -247,6 +256,7 @@
         }
       },
       "block_order": [
+        "video_4QgQpW",
         "video_A9C3wb"
       ],
       "name": "Vídeos (destaques)",
