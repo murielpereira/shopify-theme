@@ -598,11 +598,23 @@
               if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
                 assign is_metal_color = true
               endif
+              # Artigo "o/a" pra montar "Selecione a Cor" / "Selecione o Tamanho".
+              # Decidido pela PRIMEIRA palavra do nome (cobre compostos tipo
+              # "Cor do Metal" → "cor" → feminino). Default feminino ("a")
+              # porque a maioria das opções na loja é feminina (Cor, Cor do
+              # Metal, Estampa). Masculinos comuns ficam na lista abaixo.
+              assign first_word = option.name | split: ' ' | first | downcase
+              assign artigo = 'a'
+              assign masculinos = 'tamanho,formato,comprimento,modelo,material,tipo,aroma,sabor,acabamento'
+              assign masc_arr = masculinos | split: ','
+              if masc_arr contains first_word
+                assign artigo = 'o'
+              endif
             -%}
 
             <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}">
               <div class="pdp__option-header">
-                <span class="pdp__option-label">{{ option.name }}</span>
+                <span class="pdp__option-label">Selecione {{ artigo }} {{ option.name }}</span>
                 <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
                   {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
                 </span>
@@ -1009,6 +1021,17 @@
         {% content_for 'block', type: '@app', id: 'pdp-app-before-cta' %}
       </div>
 
+      {%- comment -%}
+        "Compre Junto" — cross-sell genérico via tags `crosssell:<handle>`.
+        Aparece ANTES do CTA pra o cliente ver os complementos antes de
+        decidir comprar. Os items marcados vão junto no mesmo POST
+        /cart/add.js do submit do form (handler abaixo).
+        Kit tem seu próprio fluxo de itens inclusos (kit-picker).
+      {%- endcomment -%}
+      {%- unless is_kit -%}
+        {%- render 'pdp-bundle', product: product -%}
+      {%- endunless -%}
+
       <!-- CTAs -->
       <div class="pdp__ctas">
         <div id="pdp-add-btn-wrap" style="display:contents">
@@ -1071,15 +1094,6 @@
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
     {%- endform -%}
-
-    {%- comment -%}
-      "Compre Junto" — cross-sell genérico via tags `crosssell:<handle>`.
-      Renderiza apenas em PDPs normais (kit já tem seu próprio fluxo de
-      itens inclusos no kit-picker).
-    {%- endcomment -%}
-    {%- unless is_kit -%}
-      {%- render 'pdp-bundle', product: product -%}
-    {%- endunless -%}
   </div>
   <!-- /pdp__info -->
 </div>
@@ -1556,6 +1570,14 @@
         if (willAddPingente) {
           const pingenteItem = window.amePingente.getCartItem(coleiraQty, coleiraKey);
           if (pingenteItem) items.push(pingenteItem);
+        }
+
+        /* Cross-sells marcados no widget "Compre Junto" (snippet pdp-bundle).
+           O widget só renderiza linhas pra checkbox + variante; quem dispara
+           o add é este handler, agregando tudo no mesmo POST atômico. */
+        if (window.AmePdpBundle?.getSelectedItems) {
+          const bundleItems = window.AmePdpBundle.getSelectedItems();
+          if (bundleItems && bundleItems.length) items.push(...bundleItems);
         }
 
         /* XHR (não fetch) — apps de terceiro na loja (adsagent/Easify/Clarity)

@@ -2,24 +2,24 @@
   Widget "Compre Junto" da PDP.
 
   Lê tags `crosssell:<handle>` do produto atual, busca cada produto via
-  /products/<handle>.js (client-side), monta uma lista com checkboxes,
-  auto-match de variante com a do produto atual, e adiciona tudo com 1 clique.
+  /products/<handle>.js (client-side), monta uma lista com checkboxes
+  e auto-match de variante com a do produto atual.
 
-  Não renderiza se:
-    - produto tem `crosssell:none` ou `no-crosssell`
-    - nenhuma tag `crosssell:*` válida → nenhum cross-sell disponível em estoque
+  Diferente do bundle clássico: NÃO tem botão "Adicionar ao carrinho"
+  próprio nem o produto atual na lista. O cliente clica o CTA normal
+  do PDP e os cross-sells marcados vão junto no mesmo POST /cart/add.js
+  (interceptado pelo submit handler em sections/product.liquid).
 
-  Limite de 4 cross-sells (5 itens no total contando o produto atual).
+  Não renderiza se: produto tem `crosssell:none`/`no-crosssell`,
+  nenhuma tag `crosssell:*` válida, ou nenhum cross-sell em estoque.
+
+  Limite de 4 cross-sells.
 {%- endcomment -%}
 
 <div class="pdp-bundle" data-pdp-bundle hidden>
   <h3 class="pdp-bundle__title">Compre Junto</h3>
-  <p class="pdp-bundle__subtitle">Produtos selecionados para você</p>
+  <p class="pdp-bundle__subtitle">Adicione com 1 clique ao seu pedido</p>
   <ul class="pdp-bundle__list" data-pdp-bundle-list></ul>
-  <button type="button" class="ame-cta pdp-bundle__cta" data-pdp-bundle-add>
-    <span class="pdp-bundle__cta-label">Adicionar ao carrinho</span>
-    <span class="pdp-bundle__total" data-pdp-bundle-total></span>
-  </button>
 </div>
 
 <script type="application/json" data-pdp-bundle-config>
@@ -52,7 +52,7 @@
   .pdp-bundle__list {
     list-style: none;
     padding: 0;
-    margin: 0 0 0.75rem;
+    margin: 0;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -75,7 +75,6 @@
     cursor: pointer;
     accent-color: var(--color-primary, #5a4742);
   }
-  .pdp-bundle__check:disabled { cursor: not-allowed; }
   .pdp-bundle__img {
     width: 3rem;
     height: 3rem;
@@ -140,18 +139,6 @@
     opacity: 0.4;
     cursor: not-allowed;
     text-decoration: line-through;
-  }
-  .pdp-bundle__cta {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .pdp-bundle__cta[disabled] {
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .pdp-bundle__total {
-    font-weight: 700;
-    margin-left: auto;
   }
 </style>
 
