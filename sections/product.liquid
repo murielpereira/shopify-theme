@@ -1784,12 +1784,11 @@
     min-width: 0;
   }
 
-  /* Kit em qualquer breakpoint: sem galeria. Usa a largura toda da página
-     (mesma do PDP normal — `var(--page-width)`), apenas com a coluna de
-     galeria removida. O .pdp__info ocupa todo o espaço. */
-  .pdp--is-kit .pdp__gallery {
-    display: none;
-  }
+  /* Kit: galeria do produto-pai fica visível acima do showcase de
+     componentes. No desktop, ambos compartilham a coluna 1 do grid —
+     galeria em row 1 (não sticky), showcase em row 2 (sticky no top:10rem,
+     rola junto com o conteúdo até grudar). No mobile, ordem natural do
+     markup: galeria → título → showcase → info. */
 
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
      tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
