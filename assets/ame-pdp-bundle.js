@@ -48,16 +48,68 @@
     }
 
     let _items = []; // estado global pra getSelectedItems
+    let _cfDefs = []; // configs de custom fields globais (vem do data-pdp-bundle-config)
+
+    // Custom fields que aplicam a um cross-sell, baseado nas tags do produto.
+    function cfsForProduct(product) {
+        const tags = (product.tags || []).map(t => String(t).toLowerCase());
+        return _cfDefs.filter(cf => cf.tag && tags.includes(String(cf.tag).toLowerCase()));
+    }
 
     // API pública: o submit handler do PDP chama isto pra pegar os cross-sells
     // marcados e adicioná-los no mesmo POST /cart/add.js do produto principal.
+    // Retorna { id, quantity, properties? } — properties só quando o cross-sell
+    // tem CFs aplicáveis preenchidos.
     window.AmePdpBundle = {
         getSelectedItems() {
             return _items
                 .filter(it => it.checked)
-                .map(it => ({ id: it.selectedVariantId, quantity: 1 }));
+                .map(it => {
+                    const payload = { id: it.selectedVariantId, quantity: 1 };
+                    const props = readProperties(it);
+                    if (props) payload.properties = props;
+                    return payload;
+                });
+        },
+        // Valida CFs obrigatórios. Retorna { ok, msg } pra o submit handler
+        // poder interromper o add se faltar algo.
+        validate() {
+            for (const it of _items) {
+                if (!it.checked) continue;
+                const cfs = cfsForProduct(it.product);
+                for (const cf of cfs) {
+                    const v = readSingleCf(it, cf);
+                    if (cf.required && !v) {
+                        const label = cf.title || cf.name || 'campo obrigatório';
+                        // marca visualmente o input faltante
+                        const inp = document.querySelector(
+                            `[data-pdp-bundle-item][data-idx="${_items.indexOf(it)}"] [data-cf-name="${cf.name}"]`);
+                        if (inp) inp.classList.add('pdp-bundle__cf-input--invalid');
+                        return { ok: false, msg: `${it.product.title}: preencha "${label}"` };
+                    }
+                }
+            }
+            return { ok: true };
         },
     };
+
+    function readSingleCf(it, cf) {
+        const idx = _items.indexOf(it);
+        const sel = `[data-pdp-bundle-item][data-idx="${idx}"] [data-cf-name="${cf.name}"]`;
+        const inp = document.querySelector(sel);
+        if (!inp) return '';
+        return (inp.value || '').trim();
+    }
+    function readProperties(it) {
+        const cfs = cfsForProduct(it.product);
+        if (!cfs.length) return null;
+        const out = {};
+        for (const cf of cfs) {
+            const v = readSingleCf(it, cf);
+            if (v) out[cf.name] = v;
+        }
+        return Object.keys(out).length ? out : null;
+    }
 
     function init() {
         const root = document.querySelector('[data-pdp-bundle]');
@@ -66,6 +118,7 @@
         if (!cfgEl) return;
         let cfg;
         try { cfg = JSON.parse(cfgEl.textContent); } catch { return; }
+        _cfDefs = Array.isArray(cfg.customFields) ? cfg.customFields : [];
 
         const tags = (cfg.tags || []).map(t => String(t).toLowerCase());
         if (tags.includes('crosssell:none') || tags.includes('no-crosssell')) return;
@@ -139,8 +192,27 @@
         });
 
         function renderAll() {
+            // Snapshot dos CFs antes de re-render (re-criar HTML zeraria os inputs).
+            for (const it of _items) {
+                it._cfSnap = {};
+                const cfs = cfsForProduct(it.product);
+                for (const cf of cfs) {
+                    const v = readSingleCf(it, cf);
+                    if (v) it._cfSnap[cf.name] = v;
+                }
+            }
             list.innerHTML = _items.map((it, i) => renderItem(it, i)).join('');
             attachItemListeners();
+            // Restaura valores nos inputs novos.
+            for (let idx = 0; idx < _items.length; idx++) {
+                const snap = _items[idx]._cfSnap;
+                if (!snap) continue;
+                for (const name in snap) {
+                    const inp = list.querySelector(
+                        `[data-pdp-bundle-item][data-idx="${idx}"] [data-cf-name="${name}"]`);
+                    if (inp) inp.value = snap[name];
+                }
+            }
         }
 
         function renderItem(it, idx) {
@@ -158,26 +230,71 @@
                 imgUrl = typeof imgRaw === 'string' ? imgRaw : (imgRaw.url || imgRaw.src || '');
             }
             const showPicker = it.product.variants.length > 1 && !it.matched;
+            const cfs = cfsForProduct(it.product);
             return [
                 '<li class="pdp-bundle__item' + (it.checked ? '' : ' is-unchecked')
                   + '" data-pdp-bundle-item data-idx="' + idx + '">',
-                '  <input type="checkbox" class="pdp-bundle__check" '
-                  + (it.checked ? 'checked' : '')
-                  + ' data-pdp-bundle-check'
-                  + ' aria-label="Incluir ' + esc(it.product.title) + '">',
-                '  <img class="pdp-bundle__img" src="' + esc(imgUrl)
-                  + '" alt="" loading="lazy" width="48" height="48">',
-                '  <div class="pdp-bundle__info">',
-                '    <p class="pdp-bundle__name">' + esc(it.product.title) + '</p>',
-                showPicker
-                    ? renderVariantPicker(it, idx)
-                    : (v.title && v.title !== 'Default Title'
-                        ? '<p class="pdp-bundle__variant-label">' + esc(v.title) + '</p>'
-                        : ''),
+                '  <div class="pdp-bundle__row" style="display:flex;align-items:center;gap:.625rem;width:100%;">',
+                '    <input type="checkbox" class="pdp-bundle__check" '
+                    + (it.checked ? 'checked' : '')
+                    + ' data-pdp-bundle-check'
+                    + ' aria-label="Incluir ' + esc(it.product.title) + '">',
+                '    <img class="pdp-bundle__img" src="' + esc(imgUrl)
+                    + '" alt="" loading="lazy" width="48" height="48">',
+                '    <div class="pdp-bundle__info">',
+                '      <p class="pdp-bundle__name">' + esc(it.product.title) + '</p>',
+                       showPicker
+                          ? renderVariantPicker(it, idx)
+                          : (v.title && v.title !== 'Default Title'
+                              ? '<p class="pdp-bundle__variant-label">' + esc(v.title) + '</p>'
+                              : ''),
+                '    </div>',
+                '    <p class="pdp-bundle__price">' + fmtBRL(v.price) + '</p>',
                 '  </div>',
-                '  <p class="pdp-bundle__price">' + fmtBRL(v.price) + '</p>',
+                   cfs.map(cf => renderCf(it, idx, cf)).join(''),
                 '</li>',
             ].join('');
+        }
+
+        function renderCf(it, idx, cf) {
+            const inputId = 'pdp-bundle-cf-' + idx + '-' + (cf.name || '').replace(/\W+/g, '-');
+            const labelHtml = '<label class="pdp-bundle__cf-label'
+                + (cf.required ? ' pdp-bundle__cf-label--required' : '')
+                + '" for="' + esc(inputId) + '">' + esc(cf.title || cf.name) + '</label>';
+            const helperHtml = cf.helper
+                ? '<p class="pdp-bundle__cf-helper">' + esc(cf.helper) + '</p>'
+                : '';
+
+            let inputHtml = '';
+            if (cf.type === 'select') {
+                const opts = String(cf.options || '').split(/[\n,]+/)
+                    .map(s => s.trim()).filter(Boolean);
+                inputHtml = '<select class="pdp-bundle__cf-select" id="' + esc(inputId) + '"'
+                    + ' data-cf-name="' + esc(cf.name) + '"'
+                    + (cf.required ? ' data-cf-required="true"' : '') + '>'
+                    + '<option value="">' + esc(cf.placeholder || 'Selecione...') + '</option>'
+                    + opts.map(o => '<option value="' + esc(o) + '">' + esc(o) + '</option>').join('')
+                    + '</select>';
+            } else if (cf.type === 'long_text') {
+                inputHtml = '<textarea class="pdp-bundle__cf-input" id="' + esc(inputId) + '"'
+                    + ' data-cf-name="' + esc(cf.name) + '"'
+                    + ' placeholder="' + esc(cf.placeholder || cf.title) + '"'
+                    + (cf.limiter ? ' maxlength="' + cf.limiter + '"' : '')
+                    + (cf.required ? ' data-cf-required="true"' : '')
+                    + ' rows="2"></textarea>';
+            } else {
+                // text, date, phone — todos viram <input> com type apropriado
+                const inputType = cf.type === 'date' ? 'date'
+                    : cf.type === 'phone' ? 'tel' : 'text';
+                inputHtml = '<input class="pdp-bundle__cf-input" id="' + esc(inputId) + '"'
+                    + ' type="' + inputType + '"'
+                    + ' data-cf-name="' + esc(cf.name) + '"'
+                    + ' placeholder="' + esc(cf.placeholder || cf.title) + '"'
+                    + (cf.limiter ? ' maxlength="' + cf.limiter + '"' : '')
+                    + (cf.required ? ' data-cf-required="true"' : '')
+                    + '>';
+            }
+            return '<div class="pdp-bundle__cf">' + labelHtml + inputHtml + helperHtml + '</div>';
         }
 
         function renderVariantPicker(it, idx) {
@@ -208,6 +325,10 @@
                     _items[idx].checked = e.target.checked;
                     li.classList.toggle('is-unchecked', !e.target.checked);
                 });
+            });
+            list.querySelectorAll('[data-cf-name]').forEach(inp => {
+                inp.addEventListener('input', () => inp.classList.remove('pdp-bundle__cf-input--invalid'));
+                inp.addEventListener('change', () => inp.classList.remove('pdp-bundle__cf-input--invalid'));
             });
             list.querySelectorAll('[data-variant-id]').forEach(btn => {
                 btn.addEventListener('click', () => {

@@ -9,6 +9,41 @@
   endif
   assign media_size = product.media.size
 
+  # Variante "parcial" — usada pra mostrar o preço correto quando o cliente
+  # já escolheu APENAS algumas opções (ex: clicou só no Tamanho). Sem isso,
+  # base_price caía pra product.price_min e o cliente só via o preço real
+  # após selecionar TODAS as opções, mesmo que o tamanho já definisse o preço.
+  # Procura a primeira variante disponível que case com todas as opções já
+  # selecionadas (opções vazias funcionam como wildcard).
+  assign partial_variant = nil
+  if has_variant == false
+    assign any_selected = false
+    for opt in product.options_with_values
+      if opt.selected_value != blank
+        assign any_selected = true
+      endif
+    endfor
+    if any_selected
+      for variant in product.variants
+        if variant.available and partial_variant == nil
+          assign all_match = true
+          for opt in product.options_with_values
+            if opt.selected_value != blank
+              assign opt_idx = forloop.index0
+              assign var_opt_val = variant.options[opt_idx]
+              if var_opt_val != opt.selected_value
+                assign all_match = false
+              endif
+            endif
+          endfor
+          if all_match
+            assign partial_variant = variant
+          endif
+        endif
+      endfor
+    endif
+  endif
+
   # Kit de produtos — produto-pai com metafield `custom.kit_componentes`
   # (Product reference, list). Quando presente, substitui o variant picker
   # padrão pelo snippet kit-picker e o submit padrão pelo handler atomico
@@ -403,13 +438,23 @@
 
     <!-- ── Bloco de preços ── -->
     {%- liquid
-      # Sem variante selecionada: usa price_min do produto
+      # Sem variante completa: usa preço da variante PARCIAL (1ª disponível
+      # que casa com opções já escolhidas — geralmente Tamanho). Fallback
+      # final: product.price_min. Assim o preço atualiza ao clicar no
+      # Tamanho, sem esperar Cor + Cor do Metal.
       assign base_price = cv.price
       if has_variant == false
-        assign base_price = product.price_min
+        if partial_variant != nil
+          assign base_price = partial_variant.price
+        else
+          assign base_price = product.price_min
+        endif
       endif
 
       assign cv_compare = cv.compare_at_price | default: 0
+      if cv_compare == 0 and partial_variant != nil
+        assign cv_compare = partial_variant.compare_at_price | default: 0
+      endif
       if cv_compare == 0
         assign cv_compare = product.compare_at_price_max | default: 0
       endif
@@ -1527,6 +1572,17 @@
         const pv = window.amePingente.validate();
         if (!pv.ok) {
           (window.AmePdpToast || ((m) => alert(m)))(pv.msg);
+          return;
+        }
+      }
+
+      /* Validate cross-sells marcados no widget Compre Junto — bloqueia se
+         algum cross-sell selecionado tiver custom field obrigatório (ex:
+         "Comprimento da guia") em branco. */
+      if (window.AmePdpBundle?.validate) {
+        const bv = window.AmePdpBundle.validate();
+        if (!bv.ok) {
+          (window.AmePdpToast || ((m) => alert(m)))(bv.msg);
           return;
         }
       }
