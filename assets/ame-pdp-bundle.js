@@ -146,8 +146,17 @@
         function renderItem(it, idx) {
             const v = it.product.variants.find(x => x.id === it.selectedVariantId)
                    || it.product.variants[0];
-            const imgRaw = it.product.featured_image || it.product.images?.[0] || '';
-            const imgUrl = typeof imgRaw === 'string' ? imgRaw : (imgRaw.url || '');
+            // Prioriza foto da VARIANTE (cada variant pode ter featured_image
+            // própria no Shopify). Sem isso, o cross-sell mostrava sempre a
+            // foto padrão do produto, mesmo após o cliente trocar de cor.
+            // Fallback: featured_image do produto → primeira imagem.
+            let imgUrl = '';
+            const vImg = v && v.featured_image;
+            if (vImg) imgUrl = typeof vImg === 'string' ? vImg : (vImg.src || vImg.url || '');
+            if (!imgUrl) {
+                const imgRaw = it.product.featured_image || it.product.images?.[0] || '';
+                imgUrl = typeof imgRaw === 'string' ? imgRaw : (imgRaw.url || imgRaw.src || '');
+            }
             const showPicker = it.product.variants.length > 1 && !it.matched;
             return [
                 '<li class="pdp-bundle__item' + (it.checked ? '' : ' is-unchecked')
