@@ -408,10 +408,10 @@
       {% content_for 'block', type: '@app', id: 'pdp-app-before-title' %}
     </div>
 
-    <!-- Título (no kit, renderizado FORA do .pdp__info pra que mobile mostre antes do showcase) -->
-    {%- unless is_kit -%}
-      <h1 class="pdp__title">{{ display_title }}</h1>
-    {%- endunless -%}
+    <!-- Título dentro do .pdp__info — em PDP normal aparece sempre. No kit,
+         aparece SÓ no desktop (CSS); no mobile o kit usa o `pdp__title--kit-outside`
+         (renderizado antes da galeria) pra ordem título → galeria → showcase. -->
+    <h1 class="pdp__title">{{ display_title }}</h1>
 
     {%- comment -%} Slot pra apps: depois do título {%- endcomment -%}
     <div class="pdp__app-slot pdp__app-slot--after-title">
@@ -1877,6 +1877,13 @@
     min-width: 0;
   }
 
+  /* Kit: dois títulos no DOM (um antes da galeria, outro dentro do .pdp__info).
+     Mobile mostra o kit-outside (pra a ordem título → galeria → showcase fluir
+     no grid 1-col) e esconde o que está dentro do info. Desktop faz o inverso —
+     título dentro do info pra ele ficar colado em cima do conteúdo da col 2,
+     sem o buraco que aparecia quando o título ocupava row 1 alta da galeria. */
+  .pdp--is-kit .pdp__info > .pdp__title { display: none; }
+
   /* Kit: galeria do produto-pai fica visível acima do showcase de
      componentes. No desktop, ambos compartilham a coluna 1 do grid —
      galeria em row 1 (não sticky), showcase em row 2 (sticky no top:10rem,
@@ -1929,16 +1936,13 @@
       height: fit-content;
     }
 
-    /* PDP do kit (desktop): grid 2-col com galeria acima do showcase na
-       col 1, e título acima da info na col 2. grid-row explícito é
-       necessário porque o markup começa com o título (col 2) — sem fixar
-       as rows, o auto-placement do grid não consegue voltar pra row 1
-       após posicionar o título. */
-    .pdp--is-kit .pdp__title--kit-outside {
-      grid-column: 2;
-      grid-row: 1;
-      margin: 0 0 0.5rem 0;
-    }
+    /* PDP do kit (desktop): título kit-outside é só pra mobile — no desktop
+       o título visível é o `.pdp__title` que vive dentro do .pdp__info, então
+       ele fica colado em cima do preço/CTA sem o gap da galeria. O kit-outside
+       sai do grid pra não ocupar célula. */
+    .pdp--is-kit .pdp__title--kit-outside { display: none; }
+    .pdp--is-kit .pdp__info > .pdp__title { display: block; }
+
     .pdp--is-kit .pdp__gallery {
       grid-column: 1;
       grid-row: 1;
@@ -1950,7 +1954,8 @@
     }
     .pdp--is-kit .pdp__info {
       grid-column: 2;
-      grid-row: 2;
+      grid-row: 1 / span 2; /* ocupa as duas rows da col 2, alinhado ao topo */
+      align-self: start;
     }
 
     /* PDP do kit: galeria do produto-pai não fica sticky — o cliente

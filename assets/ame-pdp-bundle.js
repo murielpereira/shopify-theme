@@ -51,9 +51,17 @@
     let _cfDefs = []; // configs de custom fields globais (vem do data-pdp-bundle-config)
 
     // Custom fields que aplicam a um cross-sell, baseado nas tags do produto.
+    // Filtramos pra mostrar SÓ tipo 'radio' — escolhas discretas (ex:
+    // "Comprimento da guia"). Campos de texto livre (long_text, text) ficam
+    // de fora pra não sobrecarregar o widget com perguntas opcionais que
+    // o cliente já preenche na PDP do produto principal.
     function cfsForProduct(product) {
         const tags = (product.tags || []).map(t => String(t).toLowerCase());
-        return _cfDefs.filter(cf => cf.tag && tags.includes(String(cf.tag).toLowerCase()));
+        return _cfDefs.filter(cf =>
+            cf.tag
+            && cf.type === 'radio'
+            && tags.includes(String(cf.tag).toLowerCase())
+        );
     }
 
     // API pública: o submit handler do PDP chama isto pra pegar os cross-sells
@@ -81,11 +89,11 @@
                     const v = readSingleCf(it, cf);
                     if (cf.required && !v) {
                         const label = cf.title || cf.name || 'campo obrigatório';
-                        // marca visualmente o input faltante
-                        const inp = document.querySelector(
-                            `[data-pdp-bundle-item][data-idx="${_items.indexOf(it)}"] [data-cf-name="${cf.name}"]`);
-                        if (inp) inp.classList.add('pdp-bundle__cf-input--invalid');
-                        return { ok: false, msg: `${it.product.title}: preencha "${label}"` };
+                        // marca visualmente o wrapper das pílulas faltantes
+                        const wrap = document.querySelector(
+                            `[data-pdp-bundle-item][data-idx="${_items.indexOf(it)}"] [data-cf-wrap]`);
+                        if (wrap) wrap.classList.add('pdp-bundle__cf--invalid');
+                        return { ok: false, msg: `${it.product.title}: selecione ${label}` };
                     }
                 }
             }
@@ -203,14 +211,18 @@
             }
             list.innerHTML = _items.map((it, i) => renderItem(it, i)).join('');
             attachItemListeners();
-            // Restaura valores nos inputs novos.
+            // Restaura valores nos inputs novos + marca pílula correspondente.
             for (let idx = 0; idx < _items.length; idx++) {
                 const snap = _items[idx]._cfSnap;
                 if (!snap) continue;
                 for (const name in snap) {
                     const inp = list.querySelector(
                         `[data-pdp-bundle-item][data-idx="${idx}"] [data-cf-name="${name}"]`);
-                    if (inp) inp.value = snap[name];
+                    if (!inp) continue;
+                    inp.value = snap[name];
+                    const wrap = inp.closest('[data-cf-wrap]');
+                    const pill = wrap?.querySelector(`[data-cf-pill-val="${CSS.escape(snap[name])}"]`);
+                    if (pill) pill.setAttribute('aria-pressed', 'true');
                 }
             }
         }
@@ -257,44 +269,28 @@
         }
 
         function renderCf(it, idx, cf) {
-            const inputId = 'pdp-bundle-cf-' + idx + '-' + (cf.name || '').replace(/\W+/g, '-');
-            const labelHtml = '<label class="pdp-bundle__cf-label'
+            // Só tipo 'radio' chega aqui (filtrado em cfsForProduct).
+            // Renderiza como pílulas + hidden input pra value (compatível
+            // com readSingleCf que lê via [data-cf-name]).
+            const opts = String(cf.options || '').split(',')
+                .map(s => s.trim()).filter(Boolean);
+            const labelHtml = '<div class="pdp-bundle__cf-label'
                 + (cf.required ? ' pdp-bundle__cf-label--required' : '')
-                + '" for="' + esc(inputId) + '">' + esc(cf.title || cf.name) + '</label>';
+                + '">' + esc(cf.title || cf.name) + '</div>';
+            const pills = opts.map(opt =>
+                '<button type="button" class="pdp-bundle__cf-pill"'
+                + ' data-cf-pill data-cf-pill-val="' + esc(opt) + '"'
+                + ' aria-pressed="false">' + esc(opt) + '</button>'
+            ).join('');
+            const hidden = '<input type="hidden" data-cf-name="' + esc(cf.name) + '"'
+                + (cf.required ? ' data-cf-required="true"' : '') + '>';
             const helperHtml = cf.helper
                 ? '<p class="pdp-bundle__cf-helper">' + esc(cf.helper) + '</p>'
                 : '';
-
-            let inputHtml = '';
-            if (cf.type === 'select') {
-                const opts = String(cf.options || '').split(/[\n,]+/)
-                    .map(s => s.trim()).filter(Boolean);
-                inputHtml = '<select class="pdp-bundle__cf-select" id="' + esc(inputId) + '"'
-                    + ' data-cf-name="' + esc(cf.name) + '"'
-                    + (cf.required ? ' data-cf-required="true"' : '') + '>'
-                    + '<option value="">' + esc(cf.placeholder || 'Selecione...') + '</option>'
-                    + opts.map(o => '<option value="' + esc(o) + '">' + esc(o) + '</option>').join('')
-                    + '</select>';
-            } else if (cf.type === 'long_text') {
-                inputHtml = '<textarea class="pdp-bundle__cf-input" id="' + esc(inputId) + '"'
-                    + ' data-cf-name="' + esc(cf.name) + '"'
-                    + ' placeholder="' + esc(cf.placeholder || cf.title) + '"'
-                    + (cf.limiter ? ' maxlength="' + cf.limiter + '"' : '')
-                    + (cf.required ? ' data-cf-required="true"' : '')
-                    + ' rows="2"></textarea>';
-            } else {
-                // text, date, phone — todos viram <input> com type apropriado
-                const inputType = cf.type === 'date' ? 'date'
-                    : cf.type === 'phone' ? 'tel' : 'text';
-                inputHtml = '<input class="pdp-bundle__cf-input" id="' + esc(inputId) + '"'
-                    + ' type="' + inputType + '"'
-                    + ' data-cf-name="' + esc(cf.name) + '"'
-                    + ' placeholder="' + esc(cf.placeholder || cf.title) + '"'
-                    + (cf.limiter ? ' maxlength="' + cf.limiter + '"' : '')
-                    + (cf.required ? ' data-cf-required="true"' : '')
-                    + '>';
-            }
-            return '<div class="pdp-bundle__cf">' + labelHtml + inputHtml + helperHtml + '</div>';
+            return '<div class="pdp-bundle__cf" data-cf-wrap>'
+                + labelHtml
+                + '<div class="pdp-bundle__cf-pills">' + pills + '</div>'
+                + hidden + helperHtml + '</div>';
         }
 
         function renderVariantPicker(it, idx) {
@@ -326,9 +322,20 @@
                     li.classList.toggle('is-unchecked', !e.target.checked);
                 });
             });
-            list.querySelectorAll('[data-cf-name]').forEach(inp => {
-                inp.addEventListener('input', () => inp.classList.remove('pdp-bundle__cf-input--invalid'));
-                inp.addEventListener('change', () => inp.classList.remove('pdp-bundle__cf-input--invalid'));
+            // Pílulas dos CFs (tipo radio): clique seleciona, atualiza
+            // hidden input do CF e marca aria-pressed.
+            list.querySelectorAll('[data-cf-pill]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wrap = btn.closest('[data-cf-wrap]');
+                    if (!wrap) return;
+                    wrap.querySelectorAll('[data-cf-pill]').forEach(b => b.setAttribute('aria-pressed', 'false'));
+                    btn.setAttribute('aria-pressed', 'true');
+                    const hidden = wrap.querySelector('[data-cf-name]');
+                    if (hidden) {
+                        hidden.value = btn.dataset.cfPillVal || '';
+                        wrap.classList.remove('pdp-bundle__cf--invalid');
+                    }
+                });
             });
             list.querySelectorAll('[data-variant-id]').forEach(btn => {
                 btn.addEventListener('click', () => {

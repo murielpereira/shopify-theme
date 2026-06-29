@@ -220,6 +220,35 @@
     color: var(--text-muted, #6b6259);
     margin: 0;
   }
+  .pdp-bundle__cf-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .pdp-bundle__cf-pill {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    background: transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--color-on-background, #201b14);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .pdp-bundle__cf-pill:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
+  .pdp-bundle__cf-pill[aria-pressed="true"] {
+    background: var(--color-primary, #5a4742);
+    color: #fff;
+    border-color: var(--color-primary, #5a4742);
+  }
+  .pdp-bundle__cf--invalid .pdp-bundle__cf-label {
+    color: #b3261e;
+  }
+  .pdp-bundle__cf--invalid .pdp-bundle__cf-pill {
+    border-color: #b3261e;
+  }
 </style>
 
 <script src="{{ 'ame-pdp-bundle.js' | asset_url }}" defer></script>
