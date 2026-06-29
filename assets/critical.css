@@ -2545,6 +2545,7 @@ shopify-account {
   position: fixed;
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 99;
   background: rgba(255, 248, 243, 0.97);
   backdrop-filter: blur(28px);
@@ -2557,7 +2558,12 @@ shopify-account {
   opacity: 0;
   pointer-events: none;
   transition: transform 0.4s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), opacity 0.3s ease;
-  /* top definido pelo JS */
+  /* top definido pelo JS — ancorando bottom: 0 também, garantimos que
+     o drawer ocupa todo espaço entre header e viewport, e o conteúdo
+     interno scrolla quando submenus expandidos transbordam. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ame-mobile-nav.is-open {

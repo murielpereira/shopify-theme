@@ -116,6 +116,15 @@
 </nav>
 
 <div class="pdp full-width{% if is_kit %} pdp--is-kit{% endif %}">
+  {%- comment -%}
+    Kit: título antes da galeria pra ordem mobile (title → gallery → showcase
+    → info). No desktop, `grid-row` explícito do CSS recoloca cada item:
+    row 1: gallery (col 1) | title (col 2); row 2: showcase (col 1) | info (col 2).
+  {%- endcomment -%}
+  {%- if is_kit -%}
+    <h1 class="pdp__title pdp__title--kit-outside">{{ display_title }}</h1>
+  {%- endif -%}
+
   <!-- ── Coluna esquerda: galeria ── -->
   <div class="pdp__gallery">
     {%- assign selection_pos = section.settings.selection_info_position | default: 'below' -%}
@@ -312,15 +321,7 @@
     {%- endif -%}
   </div>
 
-  {%- comment -%}
-    Kit: no mobile, título precisa aparecer ANTES do showcase (UX),
-    mas no desktop continua na coluna direita junto com o preço. Por isso
-    sai do `.pdp__info` e vira child direto do grid `.pdp` — `grid-column: 2`
-    no desktop o realinha. No mobile (grid 1-col), a ordem natural do markup
-    coloca título → showcase → resto-do-info.
-  {%- endcomment -%}
   {%- if is_kit -%}
-    <h1 class="pdp__title pdp__title--kit-outside">{{ display_title }}</h1>
     <div class="pdp-kit__showcase" data-kit-showcase></div>
   {%- endif -%}
 
@@ -1788,7 +1789,15 @@
      componentes. No desktop, ambos compartilham a coluna 1 do grid —
      galeria em row 1 (não sticky), showcase em row 2 (sticky no top:10rem,
      rola junto com o conteúdo até grudar). No mobile, ordem natural do
-     markup: galeria → título → showcase → info. */
+     markup: título → galeria → showcase → info; o showcase fica sticky
+     também (top:5rem cobre o header mobile + announcement bar). */
+  .pdp--is-kit .pdp-kit__showcase {
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    height: fit-content;
+    z-index: 1;
+  }
 
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
      tem muitas imagens (slider horizontal com 100+ thumbnails). Sem isso, o
@@ -1817,27 +1826,28 @@
       height: fit-content;
     }
 
-    /* PDP do kit (desktop): mantém o grid 2-col do PDP normal, mas a coluna
-       esquerda passa a ser o showcase dos componentes (Peitoral + Guia)
-       em vez da galeria do produto-pai. Fica sticky igual a galeria. */
+    /* PDP do kit (desktop): grid 2-col com galeria acima do showcase na
+       col 1, e título acima da info na col 2. grid-row explícito é
+       necessário porque o markup começa com o título (col 2) — sem fixar
+       as rows, o auto-placement do grid não consegue voltar pra row 1
+       após posicionar o título. */
+    .pdp--is-kit .pdp__title--kit-outside {
+      grid-column: 2;
+      grid-row: 1;
+      margin: 0 0 0.5rem 0;
+    }
+    .pdp--is-kit .pdp__gallery {
+      grid-column: 1;
+      grid-row: 1;
+    }
     .pdp--is-kit .pdp-kit__showcase {
       grid-column: 1;
-      position: sticky;
-      top: 10rem;
-      align-self: start;
-      height: fit-content;
+      grid-row: 2;
+      top: 10rem; /* sobrescreve o top mobile (5rem) — header desktop é maior */
     }
     .pdp--is-kit .pdp__info {
       grid-column: 2;
-    }
-
-    /* No desktop, título do kit (renderizado fora do .pdp__info por
-       conta da ordem mobile) volta pra coluna direita. Auto-placement
-       coloca ele em (col 2, row 1) — showcase fica em (col 1, row 1)
-       e .pdp__info cai em (col 2, row 2). */
-    .pdp--is-kit .pdp__title--kit-outside {
-      grid-column: 2;
-      margin: 0 0 0.5rem 0;
+      grid-row: 2;
     }
 
     /* PDP do kit: galeria do produto-pai não fica sticky — o cliente
