@@ -203,9 +203,10 @@
               </div>
             </div>
             {%- comment -%}
-              Slot pro card de cross-sell. JS preenche se houver guia sugerida
-              pra este item (coleira/peitoral). Fica logo abaixo do produto
-              pra deixar claro a qual produto a sugestão pertence.
+              Slot pro card de cross-sell no drawer. JS preenche se houver
+              sugestão pra este item via heurística (coleira/peitoral → guia)
+              ou fallback Atena. Produtos com tag `crosssell:<handle>` agora
+              mostram o widget "Compre Junto" na PDP (não no drawer).
             {%- endcomment -%}
             <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="{{ item.key }}"></div>
           </li>

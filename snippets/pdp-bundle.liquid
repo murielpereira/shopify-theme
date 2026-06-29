@@ -1,0 +1,158 @@
+{%- comment -%}
+  Widget "Compre Junto" da PDP.
+
+  Lê tags `crosssell:<handle>` do produto atual, busca cada produto via
+  /products/<handle>.js (client-side), monta uma lista com checkboxes,
+  auto-match de variante com a do produto atual, e adiciona tudo com 1 clique.
+
+  Não renderiza se:
+    - produto tem `crosssell:none` ou `no-crosssell`
+    - nenhuma tag `crosssell:*` válida → nenhum cross-sell disponível em estoque
+
+  Limite de 4 cross-sells (5 itens no total contando o produto atual).
+{%- endcomment -%}
+
+<div class="pdp-bundle" data-pdp-bundle hidden>
+  <h3 class="pdp-bundle__title">Compre Junto</h3>
+  <p class="pdp-bundle__subtitle">Produtos selecionados para você</p>
+  <ul class="pdp-bundle__list" data-pdp-bundle-list></ul>
+  <button type="button" class="ame-cta pdp-bundle__cta" data-pdp-bundle-add>
+    <span class="pdp-bundle__cta-label">Adicionar ao carrinho</span>
+    <span class="pdp-bundle__total" data-pdp-bundle-total></span>
+  </button>
+</div>
+
+<script type="application/json" data-pdp-bundle-config>
+  {
+    "currentHandle": {{ product.handle | json }},
+    "tags": {{ product.tags | json }}
+  }
+</script>
+
+<style>
+  .pdp-bundle {
+    padding: 1rem 1.25rem;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    border-radius: 12px;
+    margin: 1rem 0;
+  }
+  .pdp-bundle[hidden] { display: none; }
+  .pdp-bundle__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    color: var(--color-on-background, #201b14);
+  }
+  .pdp-bundle__subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-muted, #6b6259);
+    margin: 0 0 0.75rem;
+  }
+  .pdp-bundle__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .pdp-bundle__item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    border-radius: 10px;
+    background: var(--color-surface, #fff);
+    transition: opacity 0.15s;
+  }
+  .pdp-bundle__item.is-unchecked { opacity: 0.5; }
+  .pdp-bundle__check {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: var(--color-primary, #5a4742);
+  }
+  .pdp-bundle__check:disabled { cursor: not-allowed; }
+  .pdp-bundle__img {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--color-surface-container, #f8ece0);
+  }
+  .pdp-bundle__info {
+    flex: 1;
+    min-width: 0;
+  }
+  .pdp-bundle__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.3;
+    color: var(--color-on-background, #201b14);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .pdp-bundle__variant-label {
+    font-size: 0.6875rem;
+    color: var(--text-muted, #6b6259);
+    margin: 0.125rem 0 0;
+  }
+  .pdp-bundle__price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    color: var(--color-on-background, #201b14);
+  }
+  .pdp-bundle__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.375rem;
+  }
+  .pdp-bundle__variant-btn {
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.5rem;
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    background: transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--color-on-background, #201b14);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .pdp-bundle__variant-btn:hover {
+    background: var(--color-surface-container, #f8ece0);
+  }
+  .pdp-bundle__variant-btn[aria-pressed="true"] {
+    background: var(--color-primary, #5a4742);
+    color: #fff;
+    border-color: var(--color-primary, #5a4742);
+  }
+  .pdp-bundle__variant-btn[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+  .pdp-bundle__cta {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pdp-bundle__cta[disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .pdp-bundle__total {
+    font-weight: 700;
+    margin-left: auto;
+  }
+</style>
+
+<script src="{{ 'ame-pdp-bundle.js' | asset_url }}" defer></script>

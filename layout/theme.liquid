@@ -583,24 +583,21 @@
           //    nome não tem "gato" mas que mesmo assim não combina com guia).
           if (tags.includes('crosssell:none') || tags.includes('no-crosssell')) return null;
 
-          // 1. Tags `crosssell:<handle>` do próprio produto
-          const csHandles = tags
-            .filter(t => t.startsWith('crosssell:') && t !== 'crosssell:none')
-            .map(t => t.slice('crosssell:'.length).trim())
-            .filter(Boolean);
-          for (const h of csHandles) {
-            const p = await fetchProduct(h);
-            if (p && p.available) return p;
-          }
+          // c) Produtos com qualquer tag `crosssell:<handle>` mostram o
+          //    widget "Compre Junto" na PDP — não duplicamos no drawer.
+          //    O drawer continua sendo o canal pros produtos SEM tag
+          //    `crosssell:` (heurística coleira/peitoral → guia e fallback).
+          const hasCsTag = tags.some(t => t.startsWith('crosssell:') && t !== 'crosssell:none');
+          if (hasCsTag) return null;
 
-          // 2. Convenção de handle (coleira-X / peitoral-X → guia-X)
+          // 1. Convenção de handle (coleira-X / peitoral-X → guia-X)
           const ownGuiaHandle = getCrossSellHandle(item.handle);
           if (ownGuiaHandle) {
             const own = await fetchProduct(ownGuiaHandle);
             if (own && own.available) return own;
           }
 
-          // 3. Fallback Atena pra coleiras/peitorais sem guia própria
+          // 2. Fallback Atena pra coleiras/peitorais sem guia própria
           if (ownGuiaHandle) {
             const fallback = await fetchProduct(CROSSSELL_FALLBACK_HANDLE);
             if (fallback && fallback.available) return fallback;

@@ -1071,6 +1071,15 @@
         {% content_for 'block', type: '@app', id: 'pdp-app-after-cta' %}
       </div>
     {%- endform -%}
+
+    {%- comment -%}
+      "Compre Junto" — cross-sell genérico via tags `crosssell:<handle>`.
+      Renderiza apenas em PDPs normais (kit já tem seu próprio fluxo de
+      itens inclusos no kit-picker).
+    {%- endcomment -%}
+    {%- unless is_kit -%}
+      {%- render 'pdp-bundle', product: product -%}
+    {%- endunless -%}
   </div>
   <!-- /pdp__info -->
 </div>
@@ -1624,6 +1633,11 @@
     // O wrapper sticky inclui imagem + barra "Você selecionou: ..." — vira fixed juntos
     const wrap = document.querySelector('.pdp__sticky-wrap');
     if (!wrap) return;
+    // Em PDPs de kit o sticky-pin da galeria é desativado: quem fica sticky
+    // ali é o .pdp-kit__showcase. Sem este early-return, o spacer criado por
+    // este IIFE deixava um buraco enorme entre a galeria e as thumbs durante
+    // o scroll.
+    if (document.querySelector('.pdp--is-kit')) return;
 
     // O CTA é re-buscado a cada update porque a Section Rendering API substitui o
     // nó do botão (#pdp-add-btn-wrap) ao trocar variante — referência cacheada vira órfã.
@@ -1797,6 +1811,17 @@
     align-self: start;
     height: fit-content;
     z-index: 1;
+    /* Background opaco pra não "vazar" conteúdo abaixo aparecendo
+       entre os gaps dos cards durante o scroll. */
+    background: var(--color-background, #fff8f0);
+    padding: 0.5rem;
+    border-radius: 12px;
+    /* Quando o CTA "Adicionar ao Carrinho" se aproxima do viewport
+       (controlado por JS), desativa o sticky pra não cobrir o botão. */
+    transition: none;
+  }
+  .pdp--is-kit .pdp-kit__showcase.is-unstuck {
+    position: static;
   }
 
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando

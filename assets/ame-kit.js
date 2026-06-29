@@ -162,6 +162,32 @@
         const ctaBtn             = document.getElementById('pdp-add-btn');
         const cashbackEl         = document.querySelector('#pdp-cashback-wrap [data-cashback]');
 
+        // Desativa o sticky do .pdp-kit__showcase quando o CTA "Adicionar"
+        // aparece na viewport, evitando que o showcase cubra o botão de compra.
+        // O CTA é substituído pela Section Rendering API ao mudar variante, por
+        // isso re-observamos no evento pdp:variant-changed.
+        if (showcaseWrap && 'IntersectionObserver' in window) {
+            let obs = null;
+            const startObserving = () => {
+                if (obs) obs.disconnect();
+                const cta = document.getElementById('pdp-add-btn');
+                if (!cta) return;
+                obs = new IntersectionObserver((entries) => {
+                    for (const e of entries) {
+                        showcaseWrap.classList.toggle('is-unstuck', e.isIntersecting);
+                    }
+                }, {
+                    // CTA é considerado "perto" quando ainda falta 20% da
+                    // viewport pra ele aparecer — assim o sticky solta antes
+                    // de chegar a cobrir o botão.
+                    rootMargin: '0px 0px 20% 0px',
+                });
+                obs.observe(cta);
+            };
+            startObserving();
+            document.addEventListener('pdp:variant-changed', startObserving);
+        }
+
         // Config de parcelamento (lida do kit-picker.liquid via data-attrs)
         const instMax       = parseInt(host.dataset.installmentsMax || '12', 10);
         const instNoInt     = Math.min(parseInt(host.dataset.installmentsNoInterest || '6', 10), instMax);
