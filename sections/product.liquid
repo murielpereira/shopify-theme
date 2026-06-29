@@ -13,29 +13,42 @@
   # já escolheu APENAS algumas opções (ex: clicou só no Tamanho). Sem isso,
   # base_price caía pra product.price_min e o cliente só via o preço real
   # após selecionar TODAS as opções, mesmo que o tamanho já definisse o preço.
-  # Procura a primeira variante disponível que case com todas as opções já
-  # selecionadas (opções vazias funcionam como wildcard).
+  #
+  # Usa variant.option1/2/3 diretamente em vez de variant.options[idx] —
+  # indexação de array com variável Liquid é pouco confiável no Shopify e
+  # estava retornando blank na prática, fazendo o match sempre falhar.
+  assign sel1 = blank
+  assign sel2 = blank
+  assign sel3 = blank
+  for opt in product.options_with_values
+    if forloop.index == 1
+      assign sel1 = opt.selected_value
+    elsif forloop.index == 2
+      assign sel2 = opt.selected_value
+    elsif forloop.index == 3
+      assign sel3 = opt.selected_value
+    endif
+  endfor
+
   assign partial_variant = nil
   if has_variant == false
     assign any_selected = false
-    for opt in product.options_with_values
-      if opt.selected_value != blank
-        assign any_selected = true
-      endif
-    endfor
+    if sel1 != blank or sel2 != blank or sel3 != blank
+      assign any_selected = true
+    endif
     if any_selected
       for variant in product.variants
         if variant.available and partial_variant == nil
           assign all_match = true
-          for opt in product.options_with_values
-            if opt.selected_value != blank
-              assign opt_idx = forloop.index0
-              assign var_opt_val = variant.options[opt_idx]
-              if var_opt_val != opt.selected_value
-                assign all_match = false
-              endif
-            endif
-          endfor
+          if sel1 != blank and variant.option1 != sel1
+            assign all_match = false
+          endif
+          if sel2 != blank and variant.option2 != sel2
+            assign all_match = false
+          endif
+          if sel3 != blank and variant.option3 != sel3
+            assign all_match = false
+          endif
           if all_match
             assign partial_variant = variant
           endif
