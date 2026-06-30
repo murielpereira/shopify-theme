@@ -670,7 +670,7 @@
               endif
             -%}
 
-            <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}">
+            <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}" data-option-name="{{ option.name | escape }}">
               <div class="pdp__option-header">
                 <span class="pdp__option-label">Selecione {{ artigo }} {{ option.name }}</span>
                 <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
@@ -1422,7 +1422,11 @@
         }
       });
       if (missing.length === 0) return { ok: true };
-      const labels = missing.map(w => w.querySelector('.pdp__option-label')?.textContent.trim()).filter(Boolean);
+      // Usa data-option-name (nome cru da option) pra montar a msg de erro
+      // sem o prefixo "Selecione a/o" do label visível (que duplicaria texto).
+      const labels = missing.map(w =>
+        w.dataset.optionName || w.querySelector('.pdp__option-label')?.textContent.trim()
+      ).filter(Boolean);
       // Scroll até o primeiro grupo faltante
       const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
       const firstTop = missing[0].getBoundingClientRect().top + window.scrollY - headerH - 16;

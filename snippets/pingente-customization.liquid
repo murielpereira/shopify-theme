@@ -898,13 +898,21 @@
         const sel = { cor: null, corMetal: null, tamanho: null, raw: {} };
         if (!wrap) return sel;
         wrap.querySelectorAll('.pdp__option').forEach((opt) => {
-          const label = opt.querySelector('.pdp__option-label')?.textContent.trim();
+          // Prioriza data-option-name (PDP normal) ou data-kit-option (kit) —
+          // ambos contêm o nome cru da option ("Cor", "Cor do Metal", "Tamanho").
+          // Fallback no textContent só pra retrocompatibilidade — mas hoje o
+          // label visível tem prefixo "Selecione a/o", então o data-attr é
+          // essencial pra detecção funcionar.
+          const optName = opt.dataset.optionName
+            || opt.dataset.kitOption
+            || opt.querySelector('.pdp__option-label')?.textContent.trim()
+            || '';
           const active = opt.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
-          if (!label || !active) return;
+          if (!optName || !active) return;
           // PDP normal usa data-value; kit usa data-kit-val. Lê o que existir.
           const value = active.dataset.value || active.dataset.kitVal || '';
-          sel.raw[label] = value;
-          const norm = String(label)
+          sel.raw[optName] = value;
+          const norm = String(optName)
             .toLowerCase()
             .normalize('NFD')
             .replace(/\p{Diacritic}/gu, '')
