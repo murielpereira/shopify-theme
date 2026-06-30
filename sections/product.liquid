@@ -613,11 +613,25 @@
 
     <!-- ── Formulário de produto ── -->
     {%- form 'product', product, id: 'pdp-form', novalidate: true -%}
+      {%- liquid
+        # ID "efetivo" — preferimos a variante completa selecionada (cv); se ela
+        # ainda não existe (opções parciais), usamos a partial_variant pra que
+        # widgets que dependem da variante atual (ex: pdp-bundle) consigam
+        # acompanhar a seleção. O `value=cv.id` continua vazio quando faltar
+        # opção, mantendo a validação do submit (impede add com variante incompleta).
+        assign effective_variant_id = ''
+        if has_variant
+          assign effective_variant_id = cv.id
+        elsif partial_variant != nil
+          assign effective_variant_id = partial_variant.id
+        endif
+      -%}
       <input
         type="hidden"
         name="id"
         value="{{ cv.id }}"
         id="pdp-variant-id"
+        data-effective-id="{{ effective_variant_id }}"
         data-media-id="{{ cv.featured_media.id | default: cv.featured_image.id }}"
       >
 
@@ -1318,6 +1332,14 @@
             currentVariantInput.dataset.mediaId = freshVariantInput.dataset.mediaId;
           } else {
             delete currentVariantInput.dataset.mediaId;
+          }
+          // data-effective-id traz o partial_variant.id quando o cliente
+          // ainda não escolheu todas as opções — pdp-bundle lê isso pra
+          // refazer auto-match dos cross-sells acompanhando a seleção parcial.
+          if (freshVariantInput.dataset.effectiveId) {
+            currentVariantInput.dataset.effectiveId = freshVariantInput.dataset.effectiveId;
+          } else {
+            delete currentVariantInput.dataset.effectiveId;
           }
         }
 

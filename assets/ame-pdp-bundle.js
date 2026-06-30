@@ -145,8 +145,14 @@
             const form = document.getElementById('pdp-form');
             if (!form) return null;
             const idInput = form.querySelector('input[name="id"]');
-            const id = idInput ? Number(idInput.value) : null;
-            return Number.isFinite(id) ? id : null;
+            if (!idInput) return null;
+            // Tenta value (variante completa). Se vazio (opções parciais),
+            // cai no data-effective-id (partial_variant.id do Liquid) — assim
+            // o auto-match acompanha o cliente mesmo antes dele escolher todas
+            // as opções, mas a validação do submit continua exigindo value=cv.id.
+            const raw = idInput.value || idInput.dataset.effectiveId || '';
+            const id = Number(raw);
+            return Number.isFinite(id) && id > 0 ? id : null;
         }
         function getCurrentVariant(product) {
             if (!product) return null;
