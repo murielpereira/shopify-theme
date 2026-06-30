@@ -435,6 +435,7 @@
         "card-2",
         "card-3"
       ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Coleções em Destaque",
         "title": "",
@@ -582,6 +583,7 @@
       "blocks": {
         "ai_gen_block_0a852b5_jyFKMF": {
           "type": "ai_gen_block_0a852b5",
+          "disabled": true,
           "settings": {
             "feature_image": "shopify://shop_images/atena_-_cavalier_1.png",
             "feature_category": "Novidades",
