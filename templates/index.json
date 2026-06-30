@@ -436,7 +436,7 @@
       ],
       "settings": {
         "eyebrow": "Coleções em Destaque",
-        "title": "Curado para Cada Estilo.",
+        "title": "",
         "cta_label": "Ver Todas",
         "cta_url": ""
       }
@@ -506,9 +506,10 @@
         "stat-2",
         "stat-3"
       ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Nossa Filosofia",
-        "title": "<p>Elegância &<br/><em>Qualidade.</em></p>",
+        "title": "",
         "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e a habilidade minuciosa dos nossos artesões.</p>",
         "image": "shopify://shop_images/IMG_9593.jpg",
         "floating_eyebrow": "Satisfação",
@@ -521,6 +522,7 @@
       "blocks": {
         "ai_gen_block_895b1d1_JXKgXa": {
           "type": "ai_gen_block_895b1d1",
+          "disabled": true,
           "settings": {
             "desktop_width_percent": 100,
             "line_width": 4,
@@ -624,8 +626,8 @@
     "newsletter": {
       "type": "home-newsletter",
       "settings": {
-        "eyebrow": "Atelier Exclusivo",
-        "title": "Acesso Antecipado às Novas Peças.",
+        "eyebrow": "Âme Vip",
+        "title": "Acesso Antecipado às Novidades",
         "button_label": "Entrar"
       }
     },
