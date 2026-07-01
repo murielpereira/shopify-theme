@@ -366,6 +366,15 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_aeJjDk": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/grwm pet cliente.MOV",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_zymUxP": {
           "type": "video",
           "settings": {
@@ -422,6 +431,7 @@
         }
       },
       "block_order": [
+        "video_aeJjDk",
         "video_zymUxP",
         "video_RyeDgM",
         "video_4QgQpW",
