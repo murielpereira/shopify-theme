@@ -181,16 +181,88 @@
     }
   }
 
+  /* Usa flex (não block) pra preservar o display:flex do .ame-card. Sem isso,
+     o `margin-top:auto` do .ame-card__buy-btn não funciona e produtos sem
+     parcelamento ficam com o botão desalinhado dos demais na mesma linha. */
   .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card {
     display: none;
   }
-
   .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card:nth-child(-n+{{ block.settings.initial_rows | times: block.settings.products_per_row }}) {
-    display: block;
+    display: flex;
+  }
+  .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card.visible {
+    display: flex;
   }
 
-  .ai-product-grid__grid-{{ ai_gen_id }} > .ame-card.visible {
-    display: block;
+  /* ── Layout carrossel ── */
+  .ai-product-grid__carousel-{{ ai_gen_id }} {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .ai-product-grid__carousel-track-{{ ai_gen_id }} {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: 0.5rem 1rem;
+    min-width: 0;
+  }
+  .ai-product-grid__carousel-track-{{ ai_gen_id }}::-webkit-scrollbar { display: none; }
+  /* Cada card ocupa fração fixa do track e cresce pra bater a altura do vizinho
+     (align-items:stretch do flex parent). display:flex no filho preserva
+     margin-top:auto do botão comprar. */
+  .ai-product-grid__carousel-track-{{ ai_gen_id }} > .ame-card {
+    flex: 0 0 auto;
+    width: 78%;
+    max-width: 18rem;
+    scroll-snap-align: start;
+    display: flex;
+  }
+  @media (min-width: 600px) {
+    .ai-product-grid__carousel-track-{{ ai_gen_id }} > .ame-card {
+      width: calc(50% - 0.5rem);
+    }
+  }
+  @media (min-width: 900px) {
+    .ai-product-grid__carousel-track-{{ ai_gen_id }} > .ame-card {
+      width: calc(33.333% - 0.667rem);
+    }
+  }
+  @media (min-width: 1200px) {
+    .ai-product-grid__carousel-track-{{ ai_gen_id }} > .ame-card {
+      width: calc((100% - ({{ block.settings.products_per_row }} - 1) * 1rem) / {{ block.settings.products_per_row }});
+      max-width: none;
+    }
+  }
+  .ai-product-grid__carousel-nav-{{ ai_gen_id }} {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: rgba(255, 248, 243, 0.95);
+    border: 1px solid rgba(210, 195, 192, 0.4);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-on-background, #201b14);
+    box-shadow: 0 4px 14px rgba(32, 27, 20, 0.08);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .ai-product-grid__carousel-nav-{{ ai_gen_id }}:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.05);
+  }
+  .ai-product-grid__carousel-nav-{{ ai_gen_id }}[hidden] { display: none !important; }
+  .ai-product-grid__carousel-nav--prev-{{ ai_gen_id }} { left: -0.5rem; }
+  .ai-product-grid__carousel-nav--next-{{ ai_gen_id }} { right: -0.5rem; }
+  @media (min-width: 1024px) {
+    .ai-product-grid__carousel-nav-{{ ai_gen_id }} { display: flex; }
   }
 
   /* Garante alinhamento horizontal dos cards mesmo com nomes de tamanhos
@@ -255,23 +327,49 @@
     {% assign initial_count = initial_rows | times: products_per_row %}
 
     {% if products.size > 0 %}
-      <div class="ai-product-grid__grid-{{ ai_gen_id }}">
-        {% comment %}
-          ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
-          💡 What: Uses the `render 'product-card' for array` tag instead of manually looping. We also replaced the wrapper div logic with CSS :nth-child visibility to avoid breaking the snippet.
-          🎯 Why: Liquid processes a `for` loop with a `render` inside by parsing and scoping the snippet per iteration (N+1 overhead).
-          📊 Impact: Eliminates N+1 rendering overhead, reducing template compilation time.
-          🔬 Measurement: Profile the Server Response time on the page.
-        {% endcomment %}
-        {% render 'product-card' for products as card_product %}
-      </div>
-
-      {% if products.size > initial_count and block.settings.button_text != blank %}
-        <div class="ai-product-grid__footer-{{ ai_gen_id }}">
-          <button class="ai-product-grid__button-{{ ai_gen_id }}" data-load-more>
-            {{ block.settings.button_text }}
+      {% if block.settings.layout == 'carousel' %}
+        {%- comment -%}
+          Layout carrossel: rolagem horizontal com scroll-snap. Setas só aparecem
+          no desktop (>=1024px) via CSS. Não usa `initial_rows`/`button_text` —
+          tudo é rolagem contínua. `data-fp-track` bate com o handler de setas
+          e visibilidade em [sections/featured-products.liquid:106].
+        {%- endcomment -%}
+        <div class="ai-product-grid__carousel-{{ ai_gen_id }}" data-fp-section>
+          <button
+            type="button"
+            class="ai-product-grid__carousel-nav-{{ ai_gen_id }} ai-product-grid__carousel-nav--prev-{{ ai_gen_id }}"
+            data-fp-prev aria-label="Anterior">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
           </button>
+          <button
+            type="button"
+            class="ai-product-grid__carousel-nav-{{ ai_gen_id }} ai-product-grid__carousel-nav--next-{{ ai_gen_id }}"
+            data-fp-next aria-label="Próximo">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+          <div class="ai-product-grid__carousel-track-{{ ai_gen_id }}" data-fp-track>
+            {% render 'product-card' for products as card_product %}
+          </div>
         </div>
+      {% else %}
+        <div class="ai-product-grid__grid-{{ ai_gen_id }}">
+          {% comment %}
+            ⚡ Bolt: Replace snippet render inside for-loop with `render ... for` syntax.
+            💡 What: Uses the `render 'product-card' for array` tag instead of manually looping. We also replaced the wrapper div logic with CSS :nth-child visibility to avoid breaking the snippet.
+            🎯 Why: Liquid processes a `for` loop with a `render` inside by parsing and scoping the snippet per iteration (N+1 overhead).
+            📊 Impact: Eliminates N+1 rendering overhead, reducing template compilation time.
+            🔬 Measurement: Profile the Server Response time on the page.
+          {% endcomment %}
+          {% render 'product-card' for products as card_product %}
+        </div>
+
+        {% if products.size > initial_count and block.settings.button_text != blank %}
+          <div class="ai-product-grid__footer-{{ ai_gen_id }}">
+            <button class="ai-product-grid__button-{{ ai_gen_id }}" data-load-more>
+              {{ block.settings.button_text }}
+            </button>
+          </div>
+        {% endif %}
       {% endif %}
     {% else %}
       <div class="ai-product-grid__empty-{{ ai_gen_id }}">
@@ -321,6 +419,31 @@
       customElements.define('product-grid-{{ ai_gen_id }}', ProductGrid{{ ai_gen_id }});
     }
   })();
+
+  // Handler das setas do carrossel — só ativa quando layout=carousel montou
+  // o track. Espelha a lógica de [sections/featured-products.liquid:106].
+  (() => {
+    const section = document.querySelector('.ai-product-grid-{{ ai_gen_id }} [data-fp-section]');
+    if (!section) return;
+    const track = section.querySelector('[data-fp-track]');
+    const prev = section.querySelector('[data-fp-prev]');
+    const next = section.querySelector('[data-fp-next]');
+    if (!track) return;
+    function scrollBy(dir) {
+      track.scrollBy({ left: track.clientWidth * 0.8 * dir, behavior: 'smooth' });
+    }
+    prev?.addEventListener('click', () => scrollBy(-1));
+    next?.addEventListener('click', () => scrollBy(1));
+    function updateNavState() {
+      if (!prev || !next) return;
+      const max = track.scrollWidth - track.clientWidth - 4;
+      prev.toggleAttribute('hidden', track.scrollLeft <= 4);
+      next.toggleAttribute('hidden', track.scrollLeft >= max);
+    }
+    track.addEventListener('scroll', () => requestAnimationFrame(updateNavState), { passive: true });
+    window.addEventListener('resize', updateNavState);
+    updateNavState();
+  })();
 </script>
 
 {% schema %}
@@ -352,6 +475,17 @@
     {
       "type": "header",
       "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Formato",
+      "info": "Grade fixa OU carrossel horizontal com rolagem",
+      "options": [
+        { "value": "grid", "label": "Grade" },
+        { "value": "carousel", "label": "Carrossel" }
+      ],
+      "default": "grid"
     },
     {
       "type": "range",

@@ -1518,6 +1518,7 @@ body::after {
   padding: 0.3rem 0.875rem;
   gap: 0;
 }
+
 .ame-cart-item__qty--locked .ame-cart-item__qty-val {
   font-weight: 600;
 }
@@ -1537,20 +1538,24 @@ body::after {
   flex-direction: column;
   gap: 0.625rem;
 }
+
 .ame-gift-selector__head {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .ame-gift-selector__icon {
   color: #5a7461;
   font-size: 1.25rem !important;
   font-variation-settings: 'FILL' 1;
 }
+
 .ame-gift-selector__head-text {
   flex: 1;
   min-width: 0;
 }
+
 .ame-gift-selector__eyebrow {
   font-size: 0.625rem;
   letter-spacing: 0.14em;
@@ -1560,6 +1565,7 @@ body::after {
   margin: 0;
   line-height: 1.2;
 }
+
 .ame-gift-selector__title {
   font-size: 0.875rem;
   font-weight: 600;
@@ -1567,11 +1573,13 @@ body::after {
   margin: 0.125rem 0 0;
   line-height: 1.3;
 }
+
 .ame-gift-selector__body {
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
 }
+
 .ame-gift-selector__img {
   width: 56px;
   height: 56px;
@@ -1580,21 +1588,25 @@ body::after {
   background: var(--color-surface, #fff);
   flex-shrink: 0;
 }
+
 .ame-gift-selector__choices {
   flex: 1;
   min-width: 0;
 }
+
 .ame-gift-selector__label {
   font-size: 0.6875rem;
   color: var(--color-on-surface-variant, #4f4442);
   margin: 0 0 0.3rem;
   letter-spacing: 0.02em;
 }
+
 .ame-gift-selector__variants {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
 }
+
 .ame-gift-selector__variant {
   font: inherit;
   font-size: 0.6875rem;
@@ -1606,14 +1618,17 @@ body::after {
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
+
 .ame-gift-selector__variant:hover {
   border-color: #5a7461;
 }
+
 .ame-gift-selector__variant.is-active {
   background: #5a7461;
   border-color: #5a7461;
   color: #fff;
 }
+
 .ame-gift-selector__add {
   font: inherit;
   font-size: 0.75rem;
@@ -1628,9 +1643,11 @@ body::after {
   cursor: pointer;
   transition: background 0.15s ease, opacity 0.15s ease;
 }
+
 .ame-gift-selector__add:hover:not(:disabled) {
   background: #4d6353;
 }
+
 .ame-gift-selector__add:disabled {
   opacity: 0.55;
   cursor: default;
@@ -2592,7 +2609,7 @@ shopify-account {
   font-size: 1.125rem;
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: var(--color-on-background, #201b14);
+  color: var(--color-on-surface-variant);
   background: none;
   border: 0;
   border-bottom: 1px solid rgba(210, 195, 192, 0.2);

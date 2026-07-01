@@ -252,7 +252,7 @@
             return [
                 '<li class="pdp-bundle__item' + (it.checked ? '' : ' is-unchecked')
                   + '" data-pdp-bundle-item data-idx="' + idx + '">',
-                '  <div class="pdp-bundle__row" style="display:flex;align-items:center;gap:.625rem;width:100%;">',
+                '  <div class="pdp-bundle__row">',
                 '    <input type="checkbox" class="pdp-bundle__check" '
                     + (it.checked ? 'checked' : '')
                     + ' data-pdp-bundle-check'
@@ -267,8 +267,10 @@
                               ? '<p class="pdp-bundle__variant-label">' + esc(v.title) + '</p>'
                               : ''),
                 '    </div>',
-                '    <p class="pdp-bundle__price">' + fmtBRL(v.price) + '</p>',
                 '  </div>',
+                // Preço sai do row pra ganhar largura própria embaixo — antes
+                // dividia espaço com .pdp-bundle__info e cortava o nome do produto.
+                '  <p class="pdp-bundle__price">' + fmtBRL(v.price) + '</p>',
                    cfs.map(cf => renderCf(it, idx, cf)).join(''),
                 '</li>',
             ].join('');
