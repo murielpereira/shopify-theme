@@ -271,7 +271,7 @@
           "settings": {
             "video": "shopify://files/videos/avaliacoes.mp4",
             "title": "O que os clientes falam",
-            "cta_label": "",
+            "cta_label": "O que os clientes falam",
             "cta_url": ""
           }
         },
