@@ -279,7 +279,7 @@
   @media (min-width: 768px) {
     .ame-hero__bg-video {
       inset: 0 0 0 auto;
-      width: 70%;
+      width: 100%;
       height: 100%;
     }
   }
@@ -333,14 +333,15 @@
   .ame-hero__bg-fade {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
+    /*background: linear-gradient(
       to right,
       var(--color-background, #fff8f3) 0%,
       var(--color-background, #fff8f3) 30%,
       color-mix(in srgb, var(--color-background, #fff8f3) 45%, transparent) 45%,
       color-mix(in srgb, var(--color-background, #fff8f3) 25%, transparent) 50%,
       transparent 60%
-    );
+    );*/
+    background: transparent;
     z-index: 1;
   }
   @media (max-width: 767px) {
