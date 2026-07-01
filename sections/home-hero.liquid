@@ -39,7 +39,6 @@
       assign hero_video_id = hero_video_url | split: 'youtu.be/' | last | split: '?' | first
     endif
   endif
-
 -%}
 
 {%- comment -%}
@@ -51,10 +50,27 @@
 {%- endcomment -%}
 {%- if hero_native_video.preview_image != blank -%}
   {%- if hero_mobile_video.preview_image != blank -%}
-    <link rel="preload" as="image" fetchpriority="high" media="(min-width: 768px)" href="{{ hero_native_video.preview_image | image_url: width: 1600 }}">
-    <link rel="preload" as="image" fetchpriority="high" media="(max-width: 767px)" href="{{ hero_mobile_video.preview_image | image_url: width: 900 }}">
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      media="(min-width: 768px)"
+      href="{{ hero_native_video.preview_image | image_url: width: 1600 }}"
+    >
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      media="(max-width: 767px)"
+      href="{{ hero_mobile_video.preview_image | image_url: width: 900 }}"
+    >
   {%- else -%}
-    <link rel="preload" as="image" fetchpriority="high" href="{{ hero_native_video.preview_image | image_url: width: 1600 }}">
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      href="{{ hero_native_video.preview_image | image_url: width: 1600 }}"
+    >
   {%- endif -%}
 {%- endif -%}
 
@@ -331,12 +347,13 @@
     /* Fade inferior mais sutil — só uma sombra suave embaixo pra dar
        contraste com o texto, sem cobrir tanto vídeo. */
     .ame-hero__bg-fade {
-      background: linear-gradient(
+      /*background: linear-gradient(
         to top,
         color-mix(in srgb, var(--color-background, #fff8f3) 75%, transparent) 0%,
         color-mix(in srgb, var(--color-background, #fff8f3) 30%, transparent) 25%,
         transparent 50%
-      );
+      );*/
+      background: transparent;
     }
   }
 
