@@ -237,9 +237,9 @@
         "ai_gen_block_24bb258_tYxfVi": {
           "type": "ai_gen_block_24bb258",
           "settings": {
-            "title": "Nossos produtos",
-            "subtitle": "Descubra nossa seleção especial",
-            "collection": "coleiras",
+            "title": "Mais vendidos",
+            "subtitle": "",
+            "collection": "mais-vendidos",
             "products_per_row": 4,
             "products_per_row_mobile": "2",
             "initial_rows": 2,
@@ -375,6 +375,30 @@
           },
           "blocks": {}
         },
+        "ai_gen_block_24bb258_H4VrpD": {
+          "type": "ai_gen_block_24bb258",
+          "name": "Grade de produtos",
+          "settings": {
+            "title": "Lançamentos",
+            "subtitle": "Descubra nossa seleção especial",
+            "collection": "lancamentos-1",
+            "products_per_row": 4,
+            "products_per_row_mobile": "2",
+            "initial_rows": 2,
+            "grid_gap": 24,
+            "desktop_width_percent": 100,
+            "button_text": "Ver mais produtos",
+            "button_bg_color": "#5a4742",
+            "button_hover_bg_color": "#735e59",
+            "button_text_color": "#ffffff",
+            "button_border_radius": 4,
+            "title_size": 32,
+            "title_color": "#201b14",
+            "subtitle_size": 16,
+            "subtitle_color": "#4f4442"
+          },
+          "blocks": {}
+        },
         "ame_hero_carousel_V7JKNJ": {
           "type": "ame_hero_carousel",
           "name": "Hero Carrossel",
@@ -436,6 +460,7 @@
       },
       "block_order": [
         "ai_gen_block_c7fcd1c_dawdVd",
+        "ai_gen_block_24bb258_H4VrpD",
         "ame_hero_carousel_V7JKNJ"
       ],
       "name": "Banners de Categoria",
