@@ -55,13 +55,6 @@
     "hero": {
       "type": "home-hero",
       "blocks": {
-        "stat-1": {
-          "type": "stat",
-          "settings": {
-            "value": "100%",
-            "label": "Couro Natural"
-          }
-        },
         "stat-2": {
           "type": "stat",
           "settings": {
@@ -71,12 +64,11 @@
         }
       },
       "block_order": [
-        "stat-1",
         "stat-2"
       ],
       "settings": {
-        "video": "shopify://files/videos/Âme - Reels - Janeiro - 3.mp4",
-        "video_mobile": "shopify://files/videos/video producao.MOV",
+        "video": "shopify://files/videos/video tema desktop.MOV",
+        "video_mobile": "shopify://files/videos/video tema mobile.MOV",
         "video_url": "",
         "eyebrow": "Heritage Series — 2024",
         "title": "",
