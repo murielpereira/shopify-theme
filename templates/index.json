@@ -76,13 +76,13 @@
       ],
       "settings": {
         "video": "shopify://files/videos/Âme - Reels - Janeiro - 3.mp4",
-        "video_mobile": "shopify://files/videos/tricot video.mp4",
+        "video_mobile": "shopify://files/videos/costura pedra producao.MOV",
         "video_url": "",
         "image": "shopify://shop_images/Colecao_Cachorro_ok.png",
         "eyebrow": "Heritage Series — 2024",
-        "title": "<h2>Feito<br/><em>com</em><br/>Amor.</h2>",
+        "title": "",
         "subtitle": "Acessórios de couro feitos à mão para pets que se movem com propósito.",
-        "cta_primary_label": "Explorar Coleções",
+        "cta_primary_label": "",
         "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
         "cta_secondary_url": ""
       }
