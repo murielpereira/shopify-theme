@@ -127,7 +127,6 @@
           </p>
     
           {%- if settings.show_installments != false and inst_count > 1 -%}
-          
 {% enddoc %}
 {% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
 
@@ -238,7 +237,7 @@
   }
   .ai-product-grid__carousel-nav-{{ ai_gen_id }} {
     position: absolute;
-    top: 40%;
+    top: 36%;
     transform: translateY(-50%);
     /* Precisa ficar ACIMA do .ame-card__link (z-index:4) — sem isso o clique
        na seta atravessava a seta e caía no link invisível do card, abrindo
@@ -262,8 +261,8 @@
     transform: translateY(-50%) scale(1.05);
   }
   .ai-product-grid__carousel-nav-{{ ai_gen_id }}[hidden] { display: none !important; }
-  .ai-product-grid__carousel-nav--prev-{{ ai_gen_id }} { left: -0.5rem; }
-  .ai-product-grid__carousel-nav--next-{{ ai_gen_id }} { right: -0.5rem; }
+  .ai-product-grid__carousel-nav--prev-{{ ai_gen_id }} { left: 0.5rem; }
+  .ai-product-grid__carousel-nav--next-{{ ai_gen_id }} { right: 0.5rem; }
   @media (min-width: 1024px) {
     .ai-product-grid__carousel-nav-{{ ai_gen_id }} { display: flex; }
   }
@@ -341,13 +340,17 @@
           <button
             type="button"
             class="ai-product-grid__carousel-nav-{{ ai_gen_id }} ai-product-grid__carousel-nav--prev-{{ ai_gen_id }}"
-            data-fp-prev aria-label="Anterior">
+            data-fp-prev
+            aria-label="Anterior"
+          >
             <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
           </button>
           <button
             type="button"
             class="ai-product-grid__carousel-nav-{{ ai_gen_id }} ai-product-grid__carousel-nav--next-{{ ai_gen_id }}"
-            data-fp-next aria-label="Próximo">
+            data-fp-next
+            aria-label="Próximo"
+          >
             <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
           </button>
           <div class="ai-product-grid__carousel-track-{{ ai_gen_id }}" data-fp-track>
@@ -375,14 +378,10 @@
         {% endif %}
       {% endif %}
     {% else %}
-      <div class="ai-product-grid__empty-{{ ai_gen_id }}">
-        Nenhum produto encontrado nesta coleção.
-      </div>
+      <div class="ai-product-grid__empty-{{ ai_gen_id }}">Nenhum produto encontrado nesta coleção.</div>
     {% endif %}
   {% else %}
-    <div class="ai-product-grid__empty-{{ ai_gen_id }}">
-      Selecione uma coleção para exibir os produtos.
-    </div>
+    <div class="ai-product-grid__empty-{{ ai_gen_id }}">Selecione uma coleção para exibir os produtos.</div>
   {% endif %}
 </product-grid-{{ ai_gen_id }}>
 
@@ -405,13 +404,13 @@
 
       loadMore() {
         const nextCount = this.currentVisibleCount + this.productsPerRow;
-        
+
         for (let i = this.currentVisibleCount; i < nextCount && i < this.items.length; i++) {
           this.items[i].classList.add('visible');
         }
-        
+
         this.currentVisibleCount = nextCount;
-        
+
         if (this.currentVisibleCount >= this.items.length) {
           this.loadMoreButton.classList.add('hidden');
         }
