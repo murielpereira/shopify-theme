@@ -266,10 +266,11 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
-        "video_b6TfbJ": {
+        "video_RyeDgM": {
           "type": "video",
           "settings": {
-            "title": "",
+            "video": "shopify://files/videos/avaliacoes.mp4",
+            "title": "O que os clientes falam",
             "cta_label": "",
             "cta_url": ""
           }
@@ -312,7 +313,7 @@
         }
       },
       "block_order": [
-        "video_b6TfbJ",
+        "video_RyeDgM",
         "video_4HzbYq",
         "video_4QgQpW",
         "video_jQWfFH",
