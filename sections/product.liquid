@@ -30,7 +30,7 @@
     endif
   endfor
 
-  assign partial_variant = nil
+  assign partial_variant = null
   if has_variant == false
     assign any_selected = false
     if sel1 != blank or sel2 != blank or sel3 != blank
@@ -38,7 +38,7 @@
     endif
     if any_selected
       for variant in product.variants
-        if variant.available and partial_variant == nil
+        if variant.available and partial_variant == null
           assign all_match = true
           if sel1 != blank and variant.option1 != sel1
             assign all_match = false
@@ -421,9 +421,11 @@
       {% content_for 'block', type: '@app', id: 'pdp-app-before-title' %}
     </div>
 
-    <!-- Título dentro do .pdp__info — em PDP normal aparece sempre. No kit,
-         aparece SÓ no desktop (CSS); no mobile o kit usa o `pdp__title--kit-outside`
-         (renderizado antes da galeria) pra ordem título → galeria → showcase. -->
+    <!--
+      Título dentro do .pdp__info — em PDP normal aparece sempre. No kit,
+      aparece SÓ no desktop (CSS); no mobile o kit usa o `pdp__title--kit-outside`
+      (renderizado antes da galeria) pra ordem título → galeria → showcase.
+    -->
     <h1 class="pdp__title">{{ display_title }}</h1>
 
     {%- comment -%} Slot pra apps: depois do título {%- endcomment -%}
@@ -457,7 +459,7 @@
       # Tamanho, sem esperar Cor + Cor do Metal.
       assign base_price = cv.price
       if has_variant == false
-        if partial_variant != nil
+        if partial_variant != null
           assign base_price = partial_variant.price
         else
           assign base_price = product.price_min
@@ -465,7 +467,7 @@
       endif
 
       assign cv_compare = cv.compare_at_price | default: 0
-      if cv_compare == 0 and partial_variant != nil
+      if cv_compare == 0 and partial_variant != null
         assign cv_compare = partial_variant.compare_at_price | default: 0
       endif
       if cv_compare == 0
@@ -622,7 +624,7 @@
         assign effective_variant_id = ''
         if has_variant
           assign effective_variant_id = cv.id
-        elsif partial_variant != nil
+        elsif partial_variant != null
           assign effective_variant_id = partial_variant.id
         endif
       -%}
@@ -684,9 +686,16 @@
               endif
             -%}
 
-            <div class="pdp__option" data-option-group-index="{{ forloop.index0 }}" data-option-name="{{ option.name | escape }}">
+            <div
+              class="pdp__option"
+              data-option-group-index="{{ forloop.index0 }}"
+              data-option-name="{{ option.name | escape }}"
+            >
               <div class="pdp__option-header">
-                <span class="pdp__option-label">Selecione {{ artigo }} {{ option.name }}</span>
+                <span class="pdp__option-label"
+                  >Selecione {{ artigo }}
+                  {{ option.name -}}
+                </span>
                 <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
                   {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
                 </span>
@@ -1921,7 +1930,9 @@
      no grid 1-col) e esconde o que está dentro do info. Desktop faz o inverso —
      título dentro do info pra ele ficar colado em cima do conteúdo da col 2,
      sem o buraco que aparecia quando o título ocupava row 1 alta da galeria. */
-  .pdp--is-kit .pdp__info > .pdp__title { display: none; }
+  .pdp--is-kit .pdp__info > .pdp__title {
+    display: none;
+  }
 
   /* Kit: galeria do produto-pai fica visível acima do showcase de
      componentes. No desktop, ambos compartilham a coluna 1 do grid —
@@ -1979,8 +1990,12 @@
        o título visível é o `.pdp__title` que vive dentro do .pdp__info, então
        ele fica colado em cima do preço/CTA sem o gap da galeria. O kit-outside
        sai do grid pra não ocupar célula. */
-    .pdp--is-kit .pdp__title--kit-outside { display: none; }
-    .pdp--is-kit .pdp__info > .pdp__title { display: block; }
+    .pdp--is-kit .pdp__title--kit-outside {
+      display: none;
+    }
+    .pdp--is-kit .pdp__info > .pdp__title {
+      display: block;
+    }
 
     .pdp--is-kit .pdp__gallery {
       grid-column: 1;
@@ -3234,7 +3249,7 @@
 
   .pdp .pdp__size-btn {
     width: auto;
-    padding: 0.625rem 1.125rem;
+    padding: 0.625rem 1rem;
   }
 
   .pdp .pdp__size-btn.pdp__size-btn--metal {

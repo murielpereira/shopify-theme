@@ -240,7 +240,10 @@
     position: absolute;
     top: 40%;
     transform: translateY(-50%);
-    z-index: 2;
+    /* Precisa ficar ACIMA do .ame-card__link (z-index:4) — sem isso o clique
+       na seta atravessava a seta e caía no link invisível do card, abrindo
+       a página do produto em vez de rolar o carrossel. */
+    z-index: 10;
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;
@@ -432,8 +435,15 @@
     function scrollBy(dir) {
       track.scrollBy({ left: track.clientWidth * 0.8 * dir, behavior: 'smooth' });
     }
-    prev?.addEventListener('click', () => scrollBy(-1));
-    next?.addEventListener('click', () => scrollBy(1));
+    // stopPropagation/preventDefault pra garantir que o click da seta não borbulhe
+    // pro .ame-card__link — em conjunto com z-index acima do card, blinda o clique.
+    function handleNav(e, dir) {
+      e.preventDefault();
+      e.stopPropagation();
+      scrollBy(dir);
+    }
+    prev?.addEventListener('click', (e) => handleNav(e, -1));
+    next?.addEventListener('click', (e) => handleNav(e, 1));
     function updateNavState() {
       if (!prev || !next) return;
       const max = track.scrollWidth - track.clientWidth - 4;
