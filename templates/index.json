@@ -78,7 +78,6 @@
         "video": "shopify://files/videos/Âme - Reels - Janeiro - 3.mp4",
         "video_mobile": "shopify://files/videos/video producao.MOV",
         "video_url": "",
-        "image": "shopify://shop_images/Colecao_Cachorro_ok.png",
         "eyebrow": "Heritage Series — 2024",
         "title": "",
         "subtitle": "Acessórios de couro feitos à mão para pets que se movem com propósito.",
@@ -267,15 +266,6 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
-        "video_KVFnxd": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/salsicha.mov",
-            "title": "Coleira Prímula",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
         "video_b6TfbJ": {
           "type": "video",
           "settings": {
@@ -322,7 +312,6 @@
         }
       },
       "block_order": [
-        "video_KVFnxd",
         "video_b6TfbJ",
         "video_4HzbYq",
         "video_4QgQpW",
