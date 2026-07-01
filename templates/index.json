@@ -284,29 +284,11 @@
             "cta_url": ""
           }
         },
-        "video_4HzbYq": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
-            "title": "bolsa lis",
-            "cta_label": "Bolsa de passeio lis",
-            "cta_url": ""
-          }
-        },
         "video_4QgQpW": {
           "type": "video",
           "settings": {
             "video": "shopify://files/videos/Sotries Video Kit cecilia (ANGULOS 1) (1).MOV",
             "title": "Kit cecilia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_jQWfFH": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
-            "title": "kit amelia",
             "cta_label": "",
             "cta_url": ""
           }
@@ -319,15 +301,33 @@
             "cta_label": "Bolsa de transporte Ollie",
             "cta_url": ""
           }
+        },
+        "video_jQWfFH": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
+            "title": "kit amelia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_4HzbYq": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
+            "title": "bolsa lis",
+            "cta_label": "Bolsa de passeio lis",
+            "cta_url": ""
+          }
         }
       },
       "block_order": [
         "video_zymUxP",
         "video_RyeDgM",
-        "video_4HzbYq",
         "video_4QgQpW",
+        "video_A9C3wb",
         "video_jQWfFH",
-        "video_A9C3wb"
+        "video_4HzbYq"
       ],
       "name": "Vídeos (destaques)",
       "settings": {
