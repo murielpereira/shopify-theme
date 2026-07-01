@@ -263,91 +263,6 @@
       "name": "Grid",
       "settings": {}
     },
-    "home_video_stories_pNn8UU": {
-      "type": "home-video-stories",
-      "blocks": {
-        "video_zymUxP": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/bolsa lis shopping.MOV",
-            "title": "Bolsa Lis",
-            "cta_label": "Bolsa Lis",
-            "cta_url": ""
-          }
-        },
-        "video_RyeDgM": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/avaliacoes.mp4",
-            "title": "O que os clientes falam",
-            "cta_label": "O que os clientes falam",
-            "cta_url": ""
-          }
-        },
-        "video_4QgQpW": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Kit cecilia (ANGULOS 1) (1).MOV",
-            "title": "Kit cecilia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_A9C3wb": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/copy_99B70347-EA57-4E1D-A68E-FAA597370A79.MOV",
-            "title": "Bolsa Ollie",
-            "cta_label": "Bolsa de transporte Ollie",
-            "cta_url": ""
-          }
-        },
-        "video_jQWfFH": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
-            "title": "kit amelia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_4HzbYq": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
-            "title": "bolsa lis",
-            "cta_label": "Bolsa de passeio lis",
-            "cta_url": ""
-          }
-        }
-      },
-      "block_order": [
-        "video_zymUxP",
-        "video_RyeDgM",
-        "video_4QgQpW",
-        "video_A9C3wb",
-        "video_jQWfFH",
-        "video_4HzbYq"
-      ],
-      "name": "Vídeos (destaques)",
-      "settings": {
-        "eyebrow": "",
-        "title": "",
-        "subtitle": "",
-        "format": "spotlight",
-        "tamanho": 70,
-        "espacamento": 12,
-        "mostrar_titulo": false,
-        "border_type": "solida",
-        "espessura": 3,
-        "cor": "#5a4742",
-        "cor_fim": "#735e59",
-        "cor_3": "#dcc1ba",
-        "angulo": 135,
-        "autoplay": true,
-        "cta_default": "Ver mais"
-      }
-    },
     "1777314298a0e78e83": {
       "type": "_blocks",
       "blocks": {
@@ -465,6 +380,91 @@
       ],
       "name": "Banners de Categoria",
       "settings": {}
+    },
+    "home_video_stories_pNn8UU": {
+      "type": "home-video-stories",
+      "blocks": {
+        "video_zymUxP": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/bolsa lis shopping.MOV",
+            "title": "Bolsa Lis",
+            "cta_label": "Bolsa Lis",
+            "cta_url": ""
+          }
+        },
+        "video_RyeDgM": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/avaliacoes.mp4",
+            "title": "O que os clientes falam",
+            "cta_label": "O que os clientes falam",
+            "cta_url": ""
+          }
+        },
+        "video_4QgQpW": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Kit cecilia (ANGULOS 1) (1).MOV",
+            "title": "Kit cecilia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_A9C3wb": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/copy_99B70347-EA57-4E1D-A68E-FAA597370A79.MOV",
+            "title": "Bolsa Ollie",
+            "cta_label": "Bolsa de transporte Ollie",
+            "cta_url": ""
+          }
+        },
+        "video_jQWfFH": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
+            "title": "kit amelia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_4HzbYq": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
+            "title": "bolsa lis",
+            "cta_label": "Bolsa de passeio lis",
+            "cta_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_zymUxP",
+        "video_RyeDgM",
+        "video_4QgQpW",
+        "video_A9C3wb",
+        "video_jQWfFH",
+        "video_4HzbYq"
+      ],
+      "name": "Vídeos (destaques)",
+      "settings": {
+        "eyebrow": "",
+        "title": "",
+        "subtitle": "",
+        "format": "spotlight",
+        "tamanho": 70,
+        "espacamento": 12,
+        "mostrar_titulo": false,
+        "border_type": "solida",
+        "espessura": 3,
+        "cor": "#5a4742",
+        "cor_fim": "#735e59",
+        "cor_3": "#dcc1ba",
+        "angulo": 135,
+        "autoplay": true,
+        "cta_default": "Ver mais"
+      }
     },
     "featured-collections": {
       "type": "home-featured-collections",
@@ -719,8 +719,8 @@
     "home_ad_bar_6pF6UL",
     "home_video_stories_MErTLy",
     "1777459086429d607a",
-    "home_video_stories_pNn8UU",
     "1777314298a0e78e83",
+    "home_video_stories_pNn8UU",
     "featured-collections",
     "lookbook",
     "brand-story",
