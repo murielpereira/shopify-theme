@@ -266,6 +266,15 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_zymUxP": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/bolsa lis shopping.MOV",
+            "title": "Bolsa Lis",
+            "cta_label": "Bolsa Lis",
+            "cta_url": ""
+          }
+        },
         "video_RyeDgM": {
           "type": "video",
           "settings": {
@@ -313,6 +322,7 @@
         }
       },
       "block_order": [
+        "video_zymUxP",
         "video_RyeDgM",
         "video_4HzbYq",
         "video_4QgQpW",
