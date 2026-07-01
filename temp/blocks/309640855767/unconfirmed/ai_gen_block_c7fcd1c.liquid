@@ -1,6 +1,366 @@
+{% doc %}
+  @prompt
+    quero um bloco para colocar categorias mais importantes, uns 4 4 blocos, porem menores
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-category-grid-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    padding: {{ block.settings.section_padding }}px 0;
+  }
+
+  .ai-category-grid__title-{{ ai_gen_id }} {
+    text-align: {{ block.settings.title_alignment }};
+    font-size: {{ block.settings.title_size }}px;
+    color: {{ block.settings.title_color }};
+    margin: 0 0 {{ block.settings.title_spacing }}px;
+  }
+
+  .ai-category-grid__container-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+  }
+
+  .ai-category-grid__item-{{ ai_gen_id }} {
+    position: relative;
+    overflow: hidden;
+    border-radius: {{ block.settings.card_border_radius }}px;
+    background-color: {{ block.settings.card_bg_color }};
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ai-category-grid__item-{{ ai_gen_id }}:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-category-grid__link-{{ ai_gen_id }} {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .ai-category-grid__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background-color: {{ block.settings.image_bg_color }};
+  }
+
+  .ai-category-grid__image-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-category-grid__placeholder-{{ ai_gen_id }} {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-category-grid__placeholder-{{ ai_gen_id }} svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .ai-category-grid__content-{{ ai_gen_id }} {
+    padding: {{ block.settings.card_padding }}px;
+    text-align: center;
+  }
+
+  .ai-category-grid__name-{{ ai_gen_id }} {
+    font-size: {{ block.settings.category_name_size }}px;
+    font-weight: 600;
+    color: {{ block.settings.category_name_color }};
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-category-grid__container-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ai-category-grid__title-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.title_size }}px * 0.8);
+    }
+
+    .ai-category-grid__name-{{ ai_gen_id }} {
+      font-size: calc({{ block.settings.category_name_size }}px * 0.9);
+    }
+  }
+{% endstyle %}
+
+<category-grid-{{ ai_gen_id }} class="ai-category-grid-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.section_title != blank %}
+    <h2 class="ai-category-grid__title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2>
+  {% endif %}
+
+  <div class="ai-category-grid__container-{{ ai_gen_id }}">
+    {% for i in (1..4) %}
+      {% liquid
+        assign collection_key = 'category_' | append: i
+        assign collection = block.settings[collection_key]
+      %}
+
+      <div class="ai-category-grid__item-{{ ai_gen_id }}">
+        {% if collection != blank %}
+          <a href="{{ collection.url }}" class="ai-category-grid__link-{{ ai_gen_id }}">
+            <div class="ai-category-grid__image-wrapper-{{ ai_gen_id }}">
+              {% if collection.image %}
+                <img
+                  src="{{ collection.image | image_url: width: 400 }}"
+                  alt="{{ collection.title | escape }}"
+                  class="ai-category-grid__image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% elsif collection.products.first and collection.products.first.featured_image %}
+                <img
+                  src="{{ collection.products.first.featured_image | image_url: width: 400 }}"
+                  alt="{{ collection.title | escape }}"
+                  class="ai-category-grid__image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="ai-category-grid__placeholder-{{ ai_gen_id }}">
+                  {{ 'collection-1' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="ai-category-grid__content-{{ ai_gen_id }}">
+              <h3 class="ai-category-grid__name-{{ ai_gen_id }}">{{ collection.title }}</h3>
+            </div>
+          </a>
+        {% else %}
+          <div class="ai-category-grid__link-{{ ai_gen_id }}">
+            <div class="ai-category-grid__image-wrapper-{{ ai_gen_id }}">
+              <div class="ai-category-grid__placeholder-{{ ai_gen_id }}">
+                {{ 'collection-1' | placeholder_svg_tag }}
+              </div>
+            </div>
+            <div class="ai-category-grid__content-{{ ai_gen_id }}">
+              <h3 class="ai-category-grid__name-{{ ai_gen_id }}">Categoria {{ i }}</h3>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</category-grid-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CategoryGrid{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+      }
+    }
+
+    customElements.define('category-grid-{{ ai_gen_id }}', CategoryGrid{{ ai_gen_id }});
+  })();
+</script>
+
 {% schema %}
- {
-   "name": "AI_Block",
-   "tag": "shopify-ai-generated-block"
- }
+{
+  "name": "Grade de categorias",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Conteúdo"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Título da seção",
+      "default": "Categorias em destaque"
+    },
+    {
+      "type": "collection",
+      "id": "category_1",
+      "label": "Categoria 1"
+    },
+    {
+      "type": "collection",
+      "id": "category_2",
+      "label": "Categoria 2"
+    },
+    {
+      "type": "collection",
+      "id": "category_3",
+      "label": "Categoria 3"
+    },
+    {
+      "type": "collection",
+      "id": "category_4",
+      "label": "Categoria 4"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Largura no desktop",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Espaçamento vertical",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Espaço entre cards",
+      "min": 8,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Título"
+    },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Alinhamento",
+      "options": [
+        {
+          "value": "left",
+          "label": "Esquerda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        },
+        {
+          "value": "right",
+          "label": "Direita"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Tamanho",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Cor",
+      "default": "#201b14"
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "label": "Espaço abaixo",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Arredondamento",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Espaçamento interno",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "card_bg_color",
+      "label": "Cor de fundo",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "image_bg_color",
+      "label": "Cor de fundo da imagem",
+      "default": "#f8ece0"
+    },
+    {
+      "type": "header",
+      "content": "Nome da categoria"
+    },
+    {
+      "type": "range",
+      "id": "category_name_size",
+      "label": "Tamanho",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "category_name_color",
+      "label": "Cor",
+      "default": "#201b14"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Grade de categorias"
+    }
+  ]
+}
 {% endschema %}
