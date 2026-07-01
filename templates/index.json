@@ -54,25 +54,13 @@
     },
     "hero": {
       "type": "home-hero",
-      "blocks": {
-        "stat-2": {
-          "type": "stat",
-          "settings": {
-            "value": "Artesanal",
-            "label": "Feito à Mão"
-          }
-        }
-      },
-      "block_order": [
-        "stat-2"
-      ],
       "settings": {
         "video": "shopify://files/videos/video tema desktop.MOV",
         "video_mobile": "shopify://files/videos/video tema mobile.MOV",
         "video_url": "",
-        "eyebrow": "Heritage Series — 2024",
+        "eyebrow": "",
         "title": "",
-        "subtitle": "Acessórios de couro feitos à mão para pets que se movem com propósito.",
+        "subtitle": "",
         "cta_primary_label": "",
         "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
         "cta_secondary_url": ""
