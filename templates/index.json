@@ -56,7 +56,7 @@
       "type": "home-hero",
       "settings": {
         "video": "shopify://files/videos/salsicha sofa desktop.mp4",
-        "video_mobile": "shopify://files/videos/salsicha sofa mobile.mp4",
+        "video_mobile": "shopify://files/videos/primula luma.mp4",
         "video_url": "",
         "eyebrow": "",
         "title": "<h3>Couro legítimo. Cuidado real. </h3><p>Para quem ama de verdade.</p>",
@@ -231,7 +231,7 @@
             "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#735E59",
+            "title_color": "#735e59",
             "subtitle_size": 16,
             "subtitle_color": "#4f4442"
           },
@@ -290,7 +290,7 @@
             "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#735E59",
+            "title_color": "#735e59",
             "subtitle_size": 16,
             "subtitle_color": "#4f4442"
           },
