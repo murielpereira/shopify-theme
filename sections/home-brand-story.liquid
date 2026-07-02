@@ -35,6 +35,44 @@
         {%- endif -%}
       </div>
 
+      <div class="ame-story__image-col ame-reveal">
+        <div class="ame-story__image-wrap">
+          {%- if section.settings.image != blank -%}
+            {% comment %}
+              ⚡ Bolt: Eager load the LCP image in Brand Story section
+              💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
+              🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
+              📊 Impact: Improves LCP Web Vital metric significantly.
+              🔬 Measurement: Profile the LCP metric on pages containing this section.
+            {% endcomment %}
+            {{
+              section.settings.image
+              | image_url: width: 900
+              | image_tag:
+                widths: '300, 600, 900',
+                loading: 'eager',
+                fetchpriority: 'high',
+                class: 'ame-story__image',
+                alt: section.settings.image.alt
+              | escape
+            }}
+          {%- else -%}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
+          {%- endif -%}
+        </div>
+
+        <!-- Floating satisfaction chip -->
+        {%- if section.settings.floating_label != blank -%}
+          <div class="ame-story__float-chip">
+            <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
+            <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
+            {%- if section.settings.floating_sublabel != blank -%}
+              <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+
       <button
         type="button"
         class="ame-story__toggle"
@@ -48,43 +86,6 @@
     </div>
 
     <!-- Image column -->
-    <div class="ame-story__image-col ame-reveal">
-      <div class="ame-story__image-wrap">
-        {%- if section.settings.image != blank -%}
-          {% comment %}
-            ⚡ Bolt: Eager load the LCP image in Brand Story section
-            💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
-            🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
-            📊 Impact: Improves LCP Web Vital metric significantly.
-            🔬 Measurement: Profile the LCP metric on pages containing this section.
-          {% endcomment %}
-          {{
-            section.settings.image
-            | image_url: width: 900
-            | image_tag:
-              widths: '300, 600, 900',
-              loading: 'eager',
-              fetchpriority: 'high',
-              class: 'ame-story__image',
-              alt: section.settings.image.alt
-            | escape
-          }}
-        {%- else -%}
-          {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
-        {%- endif -%}
-      </div>
-
-      <!-- Floating satisfaction chip -->
-      {%- if section.settings.floating_label != blank -%}
-        <div class="ame-story__float-chip">
-          <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
-          <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
-          {%- if section.settings.floating_sublabel != blank -%}
-            <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
-          {%- endif -%}
-        </div>
-      {%- endif -%}
-    </div>
   </div>
 </section>
 
@@ -221,7 +222,7 @@
     max-height: 0;
     transition: max-height 0.35s ease;
   }
-  .ame-story[data-story-open="true"] .ame-story__collapse {
+  .ame-story[data-story-open='true'] .ame-story__collapse {
     /* Valor alto pra caber o conteúdo real. Como o transition é em max-height,
        o efeito visual segue proporcional à altura real do conteúdo. */
     max-height: 2000px;
@@ -251,7 +252,7 @@
     font-size: 1.125rem;
     transition: transform 0.25s ease;
   }
-  .ame-story[data-story-open="true"] .ame-story__toggle-icon {
+  .ame-story[data-story-open='true'] .ame-story__toggle-icon {
     transform: rotate(180deg);
   }
 
@@ -269,7 +270,7 @@
 
 <script>
   (() => {
-    document.querySelectorAll('[data-story]').forEach(section => {
+    document.querySelectorAll('[data-story]').forEach((section) => {
       const btn = section.querySelector('[data-story-toggle]');
       const label = section.querySelector('[data-story-toggle-label]');
       if (!btn) return;

@@ -159,7 +159,14 @@
       <p class="ame-hero__eyebrow ame-fade-up ame-delay-1">{{ section.settings.eyebrow }}</p>
     {%- endif -%}
 
-    {%- if section.settings.title != blank -%}
+    {%- comment -%}
+      `title` é richtext — quando o lojista limpa o campo, Shopify pode salvar
+      `<p></p>` (parágrafo vazio) que NÃO é considerado `blank`. Testamos o
+      conteúdo real via strip_html + strip pra evitar renderizar um <h1> vazio
+      ocupando espaço no layout.
+    {%- endcomment -%}
+    {%- assign hero_title_text = section.settings.title | strip_html | strip -%}
+    {%- if hero_title_text != blank -%}
       <h1 class="ame-hero__title ame-fade-up ame-delay-2">
         {{ section.settings.title | newline_to_br }}
       </h1>
@@ -370,6 +377,7 @@
     width: fit-content;
     background: #ffffff69;
     border-radius: 0 90px 90px 0;
+    color: var(--color-on-surface-variant);
     /*max-width: min(calc(var(--page-width, 120rem) / 2), 42rem);*/
   }
   @media (max-width: 767px) {

@@ -1362,7 +1362,12 @@
         if (variantMediaId) navigateGalleryToMedia(variantMediaId);
         else if (newActive?.dataset.mediaId) navigateGalleryToMedia(newActive.dataset.mediaId);
 
-        document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
+        // Dispatcheia no próximo frame pra dar tempo do browser terminar o
+        // layout invalidado pelas modificações acima — evita reflow forçado
+        // quando handlers do evento (pingente, bundle, kit) leem geometria.
+        requestAnimationFrame(() => {
+          document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
+        });
       } catch (err) {
         console.warn('[pdp] refreshVariantSection failed', err);
       }
@@ -1427,8 +1432,11 @@
           if (isSelectionComplete()) {
             refreshVariantSection();
           } else {
-            // Sinaliza pro pingente revalidar o estado da coleira (mesmo sem variant final)
-            document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
+            // rAF dá tempo do layout terminar antes dos handlers de
+            // pdp:variant-changed (pingente/bundle/kit) leerem geometria.
+            requestAnimationFrame(() => {
+              document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
+            });
           }
         }));
       });
