@@ -30,7 +30,10 @@
     endif
   endfor
 
-  assign partial_variant = null
+  # `nil` é a keyword do Liquid pra ausência de valor — `null` seria string
+  # literal "null" e quebraria as comparações `partial_variant != nil` usadas
+  # no bloco de preços e no data-effective-id do input hidden mais abaixo.
+  assign partial_variant = nil
   if has_variant == false
     assign any_selected = false
     if sel1 != blank or sel2 != blank or sel3 != blank
@@ -41,19 +44,17 @@
       # 💡 What: Replaced manual O(N) `for variant in product.variants` loop with native Liquid `where` filters.
       # 🎯 Why: Iterating over `product.variants` with multiple conditionals inside a Liquid loop causes overhead. The native `where` filter performs the evaluation at the C/Rust level, avoiding parser overhead.
       # 📊 Impact: Improves Time to First Byte (TTFB) significantly for products with a large number of variants.
-      if partial_variant == null
-        assign matched_variants = product.variants | where: 'available', true
-        if sel1 != blank
-          assign matched_variants = matched_variants | where: 'option1', sel1
-        endif
-        if sel2 != blank
-          assign matched_variants = matched_variants | where: 'option2', sel2
-        endif
-        if sel3 != blank
-          assign matched_variants = matched_variants | where: 'option3', sel3
-        endif
-        assign partial_variant = matched_variants.first
+      assign matched_variants = product.variants | where: 'available', true
+      if sel1 != blank
+        assign matched_variants = matched_variants | where: 'option1', sel1
       endif
+      if sel2 != blank
+        assign matched_variants = matched_variants | where: 'option2', sel2
+      endif
+      if sel3 != blank
+        assign matched_variants = matched_variants | where: 'option3', sel3
+      endif
+      assign partial_variant = matched_variants.first
     endif
   endif
 
@@ -459,7 +460,7 @@
       # Tamanho, sem esperar Cor + Cor do Metal.
       assign base_price = cv.price
       if has_variant == false
-        if partial_variant != null
+        if partial_variant != nil
           assign base_price = partial_variant.price
         else
           assign base_price = product.price_min
@@ -467,7 +468,7 @@
       endif
 
       assign cv_compare = cv.compare_at_price | default: 0
-      if cv_compare == 0 and partial_variant != null
+      if cv_compare == 0 and partial_variant != nil
         assign cv_compare = partial_variant.compare_at_price | default: 0
       endif
       if cv_compare == 0
@@ -624,7 +625,7 @@
         assign effective_variant_id = ''
         if has_variant
           assign effective_variant_id = cv.id
-        elsif partial_variant != null
+        elsif partial_variant != nil
           assign effective_variant_id = partial_variant.id
         endif
       -%}

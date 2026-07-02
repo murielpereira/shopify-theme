@@ -195,7 +195,10 @@
                 _items.push({
                     product: p,
                     selectedVariantId: m.variant.id,
-                    checked: true,
+                    // Começa desmarcado — o cliente escolhe o que levar. Marcar
+                    // por default incluía o cross-sell mesmo pra clientes que
+                    // só queriam o produto principal.
+                    checked: false,
                     matched: m.matched,
                 });
             }

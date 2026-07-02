@@ -362,8 +362,10 @@
   .ame-hero__content {
     position: relative;
     z-index: 2;
-    padding: 4rem var(--page-margin, 20px);
-    width: 100%;
+    padding: 3rem 4rem;
+    width: fit-content;
+    background: #ffffff69;
+    border-radius: 0 90px 90px 0;
     /*max-width: min(calc(var(--page-width, 120rem) / 2), 42rem);*/
   }
   @media (max-width: 767px) {
@@ -371,8 +373,9 @@
       max-width: 100%;
       /* Padding-top zerado (texto fica colado no fim com justify-content:flex-end
          do .ame-hero). Padding-bottom moderado pra não colar no rodapé da section. */
-      padding: 0 20px 2.5rem;
+      /*padding: 0 20px 2.5rem;*/
       text-align: left;
+      border-radius: 0 90px 0 0;
     }
   }
 
@@ -389,7 +392,7 @@
     font-weight: 800;
     line-height: 0.95;
     letter-spacing: -0.025em;
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-surface-variant);
     margin-bottom: 1.5rem;
   }
   @media (min-width: 768px) {
