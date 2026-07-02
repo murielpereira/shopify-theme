@@ -37,23 +37,23 @@
       assign any_selected = true
     endif
     if any_selected
-      for variant in product.variants
-        if variant.available and partial_variant == null
-          assign all_match = true
-          if sel1 != blank and variant.option1 != sel1
-            assign all_match = false
-          endif
-          if sel2 != blank and variant.option2 != sel2
-            assign all_match = false
-          endif
-          if sel3 != blank and variant.option3 != sel3
-            assign all_match = false
-          endif
-          if all_match
-            assign partial_variant = variant
-          endif
+      # ⚡ Bolt: Optimize partial variant matching
+      # 💡 What: Replaced manual O(N) `for variant in product.variants` loop with native Liquid `where` filters.
+      # 🎯 Why: Iterating over `product.variants` with multiple conditionals inside a Liquid loop causes overhead. The native `where` filter performs the evaluation at the C/Rust level, avoiding parser overhead.
+      # 📊 Impact: Improves Time to First Byte (TTFB) significantly for products with a large number of variants.
+      if partial_variant == null
+        assign matched_variants = product.variants | where: 'available', true
+        if sel1 != blank
+          assign matched_variants = matched_variants | where: 'option1', sel1
         endif
-      endfor
+        if sel2 != blank
+          assign matched_variants = matched_variants | where: 'option2', sel2
+        endif
+        if sel3 != blank
+          assign matched_variants = matched_variants | where: 'option3', sel3
+        endif
+        assign partial_variant = matched_variants.first
+      endif
     endif
   endif
 
