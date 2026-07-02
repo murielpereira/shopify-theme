@@ -460,48 +460,6 @@
     },
     "featured-collections": {
       "type": "home-featured-collections",
-      "blocks": {
-        "card-1": {
-          "type": "card",
-          "settings": {
-            "collection": "",
-            "image": "shopify://shop_images/rosaprata10.jpg",
-            "label": "Bolsa Ollie",
-            "price": "R$ 1.900",
-            "badge": "Heritage Series",
-            "url": "",
-            "is_large": true
-          }
-        },
-        "card-2": {
-          "type": "card",
-          "settings": {
-            "collection": "",
-            "label": "The Monaco Collar",
-            "price": "R$ 620",
-            "badge": "",
-            "url": "",
-            "is_large": false
-          }
-        },
-        "card-3": {
-          "type": "card",
-          "settings": {
-            "collection": "",
-            "label": "The Monaco Leash",
-            "price": "R$ 730",
-            "badge": "",
-            "url": "",
-            "is_large": false
-          }
-        }
-      },
-      "block_order": [
-        "card-1",
-        "card-2",
-        "card-3"
-      ],
-      "disabled": true,
       "settings": {
         "eyebrow": "Coleções em Destaque",
         "title": "",

@@ -69,11 +69,17 @@
         "menu": "main-menu",
         "customer_account_menu": "customer-account-main-menu"
       }
+    },
+    "blocks_3PchiJ": {
+      "type": "_blocks",
+      "name": "Grade de categorias",
+      "settings": {}
     }
   },
   "order": [
     "countdown-bar",
     "announcement-bar",
-    "header"
+    "header",
+    "blocks_3PchiJ"
   ]
 }
