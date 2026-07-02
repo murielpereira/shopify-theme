@@ -463,14 +463,14 @@
             "grid_gap": 16,
             "title_alignment": "center",
             "title_size": 28,
-            "title_color": "#735E59",
+            "title_color": "#735e59",
             "title_spacing": 24,
             "card_border_radius": 8,
             "card_padding": 16,
             "card_bg_color": "#ffffff",
             "image_bg_color": "#f8ece0",
             "category_name_size": 16,
-            "category_name_color": "#735E59"
+            "category_name_color": "#735e59"
           },
           "blocks": {}
         }
@@ -484,6 +484,12 @@
     "lookbook": {
       "type": "home-lookbook",
       "blocks": {
+        "image_7xwgQ6": {
+          "type": "image",
+          "settings": {
+            "caption": ""
+          }
+        },
         "img-1": {
           "type": "image",
           "settings": {
@@ -504,19 +510,13 @@
             "image": "shopify://shop_images/IMG_7300.heic",
             "caption": ""
           }
-        },
-        "image_Mccf68": {
-          "type": "image",
-          "settings": {
-            "caption": ""
-          }
         }
       },
       "block_order": [
+        "image_7xwgQ6",
         "img-1",
         "img-2",
-        "img-3",
-        "image_Mccf68"
+        "img-3"
       ],
       "settings": {
         "eyebrow": "Criamos acessórios em couro legítimo para quem acredita que os pets fazem parte da família.",
