@@ -863,12 +863,29 @@
       if (!name) return '';
       const n = name.toLowerCase();
       if (n.includes('loggi')) return 'https://logodownload.org/wp-content/uploads/2019/07/loggi-logo-0.png';
-      if (n.includes('pac')) return 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
+      if (n.includes('correios') || n.includes('pac')) return 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
       if (n.includes('sedex')) return 'https://logodownload.org/wp-content/uploads/2017/03/sedex-logo-1.png';
       if (n.includes('total')) return 'https://logodownload.org/wp-content/uploads/2019/09/total-express-logo-0.png';
-      if (n.includes('j&t')) return 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
+      if (n.includes('j&t') || n.includes('jt express')) return 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
       if (n.includes('jadlog')) return 'https://logodownload.org/wp-content/uploads/2019/02/jadlog-logo-0.png';
       return '';
+    }
+
+    // Fallback: se o service_name vier vazio da API externa, tenta detectar
+    // a transportadora analisando as observações do histórico de eventos.
+    // A maioria das notificações mencionam explicitamente "Correios",
+    // "J&T", "Loggi", etc. no texto — suficiente pra identificação básica.
+    function detectCarrierFromEvents(events) {
+      if (!events || !events.length) return null;
+      const text = events.map(e => (e.observation || '') + ' ' + (e.code?.name || '')).join(' ').toLowerCase();
+      if (text.includes('correios') || text.includes('agência dos correios') || text.includes('ect ')) return 'Correios';
+      if (text.includes('j&t') || text.includes('jt express')) return 'J&T Express';
+      if (text.includes('loggi')) return 'Loggi';
+      if (text.includes('sedex')) return 'SEDEX';
+      if (text.includes('jadlog')) return 'Jadlog';
+      if (text.includes('total express') || text.includes('totalexpress')) return 'Total Express';
+      if (text.includes('gfl ')) return 'GFL';
+      return null;
     }
 
     function eventClass(type) {
@@ -1014,7 +1031,11 @@
               )
               .join('');
 
-      const logo = carrierLogo(r.service_name);
+      // Fallback: se a API não vier com o nome da transportadora, tentamos
+      // detectar pelas observações do histórico. Melhor exibir "Correios"
+      // (inferido) do que "Não informado".
+      const carrierName = r.service_name || detectCarrierFromEvents(events) || '';
+      const logo = carrierLogo(carrierName);
 
       result.innerHTML = `
         <div class="ame-track-card">
@@ -1086,7 +1107,7 @@
               ${
                 logo ? `<img class="ame-track-info__carrier-logo" src="${escapeHTML(logo)}" alt="" loading="lazy">` : ''
               }
-              <p class="ame-track-info__value" style="margin:0">${escapeHTML(r.service_name || 'Não informado')}</p>
+              <p class="ame-track-info__value" style="margin:0">${escapeHTML(carrierName || 'Não informado')}</p>
             </div>
             <div class="ame-track-info__row">
               <div>

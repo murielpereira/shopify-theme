@@ -65,12 +65,20 @@
           assign initial_remaining = 0
         endif
       -%}
+      {%- comment -%}
+        Barra fica hidden até o cliente calcular o frete — sem CEP não
+        sabemos qual threshold (regional/nacional) aplicar, então a barra
+        mostrada agora seria imprecisa. O calculator dispara `removeAttribute('hidden')`
+        quando as rates chegam. Só se o cart já vem com nota fiscal / CEP
+        salvo em session, poderia começar visível — hoje sempre esconde.
+      {%- endcomment -%}
       <div
         class="ame-cart-shipping-bar"
         data-shipping-bar
         data-t-regional="{{ t_regional_cents }}"
         data-t-nacional="{{ t_nacional_cents }}"
         data-current-threshold="{{ initial_threshold }}"
+        hidden
       >
         {%- if cart_cents >= initial_threshold -%}
           <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>

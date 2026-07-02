@@ -33,7 +33,7 @@
   # `nil` é a keyword do Liquid pra ausência de valor — `null` seria string
   # literal "null" e quebraria as comparações `partial_variant != nil` usadas
   # no bloco de preços e no data-effective-id do input hidden mais abaixo.
-  assign partial_variant = nil
+  assign partial_variant = null
   if has_variant == false
     assign any_selected = false
     if sel1 != blank or sel2 != blank or sel3 != blank
@@ -460,7 +460,7 @@
       # Tamanho, sem esperar Cor + Cor do Metal.
       assign base_price = cv.price
       if has_variant == false
-        if partial_variant != nil
+        if partial_variant != null
           assign base_price = partial_variant.price
         else
           assign base_price = product.price_min
@@ -468,7 +468,7 @@
       endif
 
       assign cv_compare = cv.compare_at_price | default: 0
-      if cv_compare == 0 and partial_variant != nil
+      if cv_compare == 0 and partial_variant != null
         assign cv_compare = partial_variant.compare_at_price | default: 0
       endif
       if cv_compare == 0
@@ -625,7 +625,7 @@
         assign effective_variant_id = ''
         if has_variant
           assign effective_variant_id = cv.id
-        elsif partial_variant != nil
+        elsif partial_variant != null
           assign effective_variant_id = partial_variant.id
         endif
       -%}
@@ -694,7 +694,7 @@
             >
               <div class="pdp__option-header">
                 <span class="pdp__option-label"
-                  >Selecione {{ artigo }}
+                  >Selecione {{ artigo }}:
                   {{ option.name -}}
                 </span>
                 <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
@@ -2505,7 +2505,7 @@
 
   .pdp__option-header {
     display: flex;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
     align-items: center;
     margin-bottom: 0.5rem;
   }
@@ -2515,6 +2515,7 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-on-surface, #201b14);
+    margin-right: 15px;
   }
 
   .pdp__option-value {

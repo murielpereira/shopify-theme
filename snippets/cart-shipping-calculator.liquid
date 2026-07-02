@@ -407,15 +407,23 @@
     function updateShippingBar(cep) {
       const bar = document.querySelector('[data-shipping-bar]');
       if (!bar) return;
+      // Sem CEP completo (8 dígitos) não sabemos qual região aplica —
+      // esconder a barra é mais honesto que mostrar um número que pode
+      // mudar quando o cliente digitar. Reaparece assim que a região é
+      // identificada.
+      const digits = String(cep || '').replace(/\D/g, '');
+      if (digits.length < 8) {
+        bar.setAttribute('hidden', '');
+        return;
+      }
+      const region = regionFromCep(cep);
+      if (!region) {
+        bar.setAttribute('hidden', '');
+        return;
+      }
       const tRegional = parseInt(bar.dataset.tRegional, 10) || 30000;
       const tNacional = parseInt(bar.dataset.tNacional, 10) || 50000;
-      const region = regionFromCep(cep);
-      // Sem CEP → mantém o threshold atual (regional default). Com CEP →
-      // ajusta pra região correta.
-      let threshold;
-      if (region === 'nacional') threshold = tNacional;
-      else if (region === 'regional') threshold = tRegional;
-      else threshold = tRegional; // default
+      const threshold = region === 'nacional' ? tNacional : tRegional;
 
       bar.dataset.currentThreshold = threshold;
       const cartCents = getCartTotalCents();
@@ -425,14 +433,17 @@
       const textEl = bar.querySelector('[data-shipping-bar-text]');
       const fillEl = bar.querySelector('[data-shipping-bar-fill]');
       if (fillEl) fillEl.style.width = progress + '%';
-      if (!textEl) return;
+      if (!textEl) {
+        bar.removeAttribute('hidden');
+        return;
+      }
       if (cartCents >= threshold) {
         textEl.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true" style="font-size:0.95rem;vertical-align:middle;">local_shipping</span> Você ganhou <strong>frete grátis</strong>!';
       } else {
         const remainingFmt = 'R$ ' + (remaining / 100).toFixed(2).replace('.', ',');
-        const regionHint = region === 'nacional' ? ' (sua região)' : (region === 'regional' ? ' (sua região)' : '');
-        textEl.innerHTML = 'Faltam <strong>' + escapeHtml(remainingFmt) + '</strong> para <strong>frete grátis</strong>' + escapeHtml(regionHint);
+        textEl.innerHTML = 'Faltam <strong>' + escapeHtml(remainingFmt) + '</strong> para <strong>frete grátis</strong> (sua região)';
       }
+      bar.removeAttribute('hidden');
     }
 
     // ── Wrapper XHR (Promise) ──

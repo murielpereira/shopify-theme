@@ -234,7 +234,13 @@
       "WebFetch(domain:www.tiny.com.br)",
       "WebFetch(domain:tiny.com.br)",
       "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/nfe-tiny.js\")",
-      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/brindes.js\")"
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/brindes.js\")",
+      "WebFetch(domain:pagespeed.web.dev)",
+      "Bash(find \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\" -name \"waltz-core*\" -o -name \"tm-widget*\" -o -name \"*medidas*\" 2>/dev/null | head -20)",
+      "Bash(wc -l \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/waltz-core.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/widget-medidas.js\")",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/**)",
+      "Bash(grep -rln \"rastre\\\\|tracking\\\\|smartenvios\\\\|service_name\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" 2>/dev/null | head -10)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/**)"
     ],
     "additionalDirectories": [
       "\\tmp",

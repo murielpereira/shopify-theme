@@ -20,6 +20,18 @@
 
     const WALTZ_BASE = 'https://waltz.up.railway.app';
 
+    // Artigo "o/a" pra montar "Selecione a Cor" / "Selecione o Tamanho".
+    // Espelha a lógica do Liquid em sections/product.liquid — mesma lista
+    // de masculinos, default feminino.
+    const KIT_ARTICLE_MASCULINOS = new Set([
+        'tamanho', 'formato', 'comprimento', 'modelo', 'material',
+        'tipo', 'aroma', 'sabor', 'acabamento',
+    ]);
+    function articleFor(name) {
+        const first = String(name || '').split(' ')[0].toLowerCase();
+        return KIT_ARTICLE_MASCULINOS.has(first) ? 'o' : 'a';
+    }
+
     // ── XHR helpers ──
     function xhrJson(url) {
         return new Promise((resolve, reject) => {
@@ -295,7 +307,7 @@
                     return `
                         <div class="pdp__option pdp__option--kit-disabled">
                             <div class="pdp__option-header">
-                                <span class="pdp__option-label">${esc(u.name)}${esc(u.labelSuffix || '')}</span>
+                                <span class="pdp__option-label">Selecione ${articleFor(u.name)} ${esc(u.name)}${esc(u.labelSuffix || '')}</span>
                             </div>
                             <p class="pdp-kit__option-empty">Sem combinação compatível entre os produtos.</p>
                         </div>
@@ -357,7 +369,7 @@
                 return `
                     <div class="pdp__option" data-kit-option="${esc(u.name)}">
                         <div class="pdp__option-header">
-                            <span class="pdp__option-label">${esc(u.name)}${esc(u.labelSuffix || '')}</span>
+                            <span class="pdp__option-label">Selecione ${articleFor(u.name)} ${esc(u.name)}${esc(u.labelSuffix || '')}</span>
                             <span class="pdp__option-value" data-kit-opt-value="${esc(u.name)}">${esc(selected || '')}</span>
                         </div>
                         <div class="${containerClass}">${items}</div>
@@ -630,6 +642,15 @@
 
         renderOptions();
         renderSummaryAndPrice();
+
+        // Dispatch pra widgets externos (ex: tabela de medidas do Waltz)
+        // saberem que o kit terminou de renderizar. Sem isso, widgets que
+        // rodam no DOMContentLoaded procuravam pelas opções do produto
+        // antes delas existirem no DOM e o cliente precisava recarregar
+        // a página pra tabela aparecer.
+        document.dispatchEvent(new CustomEvent('ame:kit-rendered', {
+            detail: { host, handle: host.dataset.kitHandle || '' },
+        }));
     }
 
     function boot() {

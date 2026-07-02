@@ -15,11 +15,17 @@
         Colapsa body + stats num wrapper; o botão "Ler mais" abaixo alterna via JS.
         No desktop (>=768px) o wrapper fica sempre visível e o botão hidden.
       {%- endcomment -%}
-      <div class="ame-story__collapse" data-story-collapse id="ame-story-collapse-{{ section.id }}">
-        {%- if section.settings.body != blank -%}
-          <div class="ame-story__body">{{ section.settings.body }}</div>
-        {%- endif -%}
+      {%- comment -%}
+        Body fica FORA do collapse — no mobile fechado ele aparece como teaser
+        com `-webkit-line-clamp: 3`, e ao expandir libera todas as linhas +
+        stats + imagem. Assim o cliente lê algumas linhas antes de decidir
+        clicar em "Ler mais".
+      {%- endcomment -%}
+      {%- if section.settings.body != blank -%}
+        <div class="ame-story__body">{{ section.settings.body }}</div>
+      {%- endif -%}
 
+      <div class="ame-story__collapse" data-story-collapse id="ame-story-collapse-{{ section.id }}">
         <!-- Stats grid -->
         {%- if section.blocks.size > 0 -%}
           <div class="ame-story__stats">
@@ -33,44 +39,48 @@
             {%- endfor -%}
           </div>
         {%- endif -%}
-      </div>
 
-      <div class="ame-story__image-col ame-reveal">
-        <div class="ame-story__image-wrap">
-          {%- if section.settings.image != blank -%}
-            {% comment %}
-              ⚡ Bolt: Eager load the LCP image in Brand Story section
-              💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
-              🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
-              📊 Impact: Improves LCP Web Vital metric significantly.
-              🔬 Measurement: Profile the LCP metric on pages containing this section.
-            {% endcomment %}
-            {{
-              section.settings.image
-              | image_url: width: 900
-              | image_tag:
-                widths: '300, 600, 900',
-                loading: 'eager',
-                fetchpriority: 'high',
-                class: 'ame-story__image',
-                alt: section.settings.image.alt
-              | escape
-            }}
-          {%- else -%}
-            {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
-          {%- endif -%}
-        </div>
-
-        <!-- Floating satisfaction chip -->
-        {%- if section.settings.floating_label != blank -%}
-          <div class="ame-story__float-chip">
-            <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
-            <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
-            {%- if section.settings.floating_sublabel != blank -%}
-              <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
+        <!-- Image column — vive dentro do collapse pra que no mobile ela
+             seja parte do conteúdo colapsado. No desktop, o CSS usa
+             `display: contents` no text+collapse pra promover a imagem
+             de volta pra col 2 do grid principal. -->
+        <div class="ame-story__image-col ame-reveal">
+          <div class="ame-story__image-wrap">
+            {%- if section.settings.image != blank -%}
+              {% comment %}
+                ⚡ Bolt: Eager load the LCP image in Brand Story section
+                💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
+                🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
+                📊 Impact: Improves LCP Web Vital metric significantly.
+                🔬 Measurement: Profile the LCP metric on pages containing this section.
+              {% endcomment %}
+              {{
+                section.settings.image
+                | image_url: width: 900
+                | image_tag:
+                  widths: '300, 600, 900',
+                  loading: 'eager',
+                  fetchpriority: 'high',
+                  class: 'ame-story__image',
+                  alt: section.settings.image.alt
+                | escape
+              }}
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
             {%- endif -%}
           </div>
-        {%- endif -%}
+
+          <!-- Floating satisfaction chip -->
+          {%- if section.settings.floating_label != blank -%}
+            <div class="ame-story__float-chip">
+              <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
+              <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
+              {%- if section.settings.floating_sublabel != blank -%}
+                <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
       </div>
 
       <button
@@ -84,8 +94,6 @@
         <span class="material-symbols-outlined ame-story__toggle-icon" aria-hidden="true">expand_more</span>
       </button>
     </div>
-
-    <!-- Image column -->
   </div>
 </section>
 
@@ -215,8 +223,9 @@
 
   /* ── Collapse mobile ──
      No mobile a section fica muito longa e empurra o resto da home; escondemos
-     body + stats e mostramos um botão "Ler mais". No desktop (>=768px) o
-     comportamento default é sempre expandido — o botão fica hidden. */
+     stats + imagem e mostramos um teaser do body + botão "Ler mais". No
+     desktop (>=768px) o comportamento default é sempre expandido — o botão
+     fica hidden e o body volta ao normal. */
   .ame-story__collapse {
     overflow: hidden;
     max-height: 0;
@@ -226,6 +235,19 @@
     /* Valor alto pra caber o conteúdo real. Como o transition é em max-height,
        o efeito visual segue proporcional à altura real do conteúdo. */
     max-height: 2000px;
+  }
+
+  /* Teaser do body — no mobile fechado, corta em 3 linhas e mostra reticências.
+     Ao abrir (data-story-open="true"), libera as linhas. */
+  @media (max-width: 767px) {
+    .ame-story:not([data-story-open='true']) .ame-story__body {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
   }
   .ame-story__toggle {
     display: inline-flex;
@@ -257,13 +279,34 @@
   }
 
   @media (min-width: 768px) {
-    /* Desktop: sem colapso. Wrapper sempre visível, botão sumido. */
+    /* Desktop: sem colapso. Wrapper sempre visível, botão sumido.
+       display:contents no text+collapse "achata" a árvore — os filhos
+       (eyebrow/title/body/stats/image-col/etc) passam a ser células
+       diretas do grid `.ame-story__inner` (2-col), permitindo mandar
+       a image-col pra col 2 mesmo estando aninhada no markup. */
     .ame-story__collapse {
       max-height: none;
       overflow: visible;
+      display: contents;
+    }
+    .ame-story__text {
+      display: contents;
     }
     .ame-story__toggle {
       display: none;
+    }
+    /* Tudo do texto vai pra col 1 do grid pai */
+    .ame-story__inner > .ame-story__text > .ame-label-sm,
+    .ame-story__inner > .ame-story__text > .ame-story__title,
+    .ame-story__inner > .ame-story__text > .ame-story__body,
+    .ame-story__inner .ame-story__collapse > .ame-story__stats {
+      grid-column: 1;
+    }
+    /* Imagem vai pra col 2 e ocupa a altura toda (span de todas as rows) */
+    .ame-story__inner .ame-story__collapse > .ame-story__image-col {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      align-self: center;
     }
   }
 {% endstylesheet %}
