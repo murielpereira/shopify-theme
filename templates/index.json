@@ -253,8 +253,8 @@
             "section_title": "",
             "category_1": "cachorros",
             "category_2": "gatos",
-            "category_3": "acessorios",
-            "category_4": "bolsas",
+            "category_3": "bolsas",
+            "category_4": "acessorios",
             "desktop_width_percent": 100,
             "section_padding": 40,
             "grid_gap": 16,
@@ -504,12 +504,19 @@
             "image": "shopify://shop_images/IMG_7300.heic",
             "caption": ""
           }
+        },
+        "image_Mccf68": {
+          "type": "image",
+          "settings": {
+            "caption": ""
+          }
         }
       },
       "block_order": [
         "img-1",
         "img-2",
-        "img-3"
+        "img-3",
+        "image_Mccf68"
       ],
       "settings": {
         "eyebrow": "Criamos acessórios em couro legítimo para quem acredita que os pets fazem parte da família.",
