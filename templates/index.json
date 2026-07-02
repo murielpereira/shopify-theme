@@ -560,19 +560,11 @@
             "value": "Envios",
             "label": "para todo o mundo"
           }
-        },
-        "stat-3": {
-          "type": "stat",
-          "settings": {
-            "value": "∞",
-            "label": "Produção artesanal"
-          }
         }
       },
       "block_order": [
         "stat-1",
-        "stat-2",
-        "stat-3"
+        "stat-2"
       ],
       "settings": {
         "eyebrow": "Conheça um pouco da nossa história",
