@@ -62,14 +62,14 @@
             {{- settings.pingente_optin_message -}}
           </p>
         {%- endif -%}
-        <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado?</p>
-        <div class="ame-pingente__opt-row">
+        <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado? <span class="ame-pingente__req" aria-hidden="true">*</span></p>
+        <div class="ame-pingente__opt-row" data-pingente-opt-row>
           <label class="ame-pingente__opt">
             <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
             <span>Sim</span>
           </label>
           <label class="ame-pingente__opt">
-            <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt checked>
+            <input type="radio" name="ame-pingente-opt" value="nao" data-pingente-opt>
             <span>Não</span>
           </label>
         </div>
@@ -313,6 +313,24 @@
     .ame-pingente__opt-row {
       display: flex;
       gap: 0.5rem;
+      padding: 0.25rem;
+      margin: -0.25rem;
+      border-radius: var(--radius-md, 4px);
+      transition: box-shadow 0.2s ease;
+    }
+    /* Destaque quando cliente tenta submeter sem escolher — sinaliza que
+       precisa responder Sim ou Não antes de adicionar ao carrinho. */
+    .ame-pingente__opt-row.is-invalid {
+      box-shadow: 0 0 0 2px #b3261e;
+      animation: ame-pingente-shake 0.4s ease-in-out;
+    }
+    @keyframes ame-pingente-shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    .ame-pingente__req {
+      color: #b3261e;
     }
     .ame-pingente__opt {
       flex: 1;
@@ -982,6 +1000,9 @@
       root.querySelectorAll('[data-pingente-opt]').forEach((r) => {
         r.addEventListener('change', (e) => {
           state.opted = e.target.value === 'sim';
+          state.optChoiceMade = true;
+          // Limpa destaque de erro quando o cliente responde
+          root.querySelector('[data-pingente-opt-row]')?.classList.remove('is-invalid');
           step2.hidden = !state.opted;
           if (!state.opted) {
             state.tipo = null;
@@ -1280,6 +1301,13 @@
       window.amePingente = {
         isActive() {
           return state.opted;
+        },
+        // Cliente respondeu Sim ou Não? Em modo obrigatório sempre retorna
+        // true (auto-opta true no boot). Em modo opcional, exige clique
+        // explícito em Sim ou Não — evita cliente adicionar produto sem
+        // decidir e depois se arrepender por não ter escolhido pingente.
+        hasAnswered() {
+          return !!(OBRIGATORIO || state.optChoiceMade);
         },
         validate() {
           if (!state.opted) return { ok: true };

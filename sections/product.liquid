@@ -1638,7 +1638,20 @@
         return;
       }
 
-      /* Validate pingente (se cliente optou por adicionar) */
+      /* Validate pingente — primeiro exige que cliente tenha respondido
+         Sim OU Não (no modo opcional). Depois, se optou por Sim, valida
+         a personalização em si. */
+      if (window.amePingente?.hasAnswered && !window.amePingente.hasAnswered()) {
+        (window.AmePdpToast || ((m) => alert(m)))('Escolha se deseja adicionar um pingente personalizado.');
+        const row = document.querySelector('[data-pingente-opt-row]');
+        if (row) {
+          row.classList.add('is-invalid');
+          const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
+          const top = row.getBoundingClientRect().top + window.scrollY - headerH - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+        return;
+      }
       if (window.amePingente?.isActive()) {
         const pv = window.amePingente.validate();
         if (!pv.ok) {
@@ -2913,16 +2926,21 @@
      clamp(32px..160px) no tablet/desktop). Antes era fixo em 20rem (320px)
      em todos os tamanhos exceto mobile, espremendo a descrição em telas
      769-1279px (tablet/laptop pequeno). */
+  /* Container do accordion — usa max-width em vez de padding lateral gigante
+     pra que a caixa do accordion (border-top do botão + body) tenha a mesma
+     largura visual seja qual for o estado (fechado/aberto). Antes com
+     `padding: 10px 20rem` no desktop, o content interno rico da descrição
+     (HTML do admin) escapava dos paddings, fazendo o botão fechado parecer
+     bem mais estreito que o conteúdo aberto. */
   .pdp-accordions {
     padding: 10px var(--page-margin, 20px);
     max-width: 100%;
     margin: 0 auto;
   }
-
-  /* Desktop largo: mantém o padding generoso de 20rem do design original. */
   @media (min-width: 1280px) {
     .pdp-accordions {
-      padding: 10px 20rem;
+      padding: 10px 0;
+      max-width: 900px;
     }
   }
 

@@ -391,27 +391,12 @@ body::after {
    A definição atual vive mais abaixo neste arquivo, sob o cabeçalho "CARDS". */
 
 /* ── Accordion ── */
+/* CSS completo do accordion vive em sections/product.liquid (linha ~2935+).
+   Aqui só ficam garantias mínimas de fallback (evitando FOUC caso o stylesheet
+   da section demore). Duplicar completo aqui causava sobrescrita/conflito. */
 .ame-accordion {
   width: 100%;
 }
-/* Botão precisa estirar pra largura do container — sem isso, o <button>
-   fica com width auto (só do conteúdo), causando o header do accordion
-   fechado parecer mais estreito que o conteúdo quando aberto. */
-.ame-accordion__btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  background: transparent;
-  border: none;
-  padding: 1rem 0;
-  text-align: left;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-}
-
 .ame-accordion__content {
   max-height: 0;
   overflow: hidden;
