@@ -13,3 +13,6 @@
 ## 2024-05-28 - Optimize array sorting in Liquid templates
 **Learning:** Shopify Liquid lacks a native way to sort complex objects or manually filter loop outputs based on dynamic numeric fields (like custom ordering fields in settings). Developers often resort to nested O(N²) loops (e.g. an outer loop for order position 1..20, and an inner loop over 20 fields to find matches) which bloats template evaluation time.
 **Action:** Use an O(N) string-building approach. Loop once to build a comma-separated string of the active fields, prefixing each with a zero-padded sort key (e.g., `05_customField1`). Split this string and use the native `sort` filter. Then iterate over this much smaller, natively sorted array to render the output.
+## 2026-07-02 - Optimize Variant Lookup
+**Learning:** To locate a specific item matching multiple criteria in a large array of objects (like finding a specific product variant), avoid manual `{% for %}` loops with nested `{% if %}` blocks. This causes high parsing overhead inside Liquid loops.
+**Action:** Always logically chain multiple native `where` filters and append `.first` (e.g., `array | where: prop1, val1 | where: prop2, val2 | first`). This shifts the evaluation process to the C/Rust level on the server, improving TTFB.
