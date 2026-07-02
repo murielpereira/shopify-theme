@@ -516,7 +516,7 @@
           "type": "image",
           "settings": {
             "image": "shopify://shop_images/Captura_de_Tela_2026-07-02_as_07.59.09.png",
-            "caption": "tetetetetetteteee"
+            "caption": "Bia, Wendy e Aurora"
           }
         },
         "img-2": {
@@ -574,7 +574,6 @@
         "stat-2",
         "stat-3"
       ],
-      "disabled": true,
       "settings": {
         "eyebrow": "Nossa Filosofia",
         "title": "",
