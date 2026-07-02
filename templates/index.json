@@ -554,6 +554,13 @@
             "label": "Anos de Experiência"
           }
         },
+        "stat_CpDbcP": {
+          "type": "stat",
+          "settings": {
+            "value": "7+",
+            "label": "Anos de Craft"
+          }
+        },
         "stat-2": {
           "type": "stat",
           "settings": {
@@ -571,13 +578,14 @@
       },
       "block_order": [
         "stat-1",
+        "stat_CpDbcP",
         "stat-2",
         "stat-3"
       ],
       "settings": {
         "eyebrow": "Nossa Filosofia",
-        "title": "",
-        "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e a habilidade minuciosa dos nossos artesões.</p>",
+        "title": "<p>Quem Somos</p>",
+        "body": "<p>Tudo começou em maio 2020, quando a Wendy, minha primeira Filha pet, entrou na minha vida. Meu olhar sempre foi atento em busca de harmonia, estética e qualidade em cada detalhe. Mas, ao procurar acessórios para ela, encontrei um vazio.</p><p>O mercado oferecia o excesso: muitas cores, muito plástico, estampas infantis. Faltava a alma. Faltava algo que representasse a extensão da minha própria personalidade e que honrasse a presença da Wendy na minha vida.</p><p>Eu não queria fantasiar meu pet. Eu queria vesti-lo com a mesma dignidade e estilo com que eu me vestia.</p><p><strong>A Criação</strong></p><p>Movida por essa busca, decidi criar o que não encontrava. Em um espaço improvisado, na antiga fábrica dos meus Sogros, comecei a desenhar e produzir as primeiras peças.</p><p>Ali, defini os códigos que guiam a Âme até hoje:</p><ul><li>Couro Legítimo: Pela nobreza, conforto e durabilidade.</li><li>Feito à Mão: Porque artesanal carrega sentimento.</li><li>Design Autoral: Peças limpas, atemporais e elegantes.</li></ul>",
         "image": "shopify://shop_images/Captura_de_Tela_2026-07-02_as_07.59.09.png",
         "floating_eyebrow": "Satisfação",
         "floating_label": "99.2 %",
