@@ -55,12 +55,12 @@
     "hero": {
       "type": "home-hero",
       "settings": {
-        "video": "shopify://files/videos/video tema desktop.MOV",
+        "video": "shopify://files/videos/salsicha sofa desktop.mp4",
         "video_mobile": "shopify://files/videos/salsicha sofa mobile.mp4",
         "video_url": "",
-        "eyebrow": "teste",
+        "eyebrow": "",
         "title": "<h3>Couro legítimo. Cuidado real. </h3><p>Para quem ama de verdade.</p>",
-        "subtitle": "testandooooo",
+        "subtitle": "",
         "cta_primary_label": "",
         "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
         "cta_secondary_url": ""
