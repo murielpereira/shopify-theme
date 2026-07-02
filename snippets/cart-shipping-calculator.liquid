@@ -211,7 +211,12 @@
 
     function setLoading(isLoading) {
       btn.disabled = isLoading;
-      btnLabel.textContent = isLoading ? 'Calculando...' : 'Calcular';
+      btn.classList.toggle('is-loading', isLoading);
+      btn.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+      // Texto fica sempre "Calcular" — o spinner CSS (.is-loading::after)
+      // aparece por cima. Antes trocávamos por "Calculando..." que estourava
+      // a largura do botão em telas estreitas.
+      btnLabel.textContent = 'Calcular';
     }
 
     // Chave estável de uma rate pra persistir seleção entre sessões mesmo
@@ -626,6 +631,7 @@
   }
 
   .ame-cart-freight__btn {
+    position: relative;
     flex-shrink: 0;
     background: var(--color-primary, #5a4742);
     color: var(--color-on-primary, #fff);
@@ -641,6 +647,24 @@
   }
   .ame-cart-freight__btn:hover:not(:disabled) { opacity: 0.9; }
   .ame-cart-freight__btn:disabled { opacity: 0.6; cursor: default; }
+  /* Estado loading: esconde o texto e mostra spinner rotativo por cima.
+     Evita que "Calculando..." estoure a largura do botão em telas estreitas. */
+  .ame-cart-freight__btn.is-loading > * { visibility: hidden; }
+  .ame-cart-freight__btn.is-loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: ame-freight-spin 0.7s linear infinite;
+  }
+  @keyframes ame-freight-spin {
+    to { transform: rotate(360deg); }
+  }
 
   .ame-cart-freight__cep-link {
     display: inline-block;

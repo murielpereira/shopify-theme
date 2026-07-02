@@ -397,6 +397,7 @@ body::after {
 .ame-accordion {
   width: 100%;
 }
+
 .ame-accordion__content {
   max-height: 0;
   overflow: hidden;
@@ -1921,7 +1922,7 @@ body::after {
 
 .ame-cart-drawer__footer {
   /* Não mais fixo — flui no scroll do drawer junto com o body. */
-  padding: 1.25rem 1.5rem max(1.5rem, env(safe-area-inset-bottom));
+  padding: 1.25rem 1rem max(1.5rem, env(safe-area-inset-bottom));
   background: #ffffff;
   border-top: 1px solid rgba(210, 195, 192, 0.18);
   display: flex;

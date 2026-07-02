@@ -25,6 +25,42 @@
         <div class="ame-story__body">{{ section.settings.body }}</div>
       {%- endif -%}
 
+      {%- comment -%}
+        Bloco reutilizável: image-col renderiza foto + chip flutuante. É
+        instanciado 2x no markup — dentro do collapse (só visível no mobile
+        via CSS) e fora do text (só visível no desktop na col 2 do grid).
+        Isso evita quirks de `display: contents` no grid do desktop, que
+        estavam quebrando o layout 2-col.
+      {%- endcomment -%}
+      {%- capture image_col_html -%}
+        <div class="ame-story__image-wrap">
+          {%- if section.settings.image != blank -%}
+            {{
+              section.settings.image
+              | image_url: width: 900
+              | image_tag:
+                widths: '300, 600, 900',
+                loading: 'eager',
+                fetchpriority: 'high',
+                class: 'ame-story__image',
+                alt: section.settings.image.alt
+              | escape
+            }}
+          {%- else -%}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
+          {%- endif -%}
+        </div>
+        {%- if section.settings.floating_label != blank -%}
+          <div class="ame-story__float-chip">
+            <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
+            <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
+            {%- if section.settings.floating_sublabel != blank -%}
+              <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endcapture -%}
+
       <div class="ame-story__collapse" data-story-collapse id="ame-story-collapse-{{ section.id }}">
         <!-- Stats grid -->
         {%- if section.blocks.size > 0 -%}
@@ -40,46 +76,10 @@
           </div>
         {%- endif -%}
 
-        <!-- Image column — vive dentro do collapse pra que no mobile ela
-             seja parte do conteúdo colapsado. No desktop, o CSS usa
-             `display: contents` no text+collapse pra promover a imagem
-             de volta pra col 2 do grid principal. -->
-        <div class="ame-story__image-col ame-reveal">
-          <div class="ame-story__image-wrap">
-            {%- if section.settings.image != blank -%}
-              {% comment %}
-                ⚡ Bolt: Eager load the LCP image in Brand Story section
-                💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the image.
-                🎯 Why: Hardcoding `loading: 'lazy'` for this LCP candidate image delays rendering and perceived load time.
-                📊 Impact: Improves LCP Web Vital metric significantly.
-                🔬 Measurement: Profile the LCP metric on pages containing this section.
-              {% endcomment %}
-              {{
-                section.settings.image
-                | image_url: width: 900
-                | image_tag:
-                  widths: '300, 600, 900',
-                  loading: 'eager',
-                  fetchpriority: 'high',
-                  class: 'ame-story__image',
-                  alt: section.settings.image.alt
-                | escape
-              }}
-            {%- else -%}
-              {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
-            {%- endif -%}
-          </div>
-
-          <!-- Floating satisfaction chip -->
-          {%- if section.settings.floating_label != blank -%}
-            <div class="ame-story__float-chip">
-              <p class="ame-story__float-label">{{ section.settings.floating_eyebrow }}</p>
-              <p class="ame-story__float-value">{{ section.settings.floating_label }}</p>
-              {%- if section.settings.floating_sublabel != blank -%}
-                <p class="ame-story__float-sub">{{ section.settings.floating_sublabel }}</p>
-              {%- endif -%}
-            </div>
-          {%- endif -%}
+        <!-- Imagem SÓ pro mobile — dentro do collapse pra ser parte da
+             animação de expansão. Escondida via CSS em >=768px. -->
+        <div class="ame-story__image-col ame-story__image-col--mobile ame-reveal">
+          {{ image_col_html }}
         </div>
       </div>
 
@@ -93,6 +93,12 @@
         <span data-story-toggle-label>Ler mais</span>
         <span class="material-symbols-outlined ame-story__toggle-icon" aria-hidden="true">expand_more</span>
       </button>
+    </div>
+
+    <!-- Imagem SÓ pro desktop — irmã de .ame-story__text no grid 2-col.
+         Escondida via CSS em <768px (mobile usa a versão dentro do collapse). -->
+    <div class="ame-story__image-col ame-story__image-col--desktop ame-reveal">
+      {{ image_col_html }}
     </div>
   </div>
 </section>
@@ -146,6 +152,7 @@
     gap: 1.5rem;
     padding-top: 2rem;
     border-top: 1px solid rgba(210, 195, 192, 0.2);
+    margin-bottom: 15px;
   }
   @media (min-width: 600px) {
     .ame-story__stats {
@@ -278,36 +285,22 @@
     transform: rotate(180deg);
   }
 
+  /* Duas versões da imagem no DOM (uma mobile, uma desktop). Cada uma
+     visível só no seu breakpoint. Mais simples que `display: contents`
+     (que tem quirks) e não depende de subgrid. Custo: um <img> a mais
+     no DOM, mas o browser evita baixar 2x com o mesmo src+widths. */
+  .ame-story__image-col--desktop { display: none; }
   @media (min-width: 768px) {
-    /* Desktop: sem colapso. Wrapper sempre visível, botão sumido.
-       display:contents no text+collapse "achata" a árvore — os filhos
-       (eyebrow/title/body/stats/image-col/etc) passam a ser células
-       diretas do grid `.ame-story__inner` (2-col), permitindo mandar
-       a image-col pra col 2 mesmo estando aninhada no markup. */
+    /* Desktop: sem colapso. Wrapper sempre visível, botão sumido. */
     .ame-story__collapse {
       max-height: none;
       overflow: visible;
-      display: contents;
-    }
-    .ame-story__text {
-      display: contents;
     }
     .ame-story__toggle {
       display: none;
     }
-    /* Tudo do texto vai pra col 1 do grid pai */
-    .ame-story__inner > .ame-story__text > .ame-label-sm,
-    .ame-story__inner > .ame-story__text > .ame-story__title,
-    .ame-story__inner > .ame-story__text > .ame-story__body,
-    .ame-story__inner .ame-story__collapse > .ame-story__stats {
-      grid-column: 1;
-    }
-    /* Imagem vai pra col 2 e ocupa a altura toda (span de todas as rows) */
-    .ame-story__inner .ame-story__collapse > .ame-story__image-col {
-      grid-column: 2;
-      grid-row: 1 / -1;
-      align-self: center;
-    }
+    .ame-story__image-col--mobile { display: none; }
+    .ame-story__image-col--desktop { display: block; }
   }
 {% endstylesheet %}
 
