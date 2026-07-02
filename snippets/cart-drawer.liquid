@@ -220,25 +220,14 @@
     <!-- Calculadora de frete (CEP) — Shopify Ajax shipping_rates -->
     {%- render 'cart-shipping-calculator' -%}
 
-    <!-- Totals -->
+    <!-- Totals — sem linhas de Frete/Total porque o cliente escolhe o
+         frete só no checkout. Aqui mostramos apenas o subtotal dos itens. -->
     <div class="ame-cart-totals">
       <div class="ame-cart-totals__row">
         <span>Subtotal</span>
         <span data-cart-subtotal>{{ cart.total_price | money }}</span>
       </div>
-      {%- comment -%}
-        Row de frete e total renderizados via JS (cart-shipping-calculator)
-        quando o cliente seleciona uma transportadora. Hidden por default.
-      {%- endcomment -%}
-      <div class="ame-cart-totals__row ame-cart-totals__row--shipping" data-cart-shipping-row hidden>
-        <span>Frete (<span data-cart-shipping-name>—</span>)</span>
-        <span data-cart-shipping-value>—</span>
-      </div>
-      <div class="ame-cart-totals__row ame-cart-totals__row--grand" data-cart-grand-row hidden>
-        <span>Total</span>
-        <span data-cart-grand-total>—</span>
-      </div>
-      <p class="ame-cart-totals__note">Selecione a transportadora novamente no checkout</p>
+      <p class="ame-cart-totals__note">Frete calculado no checkout</p>
     </div>
 
     <!-- CTA -->

@@ -159,28 +159,32 @@
       <p class="ame-hero__eyebrow ame-fade-up ame-delay-1">{{ section.settings.eyebrow }}</p>
     {%- endif -%}
 
-    <h1 class="ame-hero__title ame-fade-up ame-delay-2">
-      {{ section.settings.title | newline_to_br }}
-    </h1>
+    {%- if section.settings.title != blank -%}
+      <h1 class="ame-hero__title ame-fade-up ame-delay-2">
+        {{ section.settings.title | newline_to_br }}
+      </h1>
+    {%- endif -%}
 
     {%- if section.settings.subtitle != blank -%}
       <p class="ame-hero__subtitle ame-fade-up ame-delay-3">{{ section.settings.subtitle }}</p>
     {%- endif -%}
 
-    <div class="ame-hero__ctas ame-fade-up ame-delay-4">
-      {%- if section.settings.cta_primary_label != blank -%}
-        <a href="{{ section.settings.cta_primary_url }}" class="ame-cta">
-          {{ section.settings.cta_primary_label }}
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-        </a>
-      {%- endif -%}
-      {%- if section.settings.cta_secondary_label != blank -%}
-        <a href="{{ section.settings.cta_secondary_url }}" class="ame-btn-secondary">
-          {{ section.settings.cta_secondary_label }}
-          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-        </a>
-      {%- endif -%}
-    </div>
+    {%- if section.settings.cta_primary_label != blank or section.settings.cta_secondary_label != blank -%}
+      <div class="ame-hero__ctas ame-fade-up ame-delay-4">
+        {%- if section.settings.cta_primary_label != blank -%}
+          <a href="{{ section.settings.cta_primary_url }}" class="ame-cta">
+            {{ section.settings.cta_primary_label }}
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </a>
+        {%- endif -%}
+        {%- if section.settings.cta_secondary_label != blank -%}
+          <a href="{{ section.settings.cta_secondary_url }}" class="ame-btn-secondary">
+            {{ section.settings.cta_secondary_label }}
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
   </div>
 
   <!-- Indicador de scroll -->

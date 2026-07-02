@@ -71,7 +71,6 @@
     }
 
     const STORAGE_KEY = 'ame:cep';
-    const SELECTED_KEY = 'ame:cep:selected_rate';
     const form        = host.querySelector('[data-cart-freight-form]');
     const input       = host.querySelector('[data-cart-freight-input]');
     const btn         = host.querySelector('[data-cart-freight-submit]');
@@ -95,12 +94,9 @@
       // completar 8 dígitos e clicar Calcular, os novos dados aparecem.
       if (digits.length < 8) {
         resultsEl.hidden = true;
-        updateCartFreightDisplay(null);
         if (digits.length === 0) {
           resultsEl.innerHTML = '';
           currentRates = [];
-          selectedRateKey = null;
-          try { localStorage.removeItem(SELECTED_KEY); } catch (_) {}
           clearMessages();
         }
       }
@@ -268,14 +264,11 @@
     // Cache local da lista atual de rates — usado quando o user clica
     // num card pra atualizar o display sem refazer a request.
     let currentRates = [];
-    let selectedRateKey = null;
 
     function renderRates(rates) {
       if (!rates || rates.length === 0) {
         showError('Nenhuma opção de entrega disponível para este CEP.');
         currentRates = [];
-        selectedRateKey = null;
-        updateCartFreightDisplay(null);
         return;
       }
       // Ordena por preço crescente — mais barato primeiro
@@ -295,19 +288,11 @@
         if (d < fastestDays) { fastestDays = d; fastestIdx = i; }
       }
 
-      // Restaura seleção do localStorage; senão, usa a mais barata (primeira)
-      let savedKey = null;
-      try { savedKey = localStorage.getItem(SELECTED_KEY); } catch (_) {}
-      const savedIdx = savedKey ? sorted.findIndex(r => rateKey(r) === savedKey) : -1;
-      const selectedIdx = savedIdx >= 0 ? savedIdx : 0;
-      selectedRateKey = rateKey(sorted[selectedIdx]);
-
       resultsEl.innerHTML = sorted.map((rate, i) => {
         const nomeOrig = rate.presentment_name || rate.name || rate.source || 'Frete';
         const nome  = sanitizeRateName(nomeOrig);
         const preco = parseFloat(rate.price) === 0 ? 'Grátis' : fmtMoney(rate.price);
         const prazo = fmtPrazo(rate);
-        const isSelected = i === selectedIdx;
         const tags = [];
         if (i === cheapestIdx) tags.push('<span class="ame-cart-freight__tag ame-cart-freight__tag--cheap">Mais barato</span>');
         if (i === fastestIdx && fastestIdx !== cheapestIdx) tags.push('<span class="ame-cart-freight__tag ame-cart-freight__tag--fast">Mais rápido</span>');
@@ -315,73 +300,22 @@
           // Mesma rate é a mais barata E mais rápida — substitui o tag por um destacado
           tags[0] = '<span class="ame-cart-freight__tag ame-cart-freight__tag--best">Melhor opção</span>';
         }
+        // Cards são apenas informativos — o cliente escolhe o frete de fato
+        // no checkout. Sem <button>, radio, aria-pressed ou handler de click.
         return `
-          <li class="ame-cart-freight__result${isSelected ? ' is-selected' : ''}" data-rate-idx="${i}">
-            <button type="button" class="ame-cart-freight__result-btn" data-rate-idx="${i}" aria-pressed="${isSelected}">
-              <span class="ame-cart-freight__radio" aria-hidden="true"></span>
-              <div class="ame-cart-freight__result-info">
-                <div class="ame-cart-freight__result-top">
-                  <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
-                  <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
-                </div>
-                ${prazo ? `<div class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</div>` : ''}
-                ${tags.length ? `<div class="ame-cart-freight__tags">${tags.join('')}</div>` : ''}
+          <li class="ame-cart-freight__result" data-rate-idx="${i}">
+            <div class="ame-cart-freight__result-info">
+              <div class="ame-cart-freight__result-top">
+                <span class="ame-cart-freight__result-name">${escapeHtml(nome)}</span>
+                <strong class="ame-cart-freight__result-price">${escapeHtml(preco)}</strong>
               </div>
-            </button>
+              ${prazo ? `<div class="ame-cart-freight__result-prazo">${escapeHtml(prazo)}</div>` : ''}
+              ${tags.length ? `<div class="ame-cart-freight__tags">${tags.join('')}</div>` : ''}
+            </div>
           </li>
         `;
       }).join('');
       resultsEl.hidden = false;
-
-      updateCartFreightDisplay(sorted[selectedIdx]);
-    }
-
-    // Click em um card seleciona a rate. Persiste em localStorage e atualiza
-    // o display no rodapé do cart drawer.
-    resultsEl.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-rate-idx]');
-      if (!btn) return;
-      const idx = parseInt(btn.dataset.rateIdx, 10);
-      if (isNaN(idx) || !currentRates[idx]) return;
-      selectedRateKey = rateKey(currentRates[idx]);
-      try { localStorage.setItem(SELECTED_KEY, selectedRateKey); } catch (_) {}
-      // Re-render só as classes selected (re-cria o markup é mais simples)
-      resultsEl.querySelectorAll('.ame-cart-freight__result').forEach((li, i) => {
-        const isSel = i === idx;
-        li.classList.toggle('is-selected', isSel);
-        const innerBtn = li.querySelector('[data-rate-idx]');
-        if (innerBtn) innerBtn.setAttribute('aria-pressed', isSel);
-      });
-      updateCartFreightDisplay(currentRates[idx]);
-    });
-
-    // Atualiza linhas "Frete (X)" e "Total" no rodapé do drawer.
-    function updateCartFreightDisplay(rate) {
-      const shippingRow = document.querySelector('[data-cart-shipping-row]');
-      const shippingName = document.querySelector('[data-cart-shipping-name]');
-      const shippingValue = document.querySelector('[data-cart-shipping-value]');
-      const grandTotalRow = document.querySelector('[data-cart-grand-row]');
-      const grandTotalEl = document.querySelector('[data-cart-grand-total]');
-      if (!shippingRow || !grandTotalRow) return;
-
-      if (!rate) {
-        shippingRow.hidden = true;
-        grandTotalRow.hidden = true;
-        return;
-      }
-      const priceCents = Math.round(parseFloat(String(rate.price).replace(',', '.')) * 100);
-      const nome = sanitizeRateName(rate.presentment_name || rate.name || rate.source || 'Frete');
-
-      if (shippingName) shippingName.textContent = nome;
-      if (shippingValue) {
-        shippingValue.textContent = priceCents === 0 ? 'Grátis' : fmtMoney(rate.price);
-      }
-      shippingRow.hidden = false;
-
-      const cartCents = getCartTotalCents();
-      const grandCents = cartCents + priceCents;
-      if (grandTotalEl) grandTotalEl.textContent = 'R$ ' + (grandCents / 100).toFixed(2).replace('.', ',');
-      grandTotalRow.hidden = false;
     }
 
     function escapeHtml(s) {
@@ -722,55 +656,15 @@
     gap: 0.5rem;
   }
 
+  /* Card informativo — sem seleção. Cliente escolhe o frete no checkout,
+     aqui apenas mostramos as cotações pra o cliente ter previsibilidade. */
   .ame-cart-freight__result {
     list-style: none;
     margin: 0;
-    padding: 0;
-  }
-
-  .ame-cart-freight__result-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    width: 100%;
     padding: 0.625rem 0.75rem;
     background: var(--color-surface-container-lowest, #fff);
     border: 1px solid var(--color-outline-variant, #d2c3c0);
     border-radius: var(--radius-md, 0.5rem);
-    cursor: pointer;
-    text-align: left;
-    font: inherit;
-    color: inherit;
-    transition: border-color 0.15s ease, background 0.15s ease;
-  }
-
-  .ame-cart-freight__result-btn:hover {
-    border-color: var(--color-primary, #5a4742);
-  }
-
-  .ame-cart-freight__result.is-selected .ame-cart-freight__result-btn {
-    border-color: var(--color-primary, #5a4742);
-    background: rgba(248, 236, 224, 0.4);
-  }
-
-  .ame-cart-freight__radio {
-    flex-shrink: 0;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    border: 2px solid var(--color-outline-variant, #d2c3c0);
-    position: relative;
-    background: var(--color-surface-container-lowest, #fff);
-  }
-  .ame-cart-freight__result.is-selected .ame-cart-freight__radio {
-    border-color: var(--color-primary, #5a4742);
-  }
-  .ame-cart-freight__result.is-selected .ame-cart-freight__radio::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    border-radius: 50%;
-    background: var(--color-primary, #5a4742);
   }
 
   .ame-cart-freight__result-info {
