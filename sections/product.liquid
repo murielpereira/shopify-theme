@@ -1592,12 +1592,30 @@
 
       /* Validate required custom fields */
       let cfValid = true;
+      let firstInvalidCf = null;
       e.target.querySelectorAll('[data-cf-required]').forEach(field => {
         const wrap = field.closest('.pdp__custom-field');
-        if (!field.value.trim()) { cfValid = false; wrap?.classList.add('pdp__custom-field--error'); }
-        else wrap?.classList.remove('pdp__custom-field--error');
+        if (!field.value.trim()) {
+          cfValid = false;
+          wrap?.classList.add('pdp__custom-field--error');
+          if (!firstInvalidCf) firstInvalidCf = wrap || field;
+        } else {
+          wrap?.classList.remove('pdp__custom-field--error');
+        }
       });
-      if (!cfValid) return;
+      if (!cfValid) {
+        // Feedback explícito — sem isso, o cliente clicava e "não acontecia
+        // nada" (apenas a borda do CF virava vermelha, muitas vezes fora do
+        // viewport). Toast + scroll até o primeiro faltante.
+        const label = firstInvalidCf?.querySelector('.pdp__custom-field__label')?.textContent?.trim() || 'campo obrigatório';
+        (window.AmePdpToast || ((m) => alert(m)))('Preencha: ' + label);
+        if (firstInvalidCf) {
+          const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
+          const top = firstInvalidCf.getBoundingClientRect().top + window.scrollY - headerH - 16;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+        return;
+      }
 
       /* Validate phone custom fields: telefone só aceita números completos (10 ou 11 dígitos) */
       let phoneIncomplete = false;

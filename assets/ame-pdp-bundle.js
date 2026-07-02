@@ -293,8 +293,12 @@
                 + ' data-cf-pill data-cf-pill-val="' + esc(opt) + '"'
                 + ' aria-pressed="false">' + esc(opt) + '</button>'
             ).join('');
+            // NÃO usar `data-cf-required` aqui — esse atributo é lido pelo
+            // submit handler do PDP principal, que aborta o submit se algum
+            // input com esse data-attr estiver vazio. A validação do bundle
+            // já acontece em AmePdpBundle.validate() separadamente.
             const hidden = '<input type="hidden" data-cf-name="' + esc(cf.name) + '"'
-                + (cf.required ? ' data-cf-required="true"' : '') + '>';
+                + (cf.required ? ' data-cf-bundle-required="true"' : '') + '>';
             const helperHtml = cf.helper
                 ? '<p class="pdp-bundle__cf-helper">' + esc(cf.helper) + '</p>'
                 : '';
