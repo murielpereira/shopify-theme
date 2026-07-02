@@ -231,7 +231,7 @@
             "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#201b14",
+            "title_color": "#735E59",
             "subtitle_size": 16,
             "subtitle_color": "#4f4442"
           },
@@ -290,7 +290,7 @@
             "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#201b14",
+            "title_color": "#735E59",
             "subtitle_size": 16,
             "subtitle_color": "#4f4442"
           },
@@ -438,13 +438,13 @@
         "espacamento": 12,
         "mostrar_titulo": false,
         "border_type": "solida",
-        "espessura": 3,
+        "espessura": 2,
         "cor": "#5a4742",
         "cor_fim": "#735e59",
         "cor_3": "#dcc1ba",
         "angulo": 135,
         "autoplay": true,
-        "cta_default": "Ver mais"
+        "cta_default": ""
       }
     },
     "blocks_JHzQFE": {
