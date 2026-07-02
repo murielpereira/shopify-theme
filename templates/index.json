@@ -565,7 +565,7 @@
           "type": "stat",
           "settings": {
             "value": "∞",
-            "label": "Durabilidade"
+            "label": "Produção artesanal"
           }
         }
       },
