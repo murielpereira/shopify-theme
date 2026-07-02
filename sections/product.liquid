@@ -694,8 +694,9 @@
             >
               <div class="pdp__option-header">
                 <span class="pdp__option-label"
-                  >Selecione {{ artigo }}:
+                  >Selecione {{ artigo }}
                   {{ option.name -}}
+                  :
                 </span>
                 <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
                   {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
@@ -1427,17 +1428,12 @@
 
           updateSelectionInfo();
 
-          // Section Rendering API só roda quando tudo está selecionado — sem isso o
-          // servidor devolveria cv=nil e perderíamos os botões com seleção parcial.
-          if (isSelectionComplete()) {
-            refreshVariantSection();
-          } else {
-            // rAF dá tempo do layout terminar antes dos handlers de
-            // pdp:variant-changed (pingente/bundle/kit) leerem geometria.
-            requestAnimationFrame(() => {
-              document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
-            });
-          }
+          // Sempre chama refreshVariantSection — mesmo com opções parciais.
+          // O servidor calcula `partial_variant` no Liquid quando cv=nil,
+          // permitindo que preço/CTA/badges reflitam a variante provável
+          // já ao clicar no primeiro Tamanho (sem esperar Cor + Metal).
+          // refreshVariantSection dispatcheia pdp:variant-changed no fim.
+          refreshVariantSection();
         }));
       });
     }
@@ -1654,7 +1650,19 @@
       try {
         /* Monta item da coleira a partir do form */
         const form = e.target;
-        const coleiraId = form.querySelector('#pdp-variant-id')?.value;
+        const variantInput = form.querySelector('#pdp-variant-id');
+        // Priorizamos `value` (cv resolvido pelo Shopify quando todas as opções
+        // batem numa variante). Fallback: `data-effective-id` (partial_variant
+        // do Liquid) — cobre caso do Atena/produtos com >250 variantes onde
+        // partial_variant pode ficar sem match no where filter.
+        let coleiraId = variantInput?.value || variantInput?.dataset?.effectiveId || '';
+        if (!coleiraId) {
+          btn.innerHTML = orig;
+          btn.disabled = false;
+          btn.removeAttribute('aria-busy');
+          (window.AmePdpToast || ((m) => alert(m)))('Selecione todas as opções antes de adicionar ao carrinho.');
+          return;
+        }
         const coleiraQty = parseInt(form.querySelector('#pdp-qty')?.value || '1', 10);
         const coleiraProps = {};
         form.querySelectorAll('[name^="properties["]').forEach(el => {

@@ -530,6 +530,10 @@
           return;
         }
         renderRates(rates);
+        // Também dispara a barra de frete grátis — agora com o CEP válido
+        // que acabou de ser calculado. Sem isso a barra ficava `hidden`
+        // porque só o input `oninput` chamava updateShippingBar, não o submit.
+        updateShippingBar(digits);
         try { localStorage.setItem(STORAGE_KEY, digits); } catch (_) {}
       } catch (err) {
         setLoading(false);
