@@ -515,8 +515,8 @@
         "img-1": {
           "type": "image",
           "settings": {
-            "image": "shopify://shop_images/Captura_de_Tela_2026-07-02_as_07.59.09.png",
-            "caption": "Bia, Wendy e Aurora"
+            "image": "shopify://shop_images/detalhe_guia_atena.jpg",
+            "caption": ""
           }
         },
         "img-2": {
@@ -578,7 +578,7 @@
         "eyebrow": "Nossa Filosofia",
         "title": "",
         "body": "<p>Cada peça Âme nasce do encontro entre a precisão da engenharia de alta performance e a habilidade minuciosa dos nossos artesões.</p>",
-        "image": "shopify://shop_images/IMG_9593.jpg",
+        "image": "shopify://shop_images/Captura_de_Tela_2026-07-02_as_07.59.09.png",
         "floating_eyebrow": "Satisfação",
         "floating_label": "99.2 %",
         "floating_sublabel": "de clientes satisfeitos"
