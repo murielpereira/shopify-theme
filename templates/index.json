@@ -567,12 +567,20 @@
             "value": "∞",
             "label": "Produção artesanal"
           }
+        },
+        "stat_9wQH9g": {
+          "type": "stat",
+          "settings": {
+            "value": "7+",
+            "label": "Anos de Craft"
+          }
         }
       },
       "block_order": [
         "stat-1",
         "stat-2",
-        "stat-3"
+        "stat-3",
+        "stat_9wQH9g"
       ],
       "settings": {
         "eyebrow": "Conheça um pouco da nossa história",
