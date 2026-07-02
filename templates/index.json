@@ -484,12 +484,6 @@
     "lookbook": {
       "type": "home-lookbook",
       "blocks": {
-        "image_7xwgQ6": {
-          "type": "image",
-          "settings": {
-            "caption": ""
-          }
-        },
         "img-1": {
           "type": "image",
           "settings": {
@@ -513,7 +507,6 @@
         }
       },
       "block_order": [
-        "image_7xwgQ6",
         "img-1",
         "img-2",
         "img-3"
