@@ -56,10 +56,10 @@
       "type": "home-hero",
       "settings": {
         "video": "shopify://files/videos/video tema desktop.MOV",
-        "video_mobile": "shopify://files/videos/video tema mobile.MOV",
+        "video_mobile": "shopify://files/videos/salsicha sofa mobile.mp4",
         "video_url": "",
-        "eyebrow": "",
-        "title": "",
+        "eyebrow": "teste",
+        "title": "<p>biaaaaaa</p>",
         "subtitle": "",
         "cta_primary_label": "",
         "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
@@ -366,21 +366,47 @@
     "home_video_stories_pNn8UU": {
       "type": "home-video-stories",
       "blocks": {
+        "video_7UE3BG": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/IMG_2865.MP4",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_yLHBdR": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/@gabnrielanovaies.mp4",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_cThyDQ": {
+          "type": "video",
+          "settings": {
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_3D9d99": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Recebidos Âme.MOV",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_aeJjDk": {
           "type": "video",
           "settings": {
             "video": "shopify://files/videos/grwm pet cliente.MOV",
             "title": "",
             "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_zymUxP": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/bolsa lis shopping.MOV",
-            "title": "Bolsa Lis",
-            "cta_label": "Bolsa Lis",
             "cta_url": ""
           }
         },
@@ -392,52 +418,15 @@
             "cta_label": "O que os clientes falam",
             "cta_url": ""
           }
-        },
-        "video_4QgQpW": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Kit cecilia (ANGULOS 1) (1).MOV",
-            "title": "Kit cecilia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_A9C3wb": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/copy_99B70347-EA57-4E1D-A68E-FAA597370A79.MOV",
-            "title": "Bolsa Ollie",
-            "cta_label": "Bolsa de transporte Ollie",
-            "cta_url": ""
-          }
-        },
-        "video_jQWfFH": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Kit (Full 1) (1).MOV",
-            "title": "kit amelia",
-            "cta_label": "",
-            "cta_url": ""
-          }
-        },
-        "video_4HzbYq": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/Sotries Video Bolsa Lis (CONCEITO 2).MOV (2).MOV",
-            "title": "bolsa lis",
-            "cta_label": "Bolsa de passeio lis",
-            "cta_url": ""
-          }
         }
       },
       "block_order": [
+        "video_7UE3BG",
+        "video_yLHBdR",
+        "video_cThyDQ",
+        "video_3D9d99",
         "video_aeJjDk",
-        "video_zymUxP",
-        "video_RyeDgM",
-        "video_4QgQpW",
-        "video_A9C3wb",
-        "video_jQWfFH",
-        "video_4HzbYq"
+        "video_RyeDgM"
       ],
       "name": "Vídeos (destaques)",
       "settings": {
@@ -456,15 +445,6 @@
         "angulo": 135,
         "autoplay": true,
         "cta_default": "Ver mais"
-      }
-    },
-    "featured-collections": {
-      "type": "home-featured-collections",
-      "settings": {
-        "eyebrow": "Coleções em Destaque",
-        "title": "",
-        "cta_label": "Ver Todas",
-        "cta_url": ""
       }
     },
     "lookbook": {
@@ -603,7 +583,6 @@
     "1777459086429d607a",
     "1777314298a0e78e83",
     "home_video_stories_pNn8UU",
-    "featured-collections",
     "lookbook",
     "brand-story",
     "1777459790c63ec612",
