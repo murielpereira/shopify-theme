@@ -447,6 +447,40 @@
         "cta_default": "Ver mais"
       }
     },
+    "blocks_JHzQFE": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_c7fcd1c_Ppi8XG": {
+          "type": "ai_gen_block_c7fcd1c",
+          "settings": {
+            "section_title": "Os queridinhos",
+            "category_1": "pingente-de-identificacao",
+            "category_2": "coleiras",
+            "category_3": "mantas-almofadas",
+            "category_4": "capas-para-rastreadores",
+            "desktop_width_percent": 100,
+            "section_padding": 40,
+            "grid_gap": 16,
+            "title_alignment": "center",
+            "title_size": 28,
+            "title_color": "#735E59",
+            "title_spacing": 24,
+            "card_border_radius": 8,
+            "card_padding": 16,
+            "card_bg_color": "#ffffff",
+            "image_bg_color": "#f8ece0",
+            "category_name_size": 16,
+            "category_name_color": "#735E59"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c7fcd1c_Ppi8XG"
+      ],
+      "name": "Grade de categorias",
+      "settings": {}
+    },
     "lookbook": {
       "type": "home-lookbook",
       "blocks": {
@@ -583,6 +617,7 @@
     "1777459086429d607a",
     "1777314298a0e78e83",
     "home_video_stories_pNn8UU",
+    "blocks_JHzQFE",
     "lookbook",
     "brand-story",
     "1777459790c63ec612",
