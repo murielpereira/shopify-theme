@@ -576,6 +576,11 @@
           const handleLc = item.handle.toLowerCase();
           if (/\bgatos?\b/.test(handleLc)) return null;
 
+          // a2) Componente de kit — o próprio kit já vem com guia inclusa,
+          //     não faz sentido sugerir outra. Marca `_from_kit` é setada
+          //     pelo ame-kit.js quando adiciona os componentes ao cart.
+          if (item.properties && item.properties._from_kit) return null;
+
           const sourceProduct = await fetchProduct(item.handle);
           if (!sourceProduct) return null;
           const tags = (sourceProduct.tags || []).map(t => String(t).toLowerCase());

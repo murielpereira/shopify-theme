@@ -585,6 +585,11 @@
                 const props = { ...propsByComp[i] };
                 // Vincula só o PRIMEIRO componente do kit com a _kit.
                 if (willAddPingente && i === 0) props['_kit'] = coleiraKey;
+                // Marca o item como componente de kit — impede o cross-sell
+                // "Adicione a guia perfeita" no drawer de sugerir mais uma
+                // guia quando o kit já vem com uma. Prefixo `_` esconde do
+                // cart visível pro cliente.
+                props['_from_kit'] = '1';
                 if (Object.keys(props).length > 0) item.properties = props;
                 return item;
             });
