@@ -27,7 +27,7 @@
         "announcement-1": {
           "type": "announcement",
           "settings": {
-            "text": "Frete grátis acima de R$299",
+            "text": "Frete grátis para Sul e Sudeste a partir de R$190 e demais regiões a partir de R$390.",
             "icon": "local_shipping",
             "link": ""
           }
