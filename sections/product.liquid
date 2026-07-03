@@ -1619,6 +1619,12 @@
     document.getElementById('pdp-form')?.addEventListener('submit', async e => {
       e.preventDefault();
 
+      /* Em PDP de kit, o ame-kit.js já cuida do submit (adiciona só os
+         componentes do kit). Este handler adicionaria a variante do produto
+         PAI do kit em cima, resultando em item duplicado no carrinho (o
+         "Kit X" aparecendo junto dos componentes individuais). Sai cedo. */
+      if (document.querySelector('.pdp--is-kit')) return;
+
       /* Validate variant selection (todas as opções escolhidas) */
       if (!window.AmePdpValidate || !window.AmePdpValidate()) return;
 
