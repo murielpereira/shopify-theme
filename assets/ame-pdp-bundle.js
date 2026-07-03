@@ -175,72 +175,60 @@
                 .filter(Boolean);
         }
 
-        // Match tolerante: procura a variante do cross-sell mais próxima da
-        // variante atual do produto principal. Match exato pontua +2 (ex: cor
-        // "Chiclete" no principal = "Chiclete" no cross-sell); match parcial
-        // por token pontua +1 (ex: "Chiclete" bate com "Chiclete com Rosa
-        // Bebê" porque compartilham o token "chiclete"). Assim, quando o
-        // cross-sell tem só variantes de cor composta, escolhe a que mantém
-        // pelo menos uma das cores do produto principal.
+        // Match: procura a variante do cross-sell mais próxima da variante
+        // atual do produto principal. Retorna também `matchedExact` — true só
+        // quando TODAS as opções da variante vencedora bateram exatamente
+        // (sem match parcial por token). Usado pra decidir se esconde o
+        // cross-sell no render (regra do negócio: match parcial de cor não é
+        // aceito, ex: "Rosa Bebê" ≠ "Borgonha com Rosa Bebê").
         function autoMatchVariant(product, currentVariant) {
             const targetOpts = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
             const targetTokens = targetOpts.flatMap(tokenizarOpcao);
 
             let best = null;
             let bestScore = -1;
-            // Guarda também quantas OPÇÕES da variante vencedora tiveram algum
-            // match (exato ou parcial). Sem isso, o `matched` retornado é true
-            // até quando só tamanho+metal batem mas a cor não — e o widget
-            // esconde o picker de variante, "travando" o cross-sell numa
-            // variante de cor errada. Comparar com o total de opções permite
-            // detectar match parcial-de-opções e mostrar o picker nesse caso.
-            let bestOptsMatched = 0;
+            let bestOptsExact = 0;
             let bestTotalOpts = 0;
 
             for (const v of product.variants) {
                 if (!v.available) continue;
                 const opts = (v.options || []);
                 let score = 0;
-                let optsMatched = 0;
+                let optsExact = 0;
 
                 for (const raw of opts) {
                     const optLower = String(raw || '').toLowerCase().trim();
                     // Match exato da opção inteira → +2 (prioridade)
                     if (targetOpts.includes(optLower)) {
                         score += 2;
-                        optsMatched++;
+                        optsExact++;
                         continue;
                     }
-                    // Match parcial: algum token da opção candidata coincide
-                    // com algum token do target (cor composta / vice-versa)
+                    // Match parcial por token — ainda pontua pra priorizar a
+                    // variante "mais próxima" caso o produto SÓ tenha cores
+                    // compostas, mas não conta como match "aceito" (matchedExact).
                     const tokens = tokenizarOpcao(raw);
-                    let matched = false;
                     for (const tk of tokens) {
                         if (targetTokens.includes(tk)) {
-                            matched = true;
+                            score += 1;
                             break;
                         }
-                    }
-                    if (matched) {
-                        score += 1;
-                        optsMatched++;
                     }
                 }
 
                 if (score > bestScore) {
                     best = v;
                     bestScore = score;
-                    bestOptsMatched = optsMatched;
+                    bestOptsExact = optsExact;
                     bestTotalOpts = opts.length;
                 }
             }
             if (!best) best = product.variants.find(v => v.available) || product.variants[0];
-            // matched=true APENAS quando TODAS as opções da variante vencedora
-            // tiveram match (exato ou parcial). Se mesmo uma opção ficou sem
-            // match — tipicamente a cor —, sinaliza `matched=false` pra o
-            // widget mostrar o picker de variante e deixar o cliente escolher.
-            const matched = bestTotalOpts > 0 && bestOptsMatched === bestTotalOpts;
-            return { variant: best, matched: matched };
+            // matchedExact=true SÓ quando TODAS as opções bateram exatamente.
+            // Se uma opção deu apenas match parcial (cor composta), retorna
+            // false → o render esconde o cross-sell inteiro.
+            const matchedExact = bestTotalOpts > 0 && bestOptsExact === bestTotalOpts;
+            return { variant: best, matched: matchedExact, matchedExact: matchedExact };
         }
 
         // Carrega produto atual (pra ter as opções da variante selecionada)
@@ -264,12 +252,13 @@
                     // só queriam o produto principal.
                     checked: false,
                     matched: m.matched,
+                    matchedExact: m.matchedExact,
                 });
             }
 
             if (!_items.length) return; // sem nenhum cross-sell disponível, não renderiza
             renderAll();
-            root.hidden = false;
+            // renderAll já ajusta root.hidden com base no filtro de matchedExact.
         });
 
         function renderAll() {
@@ -282,7 +271,19 @@
                     if (v) it._cfSnap[cf.name] = v;
                 }
             }
-            list.innerHTML = _items.map((it, i) => renderItem(it, i)).join('');
+            // Só renderiza cross-sells com match EXATO da variante atual.
+            // Match parcial (ex: cor "Rosa Bebê" da coleira x "Borgonha com
+            // Rosa Bebê" do peitoral) esconde o cross-sell — regra de negócio
+            // pra evitar sugerir variante visualmente próxima mas errada.
+            // Usa data-idx = índice ORIGINAL em _items pra os handlers de
+            // click continuarem apontando pro item certo mesmo com filtro.
+            list.innerHTML = _items
+                .map((it, i) => ({ it, i }))
+                .filter(({ it }) => it.matchedExact)
+                .map(({ it, i }) => renderItem(it, i))
+                .join('');
+            // Se todos os cross-sells ficaram fora, esconde o bloco inteiro.
+            root.hidden = list.children.length === 0;
             attachItemListeners();
             // Restaura valores nos inputs novos + marca pílula correspondente.
             for (let idx = 0; idx < _items.length; idx++) {
@@ -438,6 +439,7 @@
                 const m = autoMatchVariant(it.product, cur);
                 it.selectedVariantId = m.variant.id;
                 it.matched = m.matched;
+                it.matchedExact = m.matchedExact;
             }
             renderAll();
         });
