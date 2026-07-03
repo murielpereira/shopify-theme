@@ -175,60 +175,112 @@
                 .filter(Boolean);
         }
 
-        // Match: procura a variante do cross-sell mais próxima da variante
-        // atual do produto principal. Retorna também `matchedExact` — true só
-        // quando TODAS as opções da variante vencedora bateram exatamente
-        // (sem match parcial por token). Usado pra decidir se esconde o
-        // cross-sell no render (regra do negócio: match parcial de cor não é
-        // aceito, ex: "Rosa Bebê" ≠ "Borgonha com Rosa Bebê").
-        function autoMatchVariant(product, currentVariant) {
-            const targetOpts = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
-            const targetTokens = targetOpts.flatMap(tokenizarOpcao);
+        // Primeiro token da opção — no Âme, cores compostas seguem "Primária
+        // com Secundária" (ex: "Borgonha com Rosa Bebê"). O primeiro token
+        // é a cor DOMINANTE, o que o cliente reconhece como "a cor" da peça.
+        function corPrimaria(str) {
+            const tokens = tokenizarOpcao(str);
+            return tokens[0] || String(str || '').toLowerCase().trim();
+        }
+
+        // Extrai nomes das dimensões (options) de um produto retornado por
+        // /products/handle.js. Aceita tanto o formato simples (array de
+        // strings) quanto o formato completo ({name, position, values}).
+        function nomeOpcoes(product) {
+            return (product?.options || []).map(o =>
+                typeof o === 'string' ? o.toLowerCase().trim()
+                                      : String(o?.name || '').toLowerCase().trim()
+            );
+        }
+
+        // Match dimensão-a-dimensão: compara variante candidata com variante
+        // atual do produto principal usando o NOME da option (Tamanho, Cor,
+        // Metal, etc) — não a posição, já que produtos diferentes têm listas
+        // de opções distintas. Cada dimensão compartilhada deve casar (exato
+        // ou via primária); dimensões exclusivas de um dos produtos (ex:
+        // "Comprimento" só existe na guia, "Espessura" só na coleira) são
+        // ignoradas — não penalizam nem contam.
+        //
+        // Aceita:
+        //   • coleira "Chiclete" ⇔ peitoral "Chiclete com Rosa Bebê" (primária)
+        //   • coleira "Chiclete" ⇔ peitoral "Chiclete" (exato)
+        //   • guia com opção "Comprimento" extra (dimensão exclusiva → ignora)
+        // Rejeita:
+        //   • coleira "Rosa Bebê" ⇔ peitoral "Borgonha com Rosa Bebê"
+        //     (dimensão Cor compartilhada, primárias diferentes)
+        //   • coleira "Roxo" ⇔ peitoral "Allure com Off White"
+        //     (dimensão Cor compartilhada, sem match algum)
+        function autoMatchVariant(product, currentVariant, targetProduct) {
+            const targetDims = nomeOpcoes(targetProduct);
+            const targetOptsLower = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
+            // Mapa "nome-da-dimensão → valor da variante atual"
+            const targetByDim = {};
+            for (let i = 0; i < targetDims.length; i++) {
+                if (targetDims[i]) targetByDim[targetDims[i]] = targetOptsLower[i] || '';
+            }
+
+            const candidateDims = nomeOpcoes(product);
 
             let best = null;
             let bestScore = -1;
-            let bestOptsExact = 0;
-            let bestTotalOpts = 0;
+            let bestAccepted = false;
+            // Todas as variantes que passam pelo filtro de dimensões
+            // compartilhadas (aceitas como match plausível). Usado pra
+            // mostrar picker quando há mais de uma opção válida — típico
+            // em cross-sells com dimensão extra (ex: guia com Comprimento).
+            const acceptedVariantIds = [];
 
             for (const v of product.variants) {
                 if (!v.available) continue;
-                const opts = (v.options || []);
+                const cOpts = (v.options || []).map(s => String(s || '').toLowerCase().trim());
                 let score = 0;
-                let optsExact = 0;
+                let allSharedMatch = true;
+                let hasAnySharedDim = false;
 
-                for (const raw of opts) {
-                    const optLower = String(raw || '').toLowerCase().trim();
-                    // Match exato da opção inteira → +2 (prioridade)
-                    if (targetOpts.includes(optLower)) {
-                        score += 2;
-                        optsExact++;
+                for (let i = 0; i < cOpts.length; i++) {
+                    const dim = candidateDims[i];
+                    if (!dim) continue;
+                    const targetVal = targetByDim[dim];
+                    if (targetVal === undefined) {
+                        // Dimensão exclusiva do candidato (ex: guia tem
+                        // "Comprimento" que a coleira não tem) — ignora.
                         continue;
                     }
-                    // Match parcial por token — ainda pontua pra priorizar a
-                    // variante "mais próxima" caso o produto SÓ tenha cores
-                    // compostas, mas não conta como match "aceito" (matchedExact).
-                    const tokens = tokenizarOpcao(raw);
-                    for (const tk of tokens) {
-                        if (targetTokens.includes(tk)) {
-                            score += 1;
-                            break;
-                        }
+                    hasAnySharedDim = true;
+                    const cVal = cOpts[i];
+                    if (cVal === targetVal) {
+                        score += 2; // exato
+                        continue;
                     }
+                    // Match por primária: qualquer lado pode ser composta,
+                    // o importante é a primeira cor bater.
+                    const cPrim = corPrimaria(cVal);
+                    const tPrim = corPrimaria(targetVal);
+                    if (cPrim === tPrim || cPrim === targetVal || cVal === tPrim) {
+                        score += 1;
+                        continue;
+                    }
+                    // Dimensão compartilhada com valores incompatíveis
+                    // (ex: Cor "Rosa Bebê" vs "Borgonha com Rosa Bebê").
+                    allSharedMatch = false;
                 }
 
+                const accepted = allSharedMatch && hasAnySharedDim;
+                if (accepted) acceptedVariantIds.push(v.id);
                 if (score > bestScore) {
                     best = v;
                     bestScore = score;
-                    bestOptsExact = optsExact;
-                    bestTotalOpts = opts.length;
+                    bestAccepted = accepted;
                 }
             }
+
             if (!best) best = product.variants.find(v => v.available) || product.variants[0];
-            // matchedExact=true SÓ quando TODAS as opções bateram exatamente.
-            // Se uma opção deu apenas match parcial (cor composta), retorna
-            // false → o render esconde o cross-sell inteiro.
-            const matchedExact = bestTotalOpts > 0 && bestOptsExact === bestTotalOpts;
-            return { variant: best, matched: matchedExact, matchedExact: matchedExact };
+            return {
+                variant: best,
+                matched: bestAccepted,
+                matchedExact: bestAccepted,
+                acceptedVariantIds: acceptedVariantIds,
+            };
         }
 
         // Carrega produto atual (pra ter as opções da variante selecionada)
@@ -243,7 +295,7 @@
             const cur = getCurrentVariant(self);
             for (const p of others) {
                 if (!p || !p.available) continue;
-                const m = autoMatchVariant(p, cur);
+                const m = autoMatchVariant(p, cur, self);
                 _items.push({
                     product: p,
                     selectedVariantId: m.variant.id,
@@ -253,6 +305,7 @@
                     checked: false,
                     matched: m.matched,
                     matchedExact: m.matchedExact,
+                    acceptedVariantIds: m.acceptedVariantIds,
                 });
             }
 
@@ -315,7 +368,13 @@
                 const imgRaw = it.product.featured_image || it.product.images?.[0] || '';
                 imgUrl = typeof imgRaw === 'string' ? imgRaw : (imgRaw.url || imgRaw.src || '');
             }
-            const showPicker = it.product.variants.length > 1 && !it.matched;
+            // Mostra picker quando há MAIS DE UMA variante aceita pelo filtro
+            // de match (ex: guia tem "Comprimento" 120cm/150cm, ambas com
+            // cor/tamanho batendo → duas variantes aceitas → cliente escolhe).
+            // Se só uma variante é aceita (auto-match completo), mostra o
+            // label pra confirmar o que foi selecionado sem picker.
+            const accepted = it.acceptedVariantIds || [];
+            const showPicker = accepted.length > 1;
             const cfs = cfsForProduct(it.product);
             return [
                 '<li class="pdp-bundle__item' + (it.checked ? '' : ' is-unchecked')
@@ -374,7 +433,13 @@
         }
 
         function renderVariantPicker(it, idx) {
-            const variants = it.product.variants.slice(0, 8);
+            // Só as variantes aceitas pelo filtro de dimensões compartilhadas.
+            // Sem esse filtro, o picker mostraria variantes de cor incompatível
+            // (o mesmo problema que já filtramos no matchedExact do render).
+            const accepted = new Set(it.acceptedVariantIds || []);
+            const variants = it.product.variants
+                .filter(v => accepted.has(v.id))
+                .slice(0, 8);
             const btns = variants.map(v => {
                 const label = v.title && v.title !== 'Default Title'
                     ? v.title
@@ -436,10 +501,11 @@
             if (!currentProduct) return;
             const cur = getCurrentVariant(currentProduct);
             for (const it of _items) {
-                const m = autoMatchVariant(it.product, cur);
+                const m = autoMatchVariant(it.product, cur, currentProduct);
                 it.selectedVariantId = m.variant.id;
                 it.matched = m.matched;
                 it.matchedExact = m.matchedExact;
+                it.acceptedVariantIds = m.acceptedVariantIds;
             }
             renderAll();
         });
