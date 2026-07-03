@@ -524,7 +524,9 @@
           Kit segue mesma ordem da PDP normal (Pix → Cartão → Parcelas →
           Cashback). Valores são placeholders ("—") até ame-kit.js terminar
           o fetch do Waltz e calcular total dos componentes selecionados.
+          "A partir de" sempre no kit — cada combinação de componentes muda o total.
         {%- endcomment -%}
+        <p class="pdp__price-from">A partir de</p>
         <div class="pdp__price-pix-row pdp__price-pix-row--primary" data-kit-pix-row hidden>
           <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
           <span class="pdp__price-label">no Pix</span>
@@ -545,6 +547,18 @@
           {%- render 'cashback', cashback_price: 0, cashback_mode: 'pdp' -%}
         </div>
       {%- else -%}
+        {%- comment -%}
+          "A partir de" quando o produto tem variantes com preços diferentes
+          (product.price_varies) E o cliente ainda não escolheu variante completa
+          (senão o preço mostrado já é o exato da variante selecionada — não
+          há "a partir de" nada). Também aparece quando temos partial_variant
+          (seleção parcial): o preço reflete a variante-provável e ainda pode
+          mudar conforme o cliente completa.
+        {%- endcomment -%}
+        {%- if product.price_varies and has_variant == false -%}
+          <p class="pdp__price-from">A partir de</p>
+        {%- endif -%}
+
         <!-- Linha "De:" riscado -->
         {%- if has_compare -%}
           <div class="pdp__price-compare-row">
@@ -2402,6 +2416,16 @@
      Sem reservar altura, PSI media CLS 0.446 só desse swap. */
   .pdp--is-kit .pdp__price-block {
     min-height: 200px;
+  }
+
+  /* "A partir de" — sinal de preço variável. Estilo discreto, em uppercase
+     pra distinguir do preço em si sem competir com ele. */
+  .pdp__price-from {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(90, 71, 66, 0.6);
+    margin: 0 0 0.125rem;
   }
 
   @media (min-width: 1024px) {

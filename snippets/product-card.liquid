@@ -224,6 +224,15 @@
 
     <!-- Bloco de preços -->
     <div class="ame-card__prices">
+      {%- comment -%}
+        "A partir de" quando o produto tem preço variando entre variantes
+        (product.price_varies retorna true quando price_min < price_max).
+        Fica acima do Pix pra o cliente entender que o valor exibido é o
+        mais baixo do range.
+      {%- endcomment -%}
+      {%- if card_product.price_varies -%}
+        <p class="ame-card__price-from">A partir de</p>
+      {%- endif -%}
       {%- if card_has_discount -%}
         <p class="ame-card__price-de">
           De: <s>{{ card_compare_price | money }}</s>

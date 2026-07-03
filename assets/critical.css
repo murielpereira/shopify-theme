@@ -854,6 +854,14 @@ body::after {
   align-items: center;
 }
 
+.ame-card__price-from {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(90, 71, 66, 0.6);
+  margin: 0 0 0.125rem;
+}
+
 .ame-card__price-de {
   font-size: 0.75rem;
   color: rgba(90, 71, 66, 0.45);
