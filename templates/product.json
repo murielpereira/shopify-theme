@@ -15,6 +15,7 @@
         "show_related": true,
         "pdp_btn_bg_color": "#5a4742",
         "pdp_btn_fg_color": "#ffffff",
+        "gallery_sticky_mobile": false,
         "selection_info_position": "over",
         "videos_enabled": true,
         "videos_position": "below-title",
