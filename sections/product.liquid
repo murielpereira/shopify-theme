@@ -68,6 +68,15 @@
     assign is_kit = true
   endif
 
+  # Setting global do painel: galeria/showcase sticky no scroll mobile.
+  # Default true (comportamento existente). Quando false, o `.pdp` recebe
+  # a classe `.pdp--no-sticky-mobile` que desativa o sticky do showcase
+  # do kit via CSS, e o JS de pin da galeria não roda (via data-attr).
+  assign gallery_sticky_mobile = section.settings.gallery_sticky_mobile
+  if gallery_sticky_mobile == nil
+    assign gallery_sticky_mobile = true
+  endif
+
   # Pra renderizar custom fields no kit (campos como "comprimento_guia" e
   # "customizacao_raca"), as tags efetivas são a UNIÃO das tags dos
   # componentes (e do produto-pai). O JS coleta valores por componente
@@ -164,7 +173,7 @@
   <span aria-current="page">{{ display_title }}</span>
 </nav>
 
-<div class="pdp full-width{% if is_kit %} pdp--is-kit{% endif %}">
+<div class="pdp full-width{% if is_kit %} pdp--is-kit{% endif %}{% unless gallery_sticky_mobile %} pdp--no-sticky-mobile{% endunless %}">
   {%- comment -%}
     Kit: título antes da galeria pra ordem mobile (title → gallery → showcase
     → info). No desktop, `grid-row` explícito do CSS recoloca cada item:
@@ -178,7 +187,10 @@
   <div class="pdp__gallery">
     {%- assign selection_pos = section.settings.selection_info_position | default: 'below' -%}
     <!-- Wrapper sticky no mobile: imagem + barra de seleção compactam juntas -->
-    <div class="pdp__sticky-wrap pdp__sticky-wrap--selection-{{ selection_pos }}">
+    <div
+      class="pdp__sticky-wrap pdp__sticky-wrap--selection-{{ selection_pos }}"
+      data-gallery-sticky-mobile="{{ gallery_sticky_mobile }}"
+    >
       <!-- Imagem principal -->
       <div class="pdp__main-img-wrap">
         {%- if media_size > 0 -%}
@@ -1807,6 +1819,10 @@
     // O wrapper sticky inclui imagem + barra "Você selecionou: ..." — vira fixed juntos
     const wrap = document.querySelector('.pdp__sticky-wrap');
     if (!wrap) return;
+    // Setting do painel — quando o lojista desativa "Galeria fixa no scroll
+    // mobile", nem cria o spacer nem observa scroll. Comportamento default
+    // é true (compat com PDPs existentes).
+    if (wrap.dataset.galleryStickyMobile === 'false') return;
     // Em PDPs de kit o sticky-pin da galeria é desativado: quem fica sticky
     // ali é o .pdp-kit__showcase. Sem este early-return, o spacer criado por
     // este IIFE deixava um buraco enorme entre a galeria e as thumbs durante
@@ -2005,6 +2021,15 @@
   }
   .pdp--is-kit .pdp-kit__showcase.is-unstuck {
     position: static;
+  }
+  /* Setting do painel: sticky mobile off. No mobile (<=767px) o showcase
+     do kit rola normalmente com a página. No desktop o sticky continua
+     ativo — a regra `@media (min-width: 1024px)` mais abaixo aplica
+     `top: 10rem` sem depender desta classe. */
+  @media (max-width: 767px) {
+    .pdp--no-sticky-mobile .pdp-kit__showcase {
+      position: static;
+    }
   }
 
   /* No mobile, galeria precisa de min-width: 0 pra não estourar o grid quando
@@ -3584,6 +3609,17 @@
       "id": "pdp_btn_fg_color",
       "label": "Cor do texto do botão",
       "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Galeria mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "gallery_sticky_mobile",
+      "label": "Galeria fixa no scroll (mobile)",
+      "info": "Quando ativado, a imagem do produto (PDP) ou o showcase de componentes (kit) fica fixa no topo enquanto o cliente rola a página no mobile. Desative se preferir que a galeria role normalmente com o resto do conteúdo.",
+      "default": true
     },
     {
       "type": "header",
