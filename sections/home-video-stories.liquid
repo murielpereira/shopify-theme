@@ -31,7 +31,8 @@
       espacamento: section.settings.espacamento,
       mostrar_titulo: section.settings.mostrar_titulo,
       autoplay: section.settings.autoplay,
-      cta_default: section.settings.cta_default
+      cta_default: section.settings.cta_default,
+      show_cta: section.settings.show_cta
     -%}
   {%- else -%}
     <p class="ame-vs-section__empty">Adicione blocos de vídeo para preencher esta seção.</p>
@@ -221,6 +222,13 @@
       "id": "autoplay",
       "label": "Iniciar automaticamente ao abrir o player",
       "info": "O vídeo abre mutado se autoplay estiver ativo (exigência dos navegadores).",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Mostrar botão de ação abaixo dos vídeos",
+      "info": "Desative se os vídeos são apenas ilustrativos (ex: depoimentos, cenas do dia a dia) e não devem levar a nenhum produto ou página.",
       "default": true
     },
     {

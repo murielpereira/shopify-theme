@@ -32,6 +32,13 @@
     assign vs_autoplay = true
   endif
   assign vs_cta_default = cta_default | default: 'Ver mais'
+  # show_cta controla se o botão de ação abaixo dos vídeos (spotlight)
+  # é renderizado. Default true — mantém compat. Setado como false pelo
+  # admin quando os vídeos são só depoimentos/ilustrativos.
+  assign vs_show_cta = show_cta
+  if vs_show_cta == null
+    assign vs_show_cta = true
+  endif
 
   assign vs_has_videos = false
   if vs_videos.size > 0
@@ -201,24 +208,26 @@
                 aria-label="Reproduzir {{ vt_title | default: 'vídeo' | escape }}"
               ></button>
             </div>
-            {%- assign cta_text = vt_cta_label | default: vt_title | default: vs_cta_default -%}
-            {%- if vt_cta_url != blank and vt_cta_url != '' -%}
-              <a class="ame-vs__spot-cta" href="{{ vt_cta_url }}">{{ cta_text }}</a>
-            {%- else -%}
-              <button
-                type="button"
-                class="ame-vs__spot-cta"
-                data-vs-open
-                data-vs-type="{{ vt_type }}"
-                data-vs-id="{{ vt_id }}"
-                data-vs-host="{{ vt_host }}"
-                data-vs-src="{{ vt_native_src | escape }}"
-                data-vs-title="{{ vt_title | escape }}"
-                data-vs-cta-url="{{ vt_cta_url | escape }}"
-                data-vs-cta-label="{{ vt_cta_label | escape }}"
-              >
-                {{ cta_text }}
-              </button>
+            {%- if vs_show_cta -%}
+              {%- assign cta_text = vt_cta_label | default: vt_title | default: vs_cta_default -%}
+              {%- if vt_cta_url != blank and vt_cta_url != '' -%}
+                <a class="ame-vs__spot-cta" href="{{ vt_cta_url }}">{{ cta_text }}</a>
+              {%- else -%}
+                <button
+                  type="button"
+                  class="ame-vs__spot-cta"
+                  data-vs-open
+                  data-vs-type="{{ vt_type }}"
+                  data-vs-id="{{ vt_id }}"
+                  data-vs-host="{{ vt_host }}"
+                  data-vs-src="{{ vt_native_src | escape }}"
+                  data-vs-title="{{ vt_title | escape }}"
+                  data-vs-cta-url="{{ vt_cta_url | escape }}"
+                  data-vs-cta-label="{{ vt_cta_label | escape }}"
+                >
+                  {{ cta_text }}
+                </button>
+              {%- endif -%}
             {%- endif -%}
           </div>
         {%- else -%}
