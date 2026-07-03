@@ -356,13 +356,11 @@
                 const imgRaw = it.product.featured_image || it.product.images?.[0] || '';
                 imgUrl = typeof imgRaw === 'string' ? imgRaw : (imgRaw.url || imgRaw.src || '');
             }
-            // Mostra picker quando há MAIS DE UMA variante aceita pelo filtro
-            // de match (ex: guia tem "Comprimento" 120cm/150cm, ambas com
-            // cor/tamanho batendo → duas variantes aceitas → cliente escolhe).
-            // Se só uma variante é aceita (auto-match completo), mostra o
-            // label pra confirmar o que foi selecionado sem picker.
-            const accepted = it.acceptedVariantIds || [];
-            const showPicker = accepted.length > 1;
+            // Sem picker de variante — cliente NÃO escolhe cor/tamanho no
+            // Compre Junto. Auto-match decide a variante do cross-sell com
+            // base na variante atual do produto principal; se não achou
+            // match válido, o cross-sell é escondido pelo renderAll.
+            const showPicker = false;
             const cfs = cfsForProduct(it.product);
             return [
                 '<li class="pdp-bundle__item' + (it.checked ? '' : ' is-unchecked')
