@@ -49,7 +49,11 @@
     padding: 10px 0;
     min-width: 0;
     display: flex;
-    justify-content: center;
+    /* flex-direction:column empilha header + grid de vídeos verticalmente.
+       Sem isso (row default), o header ficava lado a lado com os vídeos
+       ocupando uma coluna estreita à esquerda em vez de centralizar acima. */
+    flex-direction: column;
+    align-items: center;
   }
   /* Spotlight é .full-width (borda-a-borda) por design — cards laterais vazam
      até a borda da viewport, criando o efeito de destaque. O header interno
@@ -63,13 +67,19 @@
   .ame-vs-section__header {
     text-align: center;
     margin-bottom: 2.5rem;
+    width: 100%;
+  }
+  /* Wrapper dos vídeos (spotlight/carrossel/stories) tb ocupa largura toda
+     em modo flex-column pra não ficar estreito ao lado do header. */
+  .ame-vs-section > .ame-vs {
+    width: 100%;
   }
   .ame-vs-section__title {
     font-size: clamp(2rem, 4vw, 3.5rem);
     font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1;
-    color: var(--color-on-background, #201b14);
+    color: var(--color-on-color_on_surface_variant);
     margin: 0;
   }
   .ame-vs-section__subtitle {
