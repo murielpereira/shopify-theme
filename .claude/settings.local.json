@@ -246,7 +246,8 @@
       "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/\" 2>&1 | grep -i medid)",
       "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" 2>&1 | grep -iE \"tm|medid\")",
       "Bash(grep -n \"widget\\\\|/api/tm\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1 | head -20)",
-      "Bash(grep -n \"'/api/tm/widget\\\\|/tm/widget\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1)"
+      "Bash(grep -n \"'/api/tm/widget\\\\|/tm/widget\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1)",
+      "Bash(grep -rn \"CREATE TABLE.*pedidos_v2\\\\|CREATE TABLE.*pedido_itens\\\\|INSERT INTO pedido_itens_v2\\\\|nomeCliente\\\\|Sync.*pedido\\\\|sync.*order\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" -l 2>&1 | head -10)"
     ],
     "additionalDirectories": [
       "\\tmp",

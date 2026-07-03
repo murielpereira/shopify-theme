@@ -132,7 +132,7 @@
     "custom_field_11_tag": "customizacao_sobmedida",
     "custom_field_11_name": "Medida do Pescoço",
     "custom_field_11_title": "Circunferência do Pescoço",
-    "custom_field_11_placeholder": "Informe a circunferência do pescoço do pet em cm",
+    "custom_field_11_placeholder": "Se preferir sob medida, informe a circunferência do pescoço do pet em cm",
     "custom_field_11_limiter": "2",
     "custom_field_11_order": 1,
     "custom_field_12_enable": true,

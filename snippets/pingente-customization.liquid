@@ -1386,11 +1386,20 @@
             .join(', ');
           const coleiraLabel = [coleiraTitle, opcoes].filter(Boolean).join(' — ');
 
+          // Consolidação num único bloco multi-linha (property "Personalização").
+          // Motivo: o app de integração Shopify→Tiny concatena properties
+          // diferentes com vírgula numa linha só nas observações do item,
+          // mas preserva \n DENTRO do valor de uma property. Reduzindo a 1
+          // property com \n entre os campos, o Tiny exibe cada info em linha
+          // própria — igual ao que vinha da Nuvemshop.
+          const linhas = [];
+          if (coleiraLabel) linhas.push(`anexo a: ${coleiraLabel}`);
+          if (pet) linhas.push(`Nome do pet: ${pet}`);
+          if (tutor) linhas.push(`Nome do tutor: ${tutor}`);
+          if (tel) linhas.push(`Telefone do tutor: ${tel}`);
+
           const properties = {};
-          if (coleiraLabel) properties['anexo a'] = coleiraLabel;
-          properties['Nome do pet'] = pet;
-          if (tutor) properties['Nome do tutor'] = tutor;
-          if (tel) properties['Telefone do tutor'] = tel;
+          if (linhas.length) properties['Personalização'] = linhas.join('\n');
           // Vincula este pingente à coleira correspondente: o cart JS usa essa chave
           // pra remover o pingente junto quando o cliente remove a coleira do carrinho.
           if (coleiraKey) properties['_kit'] = coleiraKey;
