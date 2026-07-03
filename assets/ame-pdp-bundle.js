@@ -188,33 +188,59 @@
 
             let best = null;
             let bestScore = -1;
+            // Guarda também quantas OPÇÕES da variante vencedora tiveram algum
+            // match (exato ou parcial). Sem isso, o `matched` retornado é true
+            // até quando só tamanho+metal batem mas a cor não — e o widget
+            // esconde o picker de variante, "travando" o cross-sell numa
+            // variante de cor errada. Comparar com o total de opções permite
+            // detectar match parcial-de-opções e mostrar o picker nesse caso.
+            let bestOptsMatched = 0;
+            let bestTotalOpts = 0;
+
             for (const v of product.variants) {
                 if (!v.available) continue;
                 const opts = (v.options || []);
                 let score = 0;
+                let optsMatched = 0;
 
                 for (const raw of opts) {
                     const optLower = String(raw || '').toLowerCase().trim();
                     // Match exato da opção inteira → +2 (prioridade)
                     if (targetOpts.includes(optLower)) {
                         score += 2;
+                        optsMatched++;
                         continue;
                     }
                     // Match parcial: algum token da opção candidata coincide
                     // com algum token do target (cor composta / vice-versa)
                     const tokens = tokenizarOpcao(raw);
+                    let matched = false;
                     for (const tk of tokens) {
                         if (targetTokens.includes(tk)) {
-                            score += 1;
+                            matched = true;
                             break;
                         }
                     }
+                    if (matched) {
+                        score += 1;
+                        optsMatched++;
+                    }
                 }
 
-                if (score > bestScore) { best = v; bestScore = score; }
+                if (score > bestScore) {
+                    best = v;
+                    bestScore = score;
+                    bestOptsMatched = optsMatched;
+                    bestTotalOpts = opts.length;
+                }
             }
             if (!best) best = product.variants.find(v => v.available) || product.variants[0];
-            return { variant: best, matched: bestScore > 0 };
+            // matched=true APENAS quando TODAS as opções da variante vencedora
+            // tiveram match (exato ou parcial). Se mesmo uma opção ficou sem
+            // match — tipicamente a cor —, sinaliza `matched=false` pra o
+            // widget mostrar o picker de variante e deixar o cliente escolher.
+            const matched = bestTotalOpts > 0 && bestOptsMatched === bestTotalOpts;
+            return { variant: best, matched: matched };
         }
 
         // Carrega produto atual (pra ter as opções da variante selecionada)
