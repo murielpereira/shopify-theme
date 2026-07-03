@@ -164,23 +164,16 @@
             return product.variants.find(v => v.available) || product.variants[0];
         }
 
-        // Quebra "Borgonha com Rosa Bebê" em ["borgonha", "rosa bebê"] — cores
-        // compostas do Âme usam " com " como separador. Também aceita " e ",
-        // ",", "/" e "+" pra ser resiliente a variações de nomenclatura.
-        function tokenizarOpcao(str) {
+        // Split de valor de option em tokens comparáveis. Cores compostas
+        // do Âme usam " com " ("Chiclete com Rosa Bebê") e valores de
+        // Tamanho da guia usam " / " ("XPP / XPP+ / 12mm"). Também aceita
+        // outros delimitadores comuns por resiliência.
+        function tokens(str) {
             return String(str || '')
                 .toLowerCase()
                 .split(/\s+com\s+|\s+e\s+|[,\/+]/)
                 .map(s => s.trim())
                 .filter(Boolean);
-        }
-
-        // Primeiro token da opção — no Âme, cores compostas seguem "Primária
-        // com Secundária" (ex: "Borgonha com Rosa Bebê"). O primeiro token
-        // é a cor DOMINANTE, o que o cliente reconhece como "a cor" da peça.
-        function corPrimaria(str) {
-            const tokens = tokenizarOpcao(str);
-            return tokens[0] || String(str || '').toLowerCase().trim();
         }
 
         // Extrai nomes das dimensões (options) de um produto retornado por
@@ -193,30 +186,26 @@
             );
         }
 
-        // Match dimensão-a-dimensão: compara variante candidata com variante
-        // atual do produto principal usando o NOME da option (Tamanho, Cor,
-        // Metal, etc) — não a posição, já que produtos diferentes têm listas
-        // de opções distintas. Cada dimensão compartilhada deve casar (exato
-        // ou via primária); dimensões exclusivas de um dos produtos (ex:
-        // "Comprimento" só existe na guia, "Espessura" só na coleira) são
-        // ignoradas — não penalizam nem contam.
+        // Match dimensão-a-dimensão, comparando por NOME da option (Tamanho,
+        // Cor, Metal). Dimensões exclusivas de um dos produtos (ex:
+        // "Comprimento" só existe na guia) são ignoradas.
         //
-        // Aceita:
-        //   • coleira "Chiclete" ⇔ peitoral "Chiclete com Rosa Bebê" (primária)
-        //   • coleira "Chiclete" ⇔ peitoral "Chiclete" (exato)
-        //   • guia com opção "Comprimento" extra (dimensão exclusiva → ignora)
-        // Rejeita:
-        //   • coleira "Rosa Bebê" ⇔ peitoral "Borgonha com Rosa Bebê"
-        //     (dimensão Cor compartilhada, primárias diferentes)
-        //   • coleira "Roxo" ⇔ peitoral "Allure com Off White"
-        //     (dimensão Cor compartilhada, sem match algum)
+        // Direção do subset varia por tipo de dimensão:
+        //   • Tamanho: a guia pode ter valor multi-tamanho ("XPP / XPP+ /
+        //     12mm"). O tamanho da coleira precisa estar contido nessa
+        //     lista — target ⊆ candidate.
+        //   • Cor (e demais): a cor do cross-sell precisa estar CONTIDA na
+        //     cor da coleira — candidate ⊆ target. Assim, coleira "Chiclete"
+        //     só aceita cross-sell "Chiclete" (rejeita "Chiclete com Rosa
+        //     Bebê"), enquanto coleira "Chiclete com Rosa Bebê" aceita
+        //     "Chiclete", "Rosa Bebê" e "Chiclete com Rosa Bebê" (rejeita
+        //     "Rosa Bebê com Off White").
         function autoMatchVariant(product, currentVariant, targetProduct) {
             const targetDims = nomeOpcoes(targetProduct);
-            const targetOptsLower = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
-            // Mapa "nome-da-dimensão → valor da variante atual"
+            const targetOpts = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
             const targetByDim = {};
             for (let i = 0; i < targetDims.length; i++) {
-                if (targetDims[i]) targetByDim[targetDims[i]] = targetOptsLower[i] || '';
+                if (targetDims[i]) targetByDim[targetDims[i]] = targetOpts[i] || '';
             }
 
             const candidateDims = nomeOpcoes(product);
@@ -224,48 +213,47 @@
             let best = null;
             let bestScore = -1;
             let bestAccepted = false;
-            // Todas as variantes que passam pelo filtro de dimensões
-            // compartilhadas (aceitas como match plausível). Usado pra
-            // mostrar picker quando há mais de uma opção válida — típico
-            // em cross-sells com dimensão extra (ex: guia com Comprimento).
             const acceptedVariantIds = [];
 
             for (const v of product.variants) {
                 if (!v.available) continue;
                 const cOpts = (v.options || []).map(s => String(s || '').toLowerCase().trim());
                 let score = 0;
-                let allSharedMatch = true;
-                let hasAnySharedDim = false;
+                let allDimsMatch = true;
+                let hasSharedDim = false;
 
                 for (let i = 0; i < cOpts.length; i++) {
                     const dim = candidateDims[i];
                     if (!dim) continue;
-                    const targetVal = targetByDim[dim];
-                    if (targetVal === undefined) {
-                        // Dimensão exclusiva do candidato (ex: guia tem
-                        // "Comprimento" que a coleira não tem) — ignora.
-                        continue;
-                    }
-                    hasAnySharedDim = true;
+                    const tVal = targetByDim[dim];
+                    if (tVal === undefined) continue; // dimensão exclusiva do candidato
+                    hasSharedDim = true;
                     const cVal = cOpts[i];
-                    if (cVal === targetVal) {
-                        score += 2; // exato
+
+                    if (cVal === tVal) {
+                        score += 2;
                         continue;
                     }
-                    // Match por primária: qualquer lado pode ser composta,
-                    // o importante é a primeira cor bater.
-                    const cPrim = corPrimaria(cVal);
-                    const tPrim = corPrimaria(targetVal);
-                    if (cPrim === tPrim || cPrim === targetVal || cVal === tPrim) {
+
+                    const cList = tokens(cVal);
+                    const tList = tokens(tVal);
+
+                    // Tamanho da guia costuma ser multi-valor ("XPP / XPP+ /
+                    // 12mm"). O tamanho da coleira/peitoral cabe se estiver
+                    // contido nesse conjunto: target ⊆ candidate.
+                    const isTamanho = /tamanho|size/.test(dim);
+                    const ok = isTamanho
+                        ? tList.every(t => cList.includes(t))
+                        : cList.every(t => tList.includes(t));
+
+                    if (ok) {
                         score += 1;
-                        continue;
+                    } else {
+                        allDimsMatch = false;
                     }
-                    // Dimensão compartilhada com valores incompatíveis
-                    // (ex: Cor "Rosa Bebê" vs "Borgonha com Rosa Bebê").
-                    allSharedMatch = false;
                 }
 
-                const accepted = allSharedMatch && hasAnySharedDim;
+                const accepted = allDimsMatch && hasSharedDim;
                 if (accepted) acceptedVariantIds.push(v.id);
                 if (score > bestScore) {
                     best = v;
