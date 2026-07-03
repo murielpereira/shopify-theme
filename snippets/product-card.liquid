@@ -97,6 +97,13 @@
     assign card_is_sob_medida = true
   endif
 
+  # "Pingente Opcional" — mesmo padrão do sob-medida: informação técnica que
+  # aparece junto de outros badges, controlada pela tag `pingente_opcional`.
+  assign card_is_pingente_opcional = false
+  if card_product.tags contains 'pingente_opcional'
+    assign card_is_pingente_opcional = true
+  endif
+
   # Rating do badge sobre a imagem é populado em runtime pela API REST do
   # Konfidency (ame-konfidency-card-rating.js carregado em theme.liquid).
   # O metafield `reviews.rating.value` ficou como fallback caso o JS falhe
@@ -157,7 +164,7 @@
     <!-- Pilha de badges no top-left: Esgotado/Desconto + Lançamento/Heritage/Novo + Sob Medida.
          Esgotado tem prioridade sobre desconto (se não dá pra comprar, o % não importa).
          "Sob Medida" é informação técnica, aparece junto com qualquer outro badge. -->
-    {%- if card_is_sold_out or card_has_discount or card_badge != '' or card_is_sob_medida -%}
+    {%- if card_is_sold_out or card_has_discount or card_badge != '' or card_is_sob_medida or card_is_pingente_opcional -%}
       <div class="ame-card__badges">
         {%- if card_is_sold_out -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--sold-out" aria-label="Produto esgotado">Esgotado</span>
@@ -169,6 +176,9 @@
         {%- endif -%}
         {%- if card_is_sob_medida -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--sob-medida" aria-label="Produto feito sob medida">Sob Medida</span>
+        {%- endif -%}
+        {%- if card_is_pingente_opcional -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--pingente-opcional" aria-label="Produto com pingente opcional">Pingente Opcional</span>
         {%- endif -%}
       </div>
     {%- endif -%}

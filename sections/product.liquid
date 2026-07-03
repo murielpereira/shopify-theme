@@ -400,6 +400,9 @@
       if product.tags contains 'customizacao_sobmedida'
         assign show_meta = true
       endif
+      if product.tags contains 'pingente_opcional'
+        assign show_meta = true
+      endif
       if product.available == false
         assign show_meta = true
       endif
@@ -420,6 +423,9 @@
         {%- endif -%}
         {%- if product.tags contains 'customizacao_sobmedida' -%}
           <span class="ame-chip ame-chip--sob-medida">Sob Medida</span>
+        {%- endif -%}
+        {%- if product.tags contains 'pingente_opcional' -%}
+          <span class="ame-chip ame-chip--pingente-opcional">Pingente Opcional</span>
         {%- endif -%}
         {%- if product.available == false -%}
           <span class="ame-chip">Esgotado</span>

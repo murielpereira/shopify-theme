@@ -526,6 +526,14 @@ body::after {
   border-color: transparent;
 }
 
+/* Pingente Opcional: azul acinzentado — informação técnica que o produto
+   permite acrescentar um pingente customizado no momento da compra. */
+.ame-chip--pingente-opcional {
+  background: #5a6b74;
+  color: #fff;
+  border-color: transparent;
+}
+
 /* ── Selection ── */
 ::selection {
   background: var(--color-primary, #5a4742);
@@ -682,6 +690,13 @@ body::after {
    Comunica visualmente que é informação técnica do produto, não promoção. */
 .ame-card__badge-pill--sob-medida {
   background: #5a7461;
+  color: #ffffff;
+}
+
+/* "Pingente Opcional": azul acinzentado — mesmo racional do sob-medida
+   (informação técnica). Tom distinto pra não competir visualmente. */
+.ame-card__badge-pill--pingente-opcional {
+  background: #5a6b74;
   color: #ffffff;
 }
 
