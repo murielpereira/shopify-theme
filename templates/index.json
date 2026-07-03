@@ -59,7 +59,7 @@
         "video_mobile": "shopify://files/videos/primula luma.mp4",
         "video_url": "",
         "eyebrow": "",
-        "title": "<h3>Couro legítimo. Cuidado real. </h3><p>Para quem ama de verdade.</p>",
+        "title": "<h2>Couro legítimo. Cuidado real.</h2><h4>Para quem ama de verdade.<br/></h4>",
         "subtitle": "",
         "cta_primary_label": "",
         "cta_primary_url": "https://ame-acessorios-pet.myshopify.com/collections/all",
@@ -207,6 +207,7 @@
         "cor_3": "#dcc1ba",
         "angulo": 135,
         "autoplay": true,
+        "show_cta": true,
         "cta_default": "Ver mais"
       }
     },
@@ -431,7 +432,7 @@
       "name": "Vídeos (destaques)",
       "settings": {
         "eyebrow": "",
-        "title": "",
+        "title": "O quer nosso clientes falam",
         "subtitle": "",
         "format": "spotlight",
         "tamanho": 70,
@@ -444,6 +445,7 @@
         "cor_3": "#dcc1ba",
         "angulo": 135,
         "autoplay": true,
+        "show_cta": false,
         "cta_default": ""
       }
     },
