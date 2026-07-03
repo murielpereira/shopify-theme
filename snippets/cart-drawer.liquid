@@ -99,7 +99,8 @@
       <!-- Lista de itens -->
       <ul class="ame-cart-items" data-cart-items>
         {%- for item in cart.items -%}
-          {%- assign coleira_key = item.properties._coleira_key | default: '' -%}
+          {%- comment -%} Lê _kit (novo) ou _coleira_key (legado, carts abertos antes da renomeação) {%- endcomment -%}
+          {%- assign coleira_key = item.properties._kit | default: item.properties._coleira_key | default: '' -%}
           {%- comment -%}
             Detecta brinde por property `_brinde_regra_id` (ame-gifts.js) OU
             property `Brinde` (pingente cortesia legado). Em ambos casos, esconde

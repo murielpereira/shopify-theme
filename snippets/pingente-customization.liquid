@@ -1393,7 +1393,7 @@
           if (tel) properties['Telefone do tutor'] = tel;
           // Vincula este pingente à coleira correspondente: o cart JS usa essa chave
           // pra remover o pingente junto quando o cliente remove a coleira do carrinho.
-          if (coleiraKey) properties['_coleira_key'] = coleiraKey;
+          if (coleiraKey) properties['_kit'] = coleiraKey;
           // No modo obrigatório, o pingente é cortesia — marcamos visualmente
           // (a regra de discount automático no admin do Shopify zera o preço).
           if (OBRIGATORIO) properties['Brinde'] = 'Pingente cortesia incluso';

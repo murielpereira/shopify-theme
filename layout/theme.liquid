@@ -268,7 +268,7 @@
             });
 
           // Sincroniza itens pareados (coleira ↔ pingente brinde):
-          // - Remoção (quantity=0): zera todos da mesma _coleira_key
+          // - Remoção (quantity=0): zera todos da mesma _kit
           // - Mudança de quantidade: aplica a mesma quantidade nos pareados
           const coleiraKey = item?.dataset.coleiraKey;
           const pairedKeys = coleiraKey
@@ -378,7 +378,9 @@
               ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>`
               : '';
           const props = item.properties || {};
-          const coleiraKey = props._coleira_key || '';
+          // Lê _kit (novo) ou _coleira_key (legado — retrocompat pra carts abertos
+          // com pedido gerado antes da renomeação).
+          const coleiraKey = props._kit || props._coleira_key || '';
           // Detecta brinde por property _brinde_regra_id (setado pelo ame-gifts.js
           // quando ele adiciona o item) OU pelo property `Brinde` visível (compat
           // com pingente cortesia que usa essa label). Em ambos casos, escondemos

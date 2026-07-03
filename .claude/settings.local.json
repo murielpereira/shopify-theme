@@ -240,7 +240,13 @@
       "Bash(wc -l \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/waltz-core.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/widget-medidas.js\")",
       "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/**)",
       "Bash(grep -rln \"rastre\\\\|tracking\\\\|smartenvios\\\\|service_name\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" 2>/dev/null | head -10)",
-      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/**)"
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/**)",
+      "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/\" 2>&1 | head -20)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/**)",
+      "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/\" 2>&1 | grep -i medid)",
+      "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" 2>&1 | grep -iE \"tm|medid\")",
+      "Bash(grep -n \"widget\\\\|/api/tm\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1 | head -20)",
+      "Bash(grep -n \"'/api/tm/widget\\\\|/tm/widget\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1)"
     ],
     "additionalDirectories": [
       "\\tmp",

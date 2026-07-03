@@ -1728,13 +1728,14 @@
           coleiraProps[key] = el.value.trim();
         });
 
-        /* Vincula coleira+pingente via _coleira_key — usado pelo cart drawer
-           pra remover o par junto quando o cliente remove a coleira. */
+        /* Vincula coleira+pingente via _kit — usado pelo cart drawer pra
+           remover o par junto quando o cliente remove a coleira. Chave curta
+           pra não poluir observações do pedido no ERP (Tiny). */
         const willAddPingente = window.amePingente?.isActive() && window.amePingente.getCartItem;
         let coleiraKey = '';
         if (willAddPingente) {
-          coleiraKey = 'ck-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-          coleiraProps['_coleira_key'] = coleiraKey;
+          coleiraKey = 'k' + Math.random().toString(36).slice(2, 6);
+          coleiraProps['_kit'] = coleiraKey;
         }
 
         const items = [{

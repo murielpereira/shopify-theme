@@ -577,14 +577,14 @@
             const willAddPingente = window.amePingente?.isActive() && window.amePingente.getCartItem;
             let coleiraKey = '';
             if (willAddPingente) {
-                coleiraKey = 'ck-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+                coleiraKey = 'k' + Math.random().toString(36).slice(2, 6);
             }
 
             const items = variants.map((v, i) => {
                 const item = { id: v.id, quantity: 1 };
                 const props = { ...propsByComp[i] };
-                // Vincula só o PRIMEIRO componente do kit com a _coleira_key.
-                if (willAddPingente && i === 0) props['_coleira_key'] = coleiraKey;
+                // Vincula só o PRIMEIRO componente do kit com a _kit.
+                if (willAddPingente && i === 0) props['_kit'] = coleiraKey;
                 if (Object.keys(props).length > 0) item.properties = props;
                 return item;
             });
