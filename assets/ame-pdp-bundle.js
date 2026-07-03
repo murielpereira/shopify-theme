@@ -164,15 +164,53 @@
             return product.variants.find(v => v.available) || product.variants[0];
         }
 
+        // Quebra "Borgonha com Rosa Bebê" em ["borgonha", "rosa bebê"] — cores
+        // compostas do Âme usam " com " como separador. Também aceita " e ",
+        // ",", "/" e "+" pra ser resiliente a variações de nomenclatura.
+        function tokenizarOpcao(str) {
+            return String(str || '')
+                .toLowerCase()
+                .split(/\s+com\s+|\s+e\s+|[,\/+]/)
+                .map(s => s.trim())
+                .filter(Boolean);
+        }
+
+        // Match tolerante: procura a variante do cross-sell mais próxima da
+        // variante atual do produto principal. Match exato pontua +2 (ex: cor
+        // "Chiclete" no principal = "Chiclete" no cross-sell); match parcial
+        // por token pontua +1 (ex: "Chiclete" bate com "Chiclete com Rosa
+        // Bebê" porque compartilham o token "chiclete"). Assim, quando o
+        // cross-sell tem só variantes de cor composta, escolhe a que mantém
+        // pelo menos uma das cores do produto principal.
         function autoMatchVariant(product, currentVariant) {
-            const target = (currentVariant?.options || []).map(s => String(s || '').toLowerCase());
+            const targetOpts = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
+            const targetTokens = targetOpts.flatMap(tokenizarOpcao);
+
             let best = null;
             let bestScore = -1;
             for (const v of product.variants) {
                 if (!v.available) continue;
-                const opts = (v.options || []).map(s => String(s || '').toLowerCase());
+                const opts = (v.options || []);
                 let score = 0;
-                for (const o of opts) if (target.includes(o)) score++;
+
+                for (const raw of opts) {
+                    const optLower = String(raw || '').toLowerCase().trim();
+                    // Match exato da opção inteira → +2 (prioridade)
+                    if (targetOpts.includes(optLower)) {
+                        score += 2;
+                        continue;
+                    }
+                    // Match parcial: algum token da opção candidata coincide
+                    // com algum token do target (cor composta / vice-versa)
+                    const tokens = tokenizarOpcao(raw);
+                    for (const tk of tokens) {
+                        if (targetTokens.includes(tk)) {
+                            score += 1;
+                            break;
+                        }
+                    }
+                }
+
                 if (score > bestScore) { best = v; bestScore = score; }
             }
             if (!best) best = product.variants.find(v => v.available) || product.variants[0];
