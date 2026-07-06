@@ -217,229 +217,228 @@
       {%- endif -%}
     {% endif %}
 
-
-{%- comment -%}
+    {%- comment -%}
       Coluna lateral à de Páginas (no desktop) com Transportadoras + selos
       de segurança/Konfidency/Reclame Aqui. Formas de pagamento foram
       removidas daqui (duplicavam com o bloco em .ame-footer__bottom).
     {%- endcomment -%}
     <div class="ame-footer__nav ame-footer__payments-col">
-        {%- comment -%}
-          Transportadoras parceiras. Cada logo é um link que abre a página
-          oficial de rastreio da transportadora em nova aba. Logos vivem em
-          assets/images/transportadoras/* — o Shopify serve qualquer asset
-          local via {{ 'arquivo.ext' | asset_url }} por filename.
+      {%- comment -%}
+        Transportadoras parceiras. Cada logo é um link que abre a página
+        oficial de rastreio da transportadora em nova aba. Logos vivem em
+        assets/images/transportadoras/* — o Shopify serve qualquer asset
+        local via {{ 'arquivo.ext' | asset_url }} por filename.
 
-          ⚠️ PERFORMANCE — PSI 2026-06: Os PNGs originais são 2048×2048
-          (até 111 KB cada). O markup pede 44×22 mas `asset_url` serve o
-          arquivo as-is, sem resize. Resultado: ~500 KB desperdiçados no
-          footer toda vez que renderiza, principalmente no PDK.
+        ⚠️ PERFORMANCE — PSI 2026-06: Os PNGs originais são 2048×2048
+        (até 111 KB cada). O markup pede 44×22 mas `asset_url` serve o
+        arquivo as-is, sem resize. Resultado: ~500 KB desperdiçados no
+        footer toda vez que renderiza, principalmente no PDK.
 
-          AÇÃO DO TIME (manual, não dá pra automatizar):
-          re-exportar os 9 PNGs em assets/ com tamanho máximo 88×44 px
-          (DPR 2x do display 44×22). Mantém o filename, sobrescreve o asset.
-          Cada arquivo deve ficar abaixo de 6 KB.
-          OU migrar pra arquivos em `files/` (upload no admin) e usar
-          `image_url: width: 88` pra Shopify CDN fazer o resize on-demand.
-        {%- endcomment -%}
-        <p class="ame-footer__nav-title ame-footer__carriers-title">Transportadoras</p>
-        <ul class="ame-footer__carriers-list" aria-label="Transportadoras parceiras — clique pra rastrear">
-          <li>
-            <a
-              href="https://rastreamento.correios.com.br/app/index.php"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear nos Correios"
-              title="Correios"
+        AÇÃO DO TIME (manual, não dá pra automatizar):
+        re-exportar os 9 PNGs em assets/ com tamanho máximo 88×44 px
+        (DPR 2x do display 44×22). Mantém o filename, sobrescreve o asset.
+        Cada arquivo deve ficar abaixo de 6 KB.
+        OU migrar pra arquivos em `files/` (upload no admin) e usar
+        `image_url: width: 88` pra Shopify CDN fazer o resize on-demand.
+      {%- endcomment -%}
+      <p class="ame-footer__nav-title ame-footer__carriers-title">Transportadoras</p>
+      <ul class="ame-footer__carriers-list" aria-label="Transportadoras parceiras — clique pra rastrear">
+        <li>
+          <a
+            href="https://rastreamento.correios.com.br/app/index.php"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear nos Correios"
+            title="Correios"
+          >
+            <img
+              src="{{ 'transportadora-correios.png' | asset_url }}"
+              alt="Correios"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-correios.png' | asset_url }}"
-                alt="Correios"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.loggi.com/rastreador/"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na Loggi"
-              title="Loggi"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.loggi.com/rastreador/"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na Loggi"
+            title="Loggi"
+          >
+            <img
+              src="{{ 'transportadora-loggi.png' | asset_url }}"
+              alt="Loggi"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-loggi.png' | asset_url }}"
-                alt="Loggi"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.jadlog.com.br/tracking"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na Jadlog"
-              title="Jadlog"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.jadlog.com.br/tracking"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na Jadlog"
+            title="Jadlog"
+          >
+            <img
+              src="{{ 'transportadora-jadlog.png' | asset_url }}"
+              alt="Jadlog"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-jadlog.png' | asset_url }}"
-                alt="Jadlog"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.jtexpress.com.br/"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na J&T Express"
-              title="J&T Express"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.jtexpress.com.br/"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na J&T Express"
+            title="J&T Express"
+          >
+            <img
+              src="{{ 'transportadora-jt.png' | asset_url }}"
+              alt="J&T Express"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-jt.png' | asset_url }}"
-                alt="J&T Express"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.gollog.com.br/"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na Gollog"
-              title="Gollog"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.gollog.com.br/"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na Gollog"
+            title="Gollog"
+          >
+            <img
+              src="{{ 'transportadora-gollog.png' | asset_url }}"
+              alt="Gollog"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-gollog.png' | asset_url }}"
-                alt="Gollog"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://rastreio.magalog.com.br/busca"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na Magalog"
-              title="Magalog"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://rastreio.magalog.com.br/busca"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na Magalog"
+            title="Magalog"
+          >
+            <img
+              src="{{ 'transportadora-magalog.jpg' | asset_url }}"
+              alt="Magalog"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-magalog.jpg' | asset_url }}"
-                alt="Magalog"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.dhl.com/br-pt/home/tracking.html"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na DHL"
-              title="DHL"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.dhl.com/br-pt/home/tracking.html"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na DHL"
+            title="DHL"
+          >
+            <img
+              src="{{ 'transportadora-dhl.png' | asset_url }}"
+              alt="DHL"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-dhl.png' | asset_url }}"
-                alt="DHL"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.fedex.com/pt-br/tracking.html"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na FedEx"
-              title="FedEx"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.fedex.com/pt-br/tracking.html"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na FedEx"
+            title="FedEx"
+          >
+            <img
+              src="{{ 'transportadora-fedex.png' | asset_url }}"
+              alt="FedEx"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-fedex.png' | asset_url }}"
-                alt="FedEx"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.ups.com/track?loc=pt_BR"
-              target="_blank"
-              rel="noopener"
-              aria-label="Rastrear na UPS"
-              title="UPS"
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.ups.com/track?loc=pt_BR"
+            target="_blank"
+            rel="noopener"
+            aria-label="Rastrear na UPS"
+            title="UPS"
+          >
+            <img
+              src="{{ 'transportadora-ups.png' | asset_url }}"
+              alt="UPS"
+              width="44"
+              height="22"
+              loading="lazy"
+              decoding="async"
             >
-              <img
-                src="{{ 'transportadora-ups.png' | asset_url }}"
-                alt="UPS"
-                width="44"
-                height="22"
-                loading="lazy"
-                decoding="async"
-              >
-            </a>
-          </li>
-        </ul>
+          </a>
+        </li>
+      </ul>
 
-        {%- comment -%}
-          Badge Konfidency Reviews — selo dinâmico com média + nº total de
-          avaliações da loja. Renderizado pelo loader.js global (em theme.liquid)
-          que detecta .konfidency-store-review no DOM e injeta o badge clicável.
-        {%- endcomment -%}
-        <div class="ame-footer__konfidency">
-          <div
-            class="konfidency-store-review"
-            data-type="horizontal-small"
-            data-color="light"
-          ></div>
-        </div>
+      {%- comment -%}
+        Badge Konfidency Reviews — selo dinâmico com média + nº total de
+        avaliações da loja. Renderizado pelo loader.js global (em theme.liquid)
+        que detecta .konfidency-store-review no DOM e injeta o badge clicável.
+      {%- endcomment -%}
+      <div class="ame-footer__konfidency">
+        <div
+          class="konfidency-store-review"
+          data-type="horizontal-small"
+          data-color="light"
+        ></div>
+      </div>
 
-        {%- comment -%}
-          Selo Reclame Aqui — script injetado pelo próprio Reclame Aqui via
-          CDN da Amazon S3. data-id é o token específico desta conta da Âme.
-          Renderiza um widget clicável com a reputação atualizada da loja.
-        {%- endcomment -%}
-        <div class="ame-footer__reclame-aqui">
-          <div id="reputation-ra">
-            <script
-              type="text/javascript"
-              id="ra-embed-reputation"
-              defer
-              src="https://s3.amazonaws.com/raichu-beta/selos/bundle.js"
-              data-id="VF82N3d3SEZpZk1xUThiQjphbWUtYWNlc3Nvcmlvcy1wZXQ="
-              data-target="reputation-ra"
-              data-model="2"
-            ></script>
-          </div>
+      {%- comment -%}
+        Selo Reclame Aqui — script injetado pelo próprio Reclame Aqui via
+        CDN da Amazon S3. data-id é o token específico desta conta da Âme.
+        Renderiza um widget clicável com a reputação atualizada da loja.
+      {%- endcomment -%}
+      <div class="ame-footer__reclame-aqui">
+        <div id="reputation-ra">
+          <script
+            type="text/javascript"
+            id="ra-embed-reputation"
+            defer
+            src="https://s3.amazonaws.com/raichu-beta/selos/bundle.js"
+            data-id="VF82N3d3SEZpZk1xUThiQjphbWUtYWNlc3Nvcmlvcy1wZXQ="
+            data-target="reputation-ra"
+            data-model="2"
+          ></script>
         </div>
       </div>
+    </div>
 
     {%- comment -%}
       Coluna de Atendimento + Dados da empresa.
@@ -738,7 +737,7 @@
 
   /* ── Formas de pagamento (coluna lateral ao "Páginas" no desktop) ── */
   .ame-footer__carriers-title {
-    margin-top: 1.5rem;
+    /*margin-top: 1.5rem;*/
   }
   .ame-footer__carriers-list {
     list-style: none;
@@ -847,7 +846,7 @@
   .ame-footer__nav {
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
+    gap: 0.7rem;
   }
 
   .ame-footer__nav-title {

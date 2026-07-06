@@ -247,7 +247,11 @@
       "Bash(ls \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" 2>&1 | grep -iE \"tm|medid\")",
       "Bash(grep -n \"widget\\\\|/api/tm\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1 | head -20)",
       "Bash(grep -n \"'/api/tm/widget\\\\|/tm/widget\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/tabelamedidas.js\" 2>&1)",
-      "Bash(grep -rn \"CREATE TABLE.*pedidos_v2\\\\|CREATE TABLE.*pedido_itens\\\\|INSERT INTO pedido_itens_v2\\\\|nomeCliente\\\\|Sync.*pedido\\\\|sync.*order\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" -l 2>&1 | head -10)"
+      "Bash(grep -rn \"CREATE TABLE.*pedidos_v2\\\\|CREATE TABLE.*pedido_itens\\\\|INSERT INTO pedido_itens_v2\\\\|nomeCliente\\\\|Sync.*pedido\\\\|sync.*order\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" -l 2>&1 | head -10)",
+      "Bash(grep -rn \"myshopify\\\\|origin\\\\|Access-Control\\\\|cors\\\\|CORS\\\\|whitelist\\\\|ame-acessorios\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/index.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/app.js\" 2>&1 | head -30)",
+      "Bash(grep -rn \"public/rastrear\\\\|corsPublic\\\\|api/public\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" 2>&1 | head -20)",
+      "Bash(grep -n \"corsPublic\\\\|origin\\\\|myshopify\\\\|ameacessorios\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/auth-middleware.js\" 2>&1)",
+      "Bash(grep -rn \"ALLOWED_ORIGIN\\\\|allowedOrigins\\\\|myshopify\\\\|ame-acessorios\\\\|ameacessorios\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/\" 2>&1 | head -30)"
     ],
     "additionalDirectories": [
       "\\tmp",
