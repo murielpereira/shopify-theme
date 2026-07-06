@@ -14,7 +14,7 @@
     "countdown-bar": {
       "type": "countdown-bar",
       "settings": {
-        "enabled": true,
+        "enabled": false,
         "message": "Contagem regressiva para o lançamento do site",
         "end_date": "2026-07-06",
         "end_time": "09:00:00",
