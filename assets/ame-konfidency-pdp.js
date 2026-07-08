@@ -346,7 +346,13 @@
             const item = data?.reviews?.[0];
             if (!item) return;
             renderSummary(summaryEl, item);
-            renderDetails(detailsEl, item, sku);
+            // AME_KONF_SKIP_DETAILS: em modo teste do loader oficial, o custom
+            // NÃO renderiza .konfidency-reviews-details — a div fica virgem
+            // pra observarmos o que o loader oficial injeta nela. Comentar
+            // esta flag e descomentar renderDetails abaixo pra restaurar
+            // comportamento normal.
+            const AME_KONF_SKIP_DETAILS = true;
+            if (!AME_KONF_SKIP_DETAILS) renderDetails(detailsEl, item, sku);
         } catch (e) {
             // Falha silenciosa — esconde elementos pra não deixar buraco
             if (summaryEl && !jaRenderizado(summaryEl)) summaryEl.hidden = true;

@@ -1191,12 +1191,12 @@
       não renderiza). Consulta a REST API pública /summary/{sort} e
       renderiza summary + lista paginada de reviews.
 
-      DESATIVADO temporariamente pra teste isolado do loader oficial —
-      queremos ver o que ele injeta na div .konfidency-reviews-details
-      SEM o custom populando por cima. Reativar removendo o comentário
-      quando o teste terminar (se o oficial ainda não funcionar).
+      MODO TESTE: o widget popula APENAS o .konfidency-reviews-summary.
+      A div .konfidency-reviews-details fica vazia pra observar o que o
+      loader oficial injeta nela. Vide flag AME_KONF_SKIP_DETAILS em
+      ame-konfidency-pdp.js.
     {%- endcomment -%}
-    {%- comment -%}<script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>{%- endcomment -%}
+    <script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>
 
     {%- comment -%}
       Badge compacto de rating nos cards de produto (coleções, home, busca).
