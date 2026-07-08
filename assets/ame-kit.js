@@ -519,8 +519,15 @@
                 if (!tag || !name) return;
                 const input = node.querySelector('input[name^="properties"], textarea[name^="properties"]');
                 if (!input) return;
-                const value = String(input.value || '').trim();
+                let value = String(input.value || '').trim();
                 if (!value) return;
+                // <input type="date"> retorna .value sempre em ISO (YYYY-MM-DD),
+                // mesmo com locale pt-BR na UI. Converte pra DD/MM/YYYY pra
+                // admin Shopify e Tiny mostrarem no formato brasileiro.
+                if (input.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                    const [y, m, d] = value.split('-');
+                    value = `${d}/${m}/${y}`;
+                }
                 components.forEach((comp, i) => {
                     if ((comp.tags || []).indexOf(tag) >= 0) {
                         props[i][name] = value;

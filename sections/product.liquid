@@ -1737,7 +1737,16 @@
         form.querySelectorAll('[name^="properties["]').forEach(el => {
           if (!el.value || !el.value.trim()) return;
           const key = el.name.replace(/^properties\[/, '').replace(/\]$/, '');
-          coleiraProps[key] = el.value.trim();
+          let value = el.value.trim();
+          // <input type="date"> retorna .value sempre em ISO (YYYY-MM-DD),
+          // mesmo com locale pt-BR na UI. Converte pra DD/MM/YYYY antes de
+          // enviar pro cart, pra o admin Shopify e o Tiny mostrarem a data
+          // no formato brasileiro nas observações do pedido.
+          if (el.type === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            const [y, m, d] = value.split('-');
+            value = `${d}/${m}/${y}`;
+          }
+          coleiraProps[key] = value;
         });
 
         /* Vincula coleira+pingente via _kit — usado pelo cart drawer pra

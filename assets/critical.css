@@ -3175,3 +3175,21 @@ shopify-account {
 #konfidency-questions-container .details .questions .question {
   border-bottom: 1px solid var(--color-surface-dim) !important;
 }
+
+#konfidency-reviews-container .summary {
+  margin: 10px 0;
+}
+
+.konfidency__media-shelf--carousel .swiper-pagination-bullet {
+  background-color: var(--color-on-surface-variant);
+}
+
+#konfidency-reviews-container .content .details .reviews .fetch-button button {
+  border: 1px solid var(--color-on-surface-variant);
+  color: var(--color-on-surface-variant);
+}
+
+#konfidency-questions-container .summary .question-button button[data-v-201c2b35] {
+  border: 1px solid var(--color-on-surface-variant);
+  color: var(--color-on-surface-variant);
+}
