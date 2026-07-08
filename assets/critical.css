@@ -3165,13 +3165,13 @@ shopify-account {
 }
 
 #konfidency-reviews-container .details .reviews .review {
-  border-bottom: 1px solid var(--color-outline-variant, #d2c3c0);
+  border-bottom: 1px solid var(--color-surface-dim) !important;
 }
 
 .konfidency__media-shelf h3 {
   margin: 10px 0;
 }
 
-#konfidency-questions-container .details .questions {
-  border-bottom: 1px solid var(--color-outline-variant, #d2c3c0);
+#konfidency-questions-container .details .questions .question {
+  border-bottom: 1px solid var(--color-surface-dim) !important;
 }
