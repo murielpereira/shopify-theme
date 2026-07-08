@@ -254,7 +254,10 @@
       "Bash(grep -rn \"ALLOWED_ORIGIN\\\\|allowedOrigins\\\\|myshopify\\\\|ame-acessorios\\\\|ameacessorios\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/utils/\" 2>&1 | head -30)",
       "Bash(grep -rn \"api.tiny\\\\|TINY_TOKEN\\\\|TINY_API\\\\|api.tiny.com\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/\" 2>&1 | grep -v node_modules | head -15)",
       "WebFetch(domain:developers.smartenvios.com)",
-      "WebFetch(domain:api.smartenvios.com)"
+      "WebFetch(domain:api.smartenvios.com)",
+      "WebFetch(domain:reviews.konfidency.com.br)",
+      "Bash(grep -oE '[,\\\\{]\\([0-9]{3,5}\\):' \"C:\\\\Users\\\\pedid\\\\.claude\\\\projects\\\\c--Users-pedid-OneDrive--rea-de-Trabalho-Arquivos--me-Muriel-Projetos-shopify-theme\\\\65b1cc9b-fe7e-4353-bc28-376151f3f6a8\\\\tool-results\\\\webfetch-1783508533660-nwvutj.bin\")",
+      "Bash(grep -E \"^3507$|^3506$|^3508$\")"
     ],
     "additionalDirectories": [
       "\\tmp",
