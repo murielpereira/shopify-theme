@@ -1,13 +1,46 @@
 {% comment %}
   Âme — Bloco de avaliações Konfidency Reviews.
 
-  Container que o loader oficial (em theme.liquid) preenche em runtime.
-  Modo de TESTE — sem título, wrapper ou CSS. Objetivo: verificar o que
-  o loader oficial injeta na div sem interferência de estilo/estrutura.
-  Reverter pro layout completo depois que a Konfidency corrigir o loader.
+  Renderiza o container .konfidency-reviews-details que o loader (carregado
+  em theme.liquid) preenche em runtime com toda a UI de reviews: filtros,
+  notas detalhadas, comentários, paginação e formulário de avaliação.
+
+  Aparece sempre, mesmo em produtos sem reviews — o próprio Konfidency
+  exibe estado vazio + CTA "Seja o primeiro a avaliar".
 {% endcomment %}
 
-<div class="konfidency-reviews-details"></div>
+<section class="pdp-reviews" aria-labelledby="pdp-reviews-title">
+  <h2 id="pdp-reviews-title" class="pdp-reviews__title">
+    {{ section.settings.title | default: 'Avaliações' }}
+  </h2>
+  <div class="konfidency-reviews-details"></div>
+</section>
+
+{% stylesheet %}
+  .pdp-reviews {
+    margin-top: 2rem;
+    padding: 1.5rem 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .pdp-reviews {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .pdp-reviews__title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+    margin: 0 0 1.5rem;
+  }
+
+  /* Reserva espaço mínimo enquanto o loader injeta — evita layout shift */
+  .pdp-reviews .konfidency-reviews-details {
+    min-height: 6rem;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {

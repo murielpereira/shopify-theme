@@ -1187,14 +1187,10 @@
     <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
 
     {%- comment -%}
-      Widget custom de reviews no PDP (fallback quando o loader oficial
-      não renderiza). Consulta a REST API pública /summary/{sort} e
-      renderiza summary + lista paginada de reviews.
-
-      MODO TESTE: o widget popula APENAS o .konfidency-reviews-summary.
-      A div .konfidency-reviews-details fica vazia pra observar o que o
-      loader oficial injeta nela. Vide flag AME_KONF_SKIP_DETAILS em
-      ame-konfidency-pdp.js.
+      Widget custom de reviews no PDP (fallback ativo enquanto o loader
+      oficial não renderiza — vide comentário acima). Consulta a REST API
+      pública /summary/{sort} e renderiza summary (estrelas + count) e
+      lista paginada de reviews com filtro e "carregar mais".
     {%- endcomment -%}
     <script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>
 
