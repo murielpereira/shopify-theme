@@ -55,8 +55,8 @@
     "hero": {
       "type": "home-hero",
       "settings": {
-        "video": "shopify://files/videos/SALSICHA LACO FLY DESKTOP.mp4",
-        "video_mobile": "shopify://files/videos/SALSICHA LACO FLY MOBILE.mp4",
+        "video": "shopify://files/videos/BANNER SITE BRISAS DESKTOP.MOV",
+        "video_mobile": "shopify://files/videos/BANNER SITE COLECAO BRISAS MOBILE.MOV",
         "video_url": "",
         "eyebrow": "",
         "title": "<h4><br/></h4>",
