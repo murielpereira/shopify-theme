@@ -1162,17 +1162,31 @@
     </script>
 
     {%- comment -%}
-      Loader do Konfidency Reviews. Renderiza os widgets de avaliação onde
-      estiverem presentes no DOM:
+      Loader do Konfidency Reviews. Deveria renderizar os widgets:
         • .konfidency-reviews-summary (PDP — data-sku = product.id)
         • .konfidency-reviews-details (PDP — lista de reviews)
         • .konfidency-all-reviews (página /avaliacoes)
         • .konfidency-storeReviewCarousel (home — carrossel)
         • .konfidency-store-review (footer — selo da loja)
-      Migração Nuvemshop→Shopify concluída em 2026-07 — o loader agora
-      renderiza direto pro PDP Shopify (não precisa mais do widget custom).
+
+      ⚠️  2026-07: mesmo após a migração Nuvemshop→Shopify, o loader oficial
+      NÃO renderiza no PDP da Âme (loader.js carrega, chama /summary, mas
+      não injeta HTML nos containers). A API tem os dados (907 reviews em
+      /summary com estrutura aninhada nova). Enquanto a Konfidency não
+      corrige o loader, mantemos o widget custom em ame-konfidency-pdp.js —
+      ele lê da mesma API e renderiza summary+details manualmente.
+      Se o loader passar a funcionar (children.length > 0), o custom
+      detecta via jaRenderizado() e não interfere.
     {%- endcomment -%}
     <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
+
+    {%- comment -%}
+      Widget custom de reviews no PDP (fallback ativo enquanto o loader
+      oficial não renderiza — vide comentário acima). Consulta a REST API
+      pública /summary/{sort} e renderiza summary (estrelas + count) e
+      lista paginada de reviews com filtro e "carregar mais".
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>
 
     {%- comment -%}
       Badge compacto de rating nos cards de produto (coleções, home, busca).
