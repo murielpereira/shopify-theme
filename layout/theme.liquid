@@ -1162,37 +1162,23 @@
     </script>
 
     {%- comment -%}
-      Loader do Konfidency Reviews. Deveria renderizar os widgets:
+      Konfidency Reviews — na Shopify, o loader é injetado automaticamente
+      pelo APP oficial da Konfidency (v2.9), não precisamos mais adicionar
+      o <script> manualmente no theme. Na Nuvemshop era diferente: tinha
+      que injetar o loader v1 no body via código/GTM.
+
+      ⚠️ 2026-07: mantendo dois loaders (v1 manual + v2.9 do app) causava
+      conflito — o antigo quebrava (chunk 787.*.js retornava 404) e
+      atrapalhava a renderização do novo. Suporte Konfidency confirmou
+      que removendo o v1 do body, o v2.9 renderiza os widgets normalmente.
+
+      Widgets renderizados pelo app oficial (elementos no theme):
         • .konfidency-reviews-summary (PDP — data-sku = product.id)
         • .konfidency-reviews-details (PDP — lista + histograma + galeria + Q&A)
         • .konfidency-all-reviews (página /avaliacoes)
         • .konfidency-storeReviewCarousel (home — carrossel)
         • .konfidency-store-review (footer — selo da loja)
-
-      ⚠️  2026-07: loader oficial QUEBRA no PDP com:
-        "loader.js:1 Uncaught (in promise) TypeError:
-         Cannot read properties of undefined (reading 'call')"
-      É bug interno do bundle deles (falha ao invocar chunk Webpack).
-      Nossa integração está correta (URL loja `f0021j-wn.myshopify.com`,
-      containers com classes exatas, data-sku=product.id, loader no <body>).
-      Chamado aberto com support@konfidency.cx.
-
-      Enquanto não corrigem, mantemos o widget custom em
-      ame-konfidency-pdp.js — consulta a mesma REST API e renderiza
-      summary + lista de reviews manualmente (sem histograma, Q&A ou galeria
-      de fotos com lightbox, que existem apenas no widget oficial).
-      Se o loader passar a funcionar (children.length > 0), o custom detecta
-      via jaRenderizado() e não interfere.
     {%- endcomment -%}
-    <script defer src="https://reviews.konfidency.com.br/ameacessoriospet/loader.js"></script>
-
-    {%- comment -%}
-      Widget custom de reviews no PDP (fallback ativo enquanto o loader
-      oficial não renderiza — vide comentário acima). Consulta a REST API
-      pública /summary/{sort} e renderiza summary (estrelas + count) e
-      lista paginada de reviews com filtro e "carregar mais".
-    {%- endcomment -%}
-    <script defer src="{{ 'ame-konfidency-pdp.js' | asset_url }}"></script>
 
     {%- comment -%}
       Badge compacto de rating nos cards de produto (coleções, home, busca).
