@@ -14,6 +14,8 @@
     "color_primary": "#5a4742",
     "color_primary_container": "#735e59",
     "color_on_primary": "#ffffff",
+    "pdp_btn_bg_color": "#8D9765",
+    "pdp_btn_fg_color": "#ffffff",
     "color_secondary": "#655d54",
     "color_secondary_container": "#e9ded2",
     "color_background": "#f7f5f2",

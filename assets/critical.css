@@ -3169,7 +3169,7 @@ shopify-account {
 }
 
 .konfidency__media-shelf h3 {
-  margin: 10px 0;
+  margin: 10px 0 !important;
 }
 
 #konfidency-questions-container .details .questions .question {
@@ -3177,19 +3177,19 @@ shopify-account {
 }
 
 #konfidency-reviews-container .summary {
-  margin: 10px 0;
+  margin: 10px 0 !important;
 }
 
 .konfidency__media-shelf--carousel .swiper-pagination-bullet {
-  background-color: var(--color-on-surface-variant);
+  background-color: var(--color-on-surface-variant) !important;
 }
 
 #konfidency-reviews-container .content .details .reviews .fetch-button button {
-  border: 1px solid var(--color-on-surface-variant);
-  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-on-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
 }
 
 #konfidency-questions-container .summary .question-button button[data-v-201c2b35] {
-  border: 1px solid var(--color-on-surface-variant);
-  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-on-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
 }

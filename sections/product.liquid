@@ -133,16 +133,12 @@
   {%- endif -%}
 {%- endcapture -%}
 
-{%- liquid
-  assign pdp_btn_bg = section.settings.pdp_btn_bg_color | default: '#000000'
-  assign pdp_btn_fg = section.settings.pdp_btn_fg_color | default: '#ffffff'
--%}
-<style>
-  #shopify-section-{{ section.id }} .pdp {
-    --pdp-btn-bg: {{ pdp_btn_bg }};
-    --pdp-btn-fg: {{ pdp_btn_fg }};
-  }
-</style>
+{%- comment -%}
+  Cores do CTA (--pdp-btn-bg / --pdp-btn-fg) agora vêm de settings globais
+  aplicadas em :root via snippets/css-variables.liquid — assim o card do
+  produto (fora da section) e o PDP usam o mesmo valor. Configurável em
+  Configurações do Tema → Cores → "Botão de compra (CTA principal)".
+{%- endcomment -%}
 
 <!-- Breadcrumb -->
 {%- liquid
@@ -3635,26 +3631,6 @@
       "id": "show_related",
       "label": "Exibir produtos relacionados",
       "default": true
-    },
-    {
-      "type": "header",
-      "content": "Botões da PDP"
-    },
-    {
-      "type": "paragraph",
-      "content": "Define a cor do botão de variação selecionado (ex: tamanho/cor do metal) e do botão Adicionar ao Carrinho."
-    },
-    {
-      "type": "color",
-      "id": "pdp_btn_bg_color",
-      "label": "Cor de fundo do botão",
-      "default": "#000000"
-    },
-    {
-      "type": "color",
-      "id": "pdp_btn_fg_color",
-      "label": "Cor do texto do botão",
-      "default": "#ffffff"
     },
     {
       "type": "header",

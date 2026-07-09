@@ -207,8 +207,15 @@
     --teal-500: #06b6d4;
     --whatsapp-500: #25d366;
 
-    --pdp-btn-bg: #5A4742;
-    --pdp-btn-text: #ffffff;
+    {%- comment -%}
+      Cor do botão CTA (comprar/adicionar ao carrinho). Global — usada tanto
+      no card do produto (.ame-card__buy-btn) quanto no botão do PDP/kit
+      (.ame-cta / .pdp__add-btn). Configurável em Configurações do Tema →
+      Cores → "Botão de compra (CTA principal)".
+    {%- endcomment -%}
+    --pdp-btn-bg: {{ settings.pdp_btn_bg_color | default: '#5a4742' }};
+    --pdp-btn-text: {{ settings.pdp_btn_fg_color | default: '#ffffff' }};
+    --pdp-btn-fg: {{ settings.pdp_btn_fg_color | default: '#ffffff' }};
   }
 
   /* Mobile override: 12px de margem lateral é o suficiente. O clamp(2rem, 10vw, 160px)

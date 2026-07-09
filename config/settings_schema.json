@@ -60,6 +60,26 @@
       },
       {
         "type": "header",
+        "content": "Botão de compra (CTA principal)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Cor aplicada nos botões 'Comprar' dos cards de produto e 'Adicionar ao Carrinho' da página do produto/kit."
+      },
+      {
+        "type": "color",
+        "id": "pdp_btn_bg_color",
+        "default": "#5a4742",
+        "label": "Cor de fundo do botão"
+      },
+      {
+        "type": "color",
+        "id": "pdp_btn_fg_color",
+        "default": "#ffffff",
+        "label": "Cor do texto do botão"
+      },
+      {
+        "type": "header",
         "content": "Cor Secundária"
       },
       {
