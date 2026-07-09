@@ -591,6 +591,11 @@
       border: 0;
       padding: 0;
     }
+    .ame-vs__spot-click:focus-visible {
+      outline: 2px solid var(--color-primary, #5a4742);
+      outline-offset: 2px;
+      border-radius: 0.25rem;
+    }
 
     .ame-vs__spot-cta {
       display: block;
@@ -760,6 +765,10 @@
     .ame-vs-modal__close:hover {
       background: rgba(0, 0, 0, 0.7);
     }
+    .ame-vs-modal__close:focus-visible {
+      outline: 2px solid var(--color-primary, #5a4742);
+      outline-offset: 2px;
+    }
     .ame-vs-modal__close .material-symbols-outlined {
       font-size: 1.125rem !important;
     }
@@ -796,6 +805,10 @@
     }
     .ame-vs-modal__zone--next {
       right: 0;
+    }
+    .ame-vs-modal__zone:focus-visible {
+      outline: 2px solid var(--color-primary, #5a4742);
+      outline-offset: -2px; /* Inner outline to be visible over black background */
     }
 
     .ame-vs-modal__cta {

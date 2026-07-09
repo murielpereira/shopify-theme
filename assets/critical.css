@@ -1153,6 +1153,11 @@ body::after {
   background: var(--color-surface-container, #f8ece0);
 }
 
+.ame-cart-drawer__close:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
+
 .ame-cart-drawer__close .material-symbols-outlined {
   font-size: 1.25rem;
   font-variation-settings: 'wght' 250;
@@ -1617,6 +1622,12 @@ body::after {
 
 .ame-cart-crosssell__dismiss:hover {
   opacity: 1;
+}
+
+.ame-cart-crosssell__dismiss:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 0.125rem);
 }
 
 /* Linha de cor/variante (ex: "Camel com Azul Bebê") abaixo do título */
@@ -2574,6 +2585,11 @@ shopify-account {
   opacity: 1;
 }
 
+.ame-header__search-close:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
+}
+
 .ame-header__search-close .material-symbols-outlined {
   font-size: 1rem;
   font-variation-settings: 'wght' 250;
@@ -2656,6 +2672,11 @@ shopify-account {
 .ame-search-form__close:hover {
   color: var(--color-primary, #5a4742);
   transform: rotate(90deg);
+}
+
+.ame-search-form__close:focus-visible {
+  outline: 2px solid var(--color-primary, #5a4742);
+  outline-offset: 2px;
 }
 
 .ame-search-form__close .material-symbols-outlined {

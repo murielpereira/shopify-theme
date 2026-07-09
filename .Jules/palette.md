@@ -33,3 +33,7 @@
 ## 2024-05-26 - Keyboard Focus Visible Styles on Snippet Components
 **Learning:** Some custom UI buttons located entirely within localized snippets (like the `.ame-pingente__custom-btn` inside `pingente-customization.liquid` and `.ame-vs__spot-nav` inside `video-stories.liquid`) lacked explicit `:focus-visible` styles. Because these are specific classes not covered by global styles in `critical.css`, this omission resulted in poor keyboard navigation feedback.
 **Action:** When creating new interactive components or maintaining existing ones within localized snippets, always ensure explicit `:focus-visible` styles are declared directly in their specific CSS blocks (if they are not covered by global base styles) to guarantee robust keyboard accessibility.
+
+## $(date +%Y-%m-%d) - Focus states for interactive custom elements
+**Learning:** Found that many interactive custom UI elements like modal close buttons (`.ame-vs-modal__close`), drawer triggers, and purely icon-based actions lacked explicit `:focus-visible` states, relying on browsers to handle them which often didn't display properly due to custom styles.
+**Action:** Always add explicit `:focus-visible` states with `outline: 2px solid var(--color-primary); outline-offset: 2px;` to custom buttons (or negative offsets when they are on dark backgrounds) to ensure high visibility for keyboard navigation.
