@@ -35,3 +35,8 @@
 **Vulnerability:** The `esc()` function in `layout/theme.liquid` used for escaping dynamic cart item properties was missing escaping for single quotes (`'`).
 **Learning:** While most HTML attributes were wrapped in double quotes, omitting single quote escaping could still leave the application vulnerable if the escaped string is used in a context where single quotes are significant.
 **Prevention:** Always escape all HTML control characters (`&`, `<`, `>`, `"`, and `'`) when interpolating dynamic data into strings assigned to `.innerHTML` or `outerHTML`.
+
+## 2025-02-28 - [Reflected XSS in Line Item Properties]
+**Vulnerability:** Unsanitized user input from cart line item properties (`p.first` and `p.last`) were rendered directly to HTML in `snippets/cart-drawer.liquid` and `templates/customers/order.liquid`.
+**Learning:** Shopify line item properties are user-controlled input and not auto-escaped when rendered in Liquid. Directly outputting them allows Reflected XSS.
+**Prevention:** Always apply the `escape` filter (e.g., `{{ p.first | escape }}: {{ p.last | escape }}`) when rendering any user-provided line item properties in Liquid templates.

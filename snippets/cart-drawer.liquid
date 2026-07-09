@@ -137,7 +137,7 @@
                     {%- if p.last != blank and p.first != blank -%}
                       {%- assign first_char = p.first | slice: 0 -%}
                       {%- unless first_char == '_' -%}
-                        <li><span class="ame-cart-item__prop-key">{{ p.first }}:</span> {{ p.last }}</li>
+                        <li><span class="ame-cart-item__prop-key">{{ p.first | escape }}:</span> {{ p.last | escape }}</li>
                       {%- endunless -%}
                     {%- endif -%}
                   {%- endfor -%}
