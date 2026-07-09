@@ -278,7 +278,7 @@
           "settings": {
             "title": "Lançamentos",
             "subtitle": "Descubra nossa seleção especial",
-            "collection": "lancamentos-1",
+            "collection": "lancamentos",
             "layout": "carousel",
             "products_per_row": 4,
             "products_per_row_mobile": "2",
