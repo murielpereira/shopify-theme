@@ -16,3 +16,6 @@
 ## 2026-07-02 - Optimize Variant Lookup
 **Learning:** To locate a specific item matching multiple criteria in a large array of objects (like finding a specific product variant), avoid manual `{% for %}` loops with nested `{% if %}` blocks. This causes high parsing overhead inside Liquid loops.
 **Action:** Always logically chain multiple native `where` filters and append `.first` (e.g., `array | where: prop1, val1 | where: prop2, val2 | first`). This shifts the evaluation process to the C/Rust level on the server, improving TTFB.
+## 2024-05-24 - Optimize Liquid Dictionary Lookups
+**Learning:** Nested loops for dictionary-like lookups (`O(N*M)`) are an anti-pattern in Shopify Liquid because the interpreter overhead is very high. Using a native dictionary is not supported, but string operations (`replace`, `split`, `contains`) are executed at the C/Rust level.
+**Action:** When a mapping logic runs inside a loop, format the lookup dictionary as a delimited string (e.g. padding keys with spaces and commas) outside the loop, and use `contains` and `split` inside the loop to achieve `O(1)` performance.
