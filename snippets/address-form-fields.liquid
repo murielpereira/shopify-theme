@@ -5,41 +5,41 @@
 
 <label>
   Nome
-  <input type="text" name="address[first_name]" value="{{ address.first_name }}" autocomplete="given-name">
+  <input type="text" name="address[first_name]" value="{{ address.first_name | escape }}" autocomplete="given-name">
 </label>
 <label>
   Sobrenome
-  <input type="text" name="address[last_name]" value="{{ address.last_name }}" autocomplete="family-name">
+  <input type="text" name="address[last_name]" value="{{ address.last_name | escape }}" autocomplete="family-name">
 </label>
 <label style="grid-column: 1 / -1;">
   Endereço (rua, número)
-  <input type="text" name="address[address1]" value="{{ address.address1 }}" autocomplete="address-line1" required>
+  <input type="text" name="address[address1]" value="{{ address.address1 | escape }}" autocomplete="address-line1" required>
 </label>
 <label style="grid-column: 1 / -1;">
   Complemento
-  <input type="text" name="address[address2]" value="{{ address.address2 }}" autocomplete="address-line2">
+  <input type="text" name="address[address2]" value="{{ address.address2 | escape }}" autocomplete="address-line2">
 </label>
 <label>
   Cidade
-  <input type="text" name="address[city]" value="{{ address.city }}" autocomplete="address-level2" required>
+  <input type="text" name="address[city]" value="{{ address.city | escape }}" autocomplete="address-level2" required>
 </label>
 <label>
   CEP
-  <input type="text" name="address[zip]" value="{{ address.zip }}" autocomplete="postal-code" inputmode="numeric" required>
+  <input type="text" name="address[zip]" value="{{ address.zip | escape }}" autocomplete="postal-code" inputmode="numeric" required>
 </label>
 <label>
   País
-  <select name="address[country]" data-default="{{ address.country }}" autocomplete="country">
+  <select name="address[country]" data-default="{{ address.country | escape }}" autocomplete="country">
     {{ all_country_option_tags }}
   </select>
 </label>
 <label>
   Estado
-  <select name="address[province]" data-default="{{ address.province }}" autocomplete="address-level1"></select>
+  <select name="address[province]" data-default="{{ address.province | escape }}" autocomplete="address-level1"></select>
 </label>
 <label style="grid-column: 1 / -1;">
   Telefone
-  <input type="tel" name="address[phone]" value="{{ address.phone }}" autocomplete="tel">
+  <input type="tel" name="address[phone]" value="{{ address.phone | escape }}" autocomplete="tel">
 </label>
 
 <script>

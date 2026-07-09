@@ -35,3 +35,7 @@
 **Vulnerability:** The `esc()` function in `layout/theme.liquid` used for escaping dynamic cart item properties was missing escaping for single quotes (`'`).
 **Learning:** While most HTML attributes were wrapped in double quotes, omitting single quote escaping could still leave the application vulnerable if the escaped string is used in a context where single quotes are significant.
 **Prevention:** Always escape all HTML control characters (`&`, `<`, `>`, `"`, and `'`) when interpolating dynamic data into strings assigned to `.innerHTML` or `outerHTML`.
+## 2025-02-28 - [Reflected XSS in Customer Address Form Fields]
+**Vulnerability:** Unsanitized variables `address.first_name`, `address.last_name`, `address.address1`, etc., were rendered directly into the `value="{{ ... }}"` attributes of `<input>` elements in `snippets/address-form-fields.liquid`.
+**Learning:** In Shopify Liquid templates, customer address variables are not automatically HTML-escaped. Outputting them unescaped in HTML attributes opens the form to Reflected XSS if malicious input containing quotes is injected.
+**Prevention:** Always apply the `escape` filter (e.g., `{{ address.first_name | escape }}`) when rendering user-provided data directly into HTML attributes like `value`.
