@@ -257,7 +257,8 @@
       "WebFetch(domain:api.smartenvios.com)",
       "WebFetch(domain:reviews.konfidency.com.br)",
       "Bash(grep -oE '[,\\\\{]\\([0-9]{3,5}\\):' \"C:\\\\Users\\\\pedid\\\\.claude\\\\projects\\\\c--Users-pedid-OneDrive--rea-de-Trabalho-Arquivos--me-Muriel-Projetos-shopify-theme\\\\65b1cc9b-fe7e-4353-bc28-376151f3f6a8\\\\tool-results\\\\webfetch-1783508533660-nwvutj.bin\")",
-      "Bash(grep -E \"^3507$|^3506$|^3508$\")"
+      "Bash(grep -E \"^3507$|^3506$|^3508$\")",
+      "WebFetch(domain:www.ameacessoriospet.com.br)"
     ],
     "additionalDirectories": [
       "\\tmp",
