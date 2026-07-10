@@ -1078,6 +1078,11 @@
               const propVal = card.dataset.csPropVal || '';
               const propsPayload = {};
               if (needsProp && propName && propVal) propsPayload[propName] = propVal;
+              // Marca origem: guia adicionada via cross-sell "Adicione a guia
+              // perfeita" no cart drawer. Prefixo `_` esconde do cart visível
+              // pro cliente mas aparece no admin Shopify + Tiny — usado pra
+              // medir conversão do widget de sugestão.
+              propsPayload['_origem'] = 'compre-junto-cart';
 
               addBtn.disabled = true;
               addBtn.textContent = 'Adicionando...';
