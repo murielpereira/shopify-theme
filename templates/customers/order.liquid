@@ -60,7 +60,7 @@
                     {%- if pv != blank -%}
                       {%- assign first_ch = pk | slice: 0 -%}
                       {%- unless first_ch == '_' -%}
-                        <li><strong>{{ pk }}:</strong> {{ pv }}</li>
+                        <li><strong>{{ pk | escape }}:</strong> {{ pv | escape }}</li>
                       {%- endunless -%}
                     {%- endif -%}
                   {%- endfor -%}

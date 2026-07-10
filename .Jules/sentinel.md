@@ -39,3 +39,8 @@
 **Vulnerability:** Unsanitized variables `address.first_name`, `address.last_name`, `address.address1`, etc., were rendered directly into the `value="{{ ... }}"` attributes of `<input>` elements in `snippets/address-form-fields.liquid`.
 **Learning:** In Shopify Liquid templates, customer address variables are not automatically HTML-escaped. Outputting them unescaped in HTML attributes opens the form to Reflected XSS if malicious input containing quotes is injected.
 **Prevention:** Always apply the `escape` filter (e.g., `{{ address.first_name | escape }}`) when rendering user-provided data directly into HTML attributes like `value`.
+
+## 2025-02-28 - [Reflected XSS in Line Item Properties]
+**Vulnerability:** Unsanitized user inputs in `line_item.properties` (specifically `p.first` and `p.last`) were being output directly in HTML tags without escaping in `templates/customers/order.liquid` and `snippets/cart-drawer.liquid`.
+**Learning:** In Shopify Liquid templates, line item properties are user-controlled input (e.g. from cart forms or custom product pages) and are not auto-escaped. Outputting them dynamically back to the user inside HTML tags without sanitization opens the application up to Reflected XSS vulnerabilities.
+**Prevention:** Always apply the `escape` filter when rendering line item properties (e.g., `{{ p.first | escape }}: {{ p.last | escape }}`) into HTML.
