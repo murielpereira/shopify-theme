@@ -258,7 +258,10 @@
       "WebFetch(domain:reviews.konfidency.com.br)",
       "Bash(grep -oE '[,\\\\{]\\([0-9]{3,5}\\):' \"C:\\\\Users\\\\pedid\\\\.claude\\\\projects\\\\c--Users-pedid-OneDrive--rea-de-Trabalho-Arquivos--me-Muriel-Projetos-shopify-theme\\\\65b1cc9b-fe7e-4353-bc28-376151f3f6a8\\\\tool-results\\\\webfetch-1783508533660-nwvutj.bin\")",
       "Bash(grep -E \"^3507$|^3506$|^3508$\")",
-      "WebFetch(domain:www.ameacessoriospet.com.br)"
+      "WebFetch(domain:www.ameacessoriospet.com.br)",
+      "Bash(grep -n \"combinesWith\\\\|combines_with\\\\|discountCodeBasicCreate\\\\|price_rules\\\\|discount_codes\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/cashback.js\" 2>&1 | head -15)",
+      "Bash(grep -rn \"shopify.*coupon\\\\|cupom.*shopify\\\\|criarCupomShopify\\\\|discount\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/cashback.js\" 2>&1 | head -10)",
+      "Bash(grep -n \"scopes\\\\|SCOPES\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/shopify.js\" 2>&1 | head -10)"
     ],
     "additionalDirectories": [
       "\\tmp",
