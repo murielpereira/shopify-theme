@@ -1150,11 +1150,17 @@
           }
         }
 
-        /* Hook na refresh do drawer pra recalcular sugestões */
+        /* Hook na refresh do drawer pra recalcular sugestões.
+           Também anuncia `ame:cart-refreshed` — módulos externos (ame-gifts.js)
+           escutam esse evento em vez de monkey-patchear window.AmeCart.refresh,
+           que NÃO era chamado pelos handlers internos do drawer (qty +/-,
+           remover usam a closure refreshDrawer direto — o patch no property
+           do window nunca disparava e o brinde não atualizava dinamicamente). */
         const _origRefresh = refreshDrawer;
         refreshDrawer = function (cart) {
           _origRefresh(cart);
           renderCrossSell(cart);
+          document.dispatchEvent(new CustomEvent('ame:cart-refreshed', { detail: { cart } }));
         };
 
         /* Render inicial (no load) — busca cart atual e popula os slots */

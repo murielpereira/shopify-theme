@@ -263,7 +263,13 @@
       "Bash(grep -rn \"shopify.*coupon\\\\|cupom.*shopify\\\\|criarCupomShopify\\\\|discount\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/cashback.js\" 2>&1 | head -10)",
       "Bash(grep -n \"scopes\\\\|SCOPES\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/shopify.js\" 2>&1 | head -10)",
       "Bash(grep -n \"express.json\\\\|rawBody\\\\|bodyParser\\\\|verify\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" 2>&1 | head -10)",
-      "WebFetch(domain:help.shopify.com)"
+      "WebFetch(domain:help.shopify.com)",
+      "Bash(cat \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/migrations/008_brindes.sql\" 2>&1)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/migrations/**)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/js/**)",
+      "Bash(grep -n \"form\\\\|input\\\\|campo\\\\|ativo\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/js/templates/aba-brindes.js\" 2>&1 | head -30)",
+      "Read(//c/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/js/templates/**)",
+      "Bash(grep -n \"brd-form-ativo\\\\|function brdSalvar\\\\|function brdEditar\\\\|payload\\\\|body:\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/js/brindes.js\" 2>&1 | head -20)"
     ],
     "additionalDirectories": [
       "\\tmp",

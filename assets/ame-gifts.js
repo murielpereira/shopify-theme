@@ -340,33 +340,36 @@
         }
     }
 
-    // ─── Hook em AmeCart.refresh + open ───
+    // ─── Hooks de mudança do cart ───
+    // Refresh: escuta o evento `ame:cart-refreshed` que o drawer dispara em
+    // TODO refresh — inclusive os handlers internos (qty +/-, remover), que
+    // chamam a closure refreshDrawer direto e nunca passavam pelo antigo
+    // monkey-patch em window.AmeCart.refresh (por isso o brinde só atualizava
+    // após reload da página).
     function instalarHook() {
-        if (!window.AmeCart || typeof window.AmeCart.refresh !== 'function') {
-            return setTimeout(instalarHook, 200);
-        }
-        if (window.AmeCart.__giftsHooked) return;
-        window.AmeCart.__giftsHooked = true;
-
-        const refreshOriginal = window.AmeCart.refresh;
-        window.AmeCart.refresh = function (cartData) {
-            const r = refreshOriginal.apply(this, arguments);
+        document.addEventListener('ame:cart-refreshed', () => {
             // Re-avalia após o drawer ter re-renderizado os items — assim
             // os cards de seleção são re-injetados na lista atualizada.
             reavaliarBrindes();
-            return r;
-        };
+        });
 
         // Reavalia também quando o drawer abre — caso o cliente entrou na página
-        // com o cart já cheio (sem ter passado por AmeCart.refresh ainda).
-        const openOriginal = window.AmeCart.open;
-        if (typeof openOriginal === 'function') {
-            window.AmeCart.open = function () {
-                const r = openOriginal.apply(this, arguments);
-                reavaliarBrindes();
-                return r;
-            };
+        // com o cart já cheio (sem ter passado por refresh ainda).
+        wrapOpenQuandoDisponivel();
+    }
+
+    function wrapOpenQuandoDisponivel() {
+        if (!window.AmeCart || typeof window.AmeCart.open !== 'function') {
+            return setTimeout(wrapOpenQuandoDisponivel, 200);
         }
+        if (window.AmeCart.__giftsHooked) return;
+        window.AmeCart.__giftsHooked = true;
+        const openOriginal = window.AmeCart.open;
+        window.AmeCart.open = function () {
+            const r = openOriginal.apply(this, arguments);
+            reavaliarBrindes();
+            return r;
+        };
     }
 
     // ─── Init ───
