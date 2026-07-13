@@ -206,12 +206,13 @@
 {% style %}
   .ame-hero-c-{{ hid }} {
     position: relative;
-    /* Full-bleed: o wrapper implícito da section `_blocks` prende o bloco na
+    /* Full-bleed: o wrapper implícito da section _blocks prende o bloco na
        coluna central do grid (com --page-margin dos lados). O breakout
-       100vw + margin negativa fura o grid. Fica AQUI (instância) porque o
-       {% style %} inline vence o {% stylesheet %} na cascata — se width
-       fosse declarado lá, este bloco sobrescreveria e quebrava o layout.
-       html { overflow-x: clip } no critical.css evita scroll horizontal. */
+       100vw + margin negativa fura o grid. Fica AQUI (na tag style da
+       instância, renderizada por bloco) porque a tag style inline vence a
+       tag stylesheet na cascata — se width fosse declarado lá, aquele bloco
+       sobrescreveria e quebrava o layout. O overflow-x clip no html
+       (critical.css) evita scroll horizontal. */
     width: 100vw;
     max-width: 100vw;
     margin-left: calc(50% - 50vw);
@@ -244,8 +245,8 @@
 {% stylesheet %}
   .ame-hero-c {
     position: relative;
-    /* Full-bleed (100vw + margin negativa) vive no {% style %} da instância,
-       NÃO aqui: o {% style %} é inline no body e vence a cascata — declarar
+    /* Full-bleed (100vw + margin negativa) vive na tag style da instância,
+       NÃO aqui: a tag style é inline no body e vence a cascata — declarar
        width aqui seria sobrescrito e o banner quebrava (colado à esquerda
        com margin aplicada mas width errado). Não redeclarar width/margin. */
     overflow: hidden;
