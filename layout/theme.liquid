@@ -389,9 +389,12 @@
           const coleiraKey = props._kit || props._coleira_key || '';
           // Detecta brinde por property _brinde_regra_id (setado pelo ame-gifts.js
           // quando ele adiciona o item) OU pelo property `Brinde` visível (compat
-          // com pingente cortesia que usa essa label). Em ambos casos, escondemos
-          // os controles de quantidade — cliente não deve alterar brindes.
-          const isBrinde = !!(props._brinde_regra_id || props.Brinde);
+          // com pingente cortesia que usa essa label). Só tranca os controles
+          // se o item está DE FATO gratuito — "brinde" com preço cheio indica
+          // desconto que não aplicou (regra expirada/removida); nesse caso o
+          // cliente precisa dos controles pra remover o item.
+          // (Espelha a mesma regra do snippets/cart-drawer.liquid — manter em sincronia.)
+          const isBrinde = !!(props._brinde_regra_id || props.Brinde) && item.final_line_price === 0;
           const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
           const propsHTML = propEntries.length
             ? `<ul class="ame-cart-item__props">${propEntries

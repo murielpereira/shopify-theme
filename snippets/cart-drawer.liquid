@@ -109,8 +109,16 @@
           {%- assign brinde_regra_id = item.properties._brinde_regra_id | default: '' -%}
           {%- assign brinde_label = item.properties.Brinde | default: '' -%}
           {%- assign is_brinde = '' -%}
+          {%- comment -%}
+            Só tranca os controles se o item está DE FATO gratuito. Um "brinde"
+            com preço cheio significa que o desconto automático não aplicou
+            (regra expirada/removida, falha de sync) — nesse caso o cliente
+            PRECISA dos controles pra poder remover o item do carrinho.
+          {%- endcomment -%}
           {%- if brinde_regra_id != '' or brinde_label != '' -%}
-            {%- assign is_brinde = 'true' -%}
+            {%- if item.final_line_price == 0 -%}
+              {%- assign is_brinde = 'true' -%}
+            {%- endif -%}
           {%- endif -%}
           <li
             class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}"

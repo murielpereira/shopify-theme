@@ -262,9 +262,7 @@
     }
 
     // ─── Loop principal: reavalia regras + sincroniza cart ───
-    async function reavaliarBrindes() {
-        if (!_regrasCache || !_regrasCache.length) return;
-
+    async function reavaliarBrindes(cartInput) {
         // Se já está rodando, marca pra re-rodar no fim em vez de descartar.
         // Cenário: cliente remove item → AmeCart.refresh dispara reavaliação →
         // antes de terminar, outro refresh chega. Sem fila, a 2ª chamada era
@@ -274,13 +272,43 @@
             return;
         }
 
+        // null = fetch das regras falhou (Waltz fora do ar?). Sem fonte de
+        // verdade NÃO mexemos no cart — com lista vazia por engano, a varredura
+        // de órfãos removeria brindes legítimos de todos os clientes.
+        if (!_regrasCache) return;
+
         _aplicandoMudancas = true;
         try {
-            const cart = await xhrJson('/cart.js');
+            // Evita buscar /cart.js se já recebemos os dados atualizados via evento.
+            // Adiciona timestamp para contornar cache agressivo do navegador.
+            const cart = cartInput || await xhrJson('/cart.js?t=' + Date.now());
             let mudouCart = false;
             const seletoresPendentes = []; // regras "cliente escolhe" satisfeitas mas sem brinde no cart
+            const regrasAtivas = _regrasCache;
 
-            for (const regra of _regrasCache) {
+            // 1. Limpeza de brindes órfãos: regra desativada/expirada (agendamento)
+            //    ou excluída no admin. Sem isso o item ficava preso no cart com
+            //    preço cheio (o desconto Shopify morre junto com a regra) e sem
+            //    controles de remoção (o drawer tranca itens-brinde).
+            //    APENAS itens com _brinde_regra_id (gerenciados por este módulo).
+            //    Itens com só a property `Brinde` (ex: pingente cortesia do fluxo
+            //    de customização) NÃO são nossos — não tocar.
+            for (const item of cart.items || []) {
+                const regraId = (item.properties || {})[PROP_REGRA_ID];
+                if (!regraId) continue;
+                const regraAtiva = regrasAtivas.find(r => String(r.id) === String(regraId));
+                if (!regraAtiva) {
+                    try {
+                        await removerBrinde(item);
+                        mudouCart = true;
+                    } catch (e) {
+                        console.warn('[Brindes] remover brinde órfão falhou', e.message);
+                    }
+                }
+            }
+
+            // 2. Avaliação das regras ativas
+            for (const regra of regrasAtivas) {
                 const satisfeita = regraSatisfeita(regra, cart);
                 const itemPresente = brindeNoCart(cart, regra);
                 const clienteEscolhe = !regra.brinde_variant_id;
@@ -324,7 +352,7 @@
             // de items — depois disso re-injetamos os seletores no callback do
             // próximo refresh, evitando race condition).
             if (mudouCart) {
-                const cartAtualizado = await xhrJson('/cart.js');
+                const cartAtualizado = await xhrJson('/cart.js?t=' + Date.now());
                 if (window.AmeCart?.refresh) window.AmeCart.refresh(cartAtualizado);
             }
         } catch (e) {
@@ -335,7 +363,7 @@
             // dispara refresh enquanto a primeira reavaliação ainda processa).
             if (_pendingReavaliacao) {
                 _pendingReavaliacao = false;
-                setTimeout(reavaliarBrindes, 0);
+                setTimeout(() => reavaliarBrindes(), 0);
             }
         }
     }
@@ -347,10 +375,10 @@
     // monkey-patch em window.AmeCart.refresh (por isso o brinde só atualizava
     // após reload da página).
     function instalarHook() {
-        document.addEventListener('ame:cart-refreshed', () => {
+        document.addEventListener('ame:cart-refreshed', (e) => {
             // Re-avalia após o drawer ter re-renderizado os items — assim
             // os cards de seleção são re-injetados na lista atualizada.
-            reavaliarBrindes();
+            reavaliarBrindes(e.detail?.cart);
         });
 
         // Reavalia também quando o drawer abre — caso o cliente entrou na página
@@ -378,10 +406,12 @@
             const data = await xhrJson(`${WALTZ_BASE}/api/public/brindes/ativas`);
             _regrasCache = data.regras || [];
         } catch (e) {
-            console.warn('[Brindes] sem regras (Waltz offline ou nenhuma cadastrada):', e.message);
-            _regrasCache = [];
+            console.warn('[Brindes] fetch de regras falhou (Waltz offline?):', e.message);
+            // null (não []): sinaliza "sem fonte de verdade". A reavaliação
+            // vira no-op — melhor deixar o cart como está do que remover
+            // brindes legítimos porque o Waltz caiu por 30 segundos.
+            _regrasCache = null;
         }
-        if (!_regrasCache.length) return;
 
         bindCardClicks();
         instalarHook();
