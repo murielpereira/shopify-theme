@@ -102,24 +102,42 @@
           data-slide
           style="--align-x: {{ align_x }}; --align-y: {{ align_y }};"
         >
-          <picture>
-            {%- if img_mob != blank -%}
-              <source media="(max-width: 749px)" srcset="{{ img_mob | image_url: width: 900 }}">
-            {%- endif -%}
-            <img
-              src="{{ img | image_url: width: 1800 }}"
-              srcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1800 }} 1800w"
-              sizes="100vw"
-              alt="{{ img.alt | default: heading | escape }}"
-              loading="{% if is_first %}eager{% else %}lazy{% endif %}"
-              {% if is_first %}
-                fetchpriority="high"
-              {% endif %}
-              class="ame-hero-c__img"
-              width="{{ img.width }}"
-              height="{{ img.height }}"
-            >
-          </picture>
+          {%- capture slide_picture -%}
+            <picture>
+              {%- if img_mob != blank -%}
+                <source media="(max-width: 749px)" srcset="{{ img_mob | image_url: width: 900 }}">
+              {%- endif -%}
+              <img
+                src="{{ img | image_url: width: 1800 }}"
+                srcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1800 }} 1800w"
+                sizes="100vw"
+                alt="{{ img.alt | default: heading | escape }}"
+                loading="{% if is_first %}eager{% else %}lazy{% endif %}"
+                {% if is_first %}
+                  fetchpriority="high"
+                {% endif %}
+                class="ame-hero-c__img"
+                width="{{ img.width }}"
+                height="{{ img.height }}"
+              >
+            </picture>
+          {%- endcapture -%}
+          {%- comment -%}
+            Imagem inteira clicável quando o slide tem link — leva pro mesmo
+            destino do botão CTA. O conteúdo sobreposto usa pointer-events:none
+            (só o botão volta a capturar clique), então o clique em qualquer
+            ponto do banner navega.
+          {%- endcomment -%}
+          {%- if cta_url != blank -%}
+            <a
+              href="{{ cta_url }}"
+              class="ame-hero-c__img-link"
+              data-slide-link
+              aria-label="{{ heading | default: cta_label | default: 'Ver coleção' | escape }}"
+            >{{ slide_picture }}</a>
+          {%- else -%}
+            {{ slide_picture }}
+          {%- endif -%}
 
           {%- if block.settings.show_overlay -%}
             <div
@@ -218,9 +236,23 @@
 {% stylesheet %}
   .ame-hero-c {
     position: relative;
-    width: 100%;
+    /* Full-bleed: o wrapper implícito da section `_blocks` coloca o bloco na
+       coluna central do grid (com --page-margin de cada lado). O breakout
+       100vw + margin negativa fura o grid e ocupa a viewport inteira.
+       Overflow horizontal não acontece: html { overflow-x: clip } no
+       critical.css. */
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
     overflow: hidden;
     background: #111;
+  }
+  /* Link que envolve a <picture> quando o slide tem CTA — cobre o slide
+     inteiro (a img dentro já é absolute inset:0). */
+  .ame-hero-c__img-link {
+    position: absolute;
+    inset: 0;
+    display: block;
   }
   .ame-hero-c__track {
     display: flex;
@@ -259,6 +291,12 @@
     text-align: left;
     padding: clamp(1rem, 5vw, 3rem);
     gap: 1rem;
+    /* Deixa o clique atravessar até o link da imagem (slide inteiro clicável).
+       Só o botão CTA volta a capturar cliques. */
+    pointer-events: none;
+  }
+  .ame-hero-c__cta {
+    pointer-events: auto;
   }
   .ame-hero-c__heading {
     font-weight: 700;
@@ -402,6 +440,7 @@
       },
       { passive: true }
     );
+    let lastSwipeAt = 0;
     track.addEventListener(
       'touchend',
       (e) => {
@@ -410,11 +449,19 @@
         const dx = e.changedTouches[0].clientX - touchStartX;
         const dy = e.changedTouches[0].clientY - touchStartY;
         if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        lastSwipeAt = Date.now();
         go(idx + (dx < 0 ? 1 : -1));
         resetTimer();
       },
       { passive: true }
     );
+    /* Slide inteiro é um link — suprime o clique que alguns browsers
+       disparam logo após um swipe, senão trocar de slide navegaria. */
+    track.addEventListener('click', (e) => {
+      if (Date.now() - lastSwipeAt < 400 && e.target.closest('[data-slide-link]')) {
+        e.preventDefault();
+      }
+    });
 
     function startTimer() {
       if (!autoplay) return;
