@@ -59,7 +59,7 @@
         "ame_hero_carousel_Q96wfR": {
           "type": "ame_hero_carousel",
           "settings": {
-            "height_mobile": 660,
+            "height_mobile": 620,
             "height_desktop": 600,
             "show_overlay": false,
             "overlay_color": "#000000",
