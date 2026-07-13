@@ -261,7 +261,9 @@
       "WebFetch(domain:www.ameacessoriospet.com.br)",
       "Bash(grep -n \"combinesWith\\\\|combines_with\\\\|discountCodeBasicCreate\\\\|price_rules\\\\|discount_codes\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/cashback.js\" 2>&1 | head -15)",
       "Bash(grep -rn \"shopify.*coupon\\\\|cupom.*shopify\\\\|criarCupomShopify\\\\|discount\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/cashback.js\" 2>&1 | head -10)",
-      "Bash(grep -n \"scopes\\\\|SCOPES\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/shopify.js\" 2>&1 | head -10)"
+      "Bash(grep -n \"scopes\\\\|SCOPES\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/routes/shopify.js\" 2>&1 | head -10)",
+      "Bash(grep -n \"express.json\\\\|rawBody\\\\|bodyParser\\\\|verify\" \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/server.js\" 2>&1 | head -10)",
+      "WebFetch(domain:help.shopify.com)"
     ],
     "additionalDirectories": [
       "\\tmp",
