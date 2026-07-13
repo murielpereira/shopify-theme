@@ -176,6 +176,13 @@
     "section_gap": 120,
     "border_radius_base": 6,
     "min_page_margin": 250,
-    "content_for_index": []
+    "content_for_index": [],
+    "blocks": {
+      "2567389343055140935": {
+        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
+        "disabled": false,
+        "settings": {}
+      }
+    }
   }
 }
