@@ -206,7 +206,9 @@
 {% style %}
   .ame-hero-c-{{ hid }} {
     position: relative;
-    width: 100%;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
     overflow: hidden;
     height: {{ block.settings.height_mobile }}px;
   }
