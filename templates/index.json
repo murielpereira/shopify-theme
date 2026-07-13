@@ -59,7 +59,7 @@
         "ame_hero_carousel_Q96wfR": {
           "type": "ame_hero_carousel",
           "settings": {
-            "height_mobile": 600,
+            "height_mobile": 660,
             "height_desktop": 600,
             "show_overlay": false,
             "overlay_color": "#000000",
@@ -302,8 +302,8 @@
             "grid_gap": 24,
             "desktop_width_percent": 100,
             "button_text": "",
-            "button_bg_color": "#00FF2B",
-            "button_hover_bg_color": "#FF0004",
+            "button_bg_color": "#00ff2b",
+            "button_hover_bg_color": "#ff0004",
             "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
