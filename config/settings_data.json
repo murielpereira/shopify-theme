@@ -183,6 +183,11 @@
         "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
         "disabled": false,
         "settings": {}
+      },
+      "8218531531362863771": {
+        "type": "shopify://apps/kite-discount-free-gift/blocks/app-embed/2c7302c4-455d-4078-a829-48563ba26089",
+        "disabled": false,
+        "settings": {}
       }
     }
   }
