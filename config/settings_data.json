@@ -184,10 +184,12 @@
         "disabled": false,
         "settings": {}
       },
-      "8218531531362863771": {
-        "type": "shopify://apps/kite-discount-free-gift/blocks/app-embed/2c7302c4-455d-4078-a829-48563ba26089",
+      "10605408327587305396": {
+        "type": "shopify://apps/eg-auto-add-to-cart/blocks/app-embed/0f7d4f74-1e89-4820-aec4-6564d7e535d2",
         "disabled": false,
-        "settings": {}
+        "settings": {
+          "version": "v3"
+        }
       }
     }
   }
