@@ -273,7 +273,9 @@
       "Bash(grep -oE 'ame-gifts[^\"'\"'\"' ]*' /tmp/ame-home.html 2>/dev/null | head -5; echo \"---cdn refs---\"; grep -oE 'https://[^\"]*cdn.shopify[^\"]*ame-gifts[^\"'\"'\"']*' /tmp/ame-home.html 2>/dev/null | head -3)",
       "Bash(curl -s \"https://www.ameacessoriospet.com.br/cdn/shop/t/6/assets/ame-gifts.js?v=78689851807504377031783947441\" -o /tmp/ame-gifts-live.js)",
       "Bash(echo \"=== bytes local vs live ===\"; echo \"local: $\\(wc -c < 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/assets/ame-gifts.js'\\)\"; echo \"live:  $\\(wc -c < /tmp/ame-gifts-live.js\\)\"; echo \"\"; echo \"=== live: como trata !satisfeita && itemPresente? ===\"; grep -n \"satisfeita\\\\|removerBrinde\\\\|itemPresente\\\\|_regrasCache.length\" /tmp/ame-gifts-live.js | head -20)",
-      "Bash(grep -nE '/\\\\*|\\\\*/' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/blocks/ame_hero_carousel.liquid')"
+      "Bash(grep -nE '/\\\\*|\\\\*/' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/blocks/ame_hero_carousel.liquid')",
+      "Bash(echo \"=== usos de LOG\\( ===\")",
+      "Bash(grep -nE 'LOG\\\\\\(' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/widget-agrupamento.js')"
     ],
     "additionalDirectories": [
       "\\tmp",
