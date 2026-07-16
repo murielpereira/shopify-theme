@@ -81,6 +81,7 @@
     "custom_field_3_tag": "customizacao_nome_tutor",
     "custom_field_3_name": "Nome do Tutor",
     "custom_field_3_title": "Verso 1ª Linha / Nome do Tutor",
+    "custom_field_3_limiter": "20",
     "custom_field_3_required": true,
     "custom_field_4_enable": true,
     "custom_field_4_tag": "customizacao_telefone",
