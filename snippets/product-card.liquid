@@ -36,12 +36,25 @@
 
   assign card_has_discount = false
   assign card_discount_pct = 0
-  assign card_compare = card_product.compare_at_price_max | default: 0
+  # O preço e o "De:" do selo precisam vir da MESMA variação. Usar
+  # compare_at_price_max (variação cara) com price_min (variação barata)
+  # inflava o selo em produto com preços por variação: promo de 5% aparecia
+  # como "45% OFF" (De R$7,00 da variação cara ÷ R$3,80 da barata — 17/07).
+  # Usamos o par da variação mais barata, que é a exibida no "a partir de".
+  assign card_price = card_product.price_min | default: card_product.price
+  assign card_compare = 0
+  for card_v in card_product.variants
+    if card_v.price == card_price
+      assign card_compare = card_v.compare_at_price | default: 0
+      break
+    endif
+  endfor
   if card_compare == 0
     assign card_cv = card_product.selected_or_first_available_variant
-    assign card_compare = card_cv.compare_at_price | default: 0
+    if card_cv.price == card_price
+      assign card_compare = card_cv.compare_at_price | default: 0
+    endif
   endif
-  assign card_price = card_product.price_min | default: card_product.price
   if card_is_kit
     assign card_price = 0
     for comp in card_kit_components
