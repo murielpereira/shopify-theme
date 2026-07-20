@@ -37,17 +37,17 @@
       {%- for address in customer.addresses -%}
         <li class="ame-addresses__card">
           <div class="ame-addresses__card-head">
-            <strong>{{ address.first_name }} {{ address.last_name }}</strong>
+            <strong>{{ address.first_name | escape }} {{ address.last_name | escape }}</strong>
             {%- if address == customer.default_address -%}
               <span class="ame-addresses__badge">Principal</span>
             {%- endif -%}
           </div>
           <address>
-            {{ address.address1 }}{% if address.address2 != blank %}, {{ address.address2 }}{% endif %}<br>
-            {{ address.city }} — {{ address.province_code }}<br>
-            CEP {{ address.zip }}<br>
-            {{ address.country }}
-            {%- if address.phone != blank %}<br>Tel: {{ address.phone }}{% endif -%}
+            {{ address.address1 | escape }}{% if address.address2 != blank %}, {{ address.address2 | escape }}{% endif %}<br>
+            {{ address.city | escape }} — {{ address.province_code | escape }}<br>
+            CEP {{ address.zip | escape }}<br>
+            {{ address.country | escape }}
+            {%- if address.phone != blank %}<br>Tel: {{ address.phone | escape }}{% endif -%}
           </address>
           <div class="ame-addresses__card-actions">
             <details class="ame-addresses__edit">

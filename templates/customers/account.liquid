@@ -5,7 +5,7 @@
 
 <section class="ame-account">
   <header class="ame-account__hero">
-    <h1 class="ame-account__title">Olá, {{ customer.first_name | default: customer.name }}</h1>
+    <h1 class="ame-account__title">Olá, {{ customer.first_name | default: customer.name | escape }}</h1>
     <p class="ame-account__sub">Bem-vindo de volta à sua conta Âme.</p>
     <a href="{{ routes.account_logout_url }}" class="ame-account__logout">
       <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
@@ -73,18 +73,18 @@
     <aside class="ame-account__side">
       <div class="ame-account__card">
         <h3 class="ame-account__card-title">Dados pessoais</h3>
-        <p class="ame-account__card-value">{{ customer.name }}</p>
-        <p class="ame-account__card-sub">{{ customer.email }}</p>
+        <p class="ame-account__card-value">{{ customer.name | escape }}</p>
+        <p class="ame-account__card-sub">{{ customer.email | escape }}</p>
       </div>
 
       <div class="ame-account__card">
         <h3 class="ame-account__card-title">Endereços</h3>
         {%- if customer.default_address -%}
-          <p class="ame-account__card-value">{{ customer.default_address.street }}</p>
+          <p class="ame-account__card-value">{{ customer.default_address.street | escape }}</p>
           <p class="ame-account__card-sub">
-            {{ customer.default_address.city }} — {{ customer.default_address.province_code }}
+            {{ customer.default_address.city | escape }} — {{ customer.default_address.province_code | escape }}
             <br>
-            CEP {{ customer.default_address.zip }}
+            CEP {{ customer.default_address.zip | escape }}
           </p>
         {%- else -%}
           <p class="ame-account__card-sub">Nenhum endereço cadastrado.</p>

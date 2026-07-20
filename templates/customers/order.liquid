@@ -79,13 +79,13 @@
       {%- if order.shipping_address -%}
         <h2 class="ame-order__section-title">Endereço de entrega</h2>
         <address class="ame-order__address">
-          {{ order.shipping_address.name }}<br>
-          {{ order.shipping_address.street }}<br>
-          {{ order.shipping_address.city }} — {{ order.shipping_address.province_code }}<br>
-          CEP {{ order.shipping_address.zip }}<br>
-          {{ order.shipping_address.country }}
+          {{ order.shipping_address.name | escape }}<br>
+          {{ order.shipping_address.street | escape }}<br>
+          {{ order.shipping_address.city | escape }} — {{ order.shipping_address.province_code | escape }}<br>
+          CEP {{ order.shipping_address.zip | escape }}<br>
+          {{ order.shipping_address.country | escape }}
           {%- if order.shipping_address.phone != blank %}
-            <br>Tel: {{ order.shipping_address.phone }}
+            <br>Tel: {{ order.shipping_address.phone | escape }}
           {%- endif -%}
         </address>
       {%- endif -%}
