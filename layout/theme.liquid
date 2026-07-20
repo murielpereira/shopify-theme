@@ -1216,5 +1216,8 @@
     {%- if template contains 'product' -%}
       <script defer src="{{ 'ame-kit.js' | asset_url }}"></script>
     {%- endif -%}
+
+    {%- comment -%} Widget de cashback (saldo/resgate) — só p/ cliente logado {%- endcomment -%}
+    {%- render 'cashback-widget' -%}
   </body>
 </html>
