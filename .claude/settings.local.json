@@ -275,7 +275,20 @@
       "Bash(echo \"=== bytes local vs live ===\"; echo \"local: $\\(wc -c < 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/assets/ame-gifts.js'\\)\"; echo \"live:  $\\(wc -c < /tmp/ame-gifts-live.js\\)\"; echo \"\"; echo \"=== live: como trata !satisfeita && itemPresente? ===\"; grep -n \"satisfeita\\\\|removerBrinde\\\\|itemPresente\\\\|_regrasCache.length\" /tmp/ame-gifts-live.js | head -20)",
       "Bash(grep -nE '/\\\\*|\\\\*/' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/blocks/ame_hero_carousel.liquid')",
       "Bash(echo \"=== usos de LOG\\( ===\")",
-      "Bash(grep -nE 'LOG\\\\\\(' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/widget-agrupamento.js')"
+      "Bash(grep -nE 'LOG\\\\\\(' 'c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz/public/widget-agrupamento.js')",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; echo \"=== SCOPES + export shopifyGraphql ===\"; grep -n \"SCOPES\\\\|module.exports\\\\|shopifyGraphql\" routes/shopify.js | head; echo \"\"; echo \"=== como brindes é registrado \\(templates/layout/app\\) ===\"; grep -rn \"brindes\\\\|Brindes\" public/js/templates.js public/js/layout.js public/js/app.js 2>/dev/null | head -20)",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; echo \"=== nav no layout.js \\(onde ficam os itens de menu\\) ===\"; grep -n \"data-target\\\\|brindes\\\\|grupos\\\\|navItem\\\\|menu-item\\\\|sidebar\" public/js/layout.js 2>/dev/null | head -20)",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -rn \"brindes\" public/js/templates/layout.js public/js/templates/*.js 2>/dev/null | head; echo \"=== arquivos de template ===\"; ls public/js/templates/)",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; echo \"=== wrapper getAbaBrindes \\(topo + export\\) ===\"; sed -n '1,10p;250,270p' public/js/templates/aba-brindes.js; echo \"=== assinatura das funcoes de busca no brindes.js ===\"; grep -n \"brdBuscarProdutos\\\\|brdInitAba\\\\|window.brd\\\\|async function brdBuscar\\\\|produtos/search\\\\|/variantes\\\\|function brdCarregarVariantes\" public/js/brindes.js | head)",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -n \"require\\('./routes/\\\\|require\\(\\\\\"./routes/\\\\|app.use\\(\" server.js | grep -i \"pedido\\\\|produto\\\\|brinde\\\\|shopify\\\\|route\" | head -20)",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -n \"rotasBrindes\\\\|rotasProdutoVariantes\\\\|app.use.*rotasProduto\\\\|app.use.*rotasBrindes\\\\|initBrindes\" server.js | head)",
+      "Bash(node --check routes/pedido-manual.js)",
+      "Bash(node --check server.js)",
+      "Bash(node --input-type=module --check)",
+      "Bash(node --check public/js/pedido-manual.js)",
+      "Bash(node -e 'try{const d=require\\(\"/tmp/psi2-atena.json\"\\);console.log\\(\"JSON válido. Tem lighthouseResult?\",!!d.lighthouseResult\\);}catch\\(e\\){console.log\\(\"JSON INVÁLIDO:\",e.message\\);}')",
+      "Bash(node -e 'const fs=require\\(\"fs\"\\);for\\(const f of [\"/tmp/psi2-home.json\",\"/tmp/psi2-atena.json\"]\\){try{const d=JSON.parse\\(fs.readFileSync\\(f,\"utf8\"\\)\\);console.log\\(f,\"OK · lighthouse?\",!!d.lighthouseResult\\);}catch\\(e\\){console.log\\(f,\"ERRO:\",e.message.slice\\(0,80\\)\\);}}')",
+      "Bash(node -e 'const fs=require\\(\"fs\"\\);const base=\"C:/Users/pedid/AppData/Local/Temp/\";for\\(const f of [\"psi2-home.json\",\"psi2-atena.json\"]\\){try{const d=JSON.parse\\(fs.readFileSync\\(base+f,\"utf8\"\\)\\);console.log\\(f,\"OK · score:\",d.lighthouseResult?Math.round\\(d.lighthouseResult.categories.performance.score*100\\):\"SEM lighthouse\"\\);}catch\\(e\\){console.log\\(f,\"ERRO:\",e.message.slice\\(0,90\\)\\);}}')"
     ],
     "additionalDirectories": [
       "\\tmp",

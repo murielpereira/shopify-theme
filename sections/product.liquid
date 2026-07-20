@@ -226,16 +226,17 @@
                     sem dar play — chegou a 21MB de transferência inútil no
                     PSI desta PDP.
 
-                    Estratégia: o primeiro slide (LCP) carrega metadata pra
-                    o frame inicial aparecer rápido se o cliente trocar pra
-                    ele logo; demais ficam com preload="none" — só baixam ao
-                    receber play().
+                    preload="none" em TODOS os slides (inclusive o primeiro).
+                    Antes o 1º slide usava "metadata" pra o frame aparecer
+                    rápido, mas com o MP4 da Atena (moov no fim) o "metadata"
+                    baixava os 6,6MB inteiros no load — matando o LCP (PSI
+                    2026-07: LCP 19,6s). O `poster` (preview_image) já mostra
+                    o frame inicial sem baixar 1 byte de vídeo, então não há
+                    perda visual. Como nada dá play automático na galeria, o
+                    corpo do vídeo só baixa se/quando houver um play() explícito.
                   {%- endcomment -%}
                   {%- liquid
                     assign video_preload = 'none'
-                    if forloop.first
-                      assign video_preload = 'metadata'
-                    endif
                     assign video_src = ''
                     for s in media.sources
                       if s.format == 'mp4' and s.height >= 720
