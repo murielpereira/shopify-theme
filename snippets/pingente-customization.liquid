@@ -829,6 +829,36 @@
       };
       const productCache = new Map();
 
+      /* ── Notifica o PDP do preço do pingente escolhido ──────────────────
+         O bloco de preço da PDP soma esse valor ao preço da coleira pra o
+         cliente ver o total. Instrumentamos `opted` e `variant` via
+         defineProperty pra disparar `ame:pingente-price` em QUALQUER mudança
+         de estado, sem ter que editar cada um dos ~10 pontos de mutação.
+         No modo obrigatório o pingente é cortesia (preço somado = 0). */
+      function pingentePriceCents() {
+        if (OBRIGATORIO) return 0; // cortesia — não soma no total
+        return (state.opted && state.variant && state.variant.available)
+          ? (state.variant.price || 0) : 0;
+      }
+      function notificarPrecoPingente() {
+        document.dispatchEvent(new CustomEvent('ame:pingente-price', {
+          detail: { cents: pingentePriceCents() },
+        }));
+      }
+      (function instrumentarPreco() {
+        let _opted = state.opted, _variant = state.variant;
+        Object.defineProperty(state, 'opted', {
+          get() { return _opted; },
+          set(v) { _opted = v; notificarPrecoPingente(); },
+          configurable: true,
+        });
+        Object.defineProperty(state, 'variant', {
+          get() { return _variant; },
+          set(v) { _variant = v; notificarPrecoPingente(); },
+          configurable: true,
+        });
+      })();
+
       async function fetchProduct(handle) {
         if (!handle) return null;
         if (productCache.has(handle)) return productCache.get(handle);
@@ -1411,7 +1441,17 @@
         isObrigatorio() {
           return OBRIGATORIO;
         },
+        // Preço (centavos) do pingente selecionado — 0 se não escolhido ou
+        // cortesia. Usado pelo bloco de preço da PDP pra re-somar após o
+        // Section Rendering API trocar a variante da coleira.
+        getPriceCents() {
+          return pingentePriceCents();
+        },
       };
+
+      // 1ª notificação (caso o boot já tenha um estado opted/variant válido,
+      // ex: modo obrigatório) — garante o total sincronizado no load.
+      notificarPrecoPingente();
     })();
   </script>
 {%- endif -%}

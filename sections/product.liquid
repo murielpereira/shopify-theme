@@ -598,9 +598,74 @@
         <div id="pdp-cashback-wrap">
           {%- render 'cashback', cashback_price: effective_price, cashback_mode: 'pdp' -%}
         </div>
+
+        {%- comment -%}
+          Total combinado coleira + pingente. Só renderiza em produtos com
+          pingente (tag). Carrega os preços da coleira (Pix e cartão, em
+          centavos) como data-attrs; o JS soma o preço do pingente escolhido
+          (evento `ame:pingente-price`) e mostra o total. Fica DENTRO do
+          #pdp-price-block, então o Section Rendering API o recria (com os
+          data-attrs da nova variante) a cada troca — o JS re-soma no evento
+          `pdp:variant-changed`. `hidden` até o cliente escolher um pingente.
+        {%- endcomment -%}
+        {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+          <div
+            class="pdp__pingente-total"
+            data-pingente-total
+            data-coleira-pix="{{ pix_price_cents }}"
+            data-coleira-card="{{ effective_price }}"
+            hidden
+          ></div>
+        {%- endif -%}
       {%- endif -%}
       {%- comment -%} fim do else do is_kit (preço padrão){%- endcomment -%}
     </div>
+
+    {%- comment -%}
+      Soma dinâmica do pingente ao preço da coleira. Vive FORA do
+      #pdp-price-block (não é recriado no swap de variante) e escuta eventos
+      no document, requeryando o [data-pingente-total] fresco a cada render —
+      sobrevive ao Section Rendering API. Guard evita bind duplicado.
+    {%- endcomment -%}
+    {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+      <script>
+        (function () {
+          if (window.__amePingenteTotalBound) return;
+          window.__amePingenteTotalBound = true;
+
+          function fmtBRL(cents) {
+            return 'R$ ' + (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          }
+
+          function render(cents) {
+            const box = document.querySelector('[data-pingente-total]');
+            if (!box) return;
+            const pingente = Number(cents) || 0;
+            if (pingente <= 0) { box.hidden = true; box.innerHTML = ''; return; }
+            const coleiraPix = parseInt(box.dataset.coleiraPix, 10) || 0;
+            const coleiraCard = parseInt(box.dataset.coleiraCard, 10) || 0;
+            box.innerHTML =
+              '<span class="pdp__pingente-total__label">Coleira + pingente</span>' +
+              '<span class="pdp__pingente-total__value">' + fmtBRL(coleiraPix + pingente) + ' <small>no Pix</small></span>' +
+              '<span class="pdp__pingente-total__card">ou ' + fmtBRL(coleiraCard + pingente) + ' no cartão</span>';
+            box.hidden = false;
+          }
+
+          // Cliente escolheu / trocou / removeu o pingente.
+          document.addEventListener('ame:pingente-price', function (e) {
+            render(e.detail && e.detail.cents);
+          });
+
+          // Variante da coleira mudou → o bloco de preço foi recriado (novos
+          // data-coleira-*). Re-soma com o preço atual do pingente.
+          document.addEventListener('pdp:variant-changed', function () {
+            const cents = (window.amePingente && window.amePingente.getPriceCents)
+              ? window.amePingente.getPriceCents() : 0;
+            render(cents);
+          });
+        })();
+      </script>
+    {%- endif -%}
 
     {%- comment -%}
       Modal de parcelas — wrappado em #pdp-installments-modal-wrap pra que o
@@ -2541,6 +2606,39 @@
     .pdp__price-pix {
       font-size: 2rem;
     }
+  }
+
+  /* Total combinado coleira + pingente — aparece quando o cliente escolhe
+     um pingente. Destaque discreto separado por linha tracejada. */
+  .pdp__pingente-total {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--color-outline-variant, #d2c3c0);
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .pdp__pingente-total__label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .pdp__pingente-total__value {
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-on-background, #201b14);
+    line-height: 1.1;
+  }
+  .pdp__pingente-total__value small {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .pdp__pingente-total__card {
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
   }
 
   .pdp__price-pix-row--primary {
