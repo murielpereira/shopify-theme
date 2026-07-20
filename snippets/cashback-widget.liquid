@@ -1,15 +1,9 @@
 {% comment %}
   Widget flutuante de CASHBACK (saldo / extrato / resgate).
-  Carrega o widget servido pelo Waltz e o conecta via App Proxy da Shopify,
-  que assina a identidade do cliente logado (logged_in_customer_id) — nada
-  é falsificável pelo navegador.
-
-  PRÉ-REQUISITO (configurar uma vez no app Waltz, em Shopify → Apps →
-  Develop apps → [app] → App proxy):
-    Subpath prefix : apps
-    Subpath        : waltz
-    Proxy URL      : https://waltz.up.railway.app/proxy
-  Assim /apps/waltz/cashback/* chega em /proxy/cashback/* no Waltz.
+  Carrega o widget servido pelo Waltz e identifica o cliente pelo e-mail do
+  cliente LOGADO (Liquid {{ customer.email }}), enviado no header
+  x-shopify-customer-email. O resgate é seguro contra roubo: o cupom gerado
+  fica travado no cliente na Shopify (só ele consegue usar).
 
   Só renderiza pra cliente logado; o próprio widget se esconde se o programa
   estiver desativado no painel (config.widget_ativo).
@@ -17,7 +11,10 @@
 
 {%- if customer -%}
   <script>
-    window.WALTZ_CB = { proxyBase: '/apps/waltz', loggedIn: true };
+    window.WALTZ_CB = {
+      email: {{ customer.email | json }},
+      loggedIn: true
+    };
   </script>
   <script src="https://waltz.up.railway.app/widget-cashback.js" defer></script>
 {%- endif -%}
