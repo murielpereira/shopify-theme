@@ -18,6 +18,14 @@
  *    - Condição não satisfeita: remove o brinde se já estiver no cart,
  *      esconde card de seleção.
  *
+ * 2b. LISTA DE PRODUTOS (regra.brinde_produtos com itens)
+ *    - Variante do modo "cliente escolhe": o card mostra PRIMEIRO os produtos
+ *      da lista pra o cliente escolher qual quer. Ao escolher um produto,
+ *      carrega as variações dele (lazy, via Waltz) e mostra os botões de
+ *      variação. Depois "Resgatar" adiciona o produto+variação escolhidos.
+ *    - O desconto Shopify cobre todos os produtos da lista (100% off), então
+ *      qualquer escolha sai grátis.
+ *
  * Tipos de gatilho: 'produto', 'valor_minimo', 'colecao'
  *
  * Preço zerado: responsabilidade do Desconto Automático Shopify
@@ -39,7 +47,7 @@
     let _variantsCache = new Map(); // handle → produto completo do Waltz
     let _aplicandoMudancas = false;
     let _pendingReavaliacao = false; // se chamado durante execução, roda de novo no fim
-    let _seletoresState = new Map(); // regra_id → variant_id selecionada (em memória, sem persist)
+    let _seletoresState = new Map(); // regra_id → { handle, variantId } (em memória, sem persist)
 
     // ─── XHR helper ───
     function xhrJson(url, method, body) {
@@ -144,47 +152,135 @@
         }
     }
 
+    // ─── Estado de seleção por regra ───
+    // { handle: produto escolhido, variantId: variação escolhida }
+    function selState(regraId) {
+        const k = String(regraId);
+        let s = _seletoresState.get(k);
+        if (!s) { s = { handle: null, variantId: null }; _seletoresState.set(k, s); }
+        return s;
+    }
+
+    // Lista de produtos-brinde da regra (modo lista), ou null (modo único).
+    function listaProdutosRegra(regra) {
+        let lista = regra.brinde_produtos;
+        if (typeof lista === 'string') { try { lista = JSON.parse(lista); } catch (e) { lista = null; } }
+        return Array.isArray(lista) && lista.length ? lista : null;
+    }
+
+    // Normaliza pra uma lista de { handle, titulo }. Modo único vira lista de 1.
+    function produtosDaRegra(regra) {
+        const lista = listaProdutosRegra(regra);
+        if (lista) return lista.map(p => ({ handle: p.handle, titulo: p.titulo }));
+        return [{ handle: regra.brinde_handle, titulo: regra.brinde_titulo }];
+    }
+
+    function variantesDisponiveis(produto) {
+        return produto ? (produto.variants || []).filter(v => v.available !== false) : [];
+    }
+
+    // Se o produto escolhido tem 1 variação só, seleciona automaticamente.
+    // Se a variação atual não existe mais no produto, limpa.
+    function autoSelVariante(regra) {
+        const s = selState(regra.id);
+        if (!s.handle || !_variantsCache.has(s.handle)) return;
+        const vars = variantesDisponiveis(_variantsCache.get(s.handle));
+        if (vars.length === 1) s.variantId = String(vars[0].id);
+        else if (s.variantId && !vars.some(v => String(v.id) === String(s.variantId))) s.variantId = null;
+    }
+
     // ─── Render do CARD DE SELEÇÃO no drawer ───
-    function renderCardSelecao(regra, produto) {
-        const variantsDisponiveis = (produto.variants || []).filter(v => v.available !== false);
-        if (!variantsDisponiveis.length) return '';
+    // Conteúdo interno do card (head + escolhas + botão). Repintado em cada
+    // interação. O <li> externo (data-attrs) é preservado por repaintCard.
+    function cardInner(regra) {
+        const s = selState(regra.id);
+        const produtos = produtosDaRegra(regra);
+        const multi = produtos.length > 1;
+        if (!multi) s.handle = produtos[0].handle; // único: produto já fixado
 
-        // Botões de variante — usa título da variante (ex: "Coração / P / Ouro")
-        const selectedId = _seletoresState.get(regra.id);
-        const variantBtns = variantsDisponiveis.map(v => `
-            <button type="button"
-                class="ame-gift-selector__variant${String(v.id) === String(selectedId) ? ' is-active' : ''}"
-                data-gift-variant="${esc(v.id)}"
-                aria-pressed="${String(v.id) === String(selectedId) ? 'true' : 'false'}">
-                ${esc(v.title || ('Variante ' + v.id))}
-            </button>
-        `).join('');
+        const tituloBrinde = (multi
+            ? (regra.brinde_titulo || 'Brinde')
+            : (produtos[0].titulo || regra.brinde_titulo || 'Brinde'));
 
-        const img = produto.featured_image
-            ? `<img class="ame-gift-selector__img" src="${esc(produto.featured_image)}" alt="" loading="lazy">`
-            : '';
-
-        return `
-            <li class="ame-gift-selector" data-gift-selector data-gift-regra-id="${esc(regra.id)}" data-gift-handle="${esc(produto.handle)}">
-                <header class="ame-gift-selector__head">
-                    <span class="material-symbols-outlined ame-gift-selector__icon" aria-hidden="true">card_giftcard</span>
-                    <div class="ame-gift-selector__head-text">
-                        <p class="ame-gift-selector__eyebrow">Você ganhou um brinde</p>
-                        <p class="ame-gift-selector__title">${esc(produto.title || regra.brinde_titulo || 'Brinde')}</p>
-                    </div>
-                </header>
-                <div class="ame-gift-selector__body">
-                    ${img}
-                    <div class="ame-gift-selector__choices">
-                        <p class="ame-gift-selector__label">Escolha sua variação:</p>
-                        <div class="ame-gift-selector__variants">${variantBtns}</div>
-                    </div>
+        const head = `
+            <header class="ame-gift-selector__head">
+                <span class="material-symbols-outlined ame-gift-selector__icon" aria-hidden="true">card_giftcard</span>
+                <div class="ame-gift-selector__head-text">
+                    <p class="ame-gift-selector__eyebrow">Você ganhou um brinde</p>
+                    <p class="ame-gift-selector__title">${esc(tituloBrinde)}</p>
                 </div>
-                <button type="button" class="ame-gift-selector__add" data-gift-add ${selectedId ? '' : 'disabled'}>
-                    ${selectedId ? 'Resgatar meu brinde' : 'Escolha uma variação acima'}
-                </button>
-            </li>
-        `;
+            </header>`;
+
+        const blocos = [];
+
+        // 1. Escolha do produto (só no modo lista)
+        if (multi) {
+            const prodBtns = produtos.map(p => `
+                <button type="button"
+                    class="ame-gift-selector__variant${s.handle === p.handle ? ' is-active' : ''}"
+                    data-gift-produto="${esc(p.handle)}"
+                    aria-pressed="${s.handle === p.handle ? 'true' : 'false'}">
+                    ${esc(p.titulo || p.handle)}
+                </button>`).join('');
+            blocos.push(`
+                <div class="ame-gift-selector__choices">
+                    <p class="ame-gift-selector__label">Escolha seu brinde:</p>
+                    <div class="ame-gift-selector__variants">${prodBtns}</div>
+                </div>`);
+        }
+
+        // 2. Escolha da variação (quando há produto escolhido)
+        let img = '';
+        if (s.handle) {
+            const carregado = _variantsCache.has(s.handle);
+            const produto = _variantsCache.get(s.handle);
+            if (produto && produto.featured_image) {
+                img = `<img class="ame-gift-selector__img" src="${esc(produto.featured_image)}" alt="" loading="lazy">`;
+            }
+            if (!carregado) {
+                blocos.push(`<div class="ame-gift-selector__choices"><p class="ame-gift-selector__label">Carregando variações…</p></div>`);
+            } else if (produto) {
+                const vars = variantesDisponiveis(produto);
+                if (vars.length > 1) {
+                    const vbtns = vars.map(v => `
+                        <button type="button"
+                            class="ame-gift-selector__variant${String(v.id) === String(s.variantId) ? ' is-active' : ''}"
+                            data-gift-variant="${esc(v.id)}"
+                            aria-pressed="${String(v.id) === String(s.variantId) ? 'true' : 'false'}">
+                            ${esc(v.title || ('Variante ' + v.id))}
+                        </button>`).join('');
+                    blocos.push(`
+                        <div class="ame-gift-selector__choices">
+                            <p class="ame-gift-selector__label">${multi ? 'Variação:' : 'Escolha sua variação:'}</p>
+                            <div class="ame-gift-selector__variants">${vbtns}</div>
+                        </div>`);
+                } else if (vars.length === 0) {
+                    blocos.push(`<div class="ame-gift-selector__choices"><p class="ame-gift-selector__label">Esse brinde está indisponível no momento.</p></div>`);
+                }
+                // exatamente 1 variação → auto-selecionada, sem UI
+            } else {
+                blocos.push(`<div class="ame-gift-selector__choices"><p class="ame-gift-selector__label">Não foi possível carregar as variações.</p></div>`);
+            }
+        }
+
+        const body = `<div class="ame-gift-selector__body">${img}<div class="ame-gift-selector__col">${blocos.join('')}</div></div>`;
+
+        const pronto = !!s.variantId;
+        let addLabel;
+        if (pronto) addLabel = 'Resgatar meu brinde';
+        else if (multi && !s.handle) addLabel = 'Escolha um brinde acima';
+        else addLabel = 'Escolha uma variação acima';
+        const add = `<button type="button" class="ame-gift-selector__add" data-gift-add ${pronto ? '' : 'disabled'}>${addLabel}</button>`;
+
+        return head + body + add;
+    }
+
+    function renderCardSelecao(regra) {
+        return `<li class="ame-gift-selector" data-gift-selector data-gift-regra-id="${esc(regra.id)}">${cardInner(regra)}</li>`;
+    }
+
+    function repaintCard(card, regra) {
+        if (card) card.innerHTML = cardInner(regra);
     }
 
     // ─── Click delegation pros cards de seleção (uma vez) ───
@@ -194,26 +290,36 @@
         _delegationBound = true;
 
         document.addEventListener('click', async (e) => {
-            // Selecionar variante
+            // Escolher produto (modo lista)
+            const prodBtn = e.target.closest('[data-gift-produto]');
+            if (prodBtn) {
+                const card = prodBtn.closest('[data-gift-selector]');
+                const regraId = card?.dataset.giftRegraId;
+                if (!regraId) return;
+                const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
+                if (!regra) return;
+                const handle = prodBtn.dataset.giftProduto;
+                const s = selState(regraId);
+                s.handle = handle;
+                s.variantId = null;
+                repaintCard(card, regra);              // mostra produto ativo + "Carregando variações…"
+                await carregarProdutoBrinde(handle);   // lazy-load das variações
+                autoSelVariante(regra);
+                repaintCard(card, regra);              // agora mostra as variações
+                return;
+            }
+
+            // Selecionar variação
             const variantBtn = e.target.closest('[data-gift-variant]');
             if (variantBtn) {
                 const card = variantBtn.closest('[data-gift-selector]');
                 const regraId = card?.dataset.giftRegraId;
                 const variantId = variantBtn.dataset.giftVariant;
                 if (!regraId || !variantId) return;
-                _seletoresState.set(regraId, variantId);
-                // Atualiza UI in-place — chamar renderizarTodosCards() sem args
-                // removia o card e não re-renderizava (o brinde sumia).
-                card.querySelectorAll('[data-gift-variant]').forEach(b => {
-                    const sel = b.dataset.giftVariant === variantId;
-                    b.classList.toggle('is-active', sel);
-                    b.setAttribute('aria-pressed', sel ? 'true' : 'false');
-                });
-                const addBtn = card.querySelector('[data-gift-add]');
-                if (addBtn) {
-                    addBtn.disabled = false;
-                    addBtn.textContent = 'Resgatar meu brinde';
-                }
+                const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
+                if (!regra) return;
+                selState(regraId).variantId = variantId;
+                repaintCard(card, regra);
                 return;
             }
 
@@ -223,17 +329,17 @@
                 const card = addBtn.closest('[data-gift-selector]');
                 const regraId = card?.dataset.giftRegraId;
                 if (!regraId) return;
-                const variantId = _seletoresState.get(regraId);
-                if (!variantId) return;
+                const s = selState(regraId);
+                if (!s.variantId) return;
                 const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
                 if (!regra) return;
 
                 addBtn.disabled = true;
                 addBtn.textContent = 'Adicionando...';
                 try {
-                    await adicionarBrinde(regra, variantId);
+                    await adicionarBrinde(regra, s.variantId);
                     toast('🎁 Brinde adicionado ao seu carrinho!');
-                    _seletoresState.delete(regraId);
+                    _seletoresState.delete(String(regraId));
                     const cartAtualizado = await xhrJson('/cart.js');
                     if (window.AmeCart?.refresh) window.AmeCart.refresh(cartAtualizado);
                 } catch (err) {
@@ -245,8 +351,9 @@
         });
     }
 
-    // Renderiza/atualiza os cards de seleção dentro do drawer
-    function renderizarTodosCards(seletoresPendentes) {
+    // Renderiza/atualiza os cards de seleção dentro do drawer.
+    // Recebe um array de REGRAS pendentes (satisfeitas, sem brinde no cart).
+    function renderizarTodosCards(regrasPendentes) {
         const drawer = document.querySelector('[data-cart-drawer]') || document.querySelector('#cart-drawer');
         if (!drawer) return;
         const lista = drawer.querySelector('[data-cart-items]');
@@ -255,9 +362,9 @@
         // Remove cards velhos (sempre re-renderiza)
         lista.querySelectorAll('[data-gift-selector]').forEach(el => el.remove());
 
-        if (!seletoresPendentes || !seletoresPendentes.length) return;
+        if (!regrasPendentes || !regrasPendentes.length) return;
 
-        const html = seletoresPendentes.map(({ regra, produto }) => renderCardSelecao(regra, produto)).join('');
+        const html = regrasPendentes.map(regra => renderCardSelecao(regra)).join('');
         lista.insertAdjacentHTML('beforeend', html);
     }
 
@@ -314,11 +421,23 @@
                 const clienteEscolhe = !regra.brinde_variant_id;
 
                 if (clienteEscolhe) {
-                    // Modo "cliente escolhe variação"
+                    // Modo "cliente escolhe" (variação de 1 produto, ou produto+variação de uma lista)
                     if (satisfeita && !itemPresente) {
-                        // Carrega variants e prepara card de seleção
-                        const produto = await carregarProdutoBrinde(regra.brinde_handle);
-                        if (produto) seletoresPendentes.push({ regra, produto });
+                        const produtos = produtosDaRegra(regra);
+                        const s = selState(regra.id);
+                        if (produtos.length === 1) {
+                            // Produto único: pré-carrega as variações pro card já mostrar.
+                            s.handle = produtos[0].handle;
+                            const produto = await carregarProdutoBrinde(s.handle);
+                            if (!produto) continue; // falhou → não injeta card quebrado
+                            autoSelVariante(regra);
+                        } else if (s.handle) {
+                            // Lista com produto já escolhido antes → garante variações carregadas.
+                            await carregarProdutoBrinde(s.handle);
+                            autoSelVariante(regra);
+                        }
+                        // Lista sem produto escolhido: card mostra o seletor de produtos.
+                        seletoresPendentes.push(regra);
                     } else if (!satisfeita && itemPresente) {
                         // Condição caiu → remove brinde
                         try {

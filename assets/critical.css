@@ -1619,6 +1619,14 @@ body::after {
   flex-shrink: 0;
 }
 
+.ame-gift-selector__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .ame-gift-selector__choices {
   flex: 1;
   min-width: 0;
