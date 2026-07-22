@@ -299,7 +299,8 @@
       "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; echo \"=== migrations existentes ===\"; ls migrations/ | sort; echo; echo \"=== linhas totais dos arquivos-alvo ===\"; wc -l routes/brindes.js public/js/templates/aba-brindes.js public/js/brindes.js 2>/dev/null; wc -l \"../shopify-theme/assets/ame-gifts.js\")",
       "Bash(node --check routes/brindes.js)",
       "Bash(node --check public/js/brindes.js)",
-      "Bash(node --check \"../shopify-theme/assets/ame-gifts.js\")"
+      "Bash(node --check \"../shopify-theme/assets/ame-gifts.js\")",
+      "Bash(node --check assets/ame-gifts.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

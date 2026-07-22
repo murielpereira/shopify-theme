@@ -120,6 +120,25 @@
         });
     }
 
+    // ─── Faixa (tier) de uma regra ───
+    // A Shopify só aplica 1 desconto automático de produto por pedido, então
+    // só pode haver 1 brinde no carrinho por vez. Quando o cliente qualifica
+    // pra mais de uma regra, vence a de FAIXA MAIOR (maior valor de gatilho) —
+    // ela "sobrepõe" as menores. Regras por produto/coleção não têm faixa de
+    // valor (tier 0); desempate por id mais recente.
+    function tierRegra(regra) {
+        if (regra.tipo_gatilho === 'valor_minimo') return Number(regra.gatilho_valor_minimo_cents) || 0;
+        return 0;
+    }
+    function escolherVencedora(satisfeitas) {
+        if (!satisfeitas.length) return null;
+        return satisfeitas.slice().sort((a, b) => {
+            const t = tierRegra(b) - tierRegra(a);
+            if (t !== 0) return t;
+            return Number(b.id) - Number(a.id);
+        })[0];
+    }
+
     // ─── Operações cart ───
     async function adicionarBrinde(regra, variantId) {
         await xhrJson('/cart/add.js', 'POST', {
@@ -417,15 +436,33 @@
                 }
             }
 
-            // 2. Avaliação das regras ativas
+            // 2. Só 1 brinde por pedido: entre as regras satisfeitas, vence a de
+            //    FAIXA MAIOR. As demais (não-vencedoras) têm o brinde removido do
+            //    carrinho e não mostram card — a maior "sobrepõe" as menores.
+            const satisfeitas = regrasAtivas.filter(r => regraSatisfeita(r, cart));
+            const vencedora = escolherVencedora(satisfeitas);
+
             for (const regra of regrasAtivas) {
-                const satisfeita = regraSatisfeita(regra, cart);
                 const itemPresente = brindeNoCart(cart, regra);
+                const ehVencedora = vencedora && String(regra.id) === String(vencedora.id);
                 const clienteEscolhe = !regra.brinde_variant_id;
 
+                // Não é a vencedora (não satisfeita, ou perdeu pra uma faixa maior):
+                // garante que NÃO há brinde dela no carrinho.
+                if (!ehVencedora) {
+                    if (itemPresente) {
+                        try {
+                            await removerBrinde(itemPresente);
+                            mudouCart = true;
+                        } catch (e) { console.warn('[Brindes] remover (não-vencedora) falhou', e.message); }
+                    }
+                    continue;
+                }
+
+                // É a vencedora → aplica normalmente.
                 if (clienteEscolhe) {
                     // Modo "cliente escolhe" (variação de 1 produto, ou produto+variação de uma lista)
-                    if (satisfeita && !itemPresente) {
+                    if (!itemPresente) {
                         const produtos = produtosDaRegra(regra);
                         const s = selState(regra.id);
                         if (produtos.length === 1) {
@@ -441,28 +478,16 @@
                         }
                         // Lista sem produto escolhido: card mostra o seletor de produtos.
                         seletoresPendentes.push(regra);
-                    } else if (!satisfeita && itemPresente) {
-                        // Condição caiu → remove brinde
-                        try {
-                            await removerBrinde(itemPresente);
-                            mudouCart = true;
-                        } catch (e) { console.warn('[Brindes] remover falhou', e.message); }
                     }
-                    // satisfeita && presente: nada a fazer (cliente já escolheu)
-                    // !satisfeita && !presente: nada a fazer
+                    // presente: nada a fazer (cliente já escolheu)
                 } else {
                     // Modo "variante fixa"
-                    if (satisfeita && !itemPresente) {
+                    if (!itemPresente) {
                         try {
                             await adicionarBrinde(regra, regra.brinde_variant_id);
                             toast(`🎁 Você ganhou: ${regra.brinde_titulo || 'Brinde Incluído'}`);
                             mudouCart = true;
                         } catch (e) { console.warn('[Brindes] adicionar falhou', e.message); }
-                    } else if (!satisfeita && itemPresente) {
-                        try {
-                            await removerBrinde(itemPresente);
-                            mudouCart = true;
-                        } catch (e) { console.warn('[Brindes] remover falhou', e.message); }
                     }
                 }
             }
