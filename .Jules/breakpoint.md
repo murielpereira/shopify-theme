@@ -13,3 +13,6 @@
 ## 2024-06-10 - Mobile CSS Grid Squishing Fix
 **Learning:** Hardcoding `grid-template-columns: repeat(3, 1fr)` causes content squishing on small mobile screens, violating the mobile-first approach.
 **Action:** Default to `grid-template-columns: repeat(2, 1fr)` or `1fr` in the CSS grid container to allow wrapping on mobile, and apply the multi-column layout using a progressive enhancement media query like `@media (min-width: 600px)` for tablet and desktop views.
+## 2026-05-20 - Use width auto and negative margins for full-bleed layouts
+**Learning:** Hardcoding `width: 100vw; max-width: 100vw;` to break out of a constrained parent container (like `.shopify-section`) and achieve a full-bleed layout causes horizontal overflow and scrolling on environments with visible vertical scrollbars, because the scrollbar width is included in `100vw`.
+**Action:** Instead of `100vw`, use `width: auto;` coupled with negative margins corresponding to the parent's padding (`margin-left: calc(-1 * var(--page-margin)); margin-right: calc(-1 * var(--page-margin));`) to achieve the same full-bleed effect without horizontal scrolling issues.
