@@ -364,8 +364,11 @@
 
         if (!regrasPendentes || !regrasPendentes.length) return;
 
+        // No TOPO da lista (afterbegin) — um "você ganhou um brinde" precisa
+        // estar visível de cara. No fim, com carrinho cheio, fica abaixo da
+        // dobra e o cliente não vê o card pra resgatar.
         const html = regrasPendentes.map(regra => renderCardSelecao(regra)).join('');
-        lista.insertAdjacentHTML('beforeend', html);
+        lista.insertAdjacentHTML('afterbegin', html);
     }
 
     // ─── Loop principal: reavalia regras + sincroniza cart ───
