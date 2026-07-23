@@ -1101,19 +1101,41 @@
                 <span class="pdp__custom-field__req" aria-hidden="true"> *</span>
               {%- endif -%}
             </div>
-            <div class="pdp__custom-field__radio-group pdp__sizes">
+            {%- comment -%}
+              Campo "acabamento_laco": além do texto, exibe a imagem do
+              acabamento em cada botão. O slug da opção (| handle) bate com o
+              nome do asset — "Elástico" → elastico.webp, "Bico de Pato" →
+              bico-de-pato.webp. Só esse campo recebe imagens (gate pela tag),
+              pra não quebrar outros campos radio.
+            {%- endcomment -%}
+            {%- assign cf_opt_images = false -%}
+            {%- if cf_field_tag == 'acabamento_laco' -%}{%- assign cf_opt_images = true -%}{%- endif -%}
+            <div class="pdp__custom-field__radio-group pdp__sizes{% if cf_opt_images %} pdp__custom-field__radio-group--images{% endif %}">
               {%- assign cf_opts = cf_options | split: ',' -%}
               {%- for cf_opt in cf_opts -%}
                 {%- assign opt_val = cf_opt | strip -%}
                 <button
                   type="button"
-                  class="pdp__size-btn"
+                  class="pdp__size-btn{% if cf_opt_images %} pdp__acabamento-btn{% endif %}"
                   data-value="{{ opt_val | escape }}"
                   aria-label="{{ opt_val | escape }}"
                   title="{{ opt_val | escape }}"
                   aria-pressed="false"
                 >
-                  {{- opt_val -}}
+                  {%- if cf_opt_images -%}
+                    {%- assign opt_img = opt_val | handle | append: '.webp' -%}
+                    <img
+                      class="pdp__acabamento-btn__img"
+                      src="{{ opt_img | asset_url }}"
+                      alt="{{ opt_val | escape }}"
+                      width="200"
+                      height="100"
+                      loading="lazy"
+                    >
+                    <span class="pdp__acabamento-btn__txt">{{- opt_val -}}</span>
+                  {%- else -%}
+                    {{- opt_val -}}
+                  {%- endif -%}
                 </button>
               {%- endfor -%}
             </div>
@@ -2883,6 +2905,41 @@
     opacity: 0.45;
     cursor: pointer;
     position: relative;
+  }
+
+  /* Campo "Acabamento do laço": botões com imagem do acabamento + rótulo.
+     Reusa .pdp__size-btn (estado ativo/hover e o JS de seleção), só troca o
+     layout do botão pra empilhar imagem em cima do texto. */
+  .pdp__custom-field__radio-group--images {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 480px) {
+    .pdp__custom-field__radio-group--images {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 22rem;
+    }
+  }
+
+  .pdp__acabamento-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem;
+  }
+
+  .pdp__acabamento-btn__img {
+    width: 100%;
+    height: 4.5rem;
+    object-fit: contain;
+    border-radius: var(--radius-sm, 0.25rem);
+    background: #fff;
+  }
+
+  .pdp__acabamento-btn__txt {
+    display: block;
+    line-height: 1.2;
   }
 
   .pdp__swatch--disabled::after {

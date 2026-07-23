@@ -300,7 +300,8 @@
       "Bash(node --check routes/brindes.js)",
       "Bash(node --check public/js/brindes.js)",
       "Bash(node --check \"../shopify-theme/assets/ame-gifts.js\")",
-      "Bash(node --check assets/ame-gifts.js)"
+      "Bash(node --check assets/ame-gifts.js)",
+      "Bash(node -e *)"
     ],
     "additionalDirectories": [
       "\\tmp",
