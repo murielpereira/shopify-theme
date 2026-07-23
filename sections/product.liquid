@@ -2910,17 +2910,18 @@
   /* Campo "Acabamento do laço": botões com imagem do acabamento + rótulo.
      Reusa .pdp__size-btn (estado ativo/hover e o JS de seleção), só troca o
      layout do botão pra empilhar imagem em cima do texto. */
-  /* Seletor com 2 classes (especificidade 0,0,2,0) pra vencer o
-     `.pdp__custom-field__radio-group { display:flex }` global e forçar grid
-     de 2 colunas — botões lado a lado no desktop, igual ao mobile. */
-  .pdp__custom-field__radio-group.pdp__custom-field__radio-group--images {
+  /* Precisa vencer `.pdp .pdp__sizes { display:flex }` (0,0,2,0, definido
+     DEPOIS no arquivo). Prefixando com `.pdp` a regra fica 0,0,3,0 e ganha
+     independente da ordem — força grid de 2 colunas (botões lado a lado no
+     desktop, igual ao mobile). */
+  .pdp .pdp__custom-field__radio-group.pdp__custom-field__radio-group--images {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
   @media (min-width: 480px) {
-    .pdp__custom-field__radio-group.pdp__custom-field__radio-group--images {
+    .pdp .pdp__custom-field__radio-group.pdp__custom-field__radio-group--images {
       max-width: 22rem;
     }
   }
