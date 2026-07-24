@@ -31,11 +31,15 @@
     {% paginate article.comments by 10 %}
       {% for comment in article.comments %}
         <div>
-          <p>{{ comment.author }}</p>
+          {%- comment -%}
+            🛡️ Sentinel: Escape comment author and content to prevent stored XSS.
+            Shopify wraps content in HTML tags, so strip_html is used before escaping.
+          {%- endcomment -%}
+          <p>{{ comment.author | escape }}</p>
           <p>
             {{- comment.created_at | time_tag: format: 'date' -}}
           </p>
-          <p>{{ comment.content }}</p>
+          <p>{{ comment.content | strip_html | escape }}</p>
         </div>
       {% endfor %}
 

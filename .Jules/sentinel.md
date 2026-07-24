@@ -49,3 +49,7 @@
 **Vulnerability:** Unsanitized variables `customer.name`, `customer.email`, and address fields (`customer.default_address.street`, `address.first_name`, `address.city`, `order.shipping_address.street`, etc.) were rendered directly into HTML in `templates/customers/account.liquid`, `templates/customers/addresses.liquid`, and `templates/customers/order.liquid`.
 **Learning:** In Shopify Liquid templates, customer details and address fields are not automatically HTML-escaped. Outputting them unescaped in HTML allows Stored XSS if a user enters malicious data (like `<script>alert(1)</script>`) into their name or address fields.
 **Prevention:** Always apply the `escape` filter (e.g., `{{ customer.name | escape }}`) when rendering user-provided data directly into HTML.
+## 2024-05-27 - [Stored XSS in Article Comments]
+**Vulnerability:** User inputs from blog comments (`comment.author` and `comment.content`) were rendered directly into HTML without escaping in `sections/article.liquid`.
+**Learning:** In Shopify Liquid templates, article comments are user-controlled input and can contain arbitrary HTML payloads. Outputting them dynamically back to the user without sanitization leads to Stored XSS vulnerabilities on blog posts.
+**Prevention:** Always apply the `escape` filter (e.g., `{{ comment.author | escape }}`) when rendering user-submitted comments directly into HTML.
