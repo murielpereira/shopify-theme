@@ -192,8 +192,21 @@
         return [{ handle: regra.brinde_handle, titulo: regra.brinde_titulo }];
     }
 
-    function variantesDisponiveis(produto) {
-        return produto ? (produto.variants || []).filter(v => v.available !== false) : [];
+    // Subconjunto de variantes permitidas (modo "cliente escolhe entre algumas"),
+    // ou null (todas).
+    function listaVariantesRegra(regra) {
+        let vs = regra && regra.brinde_variantes;
+        if (typeof vs === 'string') { try { vs = JSON.parse(vs); } catch (e) { vs = null; } }
+        return Array.isArray(vs) && vs.length ? vs.map(String) : null;
+    }
+
+    // Variantes disponíveis do produto. Se a regra restringe a um subconjunto
+    // (brinde_variantes), filtra só a essas.
+    function variantesDisponiveis(produto, regra) {
+        let vars = produto ? (produto.variants || []).filter(v => v.available !== false) : [];
+        const permitidas = regra ? listaVariantesRegra(regra) : null;
+        if (permitidas) vars = vars.filter(v => permitidas.includes(String(v.id)));
+        return vars;
     }
 
     // Se o produto escolhido tem 1 variação só, seleciona automaticamente.
@@ -202,7 +215,7 @@
         if (isPingenteRegra(regra)) return; // pingente resolve a variante no próprio card
         const s = selState(regra.id);
         if (!s.handle || !_variantsCache.has(s.handle)) return;
-        const vars = variantesDisponiveis(_variantsCache.get(s.handle));
+        const vars = variantesDisponiveis(_variantsCache.get(s.handle), regra);
         if (vars.length === 1) s.variantId = String(vars[0].id);
         else if (s.variantId && !vars.some(v => String(v.id) === String(s.variantId))) s.variantId = null;
     }
@@ -324,7 +337,7 @@
             if (!carregado) {
                 blocos.push(`<div class="ame-gift-selector__choices"><p class="ame-gift-selector__label">Carregando variações…</p></div>`);
             } else if (produto) {
-                const vars = variantesDisponiveis(produto);
+                const vars = variantesDisponiveis(produto, regra);
                 if (vars.length > 1) {
                     const vbtns = vars.map(v => `
                         <button type="button"

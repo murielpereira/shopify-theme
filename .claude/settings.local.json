@@ -323,7 +323,11 @@
       "Bash(node --check \"C:/Users/pedid/AppData/Local/Temp/claude/c--Users-pedid-OneDrive--rea-de-Trabalho-Arquivos--me-Muriel-Projetos-shopify-theme/65b1cc9b-fe7e-4353-bc28-376151f3f6a8/scratchpad/cf_504_diag.mjs\")",
       "Bash(node --check \"shopify-theme/assets/ame-gifts.js\")",
       "Bash(node --check \"Waltz/routes/brindes.js\")",
-      "Bash(node --check \"Waltz/public/js/brindes.js\")"
+      "Bash(node --check \"Waltz/public/js/brindes.js\")",
+      "Bash(curl -s --max-time 20 \"https://waltz.up.railway.app/api/public/brindes/ativas\")",
+      "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/\")",
+      "Bash(grep -oE '.{0,90}ame-gifts\\\\.js.{0,30}')",
+      "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/cdn/shop/t/6/assets/ame-gifts.js\")"
     ],
     "additionalDirectories": [
       "\\tmp",
