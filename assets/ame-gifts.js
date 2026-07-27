@@ -140,16 +140,14 @@
     }
 
     // ─── Operações cart ───
-    async function adicionarBrinde(regra, variantId) {
+    async function adicionarBrinde(regra, variantId, extraProps) {
+        const properties = {
+            [PROP_REGRA_ID]: String(regra.id),
+            [PROP_BRINDE_FLAG]: 'Brinde Incluído',
+        };
+        if (extraProps) Object.assign(properties, extraProps);
         await xhrJson('/cart/add.js', 'POST', {
-            items: [{
-                id: Number(variantId),
-                quantity: 1,
-                properties: {
-                    [PROP_REGRA_ID]: String(regra.id),
-                    [PROP_BRINDE_FLAG]: 'Brinde Incluído',
-                },
-            }],
+            items: [{ id: Number(variantId), quantity: 1, properties }],
         });
     }
     async function removerBrinde(item) {
@@ -201,6 +199,7 @@
     // Se o produto escolhido tem 1 variação só, seleciona automaticamente.
     // Se a variação atual não existe mais no produto, limpa.
     function autoSelVariante(regra) {
+        if (isPingenteRegra(regra)) return; // pingente resolve a variante no próprio card
         const s = selState(regra.id);
         if (!s.handle || !_variantsCache.has(s.handle)) return;
         const vars = variantesDisponiveis(_variantsCache.get(s.handle));
@@ -208,10 +207,76 @@
         else if (s.variantId && !vars.some(v => String(v.id) === String(s.variantId))) s.variantId = null;
     }
 
+    // ─── Pingente personalizado como brinde (só metal) ───
+    // Regra com brinde_pingente=true: o produto-brinde é o pingente de metal e o
+    // cliente customiza no carrinho (formato, cor do metal, tamanho, gravação).
+    // Porta a resolução de variante do snippet da PDP, sem depender de coleira.
+    const PING_FORMATOS = ['Círculo', 'Coração', 'Flor', 'Osso'];
+    const PING_FORMATO_ICON = { 'Círculo': '⭕', 'Coração': '❤️', 'Flor': '🌸', 'Osso': '🦴' };
+
+    function isPingenteRegra(regra) {
+        const v = regra && regra.brinde_pingente;
+        return v === true || v === 't' || v === 'true' || v === 1;
+    }
+    function normOptName(n) {
+        return String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    }
+    function pingOptIdx(produto) {
+        const names = (produto.options || []).map(o => (typeof o === 'string' ? o : o.name));
+        const find = (ms) => names.findIndex(n => {
+            const x = normOptName(n);
+            return ms.some(m => x === m || x.startsWith(m + ' ') || x.endsWith(' ' + m) || x.includes(' ' + m + ' '));
+        });
+        return { formato: find(['formato']), metal: find(['cor do metal', 'metal']), tamanho: find(['tamanho', 'size']) };
+    }
+    // Valores distintos DISPONÍVEIS de uma option (1-based), filtrando por seleções anteriores.
+    function pingOptValues(produto, idxPlus1, filterFn) {
+        const set = new Set();
+        for (const v of (produto.variants || [])) {
+            if (v.available === false) continue;
+            if (filterFn && !filterFn(v)) continue;
+            const val = v['option' + idxPlus1];
+            if (val) set.add(val);
+        }
+        return [...set];
+    }
+    function pingResolve(produto, idx, formato, metal, tamanho) {
+        return (produto.variants || []).find(v => {
+            if (v.available === false) return false;
+            if (idx.formato !== -1 && formato && v['option' + (idx.formato + 1)] !== formato) return false;
+            if (idx.metal !== -1 && metal && v['option' + (idx.metal + 1)] !== metal) return false;
+            if (idx.tamanho !== -1 && tamanho && v['option' + (idx.tamanho + 1)] !== tamanho) return false;
+            return true;
+        }) || null;
+    }
+    function pingState(regra) {
+        const s = selState(regra.id);
+        if (!s.p) s.p = { formato: null, metal: null, tamanho: null, pet: '', tutor: '', tel: '' };
+        return s;
+    }
+    // Máscara BR "11 99999-9999" (maxlength 13, igual à PDP)
+    function pingMaskTel(v) {
+        const d = String(v || '').replace(/\D/g, '').slice(0, 11);
+        if (d.length <= 2) return d;
+        if (d.length <= 7) return d.slice(0, 2) + ' ' + d.slice(2);
+        return d.slice(0, 2) + ' ' + d.slice(2, 7) + '-' + d.slice(7);
+    }
+    function pingLabelPendente(s, need) {
+        if (!s.p.formato) return 'Escolha o formato';
+        if (need.metal && !s.p.metal) return 'Escolha a cor do metal';
+        if (need.tamanho && !s.p.tamanho) return 'Escolha o tamanho';
+        if (!s.p.pet.trim()) return 'Preencha o nome do pet';
+        const telDigits = String(s.p.tel || '').replace(/\D/g, '');
+        if (telDigits.length > 0 && telDigits.length < 10) return 'Telefone incompleto';
+        if (!s.variantId) return 'Combinação indisponível';
+        return 'Resgatar meu brinde';
+    }
+
     // ─── Render do CARD DE SELEÇÃO no drawer ───
     // Conteúdo interno do card (head + escolhas + botão). Repintado em cada
     // interação. O <li> externo (data-attrs) é preservado por repaintCard.
     function cardInner(regra) {
+        if (isPingenteRegra(regra)) return cardInnerPingente(regra);
         const s = selState(regra.id);
         const produtos = produtosDaRegra(regra);
         const multi = produtos.length > 1;
@@ -294,6 +359,119 @@
         return head + body + add;
     }
 
+    // Card do pingente personalizado — formato, cor do metal, tamanho e gravação.
+    function cardInnerPingente(regra) {
+        const s = pingState(regra);
+        const p = s.p;
+        const head = `
+            <header class="ame-gift-selector__head">
+                <span class="material-symbols-outlined ame-gift-selector__icon" aria-hidden="true">card_giftcard</span>
+                <div class="ame-gift-selector__head-text">
+                    <p class="ame-gift-selector__eyebrow">Você ganhou um brinde</p>
+                    <p class="ame-gift-selector__title">${esc(regra.brinde_titulo || 'Pingente personalizado')}</p>
+                </div>
+            </header>`;
+        const wrap = (inner) => head + `<div class="ame-gift-selector__body"><div class="ame-gift-selector__col">${inner}</div></div>`;
+
+        const handle = regra.brinde_handle;
+        if (!_variantsCache.has(handle)) return wrap(`<p class="ame-gift-selector__label">Carregando opções…</p>`);
+        const produto = _variantsCache.get(handle);
+        if (!produto) return wrap(`<p class="ame-gift-selector__label">Não foi possível carregar o pingente.</p>`);
+        const idx = pingOptIdx(produto);
+        if (idx.formato === -1) return wrap(`<p class="ame-gift-selector__label">Pingente sem opção "Formato" — verifique o cadastro.</p>`);
+
+        // Formatos disponíveis
+        const formatosDisp = PING_FORMATOS.filter(f =>
+            (produto.variants || []).some(v => v.available !== false && v['option' + (idx.formato + 1)] === f));
+        if (p.formato && !formatosDisp.includes(p.formato)) { p.formato = null; p.metal = null; p.tamanho = null; }
+
+        // Cor do metal (cascata a partir do formato)
+        let metaisDisp = [];
+        if (idx.metal !== -1 && p.formato) {
+            metaisDisp = pingOptValues(produto, idx.metal + 1, v => v['option' + (idx.formato + 1)] === p.formato);
+            if (metaisDisp.length === 1) p.metal = metaisDisp[0];               // 1 só → auto
+            else if (p.metal && !metaisDisp.includes(p.metal)) p.metal = null;
+        }
+        const metalPronto = idx.metal === -1 || !!p.metal;
+
+        // Tamanho (cascata a partir de formato + metal)
+        let tamsDisp = [];
+        if (idx.tamanho !== -1 && p.formato && metalPronto) {
+            tamsDisp = pingOptValues(produto, idx.tamanho + 1, v =>
+                v['option' + (idx.formato + 1)] === p.formato && (idx.metal === -1 || v['option' + (idx.metal + 1)] === p.metal));
+            if (tamsDisp.length === 1) p.tamanho = tamsDisp[0];                  // 1 só → auto
+            else if (p.tamanho && !tamsDisp.includes(p.tamanho)) p.tamanho = null;
+        }
+
+        // Resolve a variante só quando tudo que o produto exige está escolhido
+        const need = { metal: idx.metal !== -1, tamanho: idx.tamanho !== -1 };
+        const ready = !!p.formato && (!need.metal || !!p.metal) && (!need.tamanho || !!p.tamanho);
+        const variant = ready ? pingResolve(produto, idx, p.formato, need.metal ? p.metal : null, need.tamanho ? p.tamanho : null) : null;
+        s.variantId = variant ? String(variant.id) : null;
+
+        const blocos = [];
+        blocos.push(`
+            <div class="ame-gift-selector__choices">
+                <p class="ame-gift-selector__label">Formato:</p>
+                <div class="ame-gift-selector__variants">
+                    ${formatosDisp.map(f => `
+                        <button type="button" class="ame-gift-selector__variant${p.formato === f ? ' is-active' : ''}"
+                            data-gift-ping-formato="${esc(f)}" aria-pressed="${p.formato === f ? 'true' : 'false'}">
+                            ${PING_FORMATO_ICON[f] || ''} ${esc(f)}
+                        </button>`).join('')}
+                </div>
+            </div>`);
+        if (p.formato && idx.metal !== -1 && metaisDisp.length > 1) {
+            blocos.push(`
+                <div class="ame-gift-selector__choices">
+                    <p class="ame-gift-selector__label">Cor do metal:</p>
+                    <div class="ame-gift-selector__variants">
+                        ${metaisDisp.map(m => `
+                            <button type="button" class="ame-gift-selector__variant${p.metal === m ? ' is-active' : ''}"
+                                data-gift-ping-metal="${esc(m)}" aria-pressed="${p.metal === m ? 'true' : 'false'}">
+                                ${esc(m)}
+                            </button>`).join('')}
+                    </div>
+                </div>`);
+        }
+        if (p.formato && metalPronto && idx.tamanho !== -1 && tamsDisp.length > 1) {
+            blocos.push(`
+                <div class="ame-gift-selector__choices">
+                    <p class="ame-gift-selector__label">Tamanho:</p>
+                    <div class="ame-gift-selector__variants">
+                        ${tamsDisp.map(t => `
+                            <button type="button" class="ame-gift-selector__variant${p.tamanho === t ? ' is-active' : ''}"
+                                data-gift-ping-tam="${esc(t)}" aria-pressed="${p.tamanho === t ? 'true' : 'false'}">
+                                ${esc(t)}
+                            </button>`).join('')}
+                    </div>
+                </div>`);
+        }
+        // Gravação (igual à PDP: pet obrigatório; tutor e telefone opcionais)
+        blocos.push(`
+            <div class="ame-gift-selector__field">
+                <label>Nome do pet <span class="ame-gift-selector__req">*</span></label>
+                <input type="text" class="ame-gift-selector__input" maxlength="13" data-gift-ping-field="pet" value="${esc(p.pet)}" placeholder="Ex: Thor">
+            </div>
+            <div class="ame-gift-selector__field">
+                <label>Nome do tutor <small>(opcional)</small></label>
+                <input type="text" class="ame-gift-selector__input" maxlength="13" data-gift-ping-field="tutor" value="${esc(p.tutor)}" placeholder="Ex: Maria">
+            </div>
+            <div class="ame-gift-selector__field">
+                <label>Telefone <small>(opcional)</small></label>
+                <input type="tel" class="ame-gift-selector__input" maxlength="13" data-gift-ping-field="tel" value="${esc(p.tel)}" placeholder="11 99999-9999">
+            </div>`);
+
+        const petOK = p.pet.trim().length > 0;
+        const telDigits = String(p.tel || '').replace(/\D/g, '');
+        const telOK = telDigits.length === 0 || telDigits.length >= 10;
+        const pronto = !!s.variantId && petOK && telOK;
+        const label = pronto ? 'Resgatar meu brinde' : pingLabelPendente(s, need);
+        const add = `<button type="button" class="ame-gift-selector__add" data-gift-add ${pronto ? '' : 'disabled'}>${esc(label)}</button>`;
+
+        return wrap(blocos.join('')) + add;
+    }
+
     function renderCardSelecao(regra) {
         return `<li class="ame-gift-selector" data-gift-selector data-gift-regra-id="${esc(regra.id)}">${cardInner(regra)}</li>`;
     }
@@ -328,6 +506,22 @@
                 return;
             }
 
+            // Pingente: escolher formato / cor do metal / tamanho
+            const pingBtn = e.target.closest('[data-gift-ping-formato],[data-gift-ping-metal],[data-gift-ping-tam]');
+            if (pingBtn) {
+                const card = pingBtn.closest('[data-gift-selector]');
+                const regraId = card?.dataset.giftRegraId;
+                if (!regraId) return;
+                const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
+                if (!regra) return;
+                const s = pingState(regra);
+                if (pingBtn.dataset.giftPingFormato != null) { s.p.formato = pingBtn.dataset.giftPingFormato; s.p.metal = null; s.p.tamanho = null; }
+                else if (pingBtn.dataset.giftPingMetal != null) { s.p.metal = pingBtn.dataset.giftPingMetal; s.p.tamanho = null; }
+                else if (pingBtn.dataset.giftPingTam != null) { s.p.tamanho = pingBtn.dataset.giftPingTam; }
+                repaintCard(card, regra);
+                return;
+            }
+
             // Selecionar variação
             const variantBtn = e.target.closest('[data-gift-variant]');
             if (variantBtn) {
@@ -348,16 +542,31 @@
                 const card = addBtn.closest('[data-gift-selector]');
                 const regraId = card?.dataset.giftRegraId;
                 if (!regraId) return;
-                const s = selState(regraId);
-                if (!s.variantId) return;
                 const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
                 if (!regra) return;
+                const pingente = isPingenteRegra(regra);
+                const s = pingente ? pingState(regra) : selState(regraId);
+                if (!s.variantId) return;
+
+                // Personalização (só pingente): valida e monta a property multilinha.
+                let extraProps = null;
+                if (pingente) {
+                    const p = s.p;
+                    if (!p.pet.trim()) { toast('Preencha o nome do pet.'); return; }
+                    const telDigits = String(p.tel || '').replace(/\D/g, '');
+                    if (telDigits.length > 0 && telDigits.length < 10) { toast('Telefone incompleto.'); return; }
+                    const linhas = [];
+                    if (p.pet.trim()) linhas.push('Nome do pet: ' + p.pet.trim());
+                    if (p.tutor.trim()) linhas.push('Nome do tutor: ' + p.tutor.trim());
+                    if (p.tel.trim()) linhas.push('Telefone do tutor: ' + p.tel.trim());
+                    extraProps = { 'Personalização': linhas.join('\n') };
+                }
 
                 addBtn.disabled = true;
                 addBtn.textContent = 'Adicionando...';
                 try {
-                    await adicionarBrinde(regra, s.variantId);
-                    toast('🎁 Brinde adicionado ao seu carrinho!');
+                    await adicionarBrinde(regra, s.variantId, extraProps);
+                    toast(pingente ? '🎁 Pingente adicionado ao seu carrinho!' : '🎁 Brinde adicionado ao seu carrinho!');
                     _seletoresState.delete(String(regraId));
                     const cartAtualizado = await xhrJson('/cart.js');
                     if (window.AmeCart?.refresh) window.AmeCart.refresh(cartAtualizado);
@@ -366,6 +575,34 @@
                     addBtn.disabled = false;
                     addBtn.textContent = 'Tente novamente';
                 }
+            }
+        });
+
+        // Inputs de gravação do pingente — atualizam o estado SEM repaint (pra
+        // não perder o foco) e só re-habilitam o botão de resgate.
+        document.addEventListener('input', (e) => {
+            const field = e.target.closest('[data-gift-ping-field]');
+            if (!field) return;
+            const card = field.closest('[data-gift-selector]');
+            const regraId = card?.dataset.giftRegraId;
+            if (!regraId) return;
+            const regra = (_regrasCache || []).find(r => String(r.id) === String(regraId));
+            if (!regra) return;
+            const s = pingState(regra);
+            const which = field.dataset.giftPingField;
+            if (which === 'tel') { const m = pingMaskTel(field.value); field.value = m; s.p.tel = m; }
+            else { s.p[which] = field.value; }
+
+            const addBtn = card.querySelector('[data-gift-add]');
+            if (addBtn) {
+                const petOK = s.p.pet.trim().length > 0;
+                const telDigits = String(s.p.tel || '').replace(/\D/g, '');
+                const telOK = telDigits.length === 0 || telDigits.length >= 10;
+                const pronto = !!s.variantId && petOK && telOK;
+                addBtn.disabled = !pronto;
+                addBtn.textContent = pronto ? 'Resgatar meu brinde'
+                    : (!s.variantId ? 'Escolha as opções acima'
+                        : (!petOK ? 'Preencha o nome do pet' : 'Telefone incompleto'));
             }
         });
     }
