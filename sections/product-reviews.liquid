@@ -14,6 +14,25 @@
     {{ section.settings.title | default: 'Avaliações' }}
   </h2>
   <div class="konfidency-reviews-details"></div>
+
+  {%- comment -%}
+    Patch de acessibilidade: o Konfidency injeta o <select class="sort-field">
+    de ordenação dos reviews SEM <label> nem aria-label — o axe/PSI reprova
+    ("select must have an accessible name"). Como é widget de terceiro (Vue),
+    injetamos só o nome acessível quando o select aparece. Não altera o widget.
+  {%- endcomment -%}
+  <script>
+    (function () {
+      var scope = (document.currentScript && document.currentScript.closest('.pdp-reviews')) || document.body;
+      function rotular() {
+        scope.querySelectorAll('select.sort-field:not([aria-label])').forEach(function (sel) {
+          sel.setAttribute('aria-label', 'Ordenar avaliações');
+        });
+      }
+      rotular();
+      new MutationObserver(rotular).observe(scope, { childList: true, subtree: true });
+    })();
+  </script>
 </section>
 
 {% stylesheet %}

@@ -32,6 +32,12 @@
         Isso evita quirks de `display: contents` no grid do desktop, que
         estavam quebrando o layout 2-col.
       {%- endcomment -%}
+      {%- comment -%}
+        alt com fallback: usa o alt cadastrado na imagem; se vazio, cai no
+        título da seção; por último um texto de marca. Garante que o <img>
+        nunca fique sem alt (auditoria de acessibilidade do PSI).
+      {%- endcomment -%}
+      {%- assign story_alt = section.settings.image.alt | default: section.settings.title | default: 'Âme Acessórios Pet' -%}
       {%- capture image_col_html -%}
         <div class="ame-story__image-wrap">
           {%- if section.settings.image != blank -%}
@@ -43,8 +49,7 @@
                 loading: 'eager',
                 fetchpriority: 'high',
                 class: 'ame-story__image',
-                alt: section.settings.image.alt
-              | escape
+                alt: story_alt
             }}
           {%- else -%}
             {{ 'lifestyle-2' | placeholder_svg_tag: 'ame-story__image ame-story__image--placeholder' }}
