@@ -204,6 +204,7 @@
     {%- endcomment -%}
     <span
       class="ame-card__rating-badge"
+      role="img"
       data-konfidency-rating="{%- render 'konfidency-id', product: card_product, mode: 'all' -%}"
       aria-label="Avaliação"
       {% if card_rating == blank %}hidden{% endif %}

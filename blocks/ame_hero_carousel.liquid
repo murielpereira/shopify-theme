@@ -370,24 +370,35 @@
 
   .ame-hero-c__dots {
     position: absolute;
-    bottom: 16px;
+    bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 0;
     z-index: 5;
   }
+  /* O botão é a área de toque (24x24, mínimo WCAG target-size); o ponto
+     visível é o ::before centralizado — o visual continua compacto. */
   .ame-hero-c__dot {
+    width: 24px;
+    height: 24px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ame-hero-c__dot::before {
+    content: '';
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.5);
-    border: 0;
-    padding: 0;
-    cursor: pointer;
     transition: background 0.2s ease, width 0.2s ease;
   }
-  .ame-hero-c__dot.is-active {
+  .ame-hero-c__dot.is-active::before {
     background: #fff;
     width: 24px;
     border-radius: 4px;
