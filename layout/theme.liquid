@@ -395,6 +395,16 @@
           // cliente precisa dos controles pra remover o item.
           // (Espelha a mesma regra do snippets/cart-drawer.liquid — manter em sincronia.)
           const isBrinde = !!(props._brinde_regra_id || props.Brinde) && item.final_line_price === 0;
+          // Pingente ADD-ON: não linka pro produto (evita ir pra página do
+          // pingente e re-adicionar avulso). Detecta pela property `Personalização`
+          // — só o fluxo add-on da coleira gera. Pingente avulso NÃO tem → mantém
+          // o link. (Espelha snippets/cart-drawer.liquid — manter em sincronia.)
+          const isPingenteAddon = !!props['Personalização'];
+          const imgOpen = isPingenteAddon ? '<span class="ame-cart-item__img-link">' : `<a href="${esc(item.url)}" class="ame-cart-item__img-link">`;
+          const imgClose = isPingenteAddon ? '</span>' : '</a>';
+          const nameHTML = isPingenteAddon
+            ? `<span class="ame-cart-item__name">${esc(item.product_title)}</span>`
+            : `<a href="${esc(item.url)}" class="ame-cart-item__name">${esc(item.product_title)}</a>`;
           const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
           const propsHTML = propEntries.length
             ? `<ul class="ame-cart-item__props">${propEntries
@@ -431,15 +441,15 @@
           return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(
             item.key
           )}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
-            <a href="${esc(item.url)}" class="ame-cart-item__img-link">
+            ${imgOpen}
               <div class="ame-cart-item__img-wrap">${
                 img
                   ? `<img src="${esc(img)}" alt="${esc(item.product_title)}" class="ame-cart-item__img" loading="lazy">`
                   : ''
               }</div>
-            </a>
+            ${imgClose}
             <div class="ame-cart-item__info">
-              <a href="${esc(item.url)}" class="ame-cart-item__name">${esc(item.product_title)}</a>
+              ${nameHTML}
               ${brindeChip}
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
               ${propsHTML}

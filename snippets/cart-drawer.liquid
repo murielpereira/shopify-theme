@@ -120,12 +120,24 @@
               {%- assign is_brinde = 'true' -%}
             {%- endif -%}
           {%- endif -%}
+          {%- comment -%}
+            Pingente ADD-ON: não linka pro produto. A cliente clicava no pingente
+            do carrinho, ia pra página dele e o re-adicionava AVULSO (sem
+            anexo/kit), gerando pingente "solto" no pedido. Detecta pela property
+            `Personalização` — que SÓ o fluxo add-on da coleira gera. O pingente
+            vendido avulso NÃO tem essa property (usa campos próprios) → mantém o
+            link normalmente, pra continuar vendável sozinho.
+          {%- endcomment -%}
+          {%- assign is_pingente_addon = false -%}
+          {%- if item.properties['Personalização'] != blank -%}
+            {%- assign is_pingente_addon = true -%}
+          {%- endif -%}
           <li
             class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}"
             data-item-key="{{ item.key }}"
             {% if coleira_key != '' %}data-coleira-key="{{ coleira_key }}"{% endif %}
           >
-            <a href="{{ item.url }}" class="ame-cart-item__img-link">
+            {%- if is_pingente_addon -%}<span class="ame-cart-item__img-link">{%- else -%}<a href="{{ item.url }}" class="ame-cart-item__img-link">{%- endif -%}
               <div class="ame-cart-item__img-wrap">
                 {{
                   item.image
@@ -137,10 +149,14 @@
                     alt: item.product.title
                 }}
               </div>
-            </a>
+            {%- if is_pingente_addon -%}</span>{%- else -%}</a>{%- endif -%}
 
             <div class="ame-cart-item__info">
-              <a href="{{ item.url }}" class="ame-cart-item__name">{{ item.product.title }}</a>
+              {%- if is_pingente_addon -%}
+                <span class="ame-cart-item__name">{{ item.product.title }}</span>
+              {%- else -%}
+                <a href="{{ item.url }}" class="ame-cart-item__name">{{ item.product.title }}</a>
+              {%- endif -%}
               {%- if is_brinde != '' -%}
                 <span class="ame-cart-item__brinde-chip">
                   <span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>

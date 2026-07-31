@@ -327,7 +327,8 @@
       "Bash(curl -s --max-time 20 \"https://waltz.up.railway.app/api/public/brindes/ativas\")",
       "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/\")",
       "Bash(grep -oE '.{0,90}ame-gifts\\\\.js.{0,30}')",
-      "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/cdn/shop/t/6/assets/ame-gifts.js\")"
+      "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/cdn/shop/t/6/assets/ame-gifts.js\")",
+      "Bash(grep -nA6 \"\\\\.ame-cart-item__name\\\\b\\\\|\\\\.ame-cart-item__img-link\\\\b\" assets/critical.css)"
     ],
     "additionalDirectories": [
       "\\tmp",
