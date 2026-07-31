@@ -1427,7 +1427,20 @@
       if (idx >= 0) goTo(idx);
     }
 
-    async function refreshVariantSection() {
+    // Sequência + promise pendente. Cliques rápidos disparam fetches
+    // concorrentes; sem sequenciar, uma resposta fora de ordem sobrescreve o
+    // estado com uma variante antiga — e o submit lê coleira/pingente
+    // divergentes (bug do pingente com metal errado, pedido 51832). O submit
+    // AGUARDA _variantRefreshPromise antes de montar os itens.
+    let _variantSeq = 0;
+    let _variantRefreshPromise = Promise.resolve();
+
+    function refreshVariantSection() {
+      _variantRefreshPromise = _doRefreshVariantSection();
+      return _variantRefreshPromise;
+    }
+
+    async function _doRefreshVariantSection() {
       const optionValueIds = [];
       document.querySelectorAll('#pdp-options-wrap [data-option-index]').forEach(g => {
         const active = g.querySelector('.pdp__swatch--active, .pdp__size-btn--active');
@@ -1435,14 +1448,17 @@
       });
       if (optionValueIds.length === 0) return;
 
+      const seq = ++_variantSeq;
       const params = new URLSearchParams({
         section_id: SECTION_ID,
         option_values: optionValueIds.join(','),
       });
       try {
         const res = await fetch(`${PRODUCT_URL}?${params.toString()}`, { headers: { Accept: 'text/html' } });
+        if (seq !== _variantSeq) return; // resposta obsoleta (chegou outra depois)
         if (!res.ok) return;
         const html = await res.text();
+        if (seq !== _variantSeq) return; // obsoleta (outra resposta durante o .text())
         const doc = new DOMParser().parseFromString(html, 'text/html');
 
         ['pdp-options-wrap', 'pdp-price-block', 'pdp-add-btn-wrap', 'pdp-img-badge-wrap', 'pdp-installments-modal-wrap'].forEach(id => {
@@ -1479,12 +1495,14 @@
         if (variantMediaId) navigateGalleryToMedia(variantMediaId);
         else if (newActive?.dataset.mediaId) navigateGalleryToMedia(newActive.dataset.mediaId);
 
-        // Dispatcheia no próximo frame pra dar tempo do browser terminar o
-        // layout invalidado pelas modificações acima — evita reflow forçado
-        // quando handlers do evento (pingente, bundle, kit) leem geometria.
-        requestAnimationFrame(() => {
+        // Dispatcheia no próximo frame (dá tempo do layout invalidado acima) e a
+        // promise só RESOLVE depois do dispatch — assim quem aguarda o refresh
+        // (o submit) já tem os handlers (pingente/bundle) re-resolvidos com a
+        // variante final, evitando desync coleira × pingente.
+        await new Promise((resolve) => requestAnimationFrame(() => {
           document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
-        });
+          resolve();
+        }));
       } catch (err) {
         console.warn('[pdp] refreshVariantSection failed', err);
       }
@@ -1819,6 +1837,13 @@
       btn.setAttribute('aria-busy', 'true');
 
       try {
+        // Aguarda qualquer troca de variante em andamento (Section Rendering)
+        // ASSENTAR antes de ler #pdp-variant-id e montar os itens. Sem isso, se
+        // o cliente troca uma opção e clica "Adicionar" antes do fetch voltar, a
+        // coleira (lê #pdp-variant-id) e o pingente (lê os botões ativos) saem de
+        // variantes diferentes — foi o bug do metal errado (pedido 51832).
+        try { await _variantRefreshPromise; } catch (e2) { /* no-op */ }
+
         /* Monta item da coleira a partir do form */
         const form = e.target;
         const variantInput = form.querySelector('#pdp-variant-id');
