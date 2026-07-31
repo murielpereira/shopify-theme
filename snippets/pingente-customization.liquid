@@ -1286,6 +1286,25 @@
         });
       }
 
+      /* ── Bloqueia emoji/símbolos na digitação e colagem (pet/tutor) ──
+         O conector Shopify→Tiny TRUNCA a observação no 1º caractere astral
+         (emoji), e não dá pra gravar emoji numa peça. Remove ao digitar/colar
+         (o evento input cobre os dois). */
+      (function () {
+        const stripEmoji = (v) => {
+          v = String(v == null ? '' : v).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+          try { v = v.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+          return v;
+        };
+        [petInput, root.querySelector('[data-pingente-tutor]')].forEach((elx) => {
+          if (!elx) return;
+          elx.addEventListener('input', () => {
+            const limpo = stripEmoji(elx.value);
+            if (limpo !== elx.value) elx.value = limpo;
+          });
+        });
+      })();
+
       /* ── Limpa erro quando usuário digita ── */
       if (petInput) {
         petInput.addEventListener('input', () => {
@@ -1403,8 +1422,18 @@
         getCartItem(quantity, coleiraKey) {
           if (!state.opted || !state.variant) return null;
           const qty = Math.max(1, parseInt(quantity, 10) || 1);
-          const pet = petInput?.value.trim() || '';
-          const tutor = root.querySelector('[data-pingente-tutor]')?.value.trim() || '';
+          // Remove emoji e símbolos da gravação. Motivo: o conector Shopify→Tiny
+          // TRUNCA a observação no 1º caractere astral (emoji), perdendo tutor e
+          // telefone (ex: "Miguelito 🚀" cortava tudo depois). Além de não dar
+          // pra gravar emoji numa peça física. Pega pares surrogate (astral, ex:
+          // 🚀) + dingbats/setas/símbolos do BMP + seletores de variação + ZWJ.
+          const limpar = (s) => {
+            s = String(s == null ? '' : s).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+            try { s = s.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+            return s.replace(/[ \t]{2,}/g, ' ').trim();
+          };
+          const pet = limpar(petInput?.value.trim() || '');
+          const tutor = limpar(root.querySelector('[data-pingente-tutor]')?.value.trim() || '');
           const tel = root.querySelector('[data-pingente-tel]')?.value.trim() || '';
 
           // Identificação da coleira que originou este pingente — para o cliente

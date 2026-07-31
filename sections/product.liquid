@@ -1629,6 +1629,24 @@
       });
     });
 
+    /* ── Bloqueia emoji/símbolos nos campos personalizados de texto ──
+       O conector Shopify→Tiny TRUNCA a observação no 1º caractere astral
+       (emoji), perdendo o resto. Remove ao digitar E ao colar (evento input
+       cobre os dois). Telefone (máscara) e data não precisam. */
+    (function () {
+      const stripEmoji = (v) => {
+        v = String(v == null ? '' : v).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+        try { v = v.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+        return v;
+      };
+      document.querySelectorAll('.pdp__custom-field__input:not(.pdp__custom-field__input--phone):not(.pdp__custom-field__input--date), .pdp__custom-field__textarea').forEach(el => {
+        el.addEventListener('input', () => {
+          const limpo = stripEmoji(el.value);
+          if (limpo !== el.value) el.value = limpo;
+        });
+      });
+    })();
+
     /* ── Contador de caracteres dos campos personalizados ── */
     document.querySelectorAll('.pdp__custom-field [data-cf-counter]').forEach(counter => {
       const max = parseInt(counter.dataset.cfMax, 10) || 0;

@@ -274,6 +274,13 @@
         if (d.length <= 7) return d.slice(0, 2) + ' ' + d.slice(2);
         return d.slice(0, 2) + ' ' + d.slice(2, 7) + '-' + d.slice(7);
     }
+    // Remove emoji/símbolos — o conector Shopify→Tiny trunca a observação no 1º
+    // caractere astral (emoji), e não dá pra gravar emoji na peça.
+    function pingStripEmoji(v) {
+        v = String(v == null ? '' : v).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+        try { v = v.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+        return v;
+    }
     function pingLabelPendente(s, need) {
         if (!s.p.formato) return 'Escolha o formato';
         if (need.metal && !s.p.metal) return 'Escolha a cor do metal';
@@ -604,7 +611,7 @@
             const s = pingState(regra);
             const which = field.dataset.giftPingField;
             if (which === 'tel') { const m = pingMaskTel(field.value); field.value = m; s.p.tel = m; }
-            else { s.p[which] = field.value; }
+            else { const limpo = pingStripEmoji(field.value); if (limpo !== field.value) field.value = limpo; s.p[which] = field.value; }
 
             const addBtn = card.querySelector('[data-gift-add]');
             if (addBtn) {
