@@ -680,19 +680,34 @@
 
         const subtotal = subtotalReal(cart);
         const tiers = regras
-            .map(r => ({ cents: Number(r.gatilho_valor_minimo_cents), titulo: r.brinde_titulo || 'um brinde' }))
+            .map(r => {
+                const lista = listaProdutosRegra(r);
+                return { cents: Number(r.gatilho_valor_minimo_cents), titulo: r.brinde_titulo || '', opcoes: lista ? lista.length : 1 };
+            })
             .sort((a, b) => a.cents - b.cents);
-        const proximo = tiers.find(t => subtotal < t.cents); // faixa ainda não atingida
 
+        // Nome a exibir numa faixa: só usa o nome do brinde quando é UM brinde só
+        // (1 regra na faixa, sem lista de opções). Com várias opções — lista de
+        // produtos OU regras diferentes no mesmo valor — fica genérico "seu brinde"
+        // (evita "...ganhar Lista: 2 produto(s)").
+        function labelBrinde(cents) {
+            const naFaixa = tiers.filter(t => t.cents === cents);
+            const varios = naFaixa.length > 1 || naFaixa.some(t => t.opcoes > 1);
+            const titulo = naFaixa.length === 1 ? naFaixa[0].titulo : '';
+            if (varios || !titulo || /^\s*lista\s*:/i.test(titulo)) return 'seu brinde';
+            return titulo;
+        }
+
+        const proximo = tiers.find(t => subtotal < t.cents); // faixa ainda não atingida
         let html;
         if (proximo) {
             const faltam = proximo.cents - subtotal;
             const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / proximo.cents)));
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(proximo.titulo)}</strong></p>
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(proximo.cents))}</strong></p>
                     <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:${pct}%"></div></div>`;
         } else {
-            const ganho = tiers[tiers.length - 1];
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(ganho.titulo)}</strong>! 🎉</p>
+            const ganhoCents = tiers[tiers.length - 1].cents;
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(labelBrinde(ganhoCents))}</strong>! 🎉</p>
                     <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:100%"></div></div>`;
         }
 
