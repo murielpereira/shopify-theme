@@ -93,6 +93,19 @@
         el._timer = setTimeout(() => { el.style.opacity = '0'; }, 3500);
     }
 
+    // BRL a partir de centavos (ex.: 3000 → "R$ 30,00").
+    function money(cents) {
+        return (Number(cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    // Subtotal só dos itens REAIS (exclui os itens-brinde geridos por este módulo)
+    // — mesma base que regraSatisfeita usa pro gatilho de valor mínimo.
+    function subtotalReal(cart) {
+        return (cart.items || [])
+            .filter(it => !((it.properties || {})[PROP_REGRA_ID]))
+            .reduce((acc, it) => acc + (it.final_line_price != null ? it.final_line_price : it.line_price), 0);
+    }
+
     // ─── Avaliação de condição ───
     function regraSatisfeita(regra, cart) {
         const items = cart.items || [];
@@ -647,6 +660,65 @@
         lista.insertAdjacentHTML('afterbegin', html);
     }
 
+    // ─── Barra "faltam R$X pro brinde" (só regras de VALOR MÍNIMO) ───
+    // Injeta/atualiza uma barrinha de progresso no drawer, ao lado da de frete
+    // grátis. Mostra a PRÓXIMA faixa a atingir; se já qualificou, mostra "você
+    // ganhou". Reaproveita as classes .ame-cart-shipping-bar (visual nativo).
+    // Re-injetada a cada reavaliação (o drawer re-renderiza o corpo no refresh).
+    function renderizarBarraBrinde(cart) {
+        const drawer = document.querySelector('[data-cart-drawer]') || document.querySelector('#cart-drawer');
+        if (!drawer) return;
+        const body = drawer.querySelector('[data-cart-body]') || drawer;
+        let bar = body.querySelector('[data-gift-bar]');
+
+        const regras = (_regrasCache || []).filter(r =>
+            r.tipo_gatilho === 'valor_minimo' && Number(r.gatilho_valor_minimo_cents) > 0);
+        if (!regras.length || !cart || !cart.items || cart.item_count === 0) {
+            if (bar) bar.remove();
+            return;
+        }
+
+        const subtotal = subtotalReal(cart);
+        const tiers = regras
+            .map(r => ({ cents: Number(r.gatilho_valor_minimo_cents), titulo: r.brinde_titulo || 'um brinde' }))
+            .sort((a, b) => a.cents - b.cents);
+        const proximo = tiers.find(t => subtotal < t.cents); // faixa ainda não atingida
+
+        let html;
+        if (proximo) {
+            const faltam = proximo.cents - subtotal;
+            const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / proximo.cents)));
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(proximo.titulo)}</strong></p>
+                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:${pct}%"></div></div>`;
+        } else {
+            const ganho = tiers[tiers.length - 1];
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(ganho.titulo)}</strong>! 🎉</p>
+                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:100%"></div></div>`;
+        }
+
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.className = 'ame-cart-shipping-bar ame-cart-gift-bar';
+            bar.setAttribute('data-gift-bar', '');
+            const shipping = body.querySelector('[data-shipping-bar]');
+            const lista = body.querySelector('[data-cart-items]');
+            if (shipping) shipping.insertAdjacentElement('afterend', bar);          // logo abaixo da barra de frete
+            else if (lista && lista.parentNode) lista.parentNode.insertBefore(bar, lista);
+            else body.insertBefore(bar, body.firstChild);
+        }
+        bar.innerHTML = html;
+    }
+
+    // Estilo da barra de brinde: herda da barra de frete, só troca a cor do
+    // preenchimento (verde da marca) e dá um respiro. Injetado uma vez.
+    function injetarEstiloBarra() {
+        if (document.getElementById('ame-gift-bar-style')) return;
+        const st = document.createElement('style');
+        st.id = 'ame-gift-bar-style';
+        st.textContent = '.ame-cart-gift-bar{margin-top:.5rem}.ame-cart-gift-bar:not([hidden]){display:block}.ame-cart-gift-bar .ame-cart-shipping-bar__fill{background:#5a7461}';
+        document.head.appendChild(st);
+    }
+
     // ─── Loop principal: reavalia regras + sincroniza cart ───
     async function reavaliarBrindes(cartInput) {
         // Se já está rodando, marca pra re-rodar no fim em vez de descartar.
@@ -668,6 +740,9 @@
             // Evita buscar /cart.js se já recebemos os dados atualizados via evento.
             // Adiciona timestamp para contornar cache agressivo do navegador.
             const cart = cartInput || await xhrJson('/cart.js?t=' + Date.now());
+            // Barra "faltam R$X pro brinde": adicionar/remover itens-brinde não
+            // muda o subtotal REAL, então calcular com este `cart` é estável.
+            renderizarBarraBrinde(cart);
             let mudouCart = false;
             const seletoresPendentes = []; // regras "cliente escolhe" satisfeitas mas sem brinde no cart
             const regrasAtivas = _regrasCache;
@@ -817,6 +892,7 @@
             _regrasCache = null;
         }
 
+        injetarEstiloBarra();
         bindCardClicks();
         instalarHook();
         reavaliarBrindes(); // 1ª avaliação (caso cart já tenha conteúdo no load)
