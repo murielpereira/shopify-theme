@@ -287,8 +287,23 @@
         {%- endif -%}
 
         {%- liquid
-          assign img_base_price = cv.price | default: product.price_min
+          # Preço + compare COERENTES (mesma variante), espelhando o bloco de
+          # preço abaixo. Antes o selo usava product.price_min (MENOR preço)
+          # contra compare_at_price_max (MAIOR "De") no load sem variante, o que
+          # inflava a % (ex: 51% em vez de 5%). Agora segue a MESMA cascata do
+          # preço: cv → partial_variant → produto — os dois selos batem sempre.
+          assign img_base_price = cv.price
+          if has_variant == false
+            if partial_variant != null
+              assign img_base_price = partial_variant.price
+            else
+              assign img_base_price = product.price_min
+            endif
+          endif
           assign img_compare = cv.compare_at_price | default: 0
+          if img_compare == 0 and partial_variant != null
+            assign img_compare = partial_variant.compare_at_price | default: 0
+          endif
           if img_compare == 0
             assign img_compare = product.compare_at_price_max | default: 0
           endif
