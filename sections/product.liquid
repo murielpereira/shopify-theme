@@ -601,7 +601,12 @@
         <!-- Preço no cartão + badge de desconto -->
         <div class="pdp__price-card-row">
           <span class="pdp__price-label">ou {{ effective_price | money }} no cartão</span>
-          {%- if has_compare -%}
+          {%- comment -%}
+            discount_pct > 0 além de has_compare: um compare_at real com desconto
+            < 1% floora pra 0 na divisão inteira do Liquid — sem esse gate o selo
+            mostrava "−0% OFF". Alinha com o selo da imagem (if pdp_img_discount > 0).
+          {%- endcomment -%}
+          {%- if has_compare and discount_pct > 0 -%}
             <span class="pdp__discount-badge">−{{ discount_pct }}% OFF</span>
           {%- endif -%}
         </div>
