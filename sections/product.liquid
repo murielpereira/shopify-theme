@@ -741,6 +741,10 @@
           assign effective_variant_id = cv.id
         elsif partial_variant != null
           assign effective_variant_id = partial_variant.id
+        elsif product.has_only_default_variant
+          # Produto sem variação real: o seletor "Title/Default Title" não é
+          # renderizado, então garantimos a variante única aqui pro submit.
+          assign effective_variant_id = product.variants.first.id
         endif
       -%}
       <input
@@ -777,6 +781,14 @@
       {%- else -%}
         <!-- Opções (Cor, Tamanho...) — renderizadas sob demanda via Section Rendering API -->
         <div id="pdp-options-wrap" data-section-id="{{ section.id }}">
+          {%- comment -%}
+            Produto sem variação real: a Shopify cria a option automática
+            "Title / Default Title". Não renderizamos o seletor nesse caso
+            (has_only_default_variant) — evita o "Selecione a Title: Default
+            Title". O #pdp-options-wrap fica vazio (Section Rendering ok); o
+            submit usa a variante única via #pdp-variant-id / data-effective-id.
+          {%- endcomment -%}
+          {%- unless product.has_only_default_variant -%}
           {%- for option in product.options_with_values -%}
             {%- liquid
               assign is_color = false
@@ -930,6 +942,7 @@
               {%- endif -%}
             </div>
           {%- endfor -%}
+          {%- endunless -%}
         </div>
       {%- endif -%}
       {%- comment -%} fim do else do is_kit (variant picker padrão){%- endcomment -%}
