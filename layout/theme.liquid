@@ -1220,6 +1220,14 @@
     <script defer src="{{ 'ame-gifts.js' | asset_url }}"></script>
 
     {%- comment -%}
+      Trava de página por senha (produto/coleção) — lançamentos restritos.
+      Config no Waltz → aba "Páginas com senha"; regras em GET /api/public/paginas-bloqueadas.
+      TRAVA LEVE (client-side): segura o público casual, não é blindagem.
+      Vide Waltz/routes/paginas-bloqueadas.js + assets/ame-page-lock.js.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-page-lock.js' | asset_url }}"></script>
+
+    {%- comment -%}
       Kit de produtos — substitui o variant picker padrão no PDP quando o
       produto tem `custom.kit_componentes`. Vide snippets/kit-picker.liquid.
     {%- endcomment -%}
