@@ -33,3 +33,6 @@
 ## 2024-05-26 - Keyboard Focus Visible Styles on Snippet Components
 **Learning:** Some custom UI buttons located entirely within localized snippets (like the `.ame-pingente__custom-btn` inside `pingente-customization.liquid` and `.ame-vs__spot-nav` inside `video-stories.liquid`) lacked explicit `:focus-visible` styles. Because these are specific classes not covered by global styles in `critical.css`, this omission resulted in poor keyboard navigation feedback.
 **Action:** When creating new interactive components or maintaining existing ones within localized snippets, always ensure explicit `:focus-visible` styles are declared directly in their specific CSS blocks (if they are not covered by global base styles) to guarantee robust keyboard accessibility.
+## 2026-08-06 - Missing title on icon-only buttons
+**Learning:** Icon-only buttons (like slider navigation or video play buttons) often have `aria-label` for screen readers but miss the native `title` attribute, leaving sighted mouse users without a visual tooltip to explain the action.
+**Action:** Consistently pair `aria-label` with a matching `title` on all icon-only interactive elements across the design system to ensure accessible tooltips for all users.
