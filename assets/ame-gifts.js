@@ -311,9 +311,33 @@
     function cardInner(regra) {
         if (isPingenteRegra(regra)) return cardInnerPingente(regra);
         const s = selState(regra.id);
-        const produtos = produtosDaRegra(regra);
+        // Esconde opções de brinde SEM ESTOQUE: se o produto já foi carregado e não
+        // tem nenhuma variação disponível, sai do seletor. Não-carregado / falha de
+        // carga → mantém (fail-open; ao clicar aparece "indisponível").
+        const temEstoque = (p) => {
+            if (!_variantsCache.has(p.handle)) return true;
+            const prod = _variantsCache.get(p.handle);
+            return !prod || variantesDisponiveis(prod, regra).length > 0;
+        };
+        const produtos = produtosDaRegra(regra).filter(temEstoque);
+
+        // Todas as opções esgotadas → brinde indisponível no momento.
+        if (!produtos.length) {
+            return `
+            <header class="ame-gift-selector__head">
+                <span class="material-symbols-outlined ame-gift-selector__icon" aria-hidden="true">card_giftcard</span>
+                <div class="ame-gift-selector__head-text">
+                    <p class="ame-gift-selector__eyebrow">Você ganhou um brinde</p>
+                    <p class="ame-gift-selector__title">${esc(regra.brinde_titulo || 'Brinde')}</p>
+                </div>
+            </header>
+            <div class="ame-gift-selector__body"><div class="ame-gift-selector__col"><div class="ame-gift-selector__choices"><p class="ame-gift-selector__label">Esse brinde está indisponível no momento.</p></div></div></div>`;
+        }
+
+        // Se a opção escolhida saiu de estoque, limpa a seleção.
+        if (s.handle && !produtos.some(p => p.handle === s.handle)) { s.handle = null; s.variantId = null; }
         const multi = produtos.length > 1;
-        if (!multi) s.handle = produtos[0].handle; // único: produto já fixado
+        if (!multi) s.handle = produtos[0].handle; // sobrou 1 (ou é único) → produto já fixado
 
         const tituloBrinde = (multi
             ? (regra.brinde_titulo || 'Brinde')
@@ -818,9 +842,10 @@
                             const produto = await carregarProdutoBrinde(s.handle);
                             if (!produto) continue; // falhou → não injeta card quebrado
                             autoSelVariante(regra);
-                        } else if (s.handle) {
-                            // Lista com produto já escolhido antes → garante variações carregadas.
-                            await carregarProdutoBrinde(s.handle);
+                        } else {
+                            // Lista com várias opções: pré-carrega TODAS (em paralelo) pra
+                            // saber o estoque e esconder no card as esgotadas (cardInner filtra).
+                            await Promise.all(produtos.map(pr => carregarProdutoBrinde(pr.handle)));
                             autoSelVariante(regra);
                         }
                         // Lista sem produto escolhido: card mostra o seletor de produtos.
