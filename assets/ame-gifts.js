@@ -337,7 +337,9 @@
         // Se a opção escolhida saiu de estoque, limpa a seleção.
         if (s.handle && !produtos.some(p => p.handle === s.handle)) { s.handle = null; s.variantId = null; }
         const multi = produtos.length > 1;
-        if (!multi) s.handle = produtos[0].handle; // sobrou 1 (ou é único) → produto já fixado
+        // Sobrou 1 (ou é único) → fixa o produto E auto-seleciona a variação (quando há
+        // só uma), pra o botão de resgate liberar em vez de travar em "Escolha a variação".
+        if (!multi) { s.handle = produtos[0].handle; autoSelVariante(regra); }
 
         const tituloBrinde = (multi
             ? (regra.brinde_titulo || 'Brinde')
