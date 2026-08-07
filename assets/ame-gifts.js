@@ -691,7 +691,28 @@
     // grátis. Mostra a PRÓXIMA faixa a atingir; se já qualificou, mostra "você
     // ganhou". Reaproveita as classes .ame-cart-shipping-bar (visual nativo).
     // Re-injetada a cada reavaliação (o drawer re-renderiza o corpo no refresh).
-    function renderizarBarraBrinde(cart) {
+    // Regra "esgotada": nenhuma opção de brinde (cliente escolhe) tem variação
+    // disponível. Usa o cache (precisa ter carregado antes). Variante fixa fica de
+    // fora (fail-open). Sem nada carregado → false (não esconde por falha de carga).
+    function regraEsgotada(regra) {
+        if (!regra || regra.brinde_variant_id) return false;
+        let carregou = false;
+        for (const p of produtosDaRegra(regra)) {
+            if (!_variantsCache.has(p.handle)) continue;
+            const prod = _variantsCache.get(p.handle);
+            if (!prod) continue;
+            carregou = true;
+            if (variantesDisponiveis(prod, regra).length > 0) return false; // achou disponível
+        }
+        return carregou; // carregou o que deu e nenhum disponível → esgotado
+    }
+
+    async function carregarProdutosRegra(regra) {
+        if (!regra) return;
+        await Promise.all(produtosDaRegra(regra).map(p => carregarProdutoBrinde(p.handle)));
+    }
+
+    async function renderizarBarraBrinde(cart) {
         const drawer = document.querySelector('[data-cart-drawer]') || document.querySelector('#cart-drawer');
         if (!drawer) return;
         const body = drawer.querySelector('[data-cart-body]') || drawer;
@@ -706,37 +727,42 @@
 
         const subtotal = subtotalReal(cart);
         const tiers = regras
-            .map(r => {
-                const lista = listaProdutosRegra(r);
-                return { cents: Number(r.gatilho_valor_minimo_cents), titulo: r.brinde_titulo || '', opcoes: lista ? lista.length : 1 };
-            })
+            .map(r => ({ cents: Number(r.gatilho_valor_minimo_cents), regra: r }))
             .sort((a, b) => a.cents - b.cents);
 
         // Nome a exibir numa faixa: só usa o nome do brinde quando é UM brinde só
-        // (1 regra na faixa, sem lista de opções). Com várias opções — lista de
-        // produtos OU regras diferentes no mesmo valor — fica genérico "seu brinde"
-        // (evita "...ganhar Lista: 2 produto(s)").
+        // (1 regra na faixa, sem lista de opções). Senão fica genérico "seu brinde".
         function labelBrinde(cents) {
-            const naFaixa = tiers.filter(t => t.cents === cents);
-            const varios = naFaixa.length > 1 || naFaixa.some(t => t.opcoes > 1);
-            const titulo = naFaixa.length === 1 ? naFaixa[0].titulo : '';
+            const naFaixa = tiers.filter(t => t.cents === cents).map(t => t.regra);
+            const varios = naFaixa.length > 1 || naFaixa.some(r => (listaProdutosRegra(r) || []).length > 1);
+            const titulo = naFaixa.length === 1 ? (naFaixa[0].brinde_titulo || '') : '';
             if (varios || !titulo || /^\s*lista\s*:/i.test(titulo)) return 'seu brinde';
             return titulo;
         }
 
         const proximo = tiers.find(t => subtotal < t.cents); // faixa ainda não atingida
+        const alvo = proximo || tiers[tiers.length - 1];      // faltam → próxima; senão ganhou (maior)
+
+        // Estoque do brinde-alvo: carrega as opções (cliente-escolhe) e vê se esgotou.
+        await carregarProdutosRegra(alvo.regra);
+        const esgotado = regraEsgotada(alvo.regra);
+
         let html;
-        if (proximo) {
-            const faltam = proximo.cents - subtotal;
-            const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / proximo.cents)));
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(proximo.cents))}</strong></p>
-                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:${pct}%"></div></div>`;
-        } else {
-            const ganhoCents = tiers[tiers.length - 1].cents;
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(labelBrinde(ganhoCents))}</strong>! 🎉</p>
+        if (esgotado) {
+            // Esgotado: sem contador/progresso — só o aviso (o card de resgate não é injetado).
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Os brindes acabaram por enquanto 😢</p>`;
+        } else if (!proximo) {
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(labelBrinde(alvo.cents))}</strong>! 🎉</p>
                     <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:100%"></div></div>`;
+        } else {
+            const faltam = alvo.cents - subtotal;
+            const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / alvo.cents)));
+            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(alvo.cents))}</strong></p>
+                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:${pct}%"></div></div>`;
         }
 
+        // O corpo pode ter re-renderizado durante o await — re-obtém a barra.
+        bar = body.querySelector('[data-gift-bar]');
         if (!bar) {
             bar = document.createElement('div');
             bar.className = 'ame-cart-shipping-bar ame-cart-gift-bar';
@@ -783,7 +809,8 @@
             const cart = cartInput || await xhrJson('/cart.js?t=' + Date.now());
             // Barra "faltam R$X pro brinde": adicionar/remover itens-brinde não
             // muda o subtotal REAL, então calcular com este `cart` é estável.
-            renderizarBarraBrinde(cart);
+            // É async (checa estoque do brinde-alvo) — fire-and-forget.
+            renderizarBarraBrinde(cart).catch(function () { });
             let mudouCart = false;
             const seletoresPendentes = []; // regras "cliente escolhe" satisfeitas mas sem brinde no cart
             const regrasAtivas = _regrasCache;
@@ -850,8 +877,9 @@
                             await Promise.all(produtos.map(pr => carregarProdutoBrinde(pr.handle)));
                             autoSelVariante(regra);
                         }
-                        // Lista sem produto escolhido: card mostra o seletor de produtos.
-                        seletoresPendentes.push(regra);
+                        // Brinde esgotado (todas as opções sem estoque) → NÃO injeta o
+                        // card de resgate; a barra avisa "os brindes acabaram".
+                        if (!regraEsgotada(regra)) seletoresPendentes.push(regra);
                     }
                     // presente: nada a fazer (cliente já escolheu)
                 } else {
