@@ -545,6 +545,21 @@
           "A partir de" sempre no kit — cada combinação de componentes muda o total.
         {%- endcomment -%}
         <p class="pdp__price-from">A partir de</p>
+
+        {%- comment -%}
+          "De:" do kit vem do compare_at_price da variante do PRÓPRIO
+          produto-pai (valor fixo definido no admin pro total "cheio" do
+          kit) — não muda com a combinação de componentes escolhida.
+          Mesma fonte usada no selo da imagem (pdp_img_discount) e no card
+          (product-card.liquid). has_compare/displayed_compare já vêm
+          calculados acima, na cascata cv → partial_variant → produto.
+        {%- endcomment -%}
+        {%- if has_compare -%}
+          <div class="pdp__price-compare-row">
+            <s class="pdp__price-compare">De: {{ displayed_compare | money }}</s>
+          </div>
+        {%- endif -%}
+
         <div class="pdp__price-pix-row pdp__price-pix-row--primary" data-kit-pix-row hidden>
           <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
           <span class="pdp__price-label">no Pix</span>
