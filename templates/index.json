@@ -259,7 +259,7 @@
           "settings": {
             "title": "Mais vendidos",
             "subtitle": "",
-            "collection": "mais-vendidos",
+            "collection": "gatos",
             "layout": "carousel",
             "products_per_row": 4,
             "products_per_row_mobile": "2",
