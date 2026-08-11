@@ -1228,6 +1228,16 @@
     <script defer src="{{ 'ame-page-lock.js' | asset_url }}"></script>
 
     {%- comment -%}
+      Programa de Afiliados — captura de `?ref=<codigo>`, grava a marca por 15
+      dias e injeta { ame_ref, ame_clique } nos atributos do carrinho, que
+      chegam ao pedido como note_attributes. Sem isso NÃO existe atribuição por
+      link (não há retroativo). Degrada em silêncio: módulo desligado, rede
+      caída ou storage bloqueado = não faz nada.
+      Vide Waltz/routes/afiliados-publico.js + docs/afiliados/.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-afiliado.js' | asset_url }}"></script>
+
+    {%- comment -%}
       Kit de produtos — substitui o variant picker padrão no PDP quando o
       produto tem `custom.kit_componentes`. Vide snippets/kit-picker.liquid.
     {%- endcomment -%}
