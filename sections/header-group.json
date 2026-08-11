@@ -15,7 +15,7 @@
       "type": "countdown-bar",
       "settings": {
         "enabled": true,
-        "message": "Semana do gato termina em",
+        "message": "Semana dos gatos termina em",
         "end_date": "2026-08-16",
         "end_time": "00:00:01",
         "link": ""
