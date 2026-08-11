@@ -14,10 +14,10 @@
     "countdown-bar": {
       "type": "countdown-bar",
       "settings": {
-        "enabled": false,
-        "message": "Contagem regressiva para o lançamento do site",
-        "end_date": "2026-07-06",
-        "end_time": "09:00:00",
+        "enabled": true,
+        "message": "Semana do gato termina em",
+        "end_date": "2026-08-16",
+        "end_time": "00:00:01",
         "link": ""
       }
     },
