@@ -112,17 +112,43 @@
     // Formato: codigo|clique_id|timestamp — pequeno o bastante para caber no
     // cookie sem folclore de serialização.
 
+    // Teto máximo que a marca pode viver no localStorage, independentemente da
+    // janela configurada. O cookie expira sozinho; o localStorage não expira
+    // NUNCA — sem isto, uma marca de um ano atrás continuaria voltando à vida
+    // toda vez que o cookie sumisse.
+    var TETO_DIAS = 60;
+
     function lerMarca() {
         var bruto = lerCookie(COOKIE) || lerLS(LS_MARCA);
         if (!bruto) return null;
         var p = String(bruto).split('|');
         var codigo = normalizar(p[0]);
         if (!codigo) return null;
+
+        var ts = parseInt(p[2], 10) || 0;
+        if (!ts || (Date.now() - ts) > TETO_DIAS * 864e5) {
+            // Vencida de vez: apaga em vez de devolver, senão ela ressuscita a
+            // cada leitura. A checagem fina continua sendo `dentroDaJanela`,
+            // com a janela vinda do servidor.
+            try { apagarMarca(); } catch (e) { }
+            return null;
+        }
+
         return {
             codigo: codigo,
-            clique: parseInt(p[1], 10) || null,
-            ts: parseInt(p[2], 10) || 0
+            // Mesmo teto do servidor (services/afiliados-service.js): o valor
+            // vem do cookie, que o cliente controla.
+            clique: (function () {
+                var n = parseInt(String(p[1] || '').replace(/\D/g, '').slice(0, 18), 10);
+                return (n > 0 && n <= Number.MAX_SAFE_INTEGER) ? n : null;
+            })(),
+            ts: ts
         };
+    }
+
+    function apagarMarca() {
+        gravarCookie(COOKIE, '', -1);
+        try { window.localStorage.removeItem(LS_MARCA); } catch (e) { }
     }
 
     function gravarMarca(marca, janelaDias) {
@@ -224,6 +250,12 @@
     var _janela = 0;
 
     function iniciar() {
+        // Saída antecipada, ANTES de qualquer rede. A maioria esmagadora das
+        // visitas não tem nada a ver com o programa: sem `?ref=` na URL e sem
+        // marca guardada, não há o que capturar. Sem este atalho, toda pageview
+        // da loja bateria no Waltz para ouvir "não faça nada".
+        if (!codigoDaUrl() && !lerMarca()) return;
+
         status().then(function (cfg) {
             if (!cfg || !cfg.ativo) return;   // módulo desligado: não faz nada
 
@@ -276,19 +308,25 @@
         // anuncia `ame:cart-refreshed` justamente para módulos externos — é o
         // mesmo gancho que o ame-gifts.js usa. Limitado a uma vez por segundo
         // porque o drawer dispara em sequência (qty +/-, remover).
-        var ultimo = 0;
+        // Debounce de cauda (600 ms), não throttle de borda.
+        //
+        // Dois motivos. (1) O `ame-gifts.js` reage ao mesmo evento e também
+        // mexe no carrinho — escrever no mesmo tick são duas mutações
+        // simultâneas no mesmo cart da Shopify, e uma pode sobrescrever a
+        // outra. (2) O throttle anterior descartava o ÚLTIMO evento de uma
+        // rajada, que é justamente o que carrega o estado final do carrinho.
+        var timer = null;
         document.addEventListener('ame:cart-refreshed', function () {
-            var agora = Date.now();
-            if (agora - ultimo < 1000) return;
-            ultimo = agora;
-            // `_janela` só é preenchida depois de o /status confirmar que o
-            // módulo está ligado. Sem essa checagem, o listener reinjetaria
-            // marca VENCIDA (ou com o módulo desligado) no carrinho, atribuindo
-            // uma venda fora da janela de 15 dias — exatamente o que a RN-10
-            // proíbe.
-            if (!_janela) return;
-            var m = lerMarca();
-            if (m && dentroDaJanela(m, _janela)) sincronizarCarrinho(m);
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                // `_janela` só é preenchida depois de o /status confirmar que o
+                // módulo está ligado. Sem essa checagem, o listener reinjetaria
+                // marca VENCIDA (ou com o módulo desligado) no carrinho,
+                // atribuindo venda fora da janela — o que a RN-10 proíbe.
+                if (!_janela) return;
+                var m = lerMarca();
+                if (m && dentroDaJanela(m, _janela)) sincronizarCarrinho(m);
+            }, 600);
         });
     } catch (e) { /* nunca quebra a loja */ }
 })();
