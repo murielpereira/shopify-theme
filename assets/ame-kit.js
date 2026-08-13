@@ -173,6 +173,11 @@
         const productForm        = document.getElementById('pdp-form');
         const ctaBtn             = document.getElementById('pdp-add-btn');
         const cashbackEl         = document.querySelector('#pdp-cashback-wrap [data-cashback]');
+        // Selo de desconto dinâmico do kit (De: + % OFF), calculado dos componentes.
+        const compareRow         = document.querySelector('[data-kit-compare-row]');
+        const compareEl          = document.querySelector('[data-kit-compare]');
+        const discountBadge      = document.querySelector('[data-kit-discount-badge]');
+        const imgBadgeWrap       = document.getElementById('pdp-img-badge-wrap');
 
         // Desativa o sticky do .pdp-kit__showcase quando o CTA "Adicionar"
         // aparece na viewport, evitando que o showcase cubra o botão de compra.
@@ -436,6 +441,30 @@
                 const totalCents = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
                 if (priceTotalEl) priceTotalEl.textContent = fmtMoney(totalCents / 100);
 
+                // Selo de desconto DINÂMICO: soma o compare_at de cada componente
+                // (usa o próprio price quando não há desconto naquele item) e
+                // compara com o total. Reflete o desconto real por componente —
+                // ex: 5% no peitoral + 15% na guia → % ponderada pelo valor.
+                // Degrada bem: se o Waltz ainda não devolve compare_at (cache
+                // antigo), c fica 0, compareCents == totalCents e o selo some.
+                const compareCents = variants.reduce((acc, v) => {
+                    const p = Math.round((v.price || 0) * 100);
+                    const c = Math.round((v.compare_at || 0) * 100);
+                    return acc + (c > p ? c : p);
+                }, 0);
+                const kitPct = compareCents > totalCents
+                    ? Math.round((compareCents - totalCents) * 100 / compareCents) : 0;
+                if (kitPct > 0) {
+                    if (compareEl) compareEl.textContent = fmtMoney(compareCents / 100);
+                    if (compareRow) compareRow.hidden = false;
+                    if (discountBadge) { discountBadge.textContent = '−' + kitPct + '% OFF'; discountBadge.hidden = false; }
+                    if (imgBadgeWrap) imgBadgeWrap.innerHTML = '<span class="pdp__img-discount-badge" aria-label="' + kitPct + '% de desconto">' + kitPct + '% OFF</span>';
+                } else {
+                    if (compareRow) compareRow.hidden = true;
+                    if (discountBadge) discountBadge.hidden = true;
+                    if (imgBadgeWrap) imgBadgeWrap.innerHTML = '';
+                }
+
                 const pixPct = parseInt(host.dataset.pixPct || '5', 10);
                 if (pricePixEl && pixRow) {
                     const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
@@ -487,6 +516,9 @@
                 if (priceTotalEl) priceTotalEl.textContent = '—';
                 if (pixRow) pixRow.hidden = true;
                 if (installmentsRow) installmentsRow.hidden = true;
+                if (compareRow) compareRow.hidden = true;
+                if (discountBadge) discountBadge.hidden = true;
+                if (imgBadgeWrap) imgBadgeWrap.innerHTML = '';
                 if (ctaBtn) {
                     ctaBtn.disabled = true;
                     ctaBtn.setAttribute('aria-disabled', 'true');

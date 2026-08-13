@@ -329,7 +329,12 @@
       "Bash(grep -oE '.{0,90}ame-gifts\\\\.js.{0,30}')",
       "Bash(curl -s --max-time 20 \"https://www.ameacessoriospet.com.br/cdn/shop/t/6/assets/ame-gifts.js\")",
       "Bash(grep -nA6 \"\\\\.ame-cart-item__name\\\\b\\\\|\\\\.ame-cart-item__img-link\\\\b\" assets/critical.css)",
-      "Bash(curl -s \"https://waltz.up.railway.app/api/public/kit/kit-gabriel\")"
+      "Bash(curl -s \"https://waltz.up.railway.app/api/public/kit/kit-gabriel\")",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; echo \"=== kits.js: shape da variante \\(price/compare_at\\) ===\"; grep -nE \"compare_at|compareAt|price|variants\\\\.push|variant\\\\s*=\\\\s*\\\\{|node\\\\.price|\\\\.map\\\\\\(\" routes/kits.js | head -30)",
+      "Bash(sed -n \"/function normalizeVariant\\\\|normalizeVariant = /,/^\\\\s*}/p\" routes/kits.js)",
+      "Bash(node --check \"shopify-theme/assets/ame-kit.js\")",
+      "Bash(node --check \"Waltz/routes/kits.js\")",
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -nE \"KITS_CACHE_MS\\\\s*=\" routes/kits.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

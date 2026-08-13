@@ -315,7 +315,9 @@
           endif
         -%}
         <div id="pdp-img-badge-wrap">
-          {%- if pdp_img_discount > 0 -%}
+          {%- if is_kit -%}
+            {%- comment -%} Kit: o selo é preenchido pelo ame-kit.js a partir dos componentes (De: e % dinâmicos, somando compare_at × price). {%- endcomment -%}
+          {%- elsif pdp_img_discount > 0 -%}
             <span class="pdp__img-discount-badge" aria-label="{{ pdp_img_discount }}% de desconto">
               {{ pdp_img_discount }}% OFF
             </span>
@@ -547,18 +549,14 @@
         <p class="pdp__price-from">A partir de</p>
 
         {%- comment -%}
-          "De:" do kit vem do compare_at_price da variante do PRÓPRIO
-          produto-pai (valor fixo definido no admin pro total "cheio" do
-          kit) — não muda com a combinação de componentes escolhida.
-          Mesma fonte usada no selo da imagem (pdp_img_discount) e no card
-          (product-card.liquid). has_compare/displayed_compare já vêm
-          calculados acima, na cascata cv → partial_variant → produto.
+          "De:" do kit agora é DINÂMICO: o ame-kit.js soma o compare_at de cada
+          componente selecionado e preenche aqui (e o selo "% OFF" na linha do
+          cartão). Reflete o desconto REAL dos componentes (ex: 5% no peitoral +
+          15% na guia → % ponderada). Fica oculto quando não há desconto nenhum.
         {%- endcomment -%}
-        {%- if has_compare -%}
-          <div class="pdp__price-compare-row">
-            <s class="pdp__price-compare">De: {{ displayed_compare | money }}</s>
-          </div>
-        {%- endif -%}
+        <div class="pdp__price-compare-row" data-kit-compare-row hidden>
+          <s class="pdp__price-compare">De: <span data-kit-compare>—</span></s>
+        </div>
 
         <div class="pdp__price-pix-row pdp__price-pix-row--primary" data-kit-pix-row hidden>
           <strong class="pdp__price-pix" data-kit-price-pix>—</strong>
@@ -568,6 +566,7 @@
           <span class="pdp__price-label"
             >ou <strong class="pdp__price-main" data-kit-price-total>—</strong> no cartão</span
           >
+          <span class="pdp__discount-badge" data-kit-discount-badge hidden></span>
         </div>
         <p class="pdp__installments" data-kit-installments-row hidden>
           Em até <strong data-kit-installments-n>—</strong>x de <strong data-kit-price-installment>—</strong> sem juros
