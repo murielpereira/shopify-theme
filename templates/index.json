@@ -256,6 +256,7 @@
       "blocks": {
         "ai_gen_block_24bb258_tYxfVi": {
           "type": "ai_gen_block_24bb258",
+          "disabled": true,
           "settings": {
             "title": "Mais vendidos para gatos",
             "subtitle": "",
