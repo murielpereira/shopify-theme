@@ -195,6 +195,11 @@
         "type": "shopify://apps/forms/blocks/forms/8744a304-fcb1-4347-b211-bb6b4759a76a",
         "disabled": false,
         "settings": {}
+      },
+      "6180144232910446897": {
+        "type": "shopify://apps/cep-facil/blocks/cep-facil-global/019a904e-4434-70b8-b5fd-03b56f4d8b9b",
+        "disabled": false,
+        "settings": {}
       }
     }
   }
