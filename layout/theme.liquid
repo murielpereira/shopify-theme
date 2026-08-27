@@ -1248,25 +1248,29 @@
     {%- comment -%} Widget de cashback (saldo/resgate) — só p/ cliente logado {%- endcomment -%}
     {%- render 'cashback-widget' -%}
 
-    {%- comment -%} Script para Avaliações do Google Merchant {%- endcomment -%}
-    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+    {%- comment -%}
+      Google Avaliações do Consumidor (Google Customer Reviews) — o módulo
+      de opt-in (apis.google.com/js/platform.js + gapi.surveyoptin.render)
+      NÃO vai aqui.
 
-    <script>
-      window.renderOptIn = function () {
-        window.gapi.load('surveyoptin', function () {
-          window.gapi.surveyoptin.render({
-            // REQUIRED FIELDS
-            merchant_id: 543064834,
-            order_id: 'ORDER_ID',
-            email: 'CUSTOMER_EMAIL',
-            delivery_country: 'COUNTRY_CODE',
-            estimated_delivery_date: 'YYYY-MM-DD',
+      Ele precisa rodar na PÁGINA DE CONFIRMAÇÃO DO PEDIDO (Obrigado /
+      status do pedido), passando order_id, email, delivery_country e
+      estimated_delivery_date REAIS daquele pedido. Este layout não é
+      renderizado no checkout nem na página Obrigado — colocado aqui o
+      script só carregava o platform.js do Google em TODA página da loja,
+      com os placeholders literais ('ORDER_ID', 'CUSTOMER_EMAIL',
+      'COUNTRY_CODE', 'YYYY-MM-DD'), sem nunca disparar a pesquisa.
 
-            // OPTIONAL FIELDS
-            products: [{ gtin: 'GTIN1' }, { gtin: 'GTIN2' }],
-          });
-        });
-      };
-    </script>
+      Com o Checkout Extensibility o campo "Scripts adicionais" da página
+      de status do pedido deixou de existir, então não há onde colar esse
+      trecho por código. Caminho atual (bloco nativo do app Google &
+      YouTube): Loja online → Temas → Personalizar → seletor do topo
+      "Checkout e conta do cliente" → Obrigado → Seções → Main →
+      Adicionar bloco → "Google Customer Reviews", e configurar ali o
+      prazo estimado de entrega. O selo da loja (store widget / badge)
+      sai pelo mesmo app, em Store Widgets.
+
+      Ref.: https://support.google.com/merchants/answer/14629205
+    {%- endcomment -%}
   </body>
 </html>
