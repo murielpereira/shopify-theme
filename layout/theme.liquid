@@ -1247,5 +1247,26 @@
 
     {%- comment -%} Widget de cashback (saldo/resgate) — só p/ cliente logado {%- endcomment -%}
     {%- render 'cashback-widget' -%}
+
+    {%- comment -%} Script para Avaliações do Google Merchant {%- endcomment -%}
+    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+
+    <script>
+      window.renderOptIn = function () {
+        window.gapi.load('surveyoptin', function () {
+          window.gapi.surveyoptin.render({
+            // REQUIRED FIELDS
+            merchant_id: 543064834,
+            order_id: 'ORDER_ID',
+            email: 'CUSTOMER_EMAIL',
+            delivery_country: 'COUNTRY_CODE',
+            estimated_delivery_date: 'YYYY-MM-DD',
+
+            // OPTIONAL FIELDS
+            products: [{ gtin: 'GTIN1' }, { gtin: 'GTIN2' }],
+          });
+        });
+      };
+    </script>
   </body>
 </html>
