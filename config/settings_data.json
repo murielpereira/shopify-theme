@@ -205,7 +205,7 @@
       },
       "6159598353363395418": {
         "type": "shopify://apps/google-youtube/blocks/store_widget/14ec7bd0-ac77-49a9-9417-90752398bdff",
-        "disabled": false,
+        "disabled": true,
         "settings": {
           "widget_position": "LEFT_BOTTOM",
           "side_margin": 36,
