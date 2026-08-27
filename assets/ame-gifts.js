@@ -49,6 +49,23 @@
     let _pendingReavaliacao = false; // se chamado durante execução, roda de novo no fim
     let _seletoresState = new Map(); // regra_id → { handle, variantId } (em memória, sem persist)
 
+    // ─── Estado da vitrine de brindes (em memória, dura a sessão da página) ───
+    // Nada disso precisa de persistência: o CARRINHO é a fonte da verdade da
+    // escolha do cliente (o item-brinde presente carrega _brinde_regra_id, que
+    // aponta a faixa escolhida). Isso aqui é só UI.
+    //   _faixaEscolhida  = regra que ele clicou pra escolher a variação
+    //   _vitrineAberta   = o convite de troca está expandido? Abre sozinho UMA
+    //                      vez quando libera faixa nova tendo brinde; depois
+    //                      colapsa e não insiste (o padrão é MANTER).
+    //   _faixasVistas    = faixas liberadas na avaliação anterior, pra detectar
+    //                      a virada sem reabrir o convite a cada refresh.
+    //   _trocandoBrinde  = troca em voo (remove+add): a reavaliação não pode
+    //                      atropelar no meio.
+    let _faixaEscolhida = null;
+    let _vitrineAberta = false;
+    let _faixasVistas = null; // null = primeira avaliação, não avisa nada
+    let _trocandoBrinde = false;
+
     // ─── XHR helper ───
     function xhrJson(url, method, body) {
         return new Promise((resolve, reject) => {
@@ -126,13 +143,6 @@
         return false;
     }
 
-    function brindeNoCart(cart, regra) {
-        return (cart.items || []).find(it => {
-            const props = it.properties || {};
-            return String(props[PROP_REGRA_ID]) === String(regra.id);
-        });
-    }
-
     // ─── Faixa (tier) de uma regra ───
     // A Shopify só aplica 1 desconto automático de produto por pedido, então
     // só pode haver 1 brinde no carrinho por vez. Quando o cliente qualifica
@@ -143,13 +153,57 @@
         if (regra.tipo_gatilho === 'valor_minimo') return Number(regra.gatilho_valor_minimo_cents) || 0;
         return 0;
     }
-    function escolherVencedora(satisfeitas) {
-        if (!satisfeitas.length) return null;
-        return satisfeitas.slice().sort((a, b) => {
-            const t = tierRegra(b) - tierRegra(a);
-            if (t !== 0) return t;
-            return Number(b.id) - Number(a.id);
-        })[0];
+    // ─── Faixas liberadas ───
+    // Tudo que o cliente já conquistou, da melhor faixa pra pior. Ele escolhe
+    // UMA — inclusive uma de faixa menor, se preferir aquele brinde. Atingir
+    // R$849 não obriga ninguém a levar o brinde de R$849.
+    function regrasLiberadas(cart) {
+        return (_regrasCache || [])
+            .filter(r => regraSatisfeita(r, cart))
+            .sort((a, b) => tierRegra(b) - tierRegra(a));
+    }
+
+    // Itens-brinde do carrinho pareados com a regra deles. Item de regra que não
+    // existe mais é órfão e sai antes, na limpeza (etapa 1 da reavaliação).
+    function brindesPresentes(cart, regras) {
+        const out = [];
+        for (const it of (cart.items || [])) {
+            const rid = (it.properties || {})[PROP_REGRA_ID];
+            if (!rid) continue;
+            const regra = regras.find(r => String(r.id) === String(rid));
+            if (regra) out.push({ item: it, regra });
+        }
+        return out;
+    }
+
+    // Nome curto do brinde de uma regra, pra vitrine e pra barra. No modo lista o
+    // admin grava "Lista: N produto(s)" em brinde_titulo — isso não é nome de
+    // brinde, então cai num rótulo honesto de escolha.
+    function nomeBrinde(regra) {
+        if (!regra) return 'brinde';
+        const lista = listaProdutosRegra(regra);
+        const titulo = regra.brinde_titulo || '';
+        if (lista && lista.length === 1) return lista[0].titulo || titulo || 'Brinde';
+        if (lista && lista.length > 1 && (!titulo || /^\s*lista\s*:/i.test(titulo))) {
+            return `escolher entre ${lista.length} brindes`;
+        }
+        return titulo || 'Brinde';
+    }
+
+    // Detecta faixa NOVA liberada e abre o convite de troca uma única vez.
+    // Só faz sentido quando ele JÁ tem brinde: sem brinde a vitrine aparece por
+    // conta própria (é o próprio resgate), não precisa de convite.
+    function registrarFaixasNovas(liberadas, mantido) {
+        const ids = new Set(liberadas.map(r => String(r.id)));
+        if (_faixasVistas === null) { _faixasVistas = ids; return; }
+        const novas = liberadas.filter(r => !_faixasVistas.has(String(r.id)));
+        _faixasVistas = ids;
+        if (!novas.length || !mantido) return;
+        // Só é notícia a faixa MELHOR que a que ele tem no carrinho.
+        const melhores = novas.filter(r => tierRegra(r) > tierRegra(mantido.regra));
+        if (!melhores.length) return;
+        _vitrineAberta = true;
+        toast(`🎁 Você liberou: ${nomeBrinde(melhores[0])}`);
     }
 
     // ─── Operações cart ───
@@ -531,12 +585,36 @@
         return wrap(blocos.join('')) + add;
     }
 
-    function renderCardSelecao(regra) {
-        return `<li class="ame-gift-selector" data-gift-selector data-gift-regra-id="${esc(regra.id)}">${cardInner(regra)}</li>`;
+    // Extras do card em foco (voltar pra vitrine, aviso de troca). Vivem no
+    // dataset do <li> porque repaintCard reescreve o innerHTML a cada clique de
+    // variação — sem isso o "ver os outros brindes" sumia no primeiro toque.
+    function extrasDoCard(card) {
+        return {
+            podeVoltar: !!(card && card.dataset.giftVoltar === '1'),
+            trocaDe: (card && card.dataset.giftTrocaDe) || '',
+        };
+    }
+
+    function cardInnerCompleto(regra, extras) {
+        const aviso = extras.trocaDe
+            ? `<p class="ame-gift-vitrine__troca-aviso">Ao confirmar, o ${esc(extras.trocaDe)} sai do carrinho.</p>`
+            : '';
+        const voltar = extras.podeVoltar
+            ? `<button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-voltar>Ver os outros brindes</button>`
+            : '';
+        return cardInner(regra) + aviso + voltar;
+    }
+
+    function cardFocoHTML(regra, podeVoltar, mantido) {
+        // Trocando de brinde? Avisa o que SAI. O cliente não pode descobrir isso
+        // depois, olhando um carrinho que mudou sozinho.
+        const trocaDe = (mantido && String(mantido.regra.id) !== String(regra.id))
+            ? nomeBrinde(mantido.regra) : '';
+        return `<li class="ame-gift-selector" data-gift-selector data-gift-regra-id="${esc(regra.id)}" data-gift-voltar="${podeVoltar ? '1' : '0'}" data-gift-troca-de="${esc(trocaDe)}">${cardInnerCompleto(regra, { podeVoltar: !!podeVoltar, trocaDe })}</li>`;
     }
 
     function repaintCard(card, regra) {
-        if (card) card.innerHTML = cardInner(regra);
+        if (card) card.innerHTML = cardInnerCompleto(regra, extrasDoCard(card));
     }
 
     // ─── Click delegation pros cards de seleção (uma vez) ───
@@ -595,6 +673,41 @@
                 return;
             }
 
+            // Vitrine: escolher QUAL brinde liberado ele quer (pode ser o de uma
+            // faixa menor — atingir R$849 não obriga a levar o brinde de R$849).
+            const faixaBtn = e.target.closest('[data-gift-faixa]');
+            if (faixaBtn) {
+                _faixaEscolhida = faixaBtn.dataset.giftFaixa;
+                _vitrineAberta = true;
+                reavaliarBrindes();
+                return;
+            }
+
+            // Vitrine: abrir o convite de troca
+            if (e.target.closest('[data-gift-vitrine-abrir]')) {
+                _vitrineAberta = true;
+                _faixaEscolhida = null;
+                reavaliarBrindes();
+                return;
+            }
+
+            // Vitrine: voltar da variação pra lista de brindes
+            if (e.target.closest('[data-gift-vitrine-voltar]')) {
+                _faixaEscolhida = null;
+                _vitrineAberta = true;
+                reavaliarBrindes();
+                return;
+            }
+
+            // Vitrine: "manter o X". Colapsa e NÃO mexe no carrinho — é o mesmo
+            // efeito de ignorar o convite, que é justamente o padrão.
+            if (e.target.closest('[data-gift-vitrine-fechar]')) {
+                _faixaEscolhida = null;
+                _vitrineAberta = false;
+                reavaliarBrindes();
+                return;
+            }
+
             // Resgatar brinde (botão final)
             const addBtn = e.target.closest('[data-gift-add]');
             if (addBtn) {
@@ -621,18 +734,39 @@
                     extraProps = { 'Personalização': linhas.join('\n') };
                 }
 
+                const cardFoco = addBtn.closest('[data-gift-selector]');
+                const trocando = !!(cardFoco && cardFoco.dataset.giftTrocaDe);
                 addBtn.disabled = true;
-                addBtn.textContent = 'Adicionando...';
+                addBtn.textContent = trocando ? 'Trocando...' : 'Adicionando...';
+                _trocandoBrinde = true;
                 try {
+                    // Só cabe UM brinde no carrinho (limite do desconto da
+                    // Shopify), então trocar é remover + adicionar. A ordem
+                    // importa: removendo ANTES, uma falha no add deixa o cliente
+                    // sem brinde e a reavaliação reoferece. Na ordem inversa, um
+                    // remove que falhasse deixaria DOIS brindes e um chegaria
+                    // COBRADO no checkout. Errar pra menos, nunca pra cobrar.
+                    const cartAntes = await xhrJson('/cart.js?t=' + Date.now());
+                    for (const it of (cartAntes.items || [])) {
+                        if ((it.properties || {})[PROP_REGRA_ID]) await removerBrinde(it);
+                    }
                     await adicionarBrinde(regra, s.variantId, extraProps);
-                    toast(pingente ? '🎁 Pingente adicionado ao seu carrinho!' : '🎁 Brinde adicionado ao seu carrinho!');
+                    toast(trocando ? '🎁 Brinde trocado!'
+                        : (pingente ? '🎁 Pingente adicionado ao seu carrinho!' : '🎁 Brinde adicionado ao seu carrinho!'));
                     _seletoresState.delete(String(regraId));
-                    const cartAtualizado = await xhrJson('/cart.js');
+                    _faixaEscolhida = null;
+                    _vitrineAberta = false;
+                    const cartAtualizado = await xhrJson('/cart.js?t=' + Date.now());
+                    _trocandoBrinde = false;
                     if (window.AmeCart?.refresh) window.AmeCart.refresh(cartAtualizado);
                 } catch (err) {
                     console.warn('[Brindes] falha no resgate', err.message);
+                    _trocandoBrinde = false;
                     addBtn.disabled = false;
                     addBtn.textContent = 'Tente novamente';
+                    // Pode ter removido o antigo e falhado no novo: reavalia pra
+                    // reoferecer (e readicionar sozinho quando não há escolha).
+                    reavaliarBrindes();
                 }
             }
         });
@@ -666,24 +800,109 @@
         });
     }
 
-    // Renderiza/atualiza os cards de seleção dentro do drawer.
-    // Recebe um array de REGRAS pendentes (satisfeitas, sem brinde no cart).
-    function renderizarTodosCards(regrasPendentes) {
+    // Injeta o bloco de brinde no TOPO da lista do drawer (um só por vez).
+    // Topo e não fim: com carrinho cheio, um "você ganhou um brinde" no fim fica
+    // abaixo da dobra e o cliente não vê. Passar '' limpa.
+    function injetarNaLista(html) {
         const drawer = document.querySelector('[data-cart-drawer]') || document.querySelector('#cart-drawer');
         if (!drawer) return;
         const lista = drawer.querySelector('[data-cart-items]');
         if (!lista) return;
+        lista.querySelectorAll('[data-gift-selector],[data-gift-vitrine]').forEach(el => el.remove());
+        if (html) lista.insertAdjacentHTML('afterbegin', html);
+    }
 
-        // Remove cards velhos (sempre re-renderiza)
-        lista.querySelectorAll('[data-gift-selector]').forEach(el => el.remove());
+    // ─── Vitrine dos brindes liberados ───
+    // O cliente tem direito a UM brinde e escolhe qual, entre TODOS os que já
+    // liberou — não só o da última faixa. Estados, mutuamente exclusivos:
+    //   sem brinde + 1 opção            → card de variação direto
+    //   sem brinde + 2+ opções          → lista "escolha seu brinde"
+    //   com brinde + 2+ opções, aberta  → lista com o atual marcado + "manter"
+    //   com brinde + 2+ opções, fechada → faixa fina "trocar brinde"
+    //   com brinde + 1 opção            → nada (a linha do carrinho já diz tudo)
+    async function renderizarVitrine(liberadas, mantido) {
+        // Carrega os produtos das opções (cacheado em _variantsCache) pra saber o
+        // que esgotou: brinde sem estoque não pode aparecer na vitrine.
+        await Promise.all(liberadas.map(r => carregarProdutosRegra(r)));
+        const opcoes = liberadas.filter(r => !regraEsgotada(r));
 
-        if (!regrasPendentes || !regrasPendentes.length) return;
+        // Regra em foco = a que ele clicou. Sem brinde e com uma única opção, o
+        // foco é ela: não há brinde a escolher, só a variação.
+        let foco = _faixaEscolhida ? opcoes.find(r => String(r.id) === String(_faixaEscolhida)) : null;
+        if (!foco && !mantido && opcoes.length === 1) foco = opcoes[0];
+        _faixaEscolhida = foco ? String(foco.id) : null;
 
-        // No TOPO da lista (afterbegin) — um "você ganhou um brinde" precisa
-        // estar visível de cara. No fim, com carrinho cheio, fica abaixo da
-        // dobra e o cliente não vê o card pra resgatar.
-        const html = regrasPendentes.map(regra => renderCardSelecao(regra)).join('');
-        lista.insertAdjacentHTML('afterbegin', html);
+        if (foco) {
+            // Produto único: fixa o handle ANTES de auto-selecionar a variação —
+            // autoSelVariante desiste sem handle (só o cardInner o preenchia, e
+            // depender desse efeito colateral pra o botão nascer pronto é frágil).
+            const prods = produtosDaRegra(foco);
+            if (prods.length === 1) selState(foco.id).handle = prods[0].handle;
+            autoSelVariante(foco);
+            injetarNaLista(cardFocoHTML(foco, opcoes.length > 1, mantido));
+            return;
+        }
+
+        // Ganhou e ainda não escolheu: a vitrine É o resgate, sempre aberta.
+        if (!mantido) {
+            injetarNaLista(opcoes.length ? vitrineHTML(opcoes, null, true) : '');
+            return;
+        }
+
+        // Já tem brinde. Sem alternativa real, não há o que oferecer.
+        if (opcoes.length < 2) { injetarNaLista(''); return; }
+        injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta));
+    }
+
+    function vitrineHTML(opcoes, mantido, aberta) {
+        const atualId = mantido ? String(mantido.regra.id) : null;
+        const TAG_ATUAL = '<span class="ame-gift-vitrine__tag">no carrinho</span>';
+
+        // Colapsada: uma linha, sem roubar a tela de quem já está a caminho do
+        // checkout. O cliente já foi avisado por toast na virada da faixa.
+        if (!aberta) {
+            const melhor = opcoes.find(r => String(r.id) !== atualId) || opcoes[0];
+            return `<li class="ame-gift-vitrine ame-gift-vitrine--fechada" data-gift-vitrine>
+                <span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>
+                <span class="ame-gift-vitrine__resumo">Você liberou ${esc(nomeBrinde(melhor))}</span>
+                <button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>Trocar brinde</button>
+            </li>`;
+        }
+
+        const linhas = opcoes.map(r => {
+            const ehAtual = !!(atualId && String(r.id) === atualId);
+            const tier = tierRegra(r);
+            const faixa = tier > 0
+                ? `<span class="ame-gift-vitrine__opt-faixa">liberado a partir de ${esc(money(tier))}</span>`
+                : '';
+            return `<button type="button" class="ame-gift-vitrine__opt${ehAtual ? ' is-atual' : ''}" data-gift-faixa="${esc(r.id)}"${ehAtual ? ' aria-current="true"' : ''}>
+                <span class="ame-gift-vitrine__opt-nome">${esc(nomeBrinde(r))}</span>
+                ${ehAtual ? TAG_ATUAL : ''}
+                ${faixa}
+            </button>`;
+        }).join('');
+
+        const eyebrow = mantido ? 'Você liberou mais um brinde' : 'Brinde liberado';
+        const titulo = mantido ? 'Quer trocar seu brinde?' : 'Escolha seu brinde';
+        const ajuda = mantido
+            ? `É um brinde por pedido, e vale o que você preferir. Sem mexer em nada, continua o ${esc(nomeBrinde(mantido.regra))}.`
+            : 'Você tem direito a um. Escolha o que preferir.';
+        const rodape = mantido
+            ? `<button type="button" class="ame-gift-vitrine__manter" data-gift-vitrine-fechar>Manter o ${esc(nomeBrinde(mantido.regra))}</button>`
+            : '';
+
+        return `<li class="ame-gift-vitrine" data-gift-vitrine>
+            <header class="ame-gift-vitrine__head">
+                <span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>
+                <div class="ame-gift-vitrine__head-text">
+                    <p class="ame-gift-vitrine__eyebrow">${esc(eyebrow)}</p>
+                    <p class="ame-gift-vitrine__titulo">${esc(titulo)}</p>
+                </div>
+            </header>
+            <p class="ame-gift-vitrine__ajuda">${ajuda}</p>
+            <div class="ame-gift-vitrine__opts">${linhas}</div>
+            ${rodape}
+        </li>`;
     }
 
     // ─── Barra "faltam R$X pro brinde" (só regras de VALOR MÍNIMO) ───
@@ -747,18 +966,42 @@
         await carregarProdutosRegra(alvo.regra);
         const esgotado = regraEsgotada(alvo.regra);
 
+        // Já tem brinde no carrinho? Então a faixa de cima não é "ganhar um
+        // brinde" — é MELHORAR o que ele já tem. Prometer "ganhe" pra quem já
+        // ganhou sugere que sairiam dois, e só cabe um.
+        const temBrinde = (cart.items || []).some(it => (it.properties || {})[PROP_REGRA_ID]);
+
+        // Marcadores das faixas na trilha (o CSS de barra multi-faixa já existia
+        // no tema, sem ninguém usando). Posição = valor da faixa / maior faixa.
+        const maiorCents = tiers[tiers.length - 1].cents || 1;
+        const dots = tiers.length > 1 ? tiers.map(t => {
+            const left = Math.max(0, Math.min(100, Math.round(t.cents * 100 / maiorCents)));
+            const feito = subtotal >= t.cents ? ' is-achieved' : '';
+            return `<span class="ame-cart-shipping-bar__dot${feito}" style="left:${left}%"></span>`;
+        }).join('') : '';
+
+        // Fill com classe PRÓPRIA (não a da barra de frete): o refreshDrawer do
+        // theme.liquid sobrescreve a largura do primeiro .ame-cart-shipping-bar__fill
+        // do drawer com a régua de frete grátis, e atropelava esta barra sempre
+        // que a de frete estava escondida (ela só aparece depois do CEP).
+        const trilha = (pct) => `<div class="ame-cart-shipping-bar__track"><div class="ame-gift-bar__fill" style="width:${pct}%"></div>${dots}</div>`;
+
         let html;
         if (esgotado) {
             // Esgotado: sem contador/progresso — só o aviso (o card de resgate não é injetado).
             html = `<p class="ame-cart-shipping-bar__text">🎁 Os brindes acabaram por enquanto 😢</p>`;
         } else if (!proximo) {
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Você ganhou <strong>${esc(labelBrinde(alvo.cents))}</strong>! 🎉</p>
-                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:100%"></div></div>`;
+            const texto = temBrinde
+                ? `🎁 Você liberou <strong>todos os brindes</strong> — leve o que preferir 🎉`
+                : `🎁 Você ganhou <strong>${esc(labelBrinde(alvo.cents))}</strong>! 🎉`;
+            html = `<p class="ame-cart-shipping-bar__text">${texto}</p>${trilha(100)}`;
         } else {
             const faltam = alvo.cents - subtotal;
             const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / alvo.cents)));
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(alvo.cents))}</strong></p>
-                    <div class="ame-cart-shipping-bar__track"><div class="ame-cart-shipping-bar__fill" style="width:${pct}%"></div></div>`;
+            const texto = temBrinde
+                ? `🎁 Faltam <strong>${money(faltam)}</strong> e você libera <strong>${esc(labelBrinde(alvo.cents))}</strong> pra escolher`
+                : `🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(alvo.cents))}</strong>`;
+            html = `<p class="ame-cart-shipping-bar__text">${texto}</p>${trilha(pct)}`;
         }
 
         // O corpo pode ter re-renderizado durante o await — re-obtém a barra.
@@ -782,7 +1025,37 @@
         if (document.getElementById('ame-gift-bar-style')) return;
         const st = document.createElement('style');
         st.id = 'ame-gift-bar-style';
-        st.textContent = '.ame-cart-gift-bar{margin-top:.5rem}.ame-cart-gift-bar:not([hidden]){display:block}.ame-cart-gift-bar .ame-cart-shipping-bar__fill{background:#5a7461}';
+        st.textContent = [
+            // Barra de brinde: herda o visual da barra de frete, com fill próprio
+            // (vide comentário em renderizarBarraBrinde) e track alto o bastante
+            // pra caber os marcadores de faixa.
+            '.ame-cart-gift-bar{margin-top:.5rem}',
+            '.ame-cart-gift-bar:not([hidden]){display:block}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__track{position:relative;height:6px;border-radius:3px;overflow:visible}',
+            '.ame-gift-bar__fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#5a7461,#7b9a84);transition:width .6s cubic-bezier(.22,1,.36,1)}',
+            // Vitrine: mesma linguagem visual do card de seleção que já existia
+            // (.ame-gift-selector no critical.css) pra não parecer outro widget.
+            '.ame-gift-vitrine{list-style:none;margin:.75rem 0;padding:.875rem;background:linear-gradient(135deg,rgba(90,116,97,.08),rgba(90,116,97,.04));border:1px solid rgba(90,116,97,.25);border-radius:var(--radius-md,8px);display:flex;flex-direction:column;gap:.625rem}',
+            '.ame-gift-vitrine--fechada{flex-direction:row;align-items:center;gap:.5rem;padding:.625rem .75rem}',
+            '.ame-gift-vitrine__icone{font-size:1.25rem;color:#5a7461;flex:0 0 auto}',
+            '.ame-gift-vitrine__head{display:flex;align-items:flex-start;gap:.5rem}',
+            '.ame-gift-vitrine__eyebrow{margin:0;font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5a7461}',
+            '.ame-gift-vitrine__titulo{margin:.125rem 0 0;font-size:.9375rem;font-weight:600;color:var(--color-on-surface,#2b2320)}',
+            '.ame-gift-vitrine__ajuda{margin:0;font-size:.75rem;line-height:1.4;color:var(--color-on-surface-variant,#4f4442)}',
+            '.ame-gift-vitrine__resumo{flex:1 1 auto;font-size:.8125rem;color:var(--color-on-surface,#2b2320)}',
+            '.ame-gift-vitrine__opts{display:flex;flex-direction:column;gap:.375rem}',
+            '.ame-gift-vitrine__opt{display:flex;align-items:center;flex-wrap:wrap;gap:.375rem;width:100%;text-align:left;padding:.5rem .625rem;border:1px solid rgba(90,116,97,.3);border-radius:var(--radius-sm,6px);background:#fff;cursor:pointer;font:inherit}',
+            '.ame-gift-vitrine__opt:hover{border-color:#5a7461}',
+            '.ame-gift-vitrine__opt.is-atual{border-color:#5a7461;background:rgba(90,116,97,.1)}',
+            '.ame-gift-vitrine__opt-nome{flex:1 1 auto;font-size:.8125rem;font-weight:500;color:var(--color-on-surface,#2b2320)}',
+            '.ame-gift-vitrine__opt-faixa{flex:1 1 100%;font-size:.6875rem;color:var(--color-on-surface-variant,#4f4442)}',
+            '.ame-gift-vitrine__tag{flex:0 0 auto;font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.125rem .375rem;border-radius:999px;background:#5a7461;color:#fff}',
+            '.ame-gift-vitrine__link{align-self:flex-start;padding:0;border:0;background:none;font:inherit;font-size:.75rem;text-decoration:underline;color:#5a7461;cursor:pointer}',
+            '.ame-gift-vitrine--fechada .ame-gift-vitrine__link{align-self:auto;flex:0 0 auto;font-weight:600}',
+            '.ame-gift-vitrine__manter{width:100%;padding:.5rem;border:1px solid rgba(90,116,97,.35);border-radius:var(--radius-sm,6px);background:none;font:inherit;font-size:.8125rem;color:var(--color-on-surface,#2b2320);cursor:pointer}',
+            '.ame-gift-vitrine__manter:hover{background:rgba(90,116,97,.08)}',
+            '.ame-gift-vitrine__troca-aviso{margin:.25rem 0 0;font-size:.6875rem;color:var(--color-on-surface-variant,#4f4442)}',
+        ].join('');
         document.head.appendChild(st);
     }
 
@@ -793,6 +1066,14 @@
         // antes de terminar, outro refresh chega. Sem fila, a 2ª chamada era
         // descartada e o brinde só sumia na próxima ação manual.
         if (_aplicandoMudancas) {
+            _pendingReavaliacao = true;
+            return;
+        }
+
+        // Troca de brinde em voo (remove + add): reavaliar no meio veria o
+        // carrinho sem brinde e adicionaria/ofereceria por cima da intenção do
+        // cliente. Espera a troca terminar e roda depois.
+        if (_trocandoBrinde) {
             _pendingReavaliacao = true;
             return;
         }
@@ -812,7 +1093,6 @@
             // É async (checa estoque do brinde-alvo) — fire-and-forget.
             renderizarBarraBrinde(cart).catch(function () { });
             let mudouCart = false;
-            const seletoresPendentes = []; // regras "cliente escolhe" satisfeitas mas sem brinde no cart
             const regrasAtivas = _regrasCache;
 
             // 1. Limpeza de brindes órfãos: regra desativada/expirada (agendamento)
@@ -836,66 +1116,55 @@
                 }
             }
 
-            // 2. Só 1 brinde por pedido: entre as regras satisfeitas, vence a de
-            //    FAIXA MAIOR. As demais (não-vencedoras) têm o brinde removido do
-            //    carrinho e não mostram card — a maior "sobrepõe" as menores.
-            const satisfeitas = regrasAtivas.filter(r => regraSatisfeita(r, cart));
-            const vencedora = escolherVencedora(satisfeitas);
+            // 2. UM brinde só — mas quem escolhe é o CLIENTE.
+            //    A faixa maior LIBERA um brinde melhor; ela não confisca o que o
+            //    cliente já escolheu. Enquanto a regra do brinde que está no
+            //    carrinho continuar satisfeita, ele FICA — mesmo com faixas
+            //    acima já liberadas. Trocar é clique dele, na vitrine. Nada
+            //    muda no carrinho sem ele mandar.
+            //
+            //    O limite de 1 continua valendo e não é generosidade: fora do
+            //    Plus a Shopify trata todo produto dentro de um BXGY como
+            //    inelegível a outro desconto de produto, então dois brindes no
+            //    carrinho é um deles chegando COBRADO no checkout.
+            const liberadas = regrasLiberadas(cart);
+            const presentes = brindesPresentes(cart, regrasAtivas);
 
-            for (const regra of regrasAtivas) {
-                const itemPresente = brindeNoCart(cart, regra);
-                const ehVencedora = vencedora && String(regra.id) === String(vencedora.id);
-                const clienteEscolhe = !regra.brinde_variant_id;
-
-                // Não é a vencedora (não satisfeita, ou perdeu pra uma faixa maior):
-                // garante que NÃO há brinde dela no carrinho.
-                if (!ehVencedora) {
-                    if (itemPresente) {
-                        try {
-                            await removerBrinde(itemPresente);
-                            mudouCart = true;
-                        } catch (e) { console.warn('[Brindes] remover (não-vencedora) falhou', e.message); }
-                    }
-                    continue;
-                }
-
-                // É a vencedora → aplica normalmente.
-                if (clienteEscolhe) {
-                    // Modo "cliente escolhe" (variação de 1 produto, ou produto+variação de uma lista)
-                    if (!itemPresente) {
-                        const produtos = produtosDaRegra(regra);
-                        const s = selState(regra.id);
-                        if (produtos.length === 1) {
-                            // Produto único: pré-carrega as variações pro card já mostrar.
-                            s.handle = produtos[0].handle;
-                            const produto = await carregarProdutoBrinde(s.handle);
-                            if (!produto) continue; // falhou → não injeta card quebrado
-                            autoSelVariante(regra);
-                        } else {
-                            // Lista com várias opções: pré-carrega TODAS (em paralelo) pra
-                            // saber o estoque e esconder no card as esgotadas (cardInner filtra).
-                            await Promise.all(produtos.map(pr => carregarProdutoBrinde(pr.handle)));
-                            autoSelVariante(regra);
-                        }
-                        // Brinde esgotado (todas as opções sem estoque) → NÃO injeta o
-                        // card de resgate; a barra avisa "os brindes acabaram".
-                        if (!regraEsgotada(regra)) seletoresPendentes.push(regra);
-                    }
-                    // presente: nada a fazer (cliente já escolheu)
-                } else {
-                    // Modo "variante fixa"
-                    if (!itemPresente) {
-                        try {
-                            await adicionarBrinde(regra, regra.brinde_variant_id);
-                            toast(`🎁 Você ganhou: ${regra.brinde_titulo || 'Brinde Incluído'}`);
-                            mudouCart = true;
-                        } catch (e) { console.warn('[Brindes] adicionar falhou', e.message); }
-                    }
-                }
+            // 2a. Fica o primeiro brinde cuja regra AINDA está satisfeita — essa
+            //     é a escolha do cliente. Os demais saem: ou ele perdeu o
+            //     direito (tirou itens e caiu da faixa), ou é brinde duplicado
+            //     de race / duas abas.
+            let mantido = null;
+            for (const p of presentes) {
+                const temDireito = liberadas.some(r => String(r.id) === String(p.regra.id));
+                if (temDireito && !mantido) { mantido = p; continue; }
+                try {
+                    await removerBrinde(p.item);
+                    mudouCart = true;
+                } catch (e) { console.warn('[Brindes] remover brinde sem direito falhou', e.message); }
             }
 
-            // Atualiza UI dos seletores no drawer
-            renderizarTodosCards(seletoresPendentes);
+            // 2b. Carrinho sem brinde e com direito a um: só entra sozinho quando
+            //     NÃO há nada a escolher (uma única regra liberada, de variante
+            //     fixa). Preencher vazio não desfaz escolha de ninguém; havendo
+            //     escolha, a vitrine pergunta em vez de decidir pelo cliente.
+            if (!mantido && liberadas.length === 1 && liberadas[0].brinde_variant_id) {
+                const unica = liberadas[0];
+                try {
+                    await adicionarBrinde(unica, unica.brinde_variant_id);
+                    toast(`🎁 Você ganhou: ${unica.brinde_titulo || 'Brinde Incluído'}`);
+                    mudouCart = true;
+                } catch (e) { console.warn('[Brindes] adicionar falhou', e.message); }
+            }
+
+            // 2c. Virada de faixa: abre a vitrine UMA vez por faixa nova quando o
+            //     cliente já tem brinde (é o "você liberou outro, quer trocar?").
+            //     Depois disso ela colapsa e não insiste mais.
+            registrarFaixasNovas(liberadas, mantido);
+
+            // Vitrine: o que ele liberou, o que está no carrinho e o convite de
+            // troca. Única UI de escolha — engloba o card de variação de antes.
+            await renderizarVitrine(liberadas, mantido);
 
             // Se mudamos cart, propaga pro drawer (que vai re-renderizar a lista
             // de items — depois disso re-injetamos os seletores no callback do
