@@ -914,7 +914,13 @@
     // disponível. Usa o cache (precisa ter carregado antes). Variante fixa fica de
     // fora (fail-open). Sem nada carregado → false (não esconde por falha de carga).
     function regraEsgotada(regra) {
-        if (!regra || regra.brinde_variant_id) return false;
+        if (!regra) return false;
+        // Cota do Waltz vem primeiro: o estoque do site é INFINITO (loja sob
+        // encomenda), então quem diz que o brinde acabou é o limite de unidades
+        // da regra — a disponibilidade da variante na Shopify nunca acusa nada.
+        // Vale também pra variante fixa, que sai pela guarda de baixo.
+        if (regra.esgotado) return true;
+        if (regra.brinde_variant_id) return false;
         let carregou = false;
         for (const p of produtosDaRegra(regra)) {
             if (!_variantsCache.has(p.handle)) continue;
@@ -1148,7 +1154,7 @@
             //     NÃO há nada a escolher (uma única regra liberada, de variante
             //     fixa). Preencher vazio não desfaz escolha de ninguém; havendo
             //     escolha, a vitrine pergunta em vez de decidir pelo cliente.
-            if (!mantido && liberadas.length === 1 && liberadas[0].brinde_variant_id) {
+            if (!mantido && liberadas.length === 1 && liberadas[0].brinde_variant_id && !liberadas[0].esgotado) {
                 const unica = liberadas[0];
                 try {
                     await adicionarBrinde(unica, unica.brinde_variant_id);
