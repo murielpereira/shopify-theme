@@ -115,7 +115,7 @@
     "custom_field_8_name": "Nome do Pet",
     "custom_field_8_title": "Nome do pet",
     "custom_field_8_placeholder": "Informe o nome do pet",
-    "custom_field_8_limiter": "20",
+    "custom_field_8_limiter": "13",
     "custom_field_8_required": true,
     "custom_field_9_enable": true,
     "custom_field_9_tag": "customizacao_tutor_escrita",
@@ -213,6 +213,11 @@
           "mobile_side_margin": 16,
           "mobile_bottom_margin": 46
         }
+      },
+      "2200952712151285029": {
+        "type": "shopify://apps/microsoft-clarity/blocks/brandAgents_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
+        "disabled": true,
+        "settings": {}
       }
     }
   }
