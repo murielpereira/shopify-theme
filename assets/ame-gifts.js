@@ -114,6 +114,13 @@
     function money(cents) {
         return (Number(cents || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
+    // Sem centavos, pros rótulos das faixas (três "R$ 349,00" não cabem lado a
+    // lado num drawer de 375px; "R$ 349" cabe).
+    function moneyCurto(cents) {
+        return (Number(cents || 0) / 100).toLocaleString('pt-BR', {
+            style: 'currency', currency: 'BRL', maximumFractionDigits: 0,
+        });
+    }
 
     // Subtotal só dos itens REAIS (exclui os itens-brinde geridos por este módulo)
     // — mesma base que regraSatisfeita usa pro gatilho de valor mínimo.
@@ -273,6 +280,11 @@
         let vars = produto ? (produto.variants || []).filter(v => v.available !== false) : [];
         const permitidas = regra ? listaVariantesRegra(regra) : null;
         if (permitidas) vars = vars.filter(v => permitidas.includes(String(v.id)));
+        // Cota POR VARIAÇÃO: a cor que acabou sai do seletor e as outras seguem
+        // sendo oferecidas. `available` nunca reprova nada aqui (o estoque do site
+        // é infinito, loja sob encomenda) — quem reprova é a cota do Waltz.
+        const esgotadas = (regra && regra.variantes_esgotadas) || [];
+        if (esgotadas.length) vars = vars.filter(v => !esgotadas.includes(String(v.id)));
         return vars;
     }
 
@@ -920,7 +932,11 @@
         // da regra — a disponibilidade da variante na Shopify nunca acusa nada.
         // Vale também pra variante fixa, que sai pela guarda de baixo.
         if (regra.esgotado) return true;
-        if (regra.brinde_variant_id) return false;
+        // Variante fixa não passa por variantesDisponiveis (não há o que escolher),
+        // então a cota dela é conferida aqui.
+        if (regra.brinde_variant_id) {
+            return ((regra.variantes_esgotadas || []).includes(String(regra.brinde_variant_id)));
+        }
         let carregou = false;
         for (const p of produtosDaRegra(regra)) {
             if (!_variantsCache.has(p.handle)) continue;
@@ -986,11 +1002,18 @@
             return `<span class="ame-cart-shipping-bar__dot${feito}" style="left:${left}%"></span>`;
         }).join('') : '';
 
+        // Rótulos das faixas embaixo da trilha (o CSS __marks também já existia
+        // órfão). Sem eles a barra não diz O QUE cada pontinho representa, e uma
+        // barra quase cheia perto do primeiro marcador parecia "já ganhei tudo".
+        const marks = tiers.length > 1 ? `<div class="ame-cart-shipping-bar__marks">${tiers.map(t =>
+            `<span class="ame-cart-shipping-bar__mark${subtotal >= t.cents ? ' is-achieved' : ''}">${esc(moneyCurto(t.cents))}</span>`
+        ).join('')}</div>` : '';
+
         // Fill com classe PRÓPRIA (não a da barra de frete): o refreshDrawer do
         // theme.liquid sobrescreve a largura do primeiro .ame-cart-shipping-bar__fill
         // do drawer com a régua de frete grátis, e atropelava esta barra sempre
         // que a de frete estava escondida (ela só aparece depois do CEP).
-        const trilha = (pct) => `<div class="ame-cart-shipping-bar__track"><div class="ame-gift-bar__fill" style="width:${pct}%"></div>${dots}</div>`;
+        const trilha = (pct) => `<div class="ame-cart-shipping-bar__track"><div class="ame-gift-bar__fill" style="width:${pct}%"></div>${dots}</div>${marks}`;
 
         let html;
         if (esgotado) {
@@ -1003,7 +1026,14 @@
             html = `<p class="ame-cart-shipping-bar__text">${texto}</p>${trilha(100)}`;
         } else {
             const faltam = alvo.cents - subtotal;
-            const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / alvo.cents)));
+            // A régua do preenchimento tem que ser a MESMA dos marcadores: a faixa
+            // MAIOR. Antes o fill era medido contra a PRÓXIMA faixa, então com
+            // R$ 340 de 349 ele ia a 97% da barra e atravessava os três pontinhos
+            // (que ficam em 41%, 65% e 100% da escada) — dava a entender que o
+            // cliente já tinha conquistado tudo faltando R$ 9 para o primeiro.
+            // Com faixa única não há escada nem pontinho, e aí a régua é a própria.
+            const base = tiers.length > 1 ? maiorCents : alvo.cents;
+            const pct = Math.max(0, Math.min(100, Math.round(subtotal * 100 / base)));
             const texto = temBrinde
                 ? `🎁 Faltam <strong>${money(faltam)}</strong> e você libera <strong>${esc(labelBrinde(alvo.cents))}</strong> pra escolher`
                 : `🎁 Faltam <strong>${money(faltam)}</strong> para ganhar <strong>${esc(labelBrinde(alvo.cents))}</strong>`;
@@ -1022,6 +1052,11 @@
             else if (lista && lista.parentNode) lista.parentNode.insertBefore(bar, lista);
             else body.insertBefore(bar, body.firstChild);
         }
+        // --multi é a classe que o CSS do tema já tinha pra barra de várias faixas
+        // (texto centralizado, trilha mais alta pra caber os pontinhos). Reaplicada
+        // a cada render porque o número de faixas pode mudar sem recriar o elemento.
+        bar.className = 'ame-cart-shipping-bar ame-cart-gift-bar'
+            + (tiers.length > 1 ? ' ame-cart-shipping-bar--multi' : '');
         bar.innerHTML = html;
     }
 
@@ -1039,6 +1074,11 @@
             '.ame-cart-gift-bar:not([hidden]){display:block}',
             '.ame-cart-gift-bar .ame-cart-shipping-bar__track{position:relative;height:6px;border-radius:3px;overflow:visible}',
             '.ame-gift-bar__fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#5a7461,#7b9a84);transition:width .6s cubic-bezier(.22,1,.36,1)}',
+            // Rótulos das faixas: o __marks do tema não tem respiro em relação à
+            // trilha, e o verde do brinde é outro (o tema usa o marrom da marca).
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__marks{margin-top:6px}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__mark.is-achieved{background:#5a7461;color:#fff}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__dot.is-achieved{background:#5a7461;border-color:#5a7461}',
             // Vitrine: mesma linguagem visual do card de seleção que já existia
             // (.ame-gift-selector no critical.css) pra não parecer outro widget.
             '.ame-gift-vitrine{list-style:none;margin:.75rem 0;padding:.875rem;background:linear-gradient(135deg,rgba(90,116,97,.08),rgba(90,116,97,.04));border:1px solid rgba(90,116,97,.25);border-radius:var(--radius-md,8px);display:flex;flex-direction:column;gap:.625rem}',
@@ -1154,7 +1194,7 @@
             //     NÃO há nada a escolher (uma única regra liberada, de variante
             //     fixa). Preencher vazio não desfaz escolha de ninguém; havendo
             //     escolha, a vitrine pergunta em vez de decidir pelo cliente.
-            if (!mantido && liberadas.length === 1 && liberadas[0].brinde_variant_id && !liberadas[0].esgotado) {
+            if (!mantido && liberadas.length === 1 && liberadas[0].brinde_variant_id && !regraEsgotada(liberadas[0])) {
                 const unica = liberadas[0];
                 try {
                     await adicionarBrinde(unica, unica.brinde_variant_id);
