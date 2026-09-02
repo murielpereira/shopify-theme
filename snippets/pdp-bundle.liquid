@@ -154,13 +154,38 @@
     gap: 0.625rem;
     width: 100%;
   }
+  /* Linha de preço: "De: R$ X" riscado + selo de % + preço final */
+  .pdp-bundle__price-wrap {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    align-self: flex-end;
+  }
+  .pdp-bundle__compare {
+    font-size: 0.75rem;
+    color: rgba(90, 71, 66, 0.45);
+    text-decoration: line-through;
+    white-space: nowrap;
+  }
+  .pdp-bundle__discount {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(90, 71, 66, 0.09);
+    color: var(--color-primary, #5a4742);
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
   .pdp-bundle__price {
     font-size: 0.875rem;
     font-weight: 600;
     margin: 0;
     white-space: nowrap;
     color: var(--color-on-background, #201b14);
-    align-self: flex-end;
     text-align: right;
   }
   .pdp-bundle__variants {

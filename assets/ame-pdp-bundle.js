@@ -383,10 +383,32 @@
                 '  </div>',
                 // Preço sai do row pra ganhar largura própria embaixo — antes
                 // dividia espaço com .pdp-bundle__info e cortava o nome do produto.
-                '  <p class="pdp-bundle__price">' + fmtBRL(v.price) + '</p>',
+                renderPrice(v),
                    cfs.map(cf => renderCf(it, idx, cf)).join(''),
                 '</li>',
             ].join('');
+        }
+
+        // Linha de preço: "De: R$ X" riscado + selo de % quando a variante
+        // tem compare_at_price maior que o preço. Sem isso o cliente não via
+        // que o cross-sell estava com desconto. Mesmo padrão visual do bloco
+        // de preço da PDP (.pdp__price-compare / .pdp__discount-badge).
+        function renderPrice(v) {
+            const price = Number(v.price) || 0;
+            const compare = Number(v.compare_at_price) || 0;
+            const hasCompare = compare > price;
+            // Arredonda pra baixo (igual ao Liquid) e só mostra o selo com
+            // desconto >= 1% — evita "−0% OFF" em compare_at quase igual.
+            const pct = hasCompare ? Math.floor((compare - price) * 100 / compare) : 0;
+            return '<div class="pdp-bundle__price-wrap">'
+                + (hasCompare
+                    ? '<s class="pdp-bundle__compare">De: ' + fmtBRL(compare) + '</s>'
+                    : '')
+                + (pct > 0
+                    ? '<span class="pdp-bundle__discount">−' + pct + '% OFF</span>'
+                    : '')
+                + '<p class="pdp-bundle__price">' + fmtBRL(price) + '</p>'
+                + '</div>';
         }
 
         function renderCf(it, idx, cf) {
