@@ -87,7 +87,7 @@
   }
   .pdp-bundle__subtitle {
     font-size: 0.8125rem;
-    color: var(--text-muted, #6b6259);
+    color: var(--color-on-surface-muted, #6f645d);
     margin: 0 0 0.75rem;
   }
   .pdp-bundle__list {
@@ -107,10 +107,15 @@
     border: 1px solid var(--color-outline-variant, #e6dad1);
     border-radius: 10px;
     background: var(--color-surface, #fff);
-    transition: opacity 0.15s;
   }
-  .pdp-bundle__item.is-unchecked {
-    opacity: 0.5;
+  /* Estado "não incluído": o dim fica só na miniatura, não no <li> inteiro.
+     Todo cross-sell nasce desmarcado (checked: false em ame-pdp-bundle.js),
+     então o antigo `opacity: .5` no item era o estado DEFAULT do bloco e
+     derrubava o contraste de TODO o texto sobre #f7f5f2: nome 3,23:1, label
+     de variante 2,07:1 e o "De:" riscado 1,43:1 (mínimo AA = 4,5:1). O
+     checkbox vazio já comunica "não incluído" sem apagar nome e preço. */
+  .pdp-bundle__item.is-unchecked .pdp-bundle__img {
+    opacity: 0.55;
   }
   .pdp-bundle__check {
     width: 1.125rem;
@@ -126,6 +131,7 @@
     object-fit: cover;
     flex-shrink: 0;
     background: var(--color-surface-container, #f8ece0);
+    transition: opacity 0.15s;
   }
   .pdp-bundle__info {
     flex: 1;
@@ -143,9 +149,12 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
+  /* Os textos secundários deste bloco usavam var(--text-muted, #6b6259), mas
+     --text-muted não existe em nenhum lugar do tema (sempre caía no fallback).
+     Trocado pelo token real, que é themeável e vale 5,3:1 sobre #f7f5f2. */
   .pdp-bundle__variant-label {
     font-size: 0.6875rem;
-    color: var(--text-muted, #6b6259);
+    color: var(--color-on-surface-muted, #6f645d);
     margin: 0.125rem 0 0;
   }
   .pdp-bundle__row {
@@ -163,9 +172,13 @@
     gap: 0.4rem;
     align-self: flex-end;
   }
+  /* rgba(90,71,66,.45) dava 2,10:1 sobre #f7f5f2 (1,43:1 com o dim antigo do
+     item): o preço "De" ficava invisível. O token vale 5,3:1 e o line-through
+     + o tamanho menor mantêm a distinção com o preço final, sem depender da
+     cor. */
   .pdp-bundle__compare {
     font-size: 0.75rem;
-    color: rgba(90, 71, 66, 0.45);
+    color: var(--color-on-surface-muted, #6f645d);
     text-decoration: line-through;
     white-space: nowrap;
   }
@@ -255,7 +268,7 @@
   }
   .pdp-bundle__cf-helper {
     font-size: 0.6875rem;
-    color: var(--text-muted, #6b6259);
+    color: var(--color-on-surface-muted, #6f645d);
     margin: 0;
   }
   .pdp-bundle__cf-pills {

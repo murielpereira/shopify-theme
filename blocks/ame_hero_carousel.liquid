@@ -62,145 +62,257 @@
 -%}
 
 {%- if active_slides.size > 0 -%}
-  <div
-    class="ame-hero-c ame-hero-c-{{ hid }}"
-    data-ame-hero-carousel
-    data-autoplay="{{ block.settings.autoplay }}"
-    data-autoplay-interval="{{ block.settings.autoplay_interval }}"
-    {{ block.shopify_attributes }}
-  >
-    <div class="ame-hero-c__track" data-track>
-      {%- for slide_i_raw in active_slides -%}
-        {%- assign i = slide_i_raw | times: 1 -%}
-        {%- liquid
-          assign img_key = 'slide_' | append: i | append: '_image'
-          assign img_mob_key = 'slide_' | append: i | append: '_image_mobile'
-          assign heading_key = 'slide_' | append: i | append: '_heading'
-          assign text_key = 'slide_' | append: i | append: '_text'
-          assign cta_key = 'slide_' | append: i | append: '_cta_label'
-          assign cta_url_key = 'slide_' | append: i | append: '_cta_url'
-          assign align_key = 'slide_' | append: i | append: '_align'
-
-          assign img = block.settings[img_key]
-          assign img_mob = block.settings[img_mob_key]
-          assign heading = block.settings[heading_key]
-          assign text = block.settings[text_key]
-          assign cta_label = block.settings[cta_key]
-          assign cta_url = block.settings[cta_url_key]
-          assign align = block.settings[align_key] | default: 'flex-start bottom'
-          assign align_parts = align | split: ' '
-          assign align_x = align_parts[0] | default: 'flex-start'
-          assign align_y = align_parts[1] | default: 'flex-end'
-
-          assign is_first = false
-          if forloop.first
-            assign is_first = true
-          endif
-        -%}
-        <div
-          class="ame-hero-c__slide"
-          data-slide
-          style="--align-x: {{ align_x }}; --align-y: {{ align_y }};"
-        >
-          {%- capture slide_picture -%}
-            <picture>
-              {%- if img_mob != blank -%}
-                <source media="(max-width: 749px)" srcset="{{ img_mob | image_url: width: 900 }}">
-              {%- endif -%}
-              <img
-                src="{{ img | image_url: width: 1800 }}"
-                srcset="{{ img | image_url: width: 800 }} 800w, {{ img | image_url: width: 1400 }} 1400w, {{ img | image_url: width: 1800 }} 1800w"
-                sizes="100vw"
-                alt="{{ img.alt | default: heading | escape }}"
-                loading="{% if is_first %}eager{% else %}lazy{% endif %}"
-                {% if is_first %}
-                  fetchpriority="high"
-                {% endif %}
-                class="ame-hero-c__img"
-                width="{{ img.width }}"
-                height="{{ img.height }}"
-              >
-            </picture>
-          {%- endcapture -%}
-          {%- comment -%}
-            Imagem inteira clicável quando o slide tem link — leva pro mesmo
-            destino do botão CTA. O conteúdo sobreposto usa pointer-events:none
-            (só o botão volta a capturar clique), então o clique em qualquer
-            ponto do banner navega.
-          {%- endcomment -%}
-          {%- if cta_url != blank -%}
-            <a
-              href="{{ cta_url }}"
-              class="ame-hero-c__img-link"
-              data-slide-link
-              aria-label="{{ heading | default: cta_label | default: 'Ver coleção' | escape }}"
-            >{{ slide_picture }}</a>
-          {%- else -%}
-            {{ slide_picture }}
-          {%- endif -%}
-
-          {%- if block.settings.show_overlay -%}
-            <div
-              class="ame-hero-c__overlay"
-              aria-hidden="true"
-              style="background: {{ block.settings.overlay_color }}; opacity: {{ block.settings.overlay_opacity }};"
-            ></div>
-          {%- endif -%}
-
-          <div class="ame-hero-c__content">
-            {%- if heading != blank -%}
-              <h2 class="ame-hero-c__heading" style="color: {{ block.settings.heading_color }};">
-                {{ heading }}
-              </h2>
-            {%- endif -%}
-            {%- if text != blank -%}
-              <div class="ame-hero-c__text" style="color: {{ block.settings.text_color }};">
-                {{ text }}
-              </div>
-            {%- endif -%}
-            {%- if cta_label != blank -%}
-              <a
-                href="{{ cta_url | default: '#' }}"
-                class="ame-hero-c__cta"
-                style="background: {{ block.settings.button_bg_color }}; color: {{ block.settings.button_text_color }}; border-radius: {{ block.settings.button_border_radius }}px;"
-              >
-                {{ cta_label }}
-              </a>
-            {%- endif -%}
-          </div>
-        </div>
-      {%- endfor -%}
-    </div>
-
-    {%- if active_slides.size > 1 -%}
-      <button
-        type="button"
-        class="ame-hero-c__nav ame-hero-c__nav--prev"
-        data-prev
-        aria-label="Slide anterior"
-      >
-        <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-      </button>
-      <button
-        type="button"
-        class="ame-hero-c__nav ame-hero-c__nav--next"
-        data-next
-        aria-label="Próximo slide"
-      >
-        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-      </button>
-      <div class="ame-hero-c__dots" data-dots>
+{%- comment -%}
+  O markup do carrossel é montado num buffer porque o link rel="preload" do
+  primeiro slide tem que ser o PRIMEIRO nó emitido pelo bloco. PSI mobile
+  03/09/2026: LCP 5,4 s com 1.282 ms só de espera pelo recurso (78% do total)
+  — a imagem só era requisitada aos 1.300 ms, depois de 2 CSS bloqueantes,
+  ~170 linhas de style inline e os 236 KB do wpmLoader. O bloco renderiza no
+  body, então isso não equivale a um preload no head, mas sai na frente do
+  style da seção e do resto do markup.
+{%- endcomment -%}
+{%- capture hero_html -%}
+    <div
+      class="ame-hero-c ame-hero-c-{{ hid }}"
+      data-ame-hero-carousel
+      data-autoplay="{{ block.settings.autoplay }}"
+      data-autoplay-interval="{{ block.settings.autoplay_interval }}"
+      {{ block.shopify_attributes }}
+    >
+      <div class="ame-hero-c__track" data-track>
         {%- for slide_i_raw in active_slides -%}
-          <button
-            type="button"
-            class="ame-hero-c__dot{% if forloop.first %} is-active{% endif %}"
-            data-dot="{{ forloop.index0 }}"
-            aria-label="Slide {{ forloop.index }}"
-          ></button>
+          {%- assign i = slide_i_raw | times: 1 -%}
+          {%- liquid
+            assign img_key = 'slide_' | append: i | append: '_image'
+            assign img_mob_key = 'slide_' | append: i | append: '_image_mobile'
+            assign heading_key = 'slide_' | append: i | append: '_heading'
+            assign text_key = 'slide_' | append: i | append: '_text'
+            assign cta_key = 'slide_' | append: i | append: '_cta_label'
+            assign cta_url_key = 'slide_' | append: i | append: '_cta_url'
+            assign align_key = 'slide_' | append: i | append: '_align'
+
+            assign img = block.settings[img_key]
+            assign img_mob = block.settings[img_mob_key]
+            assign heading = block.settings[heading_key]
+            assign text = block.settings[text_key]
+            assign cta_label = block.settings[cta_key]
+            assign cta_url = block.settings[cta_url_key]
+            assign align = block.settings[align_key] | default: 'flex-start bottom'
+            assign align_parts = align | split: ' '
+            assign align_x = align_parts[0] | default: 'flex-start'
+            assign align_y = align_parts[1] | default: 'flex-end'
+
+            assign is_first = false
+            if forloop.first
+              assign is_first = true
+            endif
+
+            # srcset mobile de verdade: antes o <source> tinha um único candidato
+            # de 900w e o PSI mediu 20 KiB desperdiçados num viewport de 412 px
+            # (900x1355 baixado pra exibir 721x1282). Candidatos limitados à
+            # largura do arquivo original, porque image_url não faz upscale.
+            assign mob_srcset = ''
+            assign mob_href = ''
+            if img_mob != blank
+              assign mob_cands = '600,750,900,1100' | split: ','
+              for w in mob_cands
+                assign wn = w | times: 1
+                if wn > img_mob.width
+                  continue
+                endif
+                assign mob_href = img_mob | image_url: width: wn
+                if mob_srcset != blank
+                  assign mob_srcset = mob_srcset | append: ', '
+                endif
+                assign mob_srcset = mob_srcset | append: mob_href | append: ' ' | append: wn | append: 'w'
+              endfor
+              if mob_srcset == blank
+                assign mob_href = img_mob | image_url: width: img_mob.width
+                assign mob_srcset = mob_href | append: ' ' | append: img_mob.width | append: 'w'
+              endif
+            endif
+
+            # Desktop mantém os mesmos candidatos de sempre (800/1400/1800), mas
+            # em variável: o preload precisa de srcset/sizes IDÊNTICOS aos do
+            # <img>, senão o browser baixa a imagem duas vezes.
+            assign dsk_800 = img | image_url: width: 800
+            assign dsk_1400 = img | image_url: width: 1400
+            assign dsk_1800 = img | image_url: width: 1800
+            assign dsk_srcset = dsk_800 | append: ' 800w, ' | append: dsk_1400 | append: ' 1400w, ' | append: dsk_1800 | append: ' 1800w'
+
+            # Guarda as strings do primeiro slide pro link rel="preload", que é
+            # emitido depois do capture (fora deste for).
+            if is_first
+              assign preload_mob_srcset = mob_srcset
+              assign preload_mob_href = mob_href
+              assign preload_dsk_srcset = dsk_srcset
+              assign preload_dsk_href = dsk_1800
+            endif
+          -%}
+          <div
+            class="ame-hero-c__slide"
+            data-slide
+            style="--align-x: {{ align_x }}; --align-y: {{ align_y }};"
+          >
+            {%- capture slide_picture -%}
+              <picture>
+                {%- if img_mob != blank -%}
+                  <source media="(max-width: 749px)" srcset="{{ mob_srcset }}" sizes="100vw">
+                {%- endif -%}
+                {%- comment -%}
+                  decoding sync no primeiro slide: ele é o LCP, decodificar fora
+                  da thread principal só atrasaria o paint (render medido em
+                  98 ms). Os demais ficam async pra não competir com ele.
+                {%- endcomment -%}
+                <img
+                  src="{{ dsk_1800 }}"
+                  srcset="{{ dsk_srcset }}"
+                  sizes="100vw"
+                  alt="{{ img.alt | default: heading | escape }}"
+                  loading="{% if is_first %}eager{% else %}lazy{% endif %}"
+                  decoding="{% if is_first %}sync{% else %}async{% endif %}"
+                  {% if is_first %}
+                    fetchpriority="high"
+                  {% endif %}
+                  class="ame-hero-c__img"
+                  width="{{ img.width }}"
+                  height="{{ img.height }}"
+                >
+              </picture>
+            {%- endcapture -%}
+            {%- comment -%}
+              Imagem inteira clicável quando o slide tem link — leva pro mesmo
+              destino do botão CTA. O conteúdo sobreposto usa pointer-events:none
+              (só o botão volta a capturar clique), então o clique em qualquer
+              ponto do banner navega.
+            {%- endcomment -%}
+            {%- if cta_url != blank -%}
+              <a
+                href="{{ cta_url }}"
+                class="ame-hero-c__img-link"
+                data-slide-link
+                aria-label="{{ heading | default: cta_label | default: 'Ver coleção' | escape }}"
+              >{{ slide_picture }}</a>
+            {%- else -%}
+              {{ slide_picture }}
+            {%- endif -%}
+
+            {%- if block.settings.show_overlay -%}
+              <div
+                class="ame-hero-c__overlay"
+                aria-hidden="true"
+                style="background: {{ block.settings.overlay_color }}; opacity: {{ block.settings.overlay_opacity }};"
+              ></div>
+            {%- endif -%}
+
+            <div class="ame-hero-c__content">
+              {%- if heading != blank -%}
+                <h2 class="ame-hero-c__heading" style="color: {{ block.settings.heading_color }};">
+                  {{ heading }}
+                </h2>
+              {%- endif -%}
+              {%- if text != blank -%}
+                <div class="ame-hero-c__text" style="color: {{ block.settings.text_color }};">
+                  {{ text }}
+                </div>
+              {%- endif -%}
+              {%- if cta_label != blank -%}
+                <a
+                  href="{{ cta_url | default: '#' }}"
+                  class="ame-hero-c__cta"
+                  style="background: {{ block.settings.button_bg_color }}; color: {{ block.settings.button_text_color }}; border-radius: {{ block.settings.button_border_radius }}px;"
+                >
+                  {{ cta_label }}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
         {%- endfor -%}
       </div>
-    {%- endif -%}
-  </div>
+
+      {%- if active_slides.size > 1 -%}
+        <button
+          type="button"
+          class="ame-hero-c__nav ame-hero-c__nav--prev"
+          data-prev
+          aria-label="Slide anterior"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+        </button>
+        <button
+          type="button"
+          class="ame-hero-c__nav ame-hero-c__nav--next"
+          data-next
+          aria-label="Próximo slide"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        </button>
+        <div class="ame-hero-c__dots" data-dots>
+          {%- for slide_i_raw in active_slides -%}
+            <button
+              type="button"
+              class="ame-hero-c__dot{% if forloop.first %} is-active{% endif %}"
+              data-dot="{{ forloop.index0 }}"
+              aria-label="Slide {{ forloop.index }}"
+            ></button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+{%- endcapture -%}
+
+{%- comment -%}
+  Dois preloads espelhando o picture (media mobile/desktop) pra baixar só o
+  arquivo que vai ser usado. imagesrcset/imagesizes são as MESMAS strings do
+  source/img — se divergirem, o browser baixa duas vezes. Sem imagem mobile,
+  o img vale em qualquer viewport e um preload sem media basta.
+
+  ⚠️ O theme-check avisa aqui (AssetPreload) sugerindo o argumento
+  `preload: true` do filtro image_tag. NÃO dá pra usar neste bloco, e o
+  aviso é aceito de propósito. Motivo: `preload: true` emite um único header
+  HTTP `Link: ...; rel=preload`, e header não tem como carregar `media`.
+  Este hero faz ART DIRECTION — `<source media="(max-width: 749px)">` troca
+  a imagem inteira no mobile (arquivo diferente, não só tamanho diferente).
+  Um preload sem `media` mandaria TODO mundo baixar a versão desktop, e o
+  visitante de celular pagaria por um arquivo que nem vai aparecer: preload
+  errado é pior que preload nenhum. Por isso ficamos no `<link>` com `media`.
+  (A PDP é o caso oposto — imagem única, só muda de tamanho — e lá usamos
+  `preload: true` mesmo, em snippets/pdp-lcp-image.liquid.)
+
+  A mesma regra já avisava 3x em sections/home-hero.liquid antes desta
+  mudança, pelo mesmo motivo. Se algum dia quiser zerar o ruído, o caminho é
+  desabilitar AssetPreload no .theme-check.yml — não trocar o mecanismo.
+{%- endcomment -%}
+{%- if preload_mob_srcset != blank -%}
+  <link
+    rel="preload"
+    as="image"
+    href="{{ preload_mob_href }}"
+    imagesrcset="{{ preload_mob_srcset }}"
+    imagesizes="100vw"
+    media="(max-width: 749px)"
+    fetchpriority="high"
+  >
+  <link
+    rel="preload"
+    as="image"
+    href="{{ preload_dsk_href }}"
+    imagesrcset="{{ preload_dsk_srcset }}"
+    imagesizes="100vw"
+    media="(min-width: 750px)"
+    fetchpriority="high"
+  >
+{%- else -%}
+  <link
+    rel="preload"
+    as="image"
+    href="{{ preload_dsk_href }}"
+    imagesrcset="{{ preload_dsk_srcset }}"
+    imagesizes="100vw"
+    fetchpriority="high"
+  >
+{%- endif -%}
+{{ hero_html }}
 {%- endif -%}
 
 {% style %}
@@ -479,8 +591,13 @@
       }
     });
 
+    /* Autoplay só arranca depois do load da janela: o timer trazia os slides
+       2-4 pra viewport e destravava o loading="lazy" deles ainda dentro da
+       janela do LCP (PSI: 229 KiB começando aos 1.595 ms). A flag cobre
+       também mouseleave/resetTimer, que chamam startTimer. */
+    let loaded = document.readyState === 'complete';
     function startTimer() {
-      if (!autoplay) return;
+      if (!autoplay || !loaded) return;
       timer = setInterval(() => go(idx + 1), interval);
     }
     function resetTimer() {
@@ -489,7 +606,18 @@
     }
     root.addEventListener('mouseenter', () => clearInterval(timer));
     root.addEventListener('mouseleave', startTimer);
-    startTimer();
+    if (loaded) {
+      startTimer();
+    } else {
+      window.addEventListener(
+        'load',
+        () => {
+          loaded = true;
+          startTimer();
+        },
+        { once: true }
+      );
+    }
   })();
 </script>
 

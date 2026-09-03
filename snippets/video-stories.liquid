@@ -40,6 +40,19 @@
     assign vs_show_cta = true
   endif
 
+  # Largura do poster derivada do tamanho REAL de renderização.
+  # PSI 03/09: poster fixo de 720px pra um anel de 70-90px custava 609 KiB na
+  # home (41% de todas as imagens da página) e 531 KiB na PDP kit-tereza.
+  # Spotlight renderiza card de até ~280px (clamp(180px, 22vw, 280px)), logo
+  # merece mais pixels. Stories/carrossel derivam de vs_tamanho com fator 3
+  # de margem pra tela retina, com piso 180 e teto 480 (at_least/at_most em
+  # uma linha em vez de dois ifs de comparacao).
+  if vs_format == 'spotlight'
+    assign vs_poster_w = 420
+  else
+    assign vs_poster_w = vs_tamanho | times: 3 | at_least: 180 | at_most: 480
+  endif
+
   assign vs_has_videos = false
   if vs_videos.size > 0
     assign vs_has_videos = true
@@ -118,14 +131,14 @@
             assign vt_host = v.host
             assign vt_title = v.alt
             if v.preview_image != blank
-              assign vt_image = v.preview_image | image_url: width: 720
+              assign vt_image = v.preview_image | image_url: width: vs_poster_w
             endif
           elsif v.media_type == 'video'
             assign vt_type = 'native'
             assign vt_id = v.id
             assign vt_title = v.alt
             if v.preview_image != blank
-              assign vt_image = v.preview_image | image_url: width: 720
+              assign vt_image = v.preview_image | image_url: width: vs_poster_w
             endif
             if v.sources.size > 0
               assign vt_native_src = v.sources[0].url
@@ -141,7 +154,7 @@
           assign block_video = v.settings.video
           assign vt_title = v.settings.title
           if v.settings.image != blank
-            assign vt_image = v.settings.image | image_url: width: 720
+            assign vt_image = v.settings.image | image_url: width: vs_poster_w
           endif
           assign vt_cta_url = v.settings.cta_url
           assign vt_cta_label = v.settings.cta_label | default: vs_cta_default
@@ -163,7 +176,7 @@
               assign vt_native_src = block_video.sources[0].url
             endif
             if vt_image == '' and block_video.preview_image != blank
-              assign vt_image = block_video.preview_image | image_url: width: 720
+              assign vt_image = block_video.preview_image | image_url: width: vs_poster_w
             endif
           endif
         endif
@@ -249,7 +262,19 @@
             <div class="ame-vs__ring">
               <div class="ame-vs__media">
                 {%- if vt_image != '' -%}
-                  <img src="{{ vt_image }}" alt="{{ vt_title | escape }}" loading="lazy" width="720" height="720">
+                  {%- comment -%}
+                    width/height são apenas hint de aspect-ratio — o CSS manda
+                    (100%/100% dentro de .ame-vs__media). Usamos a largura real
+                    do poster em vez de 720 pra não mentir sobre o tamanho.
+                  {%- endcomment -%}
+                  <img
+                    src="{{ vt_image }}"
+                    alt="{{ vt_title | escape }}"
+                    loading="lazy"
+                    decoding="async"
+                    width="{{ vs_poster_w }}"
+                    height="{{ vs_poster_w }}"
+                  >
                 {%- else -%}
                   <span class="ame-vs__media-fallback" aria-hidden="true">
                     <span class="material-symbols-outlined">play_circle</span>
@@ -1119,10 +1144,11 @@
     }
 
     /* ── Hidrata templates: copia conteúdo para o slot apropriado ── */
-    document.querySelectorAll('[data-vs-template-for]').forEach(tpl => {
-      const widgetId = tpl.dataset.vsTemplateFor;
-      const widget = document.querySelector(`[data-vs-widget="${widgetId}"]`);
-      if (!widget) return;
+    /* `hydrate` chama enableHorizontalDrag/initSpotlight, declaradas mais
+       abaixo neste mesmo IIFE — function declarations sofrem hoisting, e o
+       callback do IntersectionObserver roda depois do script inteiro ser
+       avaliado, então ambas já estão resolvidas de qualquer forma. */
+    function hydrate(tpl, widget) {
       const cardsHTML = tpl.innerHTML;
       tpl.remove();
 
@@ -1138,6 +1164,45 @@
         }
         window.AmeVideoStories.bindOpenLinks(widget);
       }
+    }
+
+    /* PSI 03/09: hidratar tudo na hora (o script roda junto do
+       DOMContentLoaded) injetava TODOS os posters com prioridade High dentro
+       da janela do LCP — na home eram 10 posters / 609 KiB competindo por
+       banda, com 1.282 ms de "resource load delay" no LCP. Agora cada widget
+       só hidrata quando chega perto da viewport. rootMargin de 400px carrega
+       com folga antes de aparecer, então o usuário nunca vê o slot vazio.
+       Widget já visível no primeiro frame dispara imediatamente — esperado. */
+    document.querySelectorAll('[data-vs-template-for]').forEach(tpl => {
+      /* A home renderiza o snippet DUAS vezes (stories + spotlight), então
+         cada cópia deste script varre TODOS os templates já parseados da
+         página. (Não escreva a tag de script literal num comentário aqui: o
+         parser Liquid-HTML do theme-check conta como abertura aninhada e
+         aborta o arquivo inteiro com LiquidHTMLSyntaxError.) Antes
+         a hidratação era síncrona e o tpl.remove() sumia com o template antes
+         do 2º script rodar; agora o template fica no DOM até entrar na
+         viewport, então sem esta marca o 2º script registraria um segundo
+         observer no MESMO widget e hydrate rodaria duas vezes (wheel listener
+         e autoplay do spotlight duplicados). */
+      if (tpl.dataset.vsClaimed === '1') return;
+      tpl.dataset.vsClaimed = '1';
+
+      const widgetId = tpl.dataset.vsTemplateFor;
+      const widget = document.querySelector(`[data-vs-widget="${widgetId}"]`);
+      if (!widget) return;
+
+      // Browser sem IntersectionObserver: hidrata na hora (comportamento antigo).
+      if (typeof IntersectionObserver !== 'function') {
+        hydrate(tpl, widget);
+        return;
+      }
+
+      const io = new IntersectionObserver((entries, obs) => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        obs.disconnect(); // desobserva: hidrata uma única vez
+        hydrate(tpl, widget);
+      }, { rootMargin: '400px 0px' });
+      io.observe(widget);
     });
 
     /* Versão anterior tinha mouse-drag custom + handler de click em CAPTURE

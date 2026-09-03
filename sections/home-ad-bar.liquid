@@ -190,12 +190,15 @@
     line-height: 1.2;
   }
 
+  /* PSI mobile 03/09: #4f4442 com opacity .65 sobre #f8ece0 achatava pra
+     #8a7f79 = 3,35:1 (AA pede 4,5:1) nos 3 itens da barra. O token muted
+     já é o tom secundário calibrado (~4,9:1 aqui), então a opacity sai —
+     mantê-la clarearia pra ~3,7:1 e o problema voltaria. */
   .ame-ad-bar__sublabel {
     font-size: 0.7rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-on-surface-variant, #4f4442);
-    opacity: 0.65;
+    color: var(--color-on-surface-muted, #6f645d);
     line-height: 1.3;
   }
 
@@ -204,8 +207,12 @@
       padding: 1rem 1.25rem;
       gap: 0.625rem;
     }
+    /* No mobile o label (11px) fica menor que o sublabel (11,2px); com o
+       sublabel mais escuro os dois empatavam, então o peso sobe pra 600
+       pra o título continuar sendo lido primeiro. */
     .ame-ad-bar__label {
       font-size: 0.6875rem;
+      font-weight: 600;
     }
   }
 {% endstylesheet %}

@@ -71,8 +71,132 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' -%}
+  {%- comment -%}
+    NÃO existe preload de imagem aqui. O preload da imagem de LCP da PDP é
+    emitido pelo próprio `snippets/pdp-lcp-image.liquid` (renderizado no
+    sections/product.liquid), via `preload: true` no filtro image_tag — que
+    manda um header HTTP `Link: ...; rel=preload`, ainda mais cedo que um
+    `<link>` daqui, e sem risco de o srcset divergir do `<img>`. Não
+    adicione um `<link rel="preload">` de imagem neste arquivo: dois
+    preloads com listas diferentes fazem o browser baixar a imagem duas
+    vezes, que é pior que não ter preload.
+  {%- endcomment -%}
+
+  {%- comment -%}
+    JSON-LD escrito à mão em vez do filtro nativo `structured_data`.
+
+    POR QUE: o filtro nativo emite um ProductGroup com `hasVariant` de 250
+    entradas — medi 153 KB de JSON-LD num documento de 967 KB. Além da banda,
+    é parse de JSON na main thread e HTML que o preload scanner tem que
+    atravessar antes de achar a imagem do LCP. A faixa de preço que o Google
+    precisa vem do AggregateOffer do grupo, não das 250 variantes.
+
+    CONTRATO COM A KONFIDENCY REVIEWS — não "simplifique" isto pra um Product
+    sem hasVariant. O bundle da Konfidency procura no DOM uma tag de script
+    com type="application/ld+json" cujo @type seja Product,
+    ProductDetailsPage, ProductGroup ou WebPage, faz
+    JSON.parse do innerHTML sem os \n e injeta aggregateRating + review.
+    No ramo ProductGroup ele itera hasVariant sem checar se existe. Logo:
+      - "@type" TEM QUE ser "ProductGroup";
+      - "hasVariant" TEM QUE ser um ARRAY, com no mínimo 1 entrada (a variante
+        selecionada) — array vazio não quebra o loop, mas perde a nota;
+      - toda string vinda do Liquid passa por | json, e nada de comentário
+        dentro do JSON: ele precisa continuar válido depois de remover os \n.
+  {%- endcomment -%}
+  {%- liquid
+    assign ld_variant = product.selected_or_first_available_variant | default: product.variants.first
+    assign ld_currency = cart.currency.iso_code | default: shop.currency
+    assign ld_id = '/products/' | append: product.handle
+    assign ld_variant_id = ld_id | append: '?variant=' | append: ld_variant.id | append: '#variant'
+    assign ld_offer_id = ld_id | append: '?variant=' | append: ld_variant.id | append: '#offer'
+    assign ld_url = shop.url | append: product.url
+    assign ld_variant_url = ld_url | append: '?variant=' | append: ld_variant.id
+    assign ld_group_id = product.id | append: ''
+    assign ld_brand = product.vendor | default: shop.name
+    assign ld_category = product.type
+    assign ld_description = product.description | strip_html | strip_newlines | truncate: 800
+
+    # Preço em JSON-LD é decimal com PONTO. divided_by: 100.0 força divisão
+    # float (18200 → 182.0); money_without_currency devolveria "182,00" e
+    # invalidaria o schema.
+    assign ld_low = product.price_min | divided_by: 100.0
+    assign ld_high = product.price_max | divided_by: 100.0
+    assign ld_variant_price = ld_variant.price | divided_by: 100.0
+
+    assign ld_availability = 'https://schema.org/OutOfStock'
+    if product.available
+      assign ld_availability = 'https://schema.org/InStock'
+    endif
+    assign ld_variant_availability = 'https://schema.org/OutOfStock'
+    if ld_variant.available
+      assign ld_variant_availability = 'https://schema.org/InStock'
+    endif
+
+    assign ld_image = ''
+    if product.featured_media != blank
+      assign ld_image = product.featured_media | image_url: width: 1200 | prepend: 'https:'
+    endif
+    assign ld_variant_image = ld_image
+    if ld_variant.featured_media != blank
+      assign ld_variant_image = ld_variant.featured_media | image_url: width: 1200 | prepend: 'https:'
+    endif
+
+    assign ld_variant_name = product.title
+    if ld_variant.title != blank and ld_variant.title != 'Default Title'
+      assign ld_variant_name = product.title | append: ' — ' | append: ld_variant.title
+    endif
+  -%}
   <script type="application/ld+json">
-    {{ product | structured_data }}
+    {
+      "@context": "https://schema.org",
+      "@type": "ProductGroup",
+      "@id": {{ ld_id | json }},
+      "name": {{ product.title | json }},
+      "description": {{ ld_description | json }},
+      "url": {{ ld_url | json }},
+      "brand": {
+        "@type": "Brand",
+        "name": {{ ld_brand | json }}
+      },
+      "productGroupID": {{ ld_group_id | json }}
+      {%- if ld_category != blank %},
+        "category": {{ ld_category | json }}
+      {%- endif %}
+      {%- if ld_image != blank %},
+        "image": [{{ ld_image | json }}]
+      {%- endif %},
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": {{ ld_currency | json }},
+        "lowPrice": {{ ld_low }},
+        "highPrice": {{ ld_high }},
+        "offerCount": {{ product.variants.size }},
+        "availability": {{ ld_availability | json }},
+        "url": {{ ld_url | json }}
+      },
+      "hasVariant": [
+        {
+          "@type": "Product",
+          "@id": {{ ld_variant_id | json }},
+          "name": {{ ld_variant_name | json }},
+          "url": {{ ld_variant_url | json }}
+          {%- if ld_variant.sku != blank %},
+            "sku": {{ ld_variant.sku | json }}
+          {%- endif %}
+          {%- if ld_variant_image != blank %},
+            "image": [{{ ld_variant_image | json }}]
+          {%- endif %},
+          "offers": {
+            "@type": "Offer",
+            "@id": {{ ld_offer_id | json }},
+            "price": {{ ld_variant_price }},
+            "priceCurrency": {{ ld_currency | json }},
+            "availability": {{ ld_variant_availability | json }},
+            "url": {{ ld_variant_url | json }}
+          }
+        }
+      ]
+    }
   </script>
 
   <meta

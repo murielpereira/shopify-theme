@@ -195,28 +195,33 @@
               <div class="pdp__slide" data-media-id="{{ media.id }}">
                 {%- if media.media_type == 'image' -%}
                   {%- liquid
+                    # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
+                    # O que mudou: o PRIMEIRO slide (a imagem de LCP) não passa mais
+                    # por este image_tag — vai pelo snippet 'pdp-lcp-image', que além
+                    # de loading=eager + fetchpriority=high pede `preload: true`. Esse
+                    # argumento faz o Shopify mandar um header HTTP
+                    # `Link: ...; rel=preload; as=image` com o MESMO srcset/sizes da
+                    # tag, o que ataca o gargalo real medido no PSI: 616 ms de
+                    # "resource load delay" contra 648 ms de download.
+                    # Os slides 2+ seguem lazy/auto — carregar todos eager atrasaria
+                    # justamente o LCP.
                     assign img_loading = 'lazy'
                     assign img_fetchpriority = 'auto'
-
-                    # ⚡ Bolt: Eager load the LCP (Largest Contentful Paint) image.
-                    # 💡 What: Apply `loading: 'eager'` and `fetchpriority: 'high'` to the first image in the product gallery.
-                    # 🎯 Why: Hardcoding `loading: 'lazy'` for all images delays the LCP. Eager loading the first image improves perceived load time.
-                    # 📊 Impact: Improves LCP Web Vital metric significantly.
-                    if forloop.first
-                      assign img_loading = 'eager'
-                      assign img_fetchpriority = 'high'
-                    endif
                     assign img_alt = media.alt | default: product.title | escape
                   -%}
-                  {{-
-                    media
-                    | image_url: width: 1200
-                    | image_tag:
-                      loading: img_loading,
-                      fetchpriority: img_fetchpriority,
-                      class: 'pdp__slide-img',
-                      alt: img_alt
-                  -}}
+                  {%- if forloop.first -%}
+                    {%- render 'pdp-lcp-image', media: media, alt: img_alt -%}
+                  {%- else -%}
+                    {{-
+                      media
+                      | image_url: width: 1200
+                      | image_tag:
+                        loading: img_loading,
+                        fetchpriority: img_fetchpriority,
+                        class: 'pdp__slide-img',
+                        alt: img_alt
+                    -}}
+                  {%- endif -%}
                 {%- elsif media.media_type == 'video' -%}
                   {%- comment -%}
                     Renderiza o <video> manualmente em vez de usar | video_tag,
@@ -249,7 +254,10 @@
                     endif
                     assign video_poster = ''
                     if media.preview_image != blank
-                      assign video_poster = media.preview_image | image_url: width: 1200
+                      # Poster a 800px: o slide renderiza a 382px no mobile e ~42vw no
+                      # desktop, então os 1200px anteriores eram o dobro do necessário
+                      # até em retina — peso puro no load da galeria.
+                      assign video_poster = media.preview_image | image_url: width: 800
                     endif
                   -%}
                   <video
@@ -2439,7 +2447,10 @@
     font-size: 0.5625rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: rgba(32, 27, 20, 0.6);
+    /* AA: "1 / 5" é informação, não decoração. O alpha .6 sobre o pill branco
+       55% dava ~4,5:1 no melhor caso (fundo é a imagem, então varia pra menos);
+       o token opaco é sempre mais escuro que o composto, então só melhora. */
+    color: var(--color-on-surface-muted, #6f645d);
   }
 
   /* Thumbnails */
@@ -2620,7 +2631,9 @@
     font-size: 0.6875rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(90, 71, 66, 0.6);
+    /* AA: o marrom da marca com alpha .6 dava 2,91:1 sobre o creme #f8f0e7.
+       O token opaco vale 5,1:1 e continua secundário ao texto principal. */
+    color: var(--color-on-surface-muted, #6f645d);
     margin: 0 0 0.125rem;
   }
 
@@ -2649,7 +2662,8 @@
 
   .pdp__price-compare {
     font-size: 0.875rem;
-    color: rgba(90, 71, 66, 0.45);
+    /* AA: alpha .45 dava 2,14:1 sobre o creme — era o pior do bloco de preço. */
+    color: var(--color-on-surface-muted, #6f645d);
     text-decoration: line-through;
   }
 
@@ -2766,7 +2780,8 @@
   /* parcelamento */
   .pdp__installments {
     font-size: 0.75rem;
-    color: rgba(90, 71, 66, 0.55);
+    /* AA: alpha .55 dava 2,63:1 sobre o creme. */
+    color: var(--color-on-surface-muted, #6f645d);
     margin-top: 0.1rem;
     display: flex;
     align-items: center;
@@ -2783,7 +2798,8 @@
 
   .pdp__installments-link {
     font-size: 0.6875rem;
-    color: rgba(90, 71, 66, 0.5);
+    /* AA: alpha .5 dava 2,36:1 — e é um link clicável, não pode ser fantasma. */
+    color: var(--color-on-surface-muted, #6f645d);
     text-decoration: underline;
     text-underline-offset: 2px;
     margin-left: 0.25rem;
@@ -3422,7 +3438,9 @@
 
   .ame-pingente-aviso {
     font-size: 0.55rem;
-    color: rgba(90, 71, 66, 0.5);
+    /* AA: "frente do pingente" / "verso 1ª linha" instruem o preenchimento —
+       a 8,8px com alpha .5 (2,36:1) era ilegível. */
+    color: var(--color-on-surface-muted, #6f645d);
   }
 
   .pdp__features {

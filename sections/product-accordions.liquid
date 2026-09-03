@@ -126,6 +126,74 @@
   endif
 -%}
 
+{%- liquid
+  # ─────────────────────────────────────────────────────────────────────
+  # Normalização do HTML da descrição (achado PSI de 03/09/2026)
+  # A descrição é HTML livre colado à mão no admin, e ele custava caro:
+  # na PDP da Atena o <video> colado (autoplay, sem preload, apontando pro
+  # arquivo original em /videos/c/o/v/) baixava 6.595 KiB no load — 73% dos
+  # 8.938 KiB da página — MESMO com o acordeão fechado.
+  # Os replaces abaixo são rede de segurança pra qualquer descrição futura;
+  # não substituem arrumar a descrição no admin.
+  # ─────────────────────────────────────────────────────────────────────
+  assign desc_html = product.description
+
+  # 1) Autoplay vira marcador pro JS em vez de sumir. Assim o vídeo não
+  #    baixa no load, mas o JS desta section sabe quais vídeos o lojista
+  #    quis decorativos (autoplay muted loop) e religa o loop na hora certa.
+  #    A ordem importa: a forma com valor sai PRIMEIRO, senão a remoção da
+  #    forma booleana deixaria um `="autoplay"` solto e quebraria o tag.
+  assign desc_html = desc_html | replace: ' autoplay="autoplay"', ' data-pdp-autoplay'
+  assign desc_html = desc_html | replace: " autoplay='autoplay'", ' data-pdp-autoplay'
+  assign desc_html = desc_html | replace: ' autoplay=""', ' data-pdp-autoplay'
+  # Formas booleanas: só troca quando `autoplay` está cercado por espaço ou
+  # pelo fecha-tag, pra não mutilar um valor de atributo (class="... autoplay").
+  assign desc_html = desc_html | replace: ' autoplay ', ' data-pdp-autoplay '
+  assign desc_html = desc_html | replace: ' autoplay>', ' data-pdp-autoplay>'
+  assign desc_html = desc_html | replace: ' autoplay/>', ' data-pdp-autoplay/>'
+
+  # 2) preload="none" logo depois de `<video `. Duplicar não é problema: o
+  #    parser HTML mantém a PRIMEIRA ocorrência de um atributo repetido e
+  #    descarta as seguintes — então o nosso preload="none", por vir antes,
+  #    vence um preload="metadata" que apareça depois no mesmo tag.
+  assign desc_html = desc_html | replace: '<video ', '<video preload="none" '
+  assign desc_html = desc_html | replace: '<video>', '<video preload="none">'
+
+  # 3) loading/decoding lazy nas imagens — mesma regra do primeiro-atributo-vence.
+  #    Seguro porque o corpo do acordeão nunca está acima da dobra na PDP:
+  #    esta section renderiza depois da galeria, do preço e do botão de comprar.
+  assign desc_html = desc_html | replace: '<img ', '<img loading="lazy" decoding="async" '
+
+  # 4) Largura nas imagens do CDN. As URLs coladas terminam em `?v=NNNN`
+  #    (formato que o editor do Shopify gera), então trocar `?v=` por
+  #    `?width=1000&v=` devolve uma URL válida do CDN — é a mesma forma que
+  #    o filtro image_url produz, e a ordem dos parâmetros é indiferente.
+  #    Derruba os 2048px originais pra 1000px: couro_detalhes.jpg vinha com
+  #    242 KiB pra ser exibida a 669px, e a foto do Kit Tereza com 158 KiB.
+  #    O `&` sai escapado porque o valor vai dentro de um atributo HTML.
+  #    Pulamos tudo se a descrição já tiver `&width=` em alguma URL: sinal de
+  #    que o lojista já dimensionou à mão, e um segundo width= na mesma query
+  #    seria ambíguo. Um `<img width="669">` não cai nesse guard — não tem o
+  #    `&` antes.
+  #    Ressalva conhecida: o sufixo legado `_NNNx` (nome_400x400.jpg?v=1) não
+  #    dá pra detectar com `replace` (precisaria de regex), então uma URL
+  #    dessas ganharia width=1000 por cima. Impacto aceito: o editor do admin
+  #    não gera esse formato, e o resultado continua sendo uma imagem válida.
+  assign desc_has_width = false
+  if desc_html contains '&width='
+    assign desc_has_width = true
+  endif
+  if desc_html contains '&amp;width='
+    assign desc_has_width = true
+  endif
+  unless desc_has_width
+    assign desc_html = desc_html | replace: '.jpg?v=', '.jpg?width=1000&amp;v='
+    assign desc_html = desc_html | replace: '.jpeg?v=', '.jpeg?width=1000&amp;v='
+    assign desc_html = desc_html | replace: '.png?v=', '.png?width=1000&amp;v='
+    assign desc_html = desc_html | replace: '.webp?v=', '.webp?width=1000&amp;v='
+  endunless
+-%}
+
 <div class="pdp-accordions full-width" data-pdp-accordions>
   {%- if show_desc_accordion -%}
     <div class="ame-accordion">
@@ -149,8 +217,12 @@
         style="max-height: none;"
       >
         <div class="ame-accordion__body">
+          {%- comment -%}
+            desc_html = product.description já normalizada no topo do template
+            (autoplay fora, preload="none", imagens lazy e com width=1000).
+          {%- endcomment -%}
           {%- if product.description != blank -%}
-            {{ product.description }}
+            {{ desc_html }}
           {%- endif -%}
 
           {%- comment -%}
@@ -280,7 +352,8 @@
         class="ame-accordion__content"
         style="max-height: none;"
       >
-        <div class="ame-accordion__body">{{ product.description }}</div>
+        {%- comment -%} Mesma descrição normalizada do acordeão acima. {%- endcomment -%}
+        <div class="ame-accordion__body">{{ desc_html }}</div>
       </div>
     </div>
   {%- endif -%}
@@ -288,9 +361,102 @@
 
 <script>
   (() => {
-    /* Toggle dos acordeões — limitado a esta section pra não conflitar com outras */
+    /* Raiz da section — tudo aqui é limitado a ela pra não conflitar com outras */
     const root = document.querySelector('[data-pdp-accordions]');
     if (!root) return;
+
+    /* ── Vídeos colados na descrição (achado PSI de 03/09/2026) ──
+       O Liquid acima trocou `autoplay` por `data-pdp-autoplay` e forçou
+       `preload="none"`, então nada é baixado no load (eram 6.595 KiB na PDP
+       da Atena, com o acordeão fechado). A intenção do lojista era loop
+       decorativo mudo, e ela continua valendo: aqui o vídeo só toca quando
+       o acordeão está ABERTO e o vídeo está NA TELA, e pausa quando sai de
+       vista ou o acordeão fecha.
+       Listeners vão direto no elemento — nunca delegation no document,
+       porque apps de terceiro desta loja interceptam clicks lá. */
+    const videosDesc = Array.prototype.slice.call(root.querySelectorAll('.ame-accordion__body video'));
+    const videosNaTela = new Set();
+
+    const acordeaoAberto = (video) => {
+      const conteudo = video.closest('.ame-accordion__content');
+      if (!conteudo) return true;
+      /* Mesma fonte de verdade do toggle abaixo: o aria-expanded do botão. */
+      const btn = conteudo.previousElementSibling;
+      if (btn && btn.classList.contains('ame-accordion__btn')) {
+        return btn.getAttribute('aria-expanded') === 'true';
+      }
+      return !conteudo.hasAttribute('hidden');
+    };
+
+    /* Vídeo que não carrega sai da página em vez de virar caixa preta —
+       é o caso do .mov da Atena e do Kit Tereza, que dá ERR_CONNECTION_FAILED
+       no Chrome/Android. Com preload="none" o erro só aparece depois do
+       play(), ou seja, quando o cliente abre o acordeão. */
+    const esconderVideo = (video) => {
+      videosNaTela.delete(video);
+      video.pause();
+      video.hidden = true;
+    };
+
+    const sincronizarVideos = () => {
+      videosDesc.forEach((video) => {
+        if (video.hidden) return;
+
+        /* Acordeão fechado pausa QUALQUER vídeo, inclusive um que o cliente
+           tenha dado play à mão — nada de som tocando atrás de conteúdo oculto. */
+        if (!acordeaoAberto(video)) {
+          if (!video.paused) video.pause();
+          return;
+        }
+
+        /* Aberto: só religamos por conta própria o loop decorativo do lojista
+           (o que era `autoplay muted loop`). Vídeo com controls continua sob
+           comando do cliente, e por isso não pausa só por sair de vista. */
+        if (!video.hasAttribute('data-pdp-autoplay')) return;
+
+        if (videosNaTela.has(video)) {
+          if (video.paused) {
+            const tocando = video.play();
+            /* Sem som o navegador libera o play; se recusar (vídeo com áudio,
+               economia de bateria), a promise rejeita e a gente ignora. */
+            if (tocando && tocando.catch) tocando.catch(() => {});
+          }
+        } else if (!video.paused) {
+          video.pause();
+        }
+      });
+    };
+
+    videosDesc.forEach((video) => {
+      video.addEventListener('error', () => esconderVideo(video));
+      video.querySelectorAll('source').forEach((source) => {
+        source.addEventListener('error', () => {
+          /* networkState 3 = NETWORK_NO_SOURCE: nenhuma <source> serviu.
+             Uma source só falhando não condena o vídeo (pode ter fallback). */
+          if (video.networkState === 3) esconderVideo(video);
+        });
+      });
+    });
+
+    if ('IntersectionObserver' in window) {
+      const observador = new IntersectionObserver(
+        (entradas) => {
+          entradas.forEach((entrada) => {
+            if (entrada.isIntersecting) videosNaTela.add(entrada.target);
+            else videosNaTela.delete(entrada.target);
+          });
+          sincronizarVideos();
+        },
+        { threshold: 0.25 }
+      );
+      videosDesc.forEach((video) => observador.observe(video));
+    } else {
+      /* Sem IntersectionObserver, cai pra "toca quando o acordeão abre". */
+      videosDesc.forEach((video) => videosNaTela.add(video));
+      sincronizarVideos();
+    }
+
+    /* Toggle dos acordeões — só um aberto por vez */
     root.querySelectorAll('.ame-accordion__btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const open = btn.getAttribute('aria-expanded') === 'true';
@@ -304,6 +470,9 @@
           btn.nextElementSibling.removeAttribute('hidden');
           btn.nextElementSibling.style.maxHeight = 'none';
         }
+        /* Fechar um acordeão pausa o vídeo de dentro dele; abrir religa
+           (se estiver na tela). Sem isso o vídeo seguiria tocando escondido. */
+        sincronizarVideos();
       });
     });
 
@@ -348,6 +517,14 @@
 </script>
 
 {% stylesheet %}
+  /* ── Vídeo colado na descrição que falhou ao carregar ──
+     O JS marca o elemento com o atributo hidden, mas o display:none da UA
+     perde de `.ame-accordion__body video { display: block }` (definido no
+     product.liquid). Sem esta regra a caixa preta continuaria na página. */
+  .ame-accordion__body video[hidden] {
+    display: none !important;
+  }
+
   /* ── Depois da compra ── */
   .pdp__after-purchase {
     margin-top: 2rem;

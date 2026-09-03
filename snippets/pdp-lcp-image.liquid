@@ -1,0 +1,66 @@
+{%- comment -%}
+  Âme — Primeira imagem da galeria da PDP (o elemento de LCP)
+
+  POR QUE ESTE SNIPPET EXISTE
+  O PSI de 03/09/2026 mediu, no LCP desta PDP, 616 ms de "resource load
+  delay" contra 648 ms de download: a imagem não é lenta, ela demora pra
+  COMEÇAR. O preload scanner só chega nela depois de atravessar dois CSS
+  bloqueantes, o style inline e (antes da correção) 153 KB de JSON-LD.
+
+  COMO RESOLVE
+  `preload: true` no filtro image_tag. Não emite um `<link>` no HTML —
+  emite um header HTTP `Link: <url>; rel=preload; as=image`, com
+  imagesrcset/imagesizes espelhando o srcset/sizes da própria tag. Isso
+  chega ao browser JUNTO DOS HEADERS DA RESPOSTA, antes de existir um byte
+  de HTML: mais cedo que um `<link>` no `<head>`, e muito mais cedo que a
+  posição real desta imagem no documento.
+
+  Duas coisas que essa escolha resolve de graça:
+  - Não existe risco de download duplicado. Era o perigo da versão
+    anterior deste snippet, que montava o srcset à mão em dois lugares (um
+    `<link rel=preload>` no meta-tags.liquid e o `<img>` aqui): divergir em
+    UM candidato faria o browser baixar a imagem duas vezes, que é pior que
+    não ter preload nenhum. Agora a origem é uma só.
+  - `image_tag` já emite width/height a partir da imagem, então o hint de
+    aspect-ratio nunca falta (o CLS da loja está em 0,02 no campo e não
+    pode piorar).
+
+  VERIFICADO: a loja é proxiada por Cloudflare, e o proxy repassa headers
+  `Link:` — a resposta da PDP já carrega os `rel="preload"` de CSS que o
+  próprio Shopify emite. Se algum dia isso mudar, o preload deixa de valer
+  silenciosamente (sem quebrar nada) e o remédio é voltar pra um
+  `<link rel="preload">` no `<head>`, via meta-tags.liquid.
+
+  PARÂMETROS
+    media  (obrigatório) mídia de imagem do Shopify — o primeiro item de
+           product.media
+    alt    texto alternativo (já escapado pelo chamador)
+
+  SIZES
+  `(min-width: 1024px) 42vw, 100vw` espelha o grid real da PDP: `.pdp` usa
+  `grid-template-columns: minmax(0, 44%) minmax(0, 1fr)` a partir de
+  1024px, menos o padding da página. No mobile a galeria ocupa a largura
+  toda. Mudou o grid? Mude aqui também, senão o browser escolhe o candidato
+  errado do srcset.
+{%- endcomment -%}
+
+{%- liquid
+  assign lcp_media = media
+  assign lcp_alt = alt | default: ''
+-%}
+
+{%- if lcp_media != blank -%}
+  {{-
+    lcp_media
+    | image_url: width: 1200
+    | image_tag:
+      widths: '480, 640, 832, 1000, 1200',
+      sizes: '(min-width: 1024px) 42vw, 100vw',
+      preload: true,
+      loading: 'eager',
+      fetchpriority: 'high',
+      decoding: 'sync',
+      class: 'pdp__slide-img',
+      alt: lcp_alt
+  -}}
+{%- endif -%}

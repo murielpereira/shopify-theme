@@ -141,6 +141,16 @@
     --color-on-background:      {{ settings.color_on_background }};
     --color-on-surface:         {{ settings.color_on_background }};
     --color-on-surface-variant: {{ settings.color_on_surface_variant }};
+    {%- comment -%}
+      Terceiro nível de texto (abaixo de --color-on-surface-variant). Existe
+      porque metade dos blocos de preço usava rgba(90,71,66, .45~.6) direto no
+      CSS e reprovava contraste no PSI: "De R$", parcelamento, "a partir de" e
+      labels de variante ficavam entre 1,43:1 e 2,91:1 — justamente a
+      informação que decide a compra. #6f645d dá 5,1:1 sobre #f8f0e7 e 5,3:1
+      sobre #f7f5f2 (mínimo AA = 4,5:1) e continua claramente secundário ao
+      #201b14. Use este token em vez de rgba() com alpha baixo.
+    {%- endcomment -%}
+    --color-on-surface-muted:   #6f645d;
     --color-outline:            #817471;
     --color-outline-variant:    {{ settings.color_outline_variant }};
 

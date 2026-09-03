@@ -258,14 +258,14 @@ a {
 
 /* ── Utilities ── */
 
-/* Label pequena (eyebrow) — uppercase + tracking generoso, opacity baixa.
+/* Label pequena (eyebrow) — uppercase + tracking generoso, cor suave.
    Antes era redefinida em 6 sections com o mesmo CSS; agora global. Para
    override de margem, use `style="margin-bottom: ..."` no markup. */
 .ame-label-sm {
   font-size: 0.625rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(90, 71, 66, 0.5);
+  color: var(--color-on-surface-muted, #6f645d);
   display: block;
   margin-bottom: 0.75rem;
 }
@@ -831,7 +831,7 @@ body::after {
   font-size: 0.625rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(90, 71, 66, 0.5);
+  color: var(--color-on-surface-muted, #6f645d);
 }
 
 .ame-card__title {
@@ -861,7 +861,9 @@ body::after {
   color: var(--color-primary, #5a4742);
 }
 
-/* Preços */
+/* Preços — PSI mobile 03/09/2026: os cinzas antigos (rgba do primary com
+   alpha 0.45–0.6) davam 2,2–3,0:1 sobre #f7f5f2 e reprovavam o AA (4,5:1).
+   O token --color-on-surface-muted dá 5,3:1 e preserva a hierarquia. */
 .ame-card__prices {
   display: flex;
   flex-direction: column;
@@ -873,13 +875,13 @@ body::after {
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(90, 71, 66, 0.6);
+  color: var(--color-on-surface-muted, #6f645d);
   margin: 0 0 0.125rem;
 }
 
 .ame-card__price-de {
   font-size: 0.75rem;
-  color: rgba(90, 71, 66, 0.45);
+  color: var(--color-on-surface-muted, #6f645d);
 }
 
 .ame-card__price-de s {
@@ -895,7 +897,7 @@ body::after {
 
 .ame-card__price-label {
   font-size: 0.75rem;
-  color: rgba(90, 71, 66, 0.55);
+  color: var(--color-on-surface-muted, #6f645d);
   font-weight: 400;
 }
 
@@ -909,7 +911,7 @@ body::after {
 
 .ame-card__installments {
   font-size: 0.6875rem;
-  color: rgba(90, 71, 66, 0.55);
+  color: var(--color-on-surface-muted, #6f645d);
   margin-top: 0.1rem;
 }
 
@@ -1184,7 +1186,7 @@ body::after {
   font-size: 0.5625rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(90, 71, 66, 0.45);
+  color: var(--color-on-surface-muted, #6f645d);
   font-weight: 500;
 }
 
@@ -1273,7 +1275,7 @@ body::after {
 
 .ame-cart-shipping-bar__text {
   font-size: 0.6875rem;
-  color: rgba(90, 71, 66, 0.6);
+  color: var(--color-on-surface-muted, #6f645d);
   line-height: 1.5;
 }
 
@@ -1500,7 +1502,7 @@ body::after {
 
 .ame-cart-item__variant {
   font-size: 0.6875rem;
-  color: rgba(90, 71, 66, 0.5);
+  color: var(--color-on-surface-muted, #6f645d);
   margin-top: 0.25rem;
 }
 
@@ -1518,7 +1520,7 @@ body::after {
 
 .ame-cart-item__prop-key {
   font-weight: 600;
-  color: rgba(90, 71, 66, 0.7);
+  color: var(--color-on-surface-muted, #6f645d);
 }
 
 .ame-cart-item__bottom {
@@ -1705,7 +1707,7 @@ body::after {
 }
 
 .ame-gift-selector__field label small {
-  color: rgba(90, 71, 66, 0.55);
+  color: var(--color-on-surface-muted, #6f645d);
   font-weight: 400;
 }
 
@@ -1775,7 +1777,7 @@ body::after {
 
 .ame-cart-item__price-original {
   font-size: 0.625rem;
-  color: rgba(90, 71, 66, 0.4);
+  color: var(--color-on-surface-muted, #6f645d);
   text-decoration: line-through;
 }
 
@@ -1813,7 +1815,7 @@ body::after {
 
 .ame-cart-empty__sub {
   font-size: 0.8125rem;
-  color: rgba(90, 71, 66, 0.45);
+  color: var(--color-on-surface-muted, #6f645d);
   margin-bottom: 0.5rem;
 }
 
@@ -2056,7 +2058,7 @@ body::after {
 .ame-cart-totals__note {
   font-size: 0.7rem;
   letter-spacing: 0.06em;
-  color: rgba(90, 71, 66, 0.4);
+  color: var(--color-on-surface-muted, #6f645d);
   margin-top: 0.125rem;
 }
 
@@ -2112,7 +2114,7 @@ body::after {
   text-align: center;
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
-  color: rgba(90, 71, 66, 0.45);
+  color: var(--color-on-surface-muted, #6f645d);
   text-decoration: none;
   transition: color 0.2s ease;
   padding: 0.25rem;
@@ -2802,7 +2804,7 @@ shopify-account {
 }
 
 .ame-header__search-input::placeholder {
-  color: rgba(90, 71, 66, 0.35);
+  color: var(--color-on-surface-muted, #6f645d);
 }
 
 /* Esconde o "X" nativo do <input type="search"> em Chrome/Safari/Edge — já temos botão próprio */
@@ -2887,7 +2889,7 @@ shopify-account {
 }
 
 .ame-search-form__input::placeholder {
-  color: rgba(90, 71, 66, 0.35);
+  color: var(--color-on-surface-muted, #6f645d);
 }
 
 .ame-search-form__close {

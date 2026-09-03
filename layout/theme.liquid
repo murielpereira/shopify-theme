@@ -3,12 +3,51 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <script
-      src="https://trackings.nemu.com.br/trackings/f1v3V1k-jE/script.js"
-      async
-      data-tracking-id="f1v3V1k-jE"
-      crossorigin="anonymous"
-    ></script>
+    {%- comment -%}
+      Rastreio da Nemu (afiliados) NÃO fica mais como primeira tag do head:
+      agora é injetado por JS. Medido no PSI de 03/09/2026 — o script.js da
+      Nemu carrega em cascata o FingerprintJS (openfpcdn.io/fingerprintjs/v4),
+      827 ms de execução na PDP desktop e long tasks de 54–65 ms no mobile, e
+      ainda chama 3 APIs de geolocalização por IP (api.ipify.org, ipinfo.io,
+      api.bigdatacloud.net). Era o maior contribuinte isolado do TBT de
+      1.120 ms da PDP e o suspeito direto do INP de campo de 262 ms.
+
+      ⚠️ Atribuição de afiliado precisa disparar antes do usuário SAIR da
+      página, não antes do primeiro pixel. Por isso o gatilho é `load` OU a
+      primeira interação real (pointerdown/keydown/scroll), o que vier
+      primeiro: quem clica antes do load terminar já tem o rastreio no ar.
+      Ao mudar isso, lembre que atrasar demais = clique sem comissão.
+    {%- endcomment -%}
+    <script>
+      (function () {
+        try {
+          var injetado = false;
+          function injetarNemu() {
+            if (injetado) return;
+            injetado = true;
+            try {
+              var s = document.createElement('script');
+              s.src = 'https://trackings.nemu.com.br/trackings/f1v3V1k-jE/script.js';
+              s.async = true;
+              s.setAttribute('data-tracking-id', 'f1v3V1k-jE');
+              s.setAttribute('crossorigin', 'anonymous');
+              (document.head || document.documentElement).appendChild(s);
+            } catch (e) {}
+          }
+          /* Listeners direto na window em capture: apps de terceiro na loja
+             interceptam clicks no document, então delegation lá não é confiável. */
+          ['pointerdown', 'keydown', 'scroll'].forEach(function (evento) {
+            window.addEventListener(evento, injetarNemu, { once: true, passive: true, capture: true });
+          });
+          /* Se o load já passou (script movido de lugar, cache, back/forward), injeta na hora. */
+          if (document.readyState === 'complete') {
+            injetarNemu();
+          } else {
+            window.addEventListener('load', injetarNemu, { once: true });
+          }
+        } catch (e) {}
+      })();
+    </script>
 
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
@@ -23,9 +62,15 @@
       (que serve vários assets do badge RA: logo, css, bundle) e o
       api.reclameaqui.com.br vira dns-prefetch (sem TLS handshake antecipado,
       menos custo mas ainda economiza ~100ms de DNS lookup).
+
+      trackings.nemu.com.br entra como dns-prefetch pelo mesmo motivo de
+      orçamento: o rastreio é injetado só no load/1ª interação, então basta
+      adiantar o DNS lookup — preconnect ali seria handshake TLS desperdiçado
+      pra quem sai da página antes de interagir.
     {%- endcomment -%}
     <link rel="preconnect" href="https://s3.amazonaws.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.reclameaqui.com.br">
+    <link rel="dns-prefetch" href="https://trackings.nemu.com.br">
 
     {%- render 'css-variables' -%}
 
