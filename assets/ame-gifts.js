@@ -930,18 +930,20 @@
         // faixa liberada: aí a troca é de VARIAÇÃO (outra cor da mesma capa), e
         // esconder isso deixaria o cliente com um brinde que ele não escolheu e
         // sem caminho visível pra mudar.
-        const autoCor = mantido ? (mantido.item.properties || {})[PROP_AUTO] : null;
+        const autoInfo = mantido ? (mantido.item.properties || {})[PROP_AUTO] : null;
         // Brinde travado e sem outra faixa liberada: não há NADA a oferecer, então
         // o bloco não aparece — é exatamente o "sem seletor" que o lojista pediu.
         if (mantido && travado(mantido.regra) && opcoes.length < 2) { injetarNaLista(''); return; }
-        if (!autoCor && opcoes.length < 2) { injetarNaLista(''); return; }
-        injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta, autoCor));
+        if (!autoInfo && opcoes.length < 2) { injetarNaLista(''); return; }
+        injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta, autoInfo));
     }
 
-    // `autoCor` = valor da property _brinde_auto do brinde no carrinho: a cor que
-    // motivou a escolha automática, ou '1' quando o sistema sorteou. Falsy = o
-    // cliente escolheu na mão, e aí a vitrine fala como antes.
-    function vitrineHTML(opcoes, mantido, aberta, autoCor) {
+    // `autoInfo` = valor da property _brinde_auto do brinde que está no carrinho —
+    // a descrição de como o sistema decidiu (vide descricaoAuto). Aqui só o
+    // truthy/falsy importa: com valor, o brinde foi escolhido pelo sistema; sem
+    // valor, o cliente escolheu na mão e a vitrine fala como antes. O texto em si
+    // não vai pra tela, é pra leitura no pedido.
+    function vitrineHTML(opcoes, mantido, aberta, autoInfo) {
         const atualId = mantido ? String(mantido.regra.id) : null;
         const TAG_ATUAL = '<span class="ame-gift-vitrine__tag">no carrinho</span>';
 
@@ -952,7 +954,7 @@
             const outro = opcoes.find(r => String(r.id) !== atualId);
             const icone = '<span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>';
 
-            if (autoCor) {
+            if (autoInfo) {
                 // Escolha automática fala em primeira pessoa e nomeia o motivo: o
                 // cliente tem que entender que o brinde não caiu ali por acidente.
                 // Só o fato: o brinde entrou. Nada de "escolhemos" nem do motivo da
@@ -1008,7 +1010,7 @@
 
         // "mais um brinde" dizia a coisa errada: sugeria um SEGUNDO brinde, quando
         // o que ele ganhou foi outra OPÇÃO pra trocar. Um por pedido.
-        const eyebrow = autoCor ? 'Brinde adicionado'
+        const eyebrow = autoInfo ? 'Brinde adicionado'
             : (mantido ? 'Nova opção de brinde' : 'Brinde liberado');
         const titulo = mantido ? 'Quer trocar seu brinde?' : 'Escolha seu brinde';
         const ajuda = mantido
@@ -1135,9 +1137,32 @@
             WALTZ_BASE + '/api/public/brindes/' + encodeURIComponent(regra.id) + '/automatch',
             'POST', { itens, variantes });
         if (!resp || !resp.variante_id) return null;
-        // A cor volta junto e fica gravada na property: não aparece mais na tela,
-        // mas é o que explica no pedido por que aquela variação foi escolhida.
-        return { variantId: String(resp.variante_id), cor: resp.cor || null, motivo: resp.motivo || null };
+        // cor e metal voltam junto e não aparecem em tela nenhuma: servem pra
+        // descrever a decisão na property (vide descricaoAuto).
+        return {
+            variantId: String(resp.variante_id),
+            cor: resp.cor || null,
+            metal: resp.metal || null,
+            motivo: resp.motivo || null,
+        };
+    }
+
+    // O que a property _brinde_auto CONTA no pedido.
+    //
+    // Antes ela guardava a cor PROCURADA, e isso mentia sempre que o match caía no
+    // sorteio: gravou "Café" num brinde Sépia porque Café era a cor do pedido mas
+    // não existia disponível na capa. Quem abrisse o pedido leria uma cor que não
+    // era a do brinde. Agora ela descreve a DECISÃO, que é o que explica a variação.
+    function descricaoAuto(auto) {
+        if (!auto) return '1';
+        if (auto.motivo === 'cor+metal' && auto.cor && auto.metal) {
+            return `combinou com ${auto.cor} / ${auto.metal} do pedido`;
+        }
+        if (auto.motivo === 'cor' && auto.cor) {
+            return `combinou com a cor ${auto.cor} do pedido`;
+        }
+        if (auto.cor) return `sorteado — ${auto.cor} do pedido não estava disponível`;
+        return 'sorteado';
     }
 
     // Resolve a variação pelo auto match e coloca o brinde no carrinho, tirando o
@@ -1154,7 +1179,7 @@
             for (const it of (cart.items || [])) {
                 if ((it.properties || {})[PROP_REGRA_ID]) await removerBrinde(it);
             }
-            await adicionarBrinde(regra, auto.variantId, { [PROP_AUTO]: auto.cor || '1' });
+            await adicionarBrinde(regra, auto.variantId, { [PROP_AUTO]: descricaoAuto(auto) });
             const novo = await xhrJson('/cart.js?t=' + Date.now());
             _trocandoBrinde = false;
             if (window.AmeCart && window.AmeCart.refresh) window.AmeCart.refresh(novo);
@@ -1446,7 +1471,7 @@
                     try {
                         const auto = await pedirAutoMatch(alvo, cart);
                         if (auto) {
-                            await adicionarBrinde(alvo, auto.variantId, { [PROP_AUTO]: auto.cor || '1' });
+                            await adicionarBrinde(alvo, auto.variantId, { [PROP_AUTO]: descricaoAuto(auto) });
                             // O brinde entrou: fecha o que estiver aberto. Sem isto o
                             // card de variação fica em cima de um brinde já escolhido
                             // (mesmo motivo do foco implícito em renderizarVitrine).
