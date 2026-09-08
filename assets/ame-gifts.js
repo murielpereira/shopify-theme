@@ -42,6 +42,10 @@
     const WALTZ_BASE = 'https://waltz.up.railway.app';
     const PROP_REGRA_ID = '_brinde_regra_id';
     const PROP_BRINDE_FLAG = '_brinde';
+    // Marca o brinde que o SISTEMA escolheu (auto match pela cor do carrinho).
+    // Existe pra a vitrine oferecer a troca mesmo quando não haveria o que
+    // trocar: brinde que o cliente não escolheu precisa de saída visível.
+    const PROP_AUTO = '_brinde_auto';
 
     let _regrasCache = null;
     let _variantsCache = new Map(); // handle → produto completo do Waltz
@@ -861,12 +865,19 @@
             return;
         }
 
-        // Já tem brinde. Sem alternativa real, não há o que oferecer.
-        if (opcoes.length < 2) { injetarNaLista(''); return; }
-        injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta));
+        // Brinde que o SISTEMA escolheu sempre mostra a saída, mesmo sem outra
+        // faixa liberada: aí a troca é de VARIAÇÃO (outra cor da mesma capa), e
+        // esconder isso deixaria o cliente com um brinde que ele não escolheu e
+        // sem caminho visível pra mudar.
+        const autoCor = mantido ? (mantido.item.properties || {})[PROP_AUTO] : null;
+        if (!autoCor && opcoes.length < 2) { injetarNaLista(''); return; }
+        injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta, autoCor));
     }
 
-    function vitrineHTML(opcoes, mantido, aberta) {
+    // `autoCor` = valor da property _brinde_auto do brinde no carrinho: a cor que
+    // motivou a escolha automática, ou '1' quando o sistema sorteou. Falsy = o
+    // cliente escolheu na mão, e aí a vitrine fala como antes.
+    function vitrineHTML(opcoes, mantido, aberta, autoCor) {
         const atualId = mantido ? String(mantido.regra.id) : null;
         const TAG_ATUAL = '<span class="ame-gift-vitrine__tag">no carrinho</span>';
 
@@ -874,10 +885,18 @@
         // checkout. O cliente já foi avisado por toast na virada da faixa.
         if (!aberta) {
             const melhor = opcoes.find(r => String(r.id) !== atualId) || opcoes[0];
+            // Escolha automática fala em primeira pessoa e nomeia o motivo — o
+            // cliente tem que entender que o brinde não caiu ali por acidente, e
+            // que trocar é opção dele.
+            const resumo = autoCor
+                ? (autoCor !== '1'
+                    ? `Escolhemos ${esc(nomeBrinde(mantido.regra))} pela cor ${esc(autoCor)} do seu pedido`
+                    : `Escolhemos ${esc(nomeBrinde(mantido.regra))} pra combinar com seu pedido`)
+                : `Você liberou ${esc(nomeBrinde(melhor))}`;
             return `<li class="ame-gift-vitrine ame-gift-vitrine--fechada" data-gift-vitrine>
                 <span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>
-                <span class="ame-gift-vitrine__resumo">Você liberou ${esc(nomeBrinde(melhor))}</span>
-                <button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>Trocar brinde</button>
+                <span class="ame-gift-vitrine__resumo">${resumo}</span>
+                <button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>${autoCor ? 'Escolher outro' : 'Trocar brinde'}</button>
             </li>`;
         }
 
@@ -894,7 +913,8 @@
             </button>`;
         }).join('');
 
-        const eyebrow = mantido ? 'Você liberou mais um brinde' : 'Brinde liberado';
+        const eyebrow = autoCor ? 'Escolhemos por você'
+            : (mantido ? 'Você liberou mais um brinde' : 'Brinde liberado');
         const titulo = mantido ? 'Quer trocar seu brinde?' : 'Escolha seu brinde';
         const ajuda = mantido
             ? `É um brinde por pedido, e vale o que você preferir. Sem mexer em nada, continua o ${esc(nomeBrinde(mantido.regra))}.`
@@ -951,6 +971,77 @@
     async function carregarProdutosRegra(regra) {
         if (!regra) return;
         await Promise.all(produtosDaRegra(regra).map(p => carregarProdutoBrinde(p.handle)));
+    }
+
+    // ─── Auto match: o brinde que combina com o carrinho ───
+    // O /products/X.js entrega os NOMES das opções no produto e os VALORES na
+    // variação (options: ['Marinho','Ouro']), então o par se monta por índice.
+    // É exatamente por isso que o Waltz recebe {nome: valor}: no catálogo real a
+    // opção "Cor" aparece na posição 1 em uns produtos e na 2 em outros, e lá
+    // dentro a posição não serve de nada.
+    function opcoesDaVariante(nomes, v) {
+        const out = {};
+        const valores = Array.isArray(v.options) ? v.options : [v.option1, v.option2, v.option3];
+        for (let i = 0; i < valores.length; i++) {
+            if (nomes[i] && valores[i]) out[nomes[i]] = valores[i];
+        }
+        return out;
+    }
+
+    // Pergunta ao Waltz qual variação combina com o carrinho. A divisão de
+    // trabalho é de propósito: quem sabe FILTRAR o que vale (subconjunto da
+    // regra, cota por variação, estoque) é aqui; quem sabe CASAR cor é lá — a
+    // regra de cor tem armadilhas (cor composta é a primeira, 'Cor do Metal'
+    // contém "cor") e duplicá-la no tema garantiria divergência silenciosa.
+    //
+    // Devolve o variant_id escolhido, ou null — e null nunca é erro: significa
+    // "não sei escolher", e aí a vitrine pergunta ao cliente, como antes.
+    async function pedirAutoMatch(regra, cart) {
+        const produtos = produtosDaRegra(regra);
+        // Só com UM produto-brinde: no modo lista a escolha é de PRODUTO, e essa
+        // é uma decisão de gosto do cliente, não de combinação de cor.
+        if (produtos.length !== 1) return null;
+
+        await carregarProdutosRegra(regra);
+        const produto = _variantsCache.get(produtos[0].handle);
+        if (!produto) return null;
+        const disponiveis = variantesDisponiveis(produto, regra);
+        if (!disponiveis.length) return null;
+
+        // Ordena por `position` antes de casar por índice: a variante entrega
+        // option1/2/3 (posições 1/2/3) e o produto entrega os nomes com position.
+        // Se a lista de nomes vier fora de ordem, "Cor" viraria metal e vice-versa
+        // — erro silencioso que daria brinde de cor errada sem nenhum sintoma.
+        const nomes = (produto.options || [])
+            .slice()
+            .sort((a, b) => ((a && a.position) || 0) - ((b && b.position) || 0))
+            .map(o => (o && o.name) ? o.name : o);
+        const variantes = disponiveis.map(v => ({
+            variante_id: v.id,
+            titulo: produto.title || '',
+            handle: produto.handle || '',
+            opcoes: opcoesDaVariante(nomes, v),
+        }));
+        const itens = (cart.items || []).map(it => {
+            const opcoes = {};
+            for (const o of (it.options_with_values || [])) {
+                if (o && o.name) opcoes[o.name] = o.value;
+            }
+            return {
+                opcoes,
+                propriedades: it.properties || {},
+                titulo: it.product_title || it.title || '',
+                handle: it.handle || '',
+                quantidade: it.quantity || 1,
+            };
+        });
+
+        const resp = await xhrJson(
+            WALTZ_BASE + '/api/public/brindes/' + encodeURIComponent(regra.id) + '/automatch',
+            'POST', { itens, variantes });
+        if (!resp || !resp.variante_id) return null;
+        // A cor volta junto pra a vitrine poder dizer POR QUE escolheu aquela.
+        return { variantId: String(resp.variante_id), cor: resp.cor || null, motivo: resp.motivo || null };
     }
 
     async function renderizarBarraBrinde(cart) {
@@ -1201,6 +1292,29 @@
                     toast(`🎁 Você ganhou: ${unica.brinde_titulo || 'Brinde Incluído'}`);
                     mudouCart = true;
                 } catch (e) { console.warn('[Brindes] adicionar falhou', e.message); }
+            }
+
+            // 2b-2. AUTO MATCH: o cliente liberou o brinde e não escolheu nada. Em
+            //       vez de deixar ele fechar o pedido sem brinde, o sistema escolhe
+            //       uma variação que combina com o carrinho e a vitrine passa a
+            //       oferecer a troca de forma visível (a linha carrega _brinde_auto).
+            //
+            //       Só entra quando NADA foi mexido ainda nesta rodada: se o passo
+            //       anterior já adicionou, o carrinho vai ser relido e a decisão se
+            //       repete na próxima avaliação com dado fresco.
+            if (!mantido && !mudouCart) {
+                const alvo = liberadas.find(r =>
+                    r.auto_match && !r.brinde_pingente && !regraEsgotada(r));
+                if (alvo) {
+                    try {
+                        const auto = await pedirAutoMatch(alvo, cart);
+                        if (auto) {
+                            await adicionarBrinde(alvo, auto.variantId, { [PROP_AUTO]: auto.cor || '1' });
+                            toast('🎁 Escolhemos um brinde que combina com seu pedido');
+                            mudouCart = true;
+                        }
+                    } catch (e) { console.warn('[Brindes] auto match falhou', e.message); }
+                }
             }
 
             // 2c. Virada de faixa: abre a vitrine UMA vez por faixa nova quando o
