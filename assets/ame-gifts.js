@@ -190,15 +190,25 @@
     // Nome curto do brinde de uma regra, pra vitrine e pra barra. No modo lista o
     // admin grava "Lista: N produto(s)" em brinde_titulo — isso não é nome de
     // brinde, então cai num rótulo honesto de escolha.
+    // O "|" no título da loja separa CATEGORIA, não modelo: "Capa de Couro para
+    // AirTag Apple | Coleiras e Peitorais". Numa linha de 375px isso dobra o
+    // tamanho do nome sem acrescentar informação, e a linha recolhida chega a
+    // citar dois brindes. Fica só o que vem antes do "|".
+    function semCategoria(t) {
+        const s = String(t || '');
+        const i = s.indexOf('|');
+        return (i > 0 ? s.slice(0, i) : s).trim();
+    }
+
     function nomeBrinde(regra) {
         if (!regra) return 'brinde';
         const lista = listaProdutosRegra(regra);
         const titulo = regra.brinde_titulo || '';
-        if (lista && lista.length === 1) return lista[0].titulo || titulo || 'Brinde';
+        if (lista && lista.length === 1) return semCategoria(lista[0].titulo || titulo) || 'Brinde';
         if (lista && lista.length > 1 && (!titulo || /^\s*lista\s*:/i.test(titulo))) {
             return `escolher entre ${lista.length} brindes`;
         }
-        return titulo || 'Brinde';
+        return semCategoria(titulo) || 'Brinde';
     }
 
     // Detecta faixa NOVA liberada e abre o convite de troca uma única vez.
@@ -214,7 +224,9 @@
         const melhores = novas.filter(r => tierRegra(r) > tierRegra(mantido.regra));
         if (!melhores.length) return;
         _vitrineAberta = true;
-        toast(`🎁 Você liberou: ${nomeBrinde(melhores[0])}`);
+        // "Você liberou X" com um brinde já no carrinho soava como brinde NOVO,
+        // somando. O que ele liberou foi o direito de trocar.
+        toast(`🎁 Já dá pra trocar seu brinde pelo ${nomeBrinde(melhores[0])}`);
     }
 
     // ─── Operações cart ───
@@ -699,6 +711,17 @@
                 return;
             }
 
+            // "Mudar de cor": vai DIRETO pras variações do brinde que já está no
+            // carrinho, e não pra lista de brindes. O caminho pros outros brindes
+            // continua a um clique, no "Ver os outros brindes" dentro do card.
+            const mudarBtn = e.target.closest('[data-gift-mudar-cor]');
+            if (mudarBtn) {
+                _faixaEscolhida = mudarBtn.dataset.giftMudarCor;
+                _vitrineAberta = true;
+                reavaliarBrindes();
+                return;
+            }
+
             // Vitrine: abrir o convite de troca
             if (e.target.closest('[data-gift-vitrine-abrir]')) {
                 _vitrineAberta = true;
@@ -842,11 +865,18 @@
         await Promise.all(liberadas.map(r => carregarProdutosRegra(r)));
         const opcoes = liberadas.filter(r => !regraEsgotada(r));
 
-        // Regra em foco = a que ele clicou. Sem brinde e com uma única opção, o
-        // foco é ela: não há brinde a escolher, só a variação.
+        // Regra em foco = a que o cliente PEDIU pra escolher. Sem brinde e com uma
+        // opção só, o foco é implícito (não há brinde a escolher, só a variação).
+        //
+        // O foco implícito NÃO é lembrado, e essa distinção é o que conserta o
+        // seletor que ficava aberto por cima de um brinde já escolhido: gravado em
+        // _faixaEscolhida, ele sobrevivia ao brinde entrar no carrinho — o auto
+        // match adicionava a capa e o card de variação continuava lá, pedindo uma
+        // escolha que já tinha sido feita.
         let foco = _faixaEscolhida ? opcoes.find(r => String(r.id) === String(_faixaEscolhida)) : null;
-        if (!foco && !mantido && opcoes.length === 1) foco = opcoes[0];
-        _faixaEscolhida = foco ? String(foco.id) : null;
+        const focoImplicito = !foco && !mantido && opcoes.length === 1;
+        if (focoImplicito) foco = opcoes[0];
+        if (!focoImplicito) _faixaEscolhida = foco ? String(foco.id) : null;
 
         if (foco) {
             // Produto único: fixa o handle ANTES de auto-selecionar a variação —
@@ -884,19 +914,43 @@
         // Colapsada: uma linha, sem roubar a tela de quem já está a caminho do
         // checkout. O cliente já foi avisado por toast na virada da faixa.
         if (!aberta) {
-            const melhor = opcoes.find(r => String(r.id) !== atualId) || opcoes[0];
-            // Escolha automática fala em primeira pessoa e nomeia o motivo — o
-            // cliente tem que entender que o brinde não caiu ali por acidente, e
-            // que trocar é opção dele.
-            const resumo = autoCor
-                ? (autoCor !== '1'
+            // Outro brinde liberado além do que está no carrinho, se houver.
+            const outro = opcoes.find(r => String(r.id) !== atualId);
+            const icone = '<span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>';
+
+            if (autoCor) {
+                // Escolha automática fala em primeira pessoa e nomeia o motivo: o
+                // cliente tem que entender que o brinde não caiu ali por acidente.
+                const base = autoCor !== '1'
                     ? `Escolhemos ${esc(nomeBrinde(mantido.regra))} pela cor ${esc(autoCor)} do seu pedido`
-                    : `Escolhemos ${esc(nomeBrinde(mantido.regra))} pra combinar com seu pedido`)
-                : `Você liberou ${esc(nomeBrinde(melhor))}`;
+                    : `Escolhemos ${esc(nomeBrinde(mantido.regra))} pra combinar com seu pedido`;
+
+                // Com OUTRO brinde liberado, a linha anuncia o outro e o botão abre a
+                // lista. Isso não é enfeite: o toast da virada de faixa só dispara
+                // pra quem CRUZA a faixa durante a sessão (registrarFaixasNovas semeia
+                // e sai na primeira avaliação), então quem chega na loja já acima da
+                // faixa — ou só recarrega a página — não seria avisado por nada de que
+                // liberou o brinde melhor.
+                // "TROCAR pelo", nunca "também liberou": é um brinde por pedido, e
+                // "também" fazia parecer que sairiam dois. O verbo é o que carrega a
+                // informação de que o novo entra NO LUGAR do atual.
+                const resumo = outro
+                    ? `${base}. Se preferir, dá pra trocar pelo ${esc(nomeBrinde(outro))}.`
+                    : base;
+                const acao = outro
+                    ? '<button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>Ver opções</button>'
+                    : `<button type="button" class="ame-gift-vitrine__link" data-gift-mudar-cor="${esc(mantido.regra.id)}">Mudar de cor</button>`;
+                return `<li class="ame-gift-vitrine ame-gift-vitrine--fechada" data-gift-vitrine>
+                    ${icone}
+                    <span class="ame-gift-vitrine__resumo">${resumo}</span>
+                    ${acao}
+                </li>`;
+            }
+
             return `<li class="ame-gift-vitrine ame-gift-vitrine--fechada" data-gift-vitrine>
-                <span class="material-symbols-outlined ame-gift-vitrine__icone" aria-hidden="true">card_giftcard</span>
-                <span class="ame-gift-vitrine__resumo">${resumo}</span>
-                <button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>${autoCor ? 'Escolher outro' : 'Trocar brinde'}</button>
+                ${icone}
+                <span class="ame-gift-vitrine__resumo">Você liberou ${esc(nomeBrinde(outro || opcoes[0]))}</span>
+                <button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>Trocar brinde</button>
             </li>`;
         }
 
@@ -913,8 +967,10 @@
             </button>`;
         }).join('');
 
+        // "mais um brinde" dizia a coisa errada: sugeria um SEGUNDO brinde, quando
+        // o que ele ganhou foi outra OPÇÃO pra trocar. Um por pedido.
         const eyebrow = autoCor ? 'Escolhemos por você'
-            : (mantido ? 'Você liberou mais um brinde' : 'Brinde liberado');
+            : (mantido ? 'Nova opção de brinde' : 'Brinde liberado');
         const titulo = mantido ? 'Quer trocar seu brinde?' : 'Escolha seu brinde';
         const ajuda = mantido
             ? `É um brinde por pedido, e vale o que você preferir. Sem mexer em nada, continua o ${esc(nomeBrinde(mantido.regra))}.`
@@ -1096,9 +1152,17 @@
         // Rótulos das faixas embaixo da trilha (o CSS __marks também já existia
         // órfão). Sem eles a barra não diz O QUE cada pontinho representa, e uma
         // barra quase cheia perto do primeiro marcador parecia "já ganhei tudo".
-        const marks = tiers.length > 1 ? `<div class="ame-cart-shipping-bar__marks">${tiers.map(t =>
-            `<span class="ame-cart-shipping-bar__mark${subtotal >= t.cents ? ' is-achieved' : ''}">${esc(moneyCurto(t.cents))}</span>`
-        ).join('')}</div>` : '';
+        // Cada rótulo ancorado no MESMO percentual do seu pontinho. Com
+        // justify-content:space-between eles caíam em 0/50/100 enquanto os pontos
+        // ficavam em 41/65/100 — e aí um subtotal de R$391 (46% da escada) cruzava
+        // o rótulo "R$ 549" e parecia ter liberado a segunda faixa, faltando R$158.
+        // Nas pontas a âncora muda pra o texto não sair da barra.
+        const marks = tiers.length > 1 ? `<div class="ame-cart-shipping-bar__marks">${tiers.map(t => {
+            const left = Math.max(0, Math.min(100, Math.round(t.cents * 100 / maiorCents)));
+            const ancora = left >= 99 ? 'translateX(-100%)' : (left <= 1 ? 'translateX(0)' : 'translateX(-50%)');
+            const feito = subtotal >= t.cents ? ' is-achieved' : '';
+            return `<span class="ame-cart-shipping-bar__mark${feito}" style="left:${left}%;transform:${ancora}">${esc(moneyCurto(t.cents))}</span>`;
+        }).join('')}</div>` : '';
 
         // Fill com classe PRÓPRIA (não a da barra de frete): o refreshDrawer do
         // theme.liquid sobrescreve a largura do primeiro .ame-cart-shipping-bar__fill
@@ -1112,7 +1176,7 @@
             html = `<p class="ame-cart-shipping-bar__text">🎁 Os brindes acabaram por enquanto 😢</p>`;
         } else if (!proximo) {
             const texto = temBrinde
-                ? `🎁 Você liberou <strong>todos os brindes</strong> — leve o que preferir 🎉`
+                ? `🎁 Você chegou ao <strong>topo</strong> — escolha <strong>qualquer</strong> um dos brindes 🎉`
                 : `🎁 Você ganhou <strong>${esc(labelBrinde(alvo.cents))}</strong>! 🎉`;
             html = `<p class="ame-cart-shipping-bar__text">${texto}</p>${trilha(100)}`;
         } else {
@@ -1167,13 +1231,22 @@
             '.ame-gift-bar__fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#5a7461,#7b9a84);transition:width .6s cubic-bezier(.22,1,.36,1)}',
             // Rótulos das faixas: o __marks do tema não tem respiro em relação à
             // trilha, e o verde do brinde é outro (o tema usa o marrom da marca).
-            '.ame-cart-gift-bar .ame-cart-shipping-bar__marks{margin-top:6px}',
+            // Fileira de rótulos POSICIONADA, não distribuída: cada um é ancorado
+            // no percentual do seu pontinho (vide renderizarBarraBrinde). O flex
+            // com space-between do tema mentia sobre onde a faixa começa.
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__marks{position:relative;display:block;height:18px;margin-top:8px}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__mark{position:absolute;top:0;max-width:none;white-space:nowrap}',
             '.ame-cart-gift-bar .ame-cart-shipping-bar__mark.is-achieved{background:#5a7461;color:#fff}',
             '.ame-cart-gift-bar .ame-cart-shipping-bar__dot.is-achieved{background:#5a7461;border-color:#5a7461}',
             // Vitrine: mesma linguagem visual do card de seleção que já existia
             // (.ame-gift-selector no critical.css) pra não parecer outro widget.
             '.ame-gift-vitrine{list-style:none;margin:.75rem 0;padding:.875rem;background:linear-gradient(135deg,rgba(90,116,97,.08),rgba(90,116,97,.04));border:1px solid rgba(90,116,97,.25);border-radius:var(--radius-md,8px);display:flex;flex-direction:column;gap:.625rem}',
-            '.ame-gift-vitrine--fechada{flex-direction:row;align-items:center;gap:.5rem;padding:.625rem .75rem}',
+            // flex-start, não center: com duas frases a linha vira 2-3 linhas de
+            // texto e o botão centralizado descolava do começo da mensagem.
+            // nowrap no botão pra "Ver opções" não quebrar no meio.
+            '.ame-gift-vitrine--fechada{flex-direction:row;align-items:flex-start;gap:.5rem;padding:.625rem .75rem}',
+            '.ame-gift-vitrine--fechada .ame-gift-vitrine__resumo{line-height:1.45}',
+            '.ame-gift-vitrine--fechada .ame-gift-vitrine__link{white-space:nowrap}',
             '.ame-gift-vitrine__icone{font-size:1.25rem;color:#5a7461;flex:0 0 auto}',
             '.ame-gift-vitrine__head{display:flex;align-items:flex-start;gap:.5rem}',
             '.ame-gift-vitrine__eyebrow{margin:0;font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5a7461}',
@@ -1310,6 +1383,11 @@
                         const auto = await pedirAutoMatch(alvo, cart);
                         if (auto) {
                             await adicionarBrinde(alvo, auto.variantId, { [PROP_AUTO]: auto.cor || '1' });
+                            // O brinde entrou: fecha o que estiver aberto. Sem isto o
+                            // card de variação fica em cima de um brinde já escolhido
+                            // (mesmo motivo do foco implícito em renderizarVitrine).
+                            _faixaEscolhida = null;
+                            _vitrineAberta = false;
                             toast('🎁 Escolhemos um brinde que combina com seu pedido');
                             mudouCart = true;
                         }
@@ -1324,7 +1402,14 @@
 
             // Vitrine: o que ele liberou, o que está no carrinho e o convite de
             // troca. Única UI de escolha — engloba o card de variação de antes.
-            await renderizarVitrine(liberadas, mantido);
+            //
+            // Não pinta quando o carrinho MUDOU nesta rodada: `mantido` foi
+            // calculado antes da mudança, então pintar aqui mostraria o estado
+            // velho por um ciclo — logo depois do auto match, o card "escolha sua
+            // variação" piscava em cima de um brinde que já tinha entrado. O
+            // refresh logo abaixo dispara outra avaliação, e essa pinta com o
+            // carrinho de verdade.
+            if (!mudouCart) await renderizarVitrine(liberadas, mantido);
 
             // Se mudamos cart, propaga pro drawer (que vai re-renderizar a lista
             // de items — depois disso re-injetamos os seletores no callback do
