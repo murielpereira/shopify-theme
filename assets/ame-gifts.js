@@ -211,6 +211,11 @@
         return semCategoria(titulo) || 'Brinde';
     }
 
+    // Regra em que o sistema escolhe a variação E o cliente não mexe. Não trava a
+    // troca de BRINDE: com outra faixa liberada ele ainda pode pegar o brinde
+    // dela — o que trava é a escolha da VARIAÇÃO.
+    const travado = (r) => !!(r && r.auto_match && r.auto_match_travado);
+
     // Detecta faixa NOVA liberada e abre o convite de troca uma única vez.
     // Só faz sentido quando ele JÁ tem brinde: sem brinde a vitrine aparece por
     // conta própria (é o próprio resgate), não precisa de convite.
@@ -705,7 +710,25 @@
             // faixa menor — atingir R$849 não obriga a levar o brinde de R$849).
             const faixaBtn = e.target.closest('[data-gift-faixa]');
             if (faixaBtn) {
-                _faixaEscolhida = faixaBtn.dataset.giftFaixa;
+                const regraId = faixaBtn.dataset.giftFaixa;
+                const regraClicada = (_regrasCache || []).find(r => String(r.id) === String(regraId));
+                // Faixa travada não abre seletor nem por clique: o sistema resolve a
+                // variação e troca na hora.
+                if (travado(regraClicada)) {
+                    _faixaEscolhida = null;
+                    _vitrineAberta = false;
+                    faixaBtn.disabled = true;
+                    try {
+                        const ok = await trocarPorAutoMatch(regraClicada);
+                        if (ok) toast('🎁 Brinde trocado!');
+                        else { faixaBtn.disabled = false; toast('Não consegui trocar agora, tente de novo.'); }
+                    } catch (err) {
+                        faixaBtn.disabled = false;
+                        console.warn('[Brindes] troca de faixa travada falhou', err.message);
+                    }
+                    return;
+                }
+                _faixaEscolhida = regraId;
                 _vitrineAberta = true;
                 reavaliarBrindes();
                 return;
@@ -874,6 +897,14 @@
         // match adicionava a capa e o card de variação continuava lá, pedindo uma
         // escolha que já tinha sido feita.
         let foco = _faixaEscolhida ? opcoes.find(r => String(r.id) === String(_faixaEscolhida)) : null;
+        // Regra travada não abre o card de variação enquanto o brinde ESTIVER no
+        // carrinho — é o "sem seletor" que o lojista pediu.
+        //
+        // Sem brinde no carrinho o seletor volta, de propósito: significa que o
+        // auto match não conseguiu escolher (Waltz fora do ar, variação esgotada),
+        // e aí pedir a escolha é melhor do que deixar o cliente sem o brinde que
+        // ele ganhou. A trava é sobre quem decide, não sobre entregar menos.
+        if (foco && travado(foco) && mantido) foco = null;
         const focoImplicito = !foco && !mantido && opcoes.length === 1;
         if (focoImplicito) foco = opcoes[0];
         if (!focoImplicito) _faixaEscolhida = foco ? String(foco.id) : null;
@@ -900,6 +931,9 @@
         // esconder isso deixaria o cliente com um brinde que ele não escolheu e
         // sem caminho visível pra mudar.
         const autoCor = mantido ? (mantido.item.properties || {})[PROP_AUTO] : null;
+        // Brinde travado e sem outra faixa liberada: não há NADA a oferecer, então
+        // o bloco não aparece — é exatamente o "sem seletor" que o lojista pediu.
+        if (mantido && travado(mantido.regra) && opcoes.length < 2) { injetarNaLista(''); return; }
         if (!autoCor && opcoes.length < 2) { injetarNaLista(''); return; }
         injetarNaLista(vitrineHTML(opcoes, mantido, _vitrineAberta, autoCor));
     }
@@ -921,9 +955,10 @@
             if (autoCor) {
                 // Escolha automática fala em primeira pessoa e nomeia o motivo: o
                 // cliente tem que entender que o brinde não caiu ali por acidente.
-                const base = autoCor !== '1'
-                    ? `Escolhemos ${esc(nomeBrinde(mantido.regra))} pela cor ${esc(autoCor)} do seu pedido`
-                    : `Escolhemos ${esc(nomeBrinde(mantido.regra))} pra combinar com seu pedido`;
+                // Só o fato: o brinde entrou. Nada de "escolhemos" nem do motivo da
+                // escolha — a cor continua gravada na property, pra quem for olhar o
+                // pedido, mas não é assunto do cliente.
+                const base = `Brinde adicionado: ${esc(nomeBrinde(mantido.regra))}`;
 
                 // Com OUTRO brinde liberado, a linha anuncia o outro e o botão abre a
                 // lista. Isso não é enfeite: o toast da virada de faixa só dispara
@@ -937,9 +972,13 @@
                 const resumo = outro
                     ? `${base}. Se preferir, dá pra trocar pelo ${esc(nomeBrinde(outro))}.`
                     : base;
+                // Regra travada não oferece cor. Se houver outra faixa liberada, o
+                // botão continua existindo — trocar de BRINDE não é travado.
                 const acao = outro
                     ? '<button type="button" class="ame-gift-vitrine__link" data-gift-vitrine-abrir>Ver opções</button>'
-                    : `<button type="button" class="ame-gift-vitrine__link" data-gift-mudar-cor="${esc(mantido.regra.id)}">Mudar de cor</button>`;
+                    : (travado(mantido.regra)
+                        ? ''
+                        : `<button type="button" class="ame-gift-vitrine__link" data-gift-mudar-cor="${esc(mantido.regra.id)}">Mudar de cor</button>`);
                 return `<li class="ame-gift-vitrine ame-gift-vitrine--fechada" data-gift-vitrine>
                     ${icone}
                     <span class="ame-gift-vitrine__resumo">${resumo}</span>
@@ -969,7 +1008,7 @@
 
         // "mais um brinde" dizia a coisa errada: sugeria um SEGUNDO brinde, quando
         // o que ele ganhou foi outra OPÇÃO pra trocar. Um por pedido.
-        const eyebrow = autoCor ? 'Escolhemos por você'
+        const eyebrow = autoCor ? 'Brinde adicionado'
             : (mantido ? 'Nova opção de brinde' : 'Brinde liberado');
         const titulo = mantido ? 'Quer trocar seu brinde?' : 'Escolha seu brinde';
         const ajuda = mantido
@@ -1096,8 +1135,33 @@
             WALTZ_BASE + '/api/public/brindes/' + encodeURIComponent(regra.id) + '/automatch',
             'POST', { itens, variantes });
         if (!resp || !resp.variante_id) return null;
-        // A cor volta junto pra a vitrine poder dizer POR QUE escolheu aquela.
+        // A cor volta junto e fica gravada na property: não aparece mais na tela,
+        // mas é o que explica no pedido por que aquela variação foi escolhida.
         return { variantId: String(resp.variante_id), cor: resp.cor || null, motivo: resp.motivo || null };
+    }
+
+    // Resolve a variação pelo auto match e coloca o brinde no carrinho, tirando o
+    // que estava. É o caminho de quem clica numa faixa TRAVADA na vitrine: sem
+    // seletor de variação, o clique já é a decisão inteira.
+    async function trocarPorAutoMatch(regra) {
+        _trocandoBrinde = true;
+        try {
+            const cart = await xhrJson('/cart.js?t=' + Date.now());
+            const auto = await pedirAutoMatch(regra, cart);
+            if (!auto) return false;
+            // Remove ANTES de adicionar, igual ao resgate manual: só cabe um brinde,
+            // e ficar sem por um instante é melhor do que sair cobrado.
+            for (const it of (cart.items || [])) {
+                if ((it.properties || {})[PROP_REGRA_ID]) await removerBrinde(it);
+            }
+            await adicionarBrinde(regra, auto.variantId, { [PROP_AUTO]: auto.cor || '1' });
+            const novo = await xhrJson('/cart.js?t=' + Date.now());
+            _trocandoBrinde = false;
+            if (window.AmeCart && window.AmeCart.refresh) window.AmeCart.refresh(novo);
+            return true;
+        } finally {
+            _trocandoBrinde = false;
+        }
     }
 
     async function renderizarBarraBrinde(cart) {
@@ -1388,7 +1452,7 @@
                             // (mesmo motivo do foco implícito em renderizarVitrine).
                             _faixaEscolhida = null;
                             _vitrineAberta = false;
-                            toast('🎁 Escolhemos um brinde que combina com seu pedido');
+                            toast('🎁 Brinde adicionado ao seu carrinho');
                             mudouCart = true;
                         }
                     } catch (e) { console.warn('[Brindes] auto match falhou', e.message); }
