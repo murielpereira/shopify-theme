@@ -3314,9 +3314,10 @@ shopify-account {
   color: var(--color-on-background, #201b14);
 }
 
-.ame-aviso-correios__link .material-symbols-outlined {
-  font-size: 0.9375rem;
-  font-variation-settings: 'wght' 300;
+.ame-aviso-correios__link svg {
+  width: 0.8125em;
+  height: 0.8125em;
+  flex-shrink: 0;
 }
 
 /* ── Versão compacta (dentro das caixas de cálculo de frete) ── */

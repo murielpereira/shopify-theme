@@ -267,14 +267,14 @@
         "type": "richtext",
         "id": "aviso_correios_texto",
         "label": "Texto — página de rastreamento",
-        "default": "<p>Por causa da paralisação dos funcionários dos Correios, pedidos enviados por PAC ou SEDEX podem levar mais tempo que o prazo estimado. As demais transportadoras seguem operando normalmente.</p>"
+        "default": "<p>Por causa da greve dos Correios, pedidos enviados por PAC ou SEDEX podem levar mais tempo que o prazo estimado. As demais transportadoras seguem operando normalmente.</p>"
       },
       {
         "type": "textarea",
         "id": "aviso_correios_texto_curto",
         "label": "Texto — calculadoras de frete",
         "info": "Versão curta, exibida na página do produto e no carrinho.",
-        "default": "Envios pelos Correios (PAC e SEDEX) podem atrasar por causa da paralisação dos funcionários. As demais transportadoras seguem com os prazos normais."
+        "default": "Envios pelos Correios (PAC e SEDEX) podem atrasar por causa da greve. As demais transportadoras seguem com os prazos normais."
       },
       {
         "type": "text",
