@@ -245,6 +245,53 @@
     ]
   },
   {
+    "name": "Aviso dos Correios",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Aviso de possíveis atrasos nas entregas feitas pelos Correios (paralisação). Aparece na página de rastreamento e nas calculadoras de frete da página de produto e do carrinho. Quando a greve acabar, é só desmarcar \"Exibir aviso\" — ele some das três telas de uma vez."
+      },
+      {
+        "type": "checkbox",
+        "id": "aviso_correios_ativo",
+        "label": "Exibir aviso",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_titulo",
+        "label": "Título",
+        "default": "Entregas pelos Correios podem atrasar"
+      },
+      {
+        "type": "richtext",
+        "id": "aviso_correios_texto",
+        "label": "Texto — página de rastreamento",
+        "default": "<p>Por causa da paralisação dos funcionários dos Correios, pedidos enviados por PAC ou SEDEX podem levar mais tempo que o prazo estimado. As demais transportadoras seguem operando normalmente.</p>"
+      },
+      {
+        "type": "textarea",
+        "id": "aviso_correios_texto_curto",
+        "label": "Texto — calculadoras de frete",
+        "info": "Versão curta, exibida na página do produto e no carrinho.",
+        "default": "Envios pelos Correios (PAC e SEDEX) podem atrasar por causa da paralisação dos funcionários. As demais transportadoras seguem com os prazos normais."
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_link",
+        "label": "Link do \"Saiba mais\"",
+        "info": "Cole o endereço completo (https://...). Deixe em branco para não exibir o link.",
+        "default": "https://g1.globo.com/trabalho-e-carreira/noticia/2026/09/14/greve-dos-correios-continua-veja-como-ficam-as-entregas.ghtml"
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_link_label",
+        "label": "Texto do link",
+        "default": "Saiba mais"
+      }
+    ]
+  },
+  {
     "name": "Opções de Pagamento",
     "settings": [
       {

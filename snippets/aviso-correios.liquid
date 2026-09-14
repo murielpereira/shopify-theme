@@ -1,0 +1,51 @@
+{% comment %}
+  Aviso de possíveis atrasos nas entregas pelos Correios (paralisação).
+
+  Editável / ligável / desligável em: Personalizar → Configurações do tema
+  → "Aviso dos Correios". Desmarcar "Exibir aviso" some com ele nas três
+  telas de uma vez.
+
+  Uso:
+    {%- render 'aviso-correios' -%}                  → versão completa (rastreamento)
+    {%- render 'aviso-correios', compact: true -%}   → versão enxuta (calculadoras de frete)
+
+  Os estilos (.ame-aviso-correios*) vivem em assets/critical.css porque o
+  snippet é reaproveitado por mais de uma seção/snippet.
+{% endcomment %}
+
+{%- if settings.aviso_correios_ativo -%}
+  {%- liquid
+    assign aviso_titulo = settings.aviso_correios_titulo | default: 'Entregas pelos Correios podem atrasar'
+    assign aviso_link = settings.aviso_correios_link
+    assign aviso_link_label = settings.aviso_correios_link_label | default: 'Saiba mais'
+    assign aviso_texto_curto = settings.aviso_correios_texto_curto
+  -%}
+  <aside class="ame-aviso-correios{% if compact %} ame-aviso-correios--compact{% endif %}" role="note">
+    <span class="material-symbols-outlined ame-aviso-correios__icon" aria-hidden="true">local_shipping</span>
+    <div class="ame-aviso-correios__content">
+      {%- if aviso_titulo != blank -%}
+        <p class="ame-aviso-correios__title">{{ aviso_titulo }}</p>
+      {%- endif -%}
+      {%- if compact -%}
+        {%- if aviso_texto_curto != blank -%}
+          <div class="ame-aviso-correios__body">{{ aviso_texto_curto | newline_to_br }}</div>
+        {%- endif -%}
+      {%- else -%}
+        {%- if settings.aviso_correios_texto != blank -%}
+          <div class="ame-aviso-correios__body">{{ settings.aviso_correios_texto }}</div>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if aviso_link != blank -%}
+        <a
+          class="ame-aviso-correios__link"
+          href="{{ aviso_link | escape }}"
+          target="_blank"
+          rel="noopener nofollow"
+        >
+          {{ aviso_link_label }}
+          <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+        </a>
+      {%- endif -%}
+    </div>
+  </aside>
+{%- endif -%}

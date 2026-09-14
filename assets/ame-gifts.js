@@ -49,6 +49,8 @@
 
     let _regrasCache = null;
     let _variantsCache = new Map(); // handle → produto completo do Waltz
+    // regra_id → Set de product_id da coleção-gatilho. Ausente = ainda não sei
+    let _colecoesCache = new Map();
     let _aplicandoMudancas = false;
     let _pendingReavaliacao = false; // se chamado durante execução, roda de novo no fim
     let _seletoresState = new Map(); // regra_id → { handle, variantId } (em memória, sem persist)
@@ -148,8 +150,16 @@
             return subtotal >= Number(regra.gatilho_valor_minimo_cents);
         }
         if (regra.tipo_gatilho === 'colecao') {
-            // TODO V2: precisa lookup de collections por item (via Waltz/produto)
-            return false;
+            // A lista de produtos da coleção vem do Waltz e é carregada ANTES da
+            // avaliação (carregarColecoesDasRegras) — o /cart.js não diz a que
+            // coleção o produto pertence.
+            //
+            // Sem a lista, NÃO satisfaz: é melhor não dar o brinde do que dar pra
+            // quem não tem direito. E o carregamento não guarda a falha, então a
+            // próxima mexida no carrinho tenta de novo.
+            const produtos = _colecoesCache.get(String(regra.id));
+            if (!produtos) return false;
+            return itensReais.some(it => produtos.has(String(it.product_id)));
         }
         return false;
     }
@@ -1070,6 +1080,28 @@
         await Promise.all(produtosDaRegra(regra).map(p => carregarProdutoBrinde(p.handle)));
     }
 
+    // Produtos das coleções-gatilho, uma vez por sessão de página. Tem que rodar
+    // ANTES da avaliação porque regraSatisfeita é síncrona (roda dentro de filtro).
+    //
+    // A falha NÃO é memorizada de propósito: guardar "deu erro" mataria o brinde
+    // pelo resto da sessão por causa de uma falha de rede de um segundo. Sem a
+    // entrada no cache, a regra não satisfaz agora e a próxima mexida no carrinho
+    // tenta de novo.
+    async function carregarColecoesDasRegras(regras) {
+        const pendentes = (regras || []).filter(r =>
+            r.tipo_gatilho === 'colecao' && !_colecoesCache.has(String(r.id)));
+        if (!pendentes.length) return;
+        await Promise.all(pendentes.map(async (r) => {
+            try {
+                const resp = await xhrJson(
+                    WALTZ_BASE + '/api/public/brindes/' + encodeURIComponent(r.id) + '/colecao');
+                _colecoesCache.set(String(r.id), new Set((resp.produtos || []).map(String)));
+            } catch (e) {
+                console.warn('[Brindes] coleção do gatilho falhou (regra ' + r.id + '):', e.message);
+            }
+        }));
+    }
+
     // ─── Auto match: o brinde que combina com o carrinho ───
     // O /products/X.js entrega os NOMES das opções no produto e os VALORES na
     // variação (options: ['Marinho','Ouro']), então o par se monta por índice.
@@ -1426,6 +1458,9 @@
             //    Plus a Shopify trata todo produto dentro de um BXGY como
             //    inelegível a outro desconto de produto, então dois brindes no
             //    carrinho é um deles chegando COBRADO no checkout.
+            // Gatilho por COLEÇÃO precisa da lista de produtos dela carregada
+            // antes, porque regraSatisfeita é síncrona.
+            await carregarColecoesDasRegras(regrasAtivas);
             const liberadas = regrasLiberadas(cart);
             const presentes = brindesPresentes(cart, regrasAtivas);
 
