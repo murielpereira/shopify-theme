@@ -684,7 +684,7 @@
      berrante das transportadoras. Bordersuperior destacada pro olho bater. */
   .ame-track-alert {
     max-width: 64rem;
-    margin: 2.5rem auto 0;
+    margin-top: 20px;
     padding: 1.25rem clamp(1rem, 3vw, 1.5rem);
     background: rgba(248, 236, 224, 0.6);
     border: 1px solid rgba(212, 167, 106, 0.35);
@@ -866,10 +866,12 @@
       if (!name) return '';
       const n = name.toLowerCase();
       if (n.includes('loggi')) return 'https://logodownload.org/wp-content/uploads/2019/07/loggi-logo-0.png';
-      if (n.includes('correios') || n.includes('pac')) return 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
+      if (n.includes('correios') || n.includes('pac'))
+        return 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
       if (n.includes('sedex')) return 'https://logodownload.org/wp-content/uploads/2017/03/sedex-logo-1.png';
       if (n.includes('total')) return 'https://logodownload.org/wp-content/uploads/2019/09/total-express-logo-0.png';
-      if (n.includes('j&t') || n.includes('jt express')) return 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
+      if (n.includes('j&t') || n.includes('jt express'))
+        return 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
       if (n.includes('jadlog')) return 'https://logodownload.org/wp-content/uploads/2019/02/jadlog-logo-0.png';
       return '';
     }
@@ -887,20 +889,44 @@
     function detectCarrier(trackingCode, events) {
       const code = String(trackingCode || '').toUpperCase();
       const prefix = code.slice(0, 2);
-      const SEDEX_PREFIXES = new Set(['AD','AC','RD','AA','AB','AE','AF','AG','AH','AI','AJ','AK','DL','DM','DR','DZ','EE','SS','SX']);
-      const PAC_PREFIXES = new Set(['PA','PB','PC','PD','PE','PF','JC','JD','JE','JF','OE']);
+      const SEDEX_PREFIXES = new Set([
+        'AD',
+        'AC',
+        'RD',
+        'AA',
+        'AB',
+        'AE',
+        'AF',
+        'AG',
+        'AH',
+        'AI',
+        'AJ',
+        'AK',
+        'DL',
+        'DM',
+        'DR',
+        'DZ',
+        'EE',
+        'SS',
+        'SX',
+      ]);
+      const PAC_PREFIXES = new Set(['PA', 'PB', 'PC', 'PD', 'PE', 'PF', 'JC', 'JD', 'JE', 'JF', 'OE']);
       if (SEDEX_PREFIXES.has(prefix)) return 'SEDEX';
       if (PAC_PREFIXES.has(prefix)) return 'PAC';
 
       if (!events || !events.length) return null;
-      const text = events.map(e => (e.observation || '') + ' ' + (e.code?.name || '')).join(' ').toLowerCase();
+      const text = events
+        .map((e) => (e.observation || '') + ' ' + (e.code?.name || ''))
+        .join(' ')
+        .toLowerCase();
       if (text.includes('sedex')) return 'SEDEX';
       if (text.includes('j&t') || text.includes('jt express')) return 'J&T Express';
       if (text.includes('loggi')) return 'Loggi';
       if (text.includes('jadlog')) return 'Jadlog';
       if (text.includes('total express') || text.includes('totalexpress')) return 'Total Express';
       if (text.includes('gfl ')) return 'GFL';
-      if (text.includes('correios') || text.includes('agência dos correios') || text.includes('ect ')) return 'Correios';
+      if (text.includes('correios') || text.includes('agência dos correios') || text.includes('ect '))
+        return 'Correios';
       return null;
     }
 
@@ -984,12 +1010,7 @@
       const events = [];
       for (const ev of eventsRaw) {
         const dateKey = ev.date ? String(ev.date).slice(0, 16) : '';
-        const key = [
-          ev.code?.tracking_type || '',
-          ev.code?.name || '',
-          ev.observation || '',
-          dateKey,
-        ].join('|');
+        const key = [ev.code?.tracking_type || '', ev.code?.name || '', ev.observation || '', dateKey].join('|');
         if (seenEvents.has(key)) continue;
         seenEvents.add(key);
         events.push(ev);
