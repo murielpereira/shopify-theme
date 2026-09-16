@@ -74,8 +74,20 @@
                 .filter(it => it.checked)
                 .map(it => {
                     const payload = { id: it.selectedVariantId, quantity: 1 };
-                    const props = readProperties(it);
-                    if (props) payload.properties = props;
+                    const props = readProperties(it) || {};
+                    // Marca a origem: peça que entrou pelo "Compre junto" da
+                    // PDP (16/09/2026). O prefixo `_` esconde do carrinho que a
+                    // cliente vê, mas aparece no admin da Shopify e no Tiny —
+                    // mesma convenção do cross-sell do drawer
+                    // (`compre-junto-cart`, em layout/theme.liquid) e do
+                    // montador de kit (`_from_kit`, em ame-kit.js).
+                    //
+                    // Sem isto o widget era o ÚNICO dos três que não dava para
+                    // medir: o item chegava no pedido indistinguível de um que
+                    // a cliente pôs no carrinho sozinha. Quem lê a marca é o
+                    // Waltz, em services/pedido-itens-service.js.
+                    props['_origem'] = 'compre-junto-pdp';
+                    payload.properties = props;
                     return payload;
                 });
         },
