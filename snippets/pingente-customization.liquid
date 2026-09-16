@@ -1461,7 +1461,14 @@
           if (linhas.length) properties['Personalização'] = linhas.join('\n');
           // Vincula este pingente à coleira correspondente: o cart JS usa essa chave
           // pra remover o pingente junto quando o cliente remove a coleira do carrinho.
+          // É chave de VÍNCULO, não marca de kit — quem diz "veio de página de
+          // kit" é `_from_kit`, posta em ame-kit.js.
           if (coleiraKey) properties['_kit'] = coleiraKey;
+          // O pingente é um COMPRE JUNTO: a cliente veio pela coleira e
+          // acrescentou ele. Sem esta marca ele entrava no relatório do Waltz
+          // como venda de vitrine — ou, pior, como kit, por causa do `_kit`
+          // acima (corrigido em 16/09/2026).
+          properties['_origem'] = 'compre-junto';
           // No modo obrigatório, o pingente é cortesia — marcamos visualmente
           // (a regra de discount automático no admin do Shopify zera o preço).
           if (OBRIGATORIO) properties['Brinde'] = 'Pingente cortesia incluso';

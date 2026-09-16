@@ -86,7 +86,11 @@
                     // medir: o item chegava no pedido indistinguível de um que
                     // a cliente pôs no carrinho sozinha. Quem lê a marca é o
                     // Waltz, em services/pedido-itens-service.js.
-                    props['_origem'] = 'compre-junto-pdp';
+                    //
+                    // Mesmo valor que o pingente usa (pingente-customization
+                    // .liquid): os dois são a mesma coisa para quem lê o
+                    // relatório — "acrescentou na página do produto".
+                    props['_origem'] = 'compre-junto';
                     payload.properties = props;
                     return payload;
                 });
