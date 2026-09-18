@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "compre-por-cor": {
+      "type": "compre-por-cor",
+      "settings": {
+        "titulo": "Compre por cor",
+        "api_url": "https://waltz.up.railway.app",
+        "itens_pagina": 24
+      }
+    }
+  },
+  "order": [
+    "compre-por-cor"
+  ]
+}

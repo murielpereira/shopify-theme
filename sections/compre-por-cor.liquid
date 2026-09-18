@@ -1,0 +1,416 @@
+{% comment %}
+  COMPRE POR COR — a vitrine.
+
+  A cliente escolhe um tom e esta página mostra a loja inteira NAQUELE tom, da
+  cor mais próxima para a mais distante, cada peça com a foto da cor certa.
+
+  ── Por que não é um filtro nativo da Shopify ──────────────────────────────
+  Escolher uma cor não filtra o catálogo da Âme: Rosa Seco existe em 107 dos
+  137 produtos com cor. O filtro nativo devolveria quase a loja inteira, com a
+  foto da variação PADRÃO — quase sempre de outra cor, que é exatamente o
+  problema que esta página existe para resolver. Além disso a Shopify não sabe
+  ordenar por distância de cor.
+
+  Então a unidade aqui é o PAR (produto × cor), e quem ordena é o Waltz, que
+  tem o espelho do catálogo com uma foto por Cor × Cor do Metal.
+  Vide Waltz/docs/compre-por-cor/ (ADR-001, ADR-007).
+
+  ── Contrato da URL ────────────────────────────────────────────────────────
+    ?tom=b6b79d     o tom pedido, SEM o "#" (que na URL vira fragmento)
+    &metal=Ouro     opcional — o passo de metal, que começa desligado
+    &tipo=Coleira   opcional — categoria
+    &p=2            página (24 por página)
+
+  Todo o estado vive na URL: a página funciona colada em outra aba.
+{% endcomment %}
+
+{%- assign api = section.settings.api_url | default: 'https://waltz.up.railway.app' -%}
+
+<section class="ame-cor" data-cor-secao data-api="{{ api | escape }}">
+  <header class="ame-cor__topo">
+    <div class="ame-cor__tom">
+      <span class="ame-cor__amostra" data-cor-amostra aria-hidden="true"></span>
+      <div>
+        <h1 class="ame-cor__titulo">{{ section.settings.titulo | default: 'Compre por cor' }}</h1>
+        <p class="ame-cor__sub" data-cor-resumo>Carregando as peças…</p>
+      </div>
+    </div>
+
+    {%- comment -%}
+      O aviso de "fora do corte" é o que separa promessa cumprida de frustração:
+      a cliente vê, ANTES de olhar a grade, que o que ela pediu e o que existe
+      não são a mesma coisa.
+    {%- endcomment -%}
+    <p class="ame-cor__aviso" data-cor-aviso hidden></p>
+  </header>
+
+  <div class="ame-cor__filtros">
+    <div class="ame-cor__filtro" data-cor-grupo="metal">
+      <span class="ame-cor__filtro-rotulo">Metal</span>
+      <div class="ame-cor__pills" data-cor-metais></div>
+    </div>
+    <div class="ame-cor__filtro" data-cor-grupo="tipo" data-cor-filtro-tipo hidden>
+      <span class="ame-cor__filtro-rotulo">Categoria</span>
+      <div class="ame-cor__pills" data-cor-tipos></div>
+    </div>
+  </div>
+
+  <div class="ame-cor__grade" data-cor-grade aria-live="polite"></div>
+
+  <div class="ame-cor__paginacao" data-cor-paginacao hidden>
+    <button type="button" class="ame-cor__pag-btn" data-cor-anterior>Anterior</button>
+    <span class="ame-cor__pag-info" data-cor-pag-info></span>
+    <button type="button" class="ame-cor__pag-btn" data-cor-proxima>Próxima</button>
+  </div>
+
+  <p class="ame-cor__vazio" data-cor-vazio hidden>
+    Não encontrei peças nesse tom. Tente uma cor vizinha.
+  </p>
+</section>
+
+<script>
+  (function () {
+    const secao = document.querySelector('[data-cor-secao]');
+    if (!secao) return;
+
+    const API = secao.dataset.api.replace(/\/$/, '');
+    const METAIS = ['Ouro', 'Prata', 'Grafite', 'Rose'];
+    const POR_PAGINA = {{ section.settings.itens_pagina | default: 24 }};
+
+    const el = {
+      amostra: secao.querySelector('[data-cor-amostra]'),
+      resumo: secao.querySelector('[data-cor-resumo]'),
+      aviso: secao.querySelector('[data-cor-aviso]'),
+      metais: secao.querySelector('[data-cor-metais]'),
+      tipos: secao.querySelector('[data-cor-tipos]'),
+      filtroTipo: secao.querySelector('[data-cor-filtro-tipo]'),
+      grade: secao.querySelector('[data-cor-grade]'),
+      paginacao: secao.querySelector('[data-cor-paginacao]'),
+      pagInfo: secao.querySelector('[data-cor-pag-info]'),
+      anterior: secao.querySelector('[data-cor-anterior]'),
+      proxima: secao.querySelector('[data-cor-proxima]'),
+      vazio: secao.querySelector('[data-cor-vazio]'),
+    };
+
+    // Estado inteiro na URL (e só nela): a página colada em outra aba mostra
+    // exatamente a mesma coisa.
+    function lerURL() {
+      const q = new URLSearchParams(location.search);
+      const tom = (q.get('tom') || '').replace(/^#/, '').trim();
+      return {
+        tom: /^[0-9a-fA-F]{6}$/.test(tom) ? '#' + tom.toLowerCase() : null,
+        metal: q.get('metal') || null,
+        tipo: q.get('tipo') || null,
+        pagina: Math.max(parseInt(q.get('p') || '1', 10) || 1, 1),
+      };
+    }
+
+    function escreverURL(estado, empurrar) {
+      const q = new URLSearchParams();
+      if (estado.tom) q.set('tom', estado.tom.slice(1));
+      if (estado.metal) q.set('metal', estado.metal);
+      if (estado.tipo) q.set('tipo', estado.tipo);
+      if (estado.pagina > 1) q.set('p', String(estado.pagina));
+      const url = location.pathname + '?' + q.toString();
+      if (empurrar) history.pushState(null, '', url);
+      else history.replaceState(null, '', url);
+    }
+
+    const dinheiro = (v) => Number(v).toLocaleString('pt-BR', {
+      style: 'currency', currency: 'BRL', minimumFractionDigits: 2,
+    });
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    // ── Card ────────────────────────────────────────────────────────────────
+    // Usa as classes .ame-card do tema em vez de reinventar um card: a vitrine
+    // fica igual ao resto da loja de graça, e qualquer ajuste no card vale aqui
+    // também. Pix e parcelas ficam de fora de propósito — dependem das settings
+    // de pagamento e aparecem completos na página do produto, que é onde a
+    // cliente decide.
+    function card(item, consultaId) {
+      const de = item.preco_comparacao
+        ? `<p class="ame-card__price-de">De: <s>${dinheiro(item.preco_comparacao)}</s></p>` : '';
+      const apartir = item.preco_varia
+        ? '<p class="ame-card__price-from">A partir de</p>' : '';
+      const preco = item.preco != null
+        ? `<p class="ame-card__price-main"><strong class="ame-card__price-value">${dinheiro(item.preco)}</strong></p>` : '';
+
+      return `
+      <div class="ame-card ame-cor__card" data-cor-card data-url="${esc(item.url)}" data-consulta="${esc(consultaId || '')}">
+        <div class="ame-card__image-wrap">
+          <a href="${esc(item.url)}" class="ame-card__link" tabindex="-1" aria-hidden="true"></a>
+          <img class="ame-card__img ame-card__img--primary" src="${esc(item.imagem)}"
+               alt="${esc(item.titulo)} — ${esc(item.cor)}" loading="lazy" width="600" height="600">
+        </div>
+        <div class="ame-card__info">
+          <h3 class="ame-card__title"><a href="${esc(item.url)}">${esc(item.titulo)}</a></h3>
+          <p class="ame-cor__card-cor">
+            <span class="ame-cor__card-ponto" style="background:${esc(item.hex)}" aria-hidden="true"></span>
+            ${esc(item.cor)}
+          </p>
+          <div class="ame-card__prices">${apartir}${de}${preco}</div>
+        </div>
+      </div>`;
+    }
+
+    function pills(container, valores, ativo, onEscolher) {
+      container.innerHTML = '';
+      for (const v of valores) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'ame-cor__pill' + (v.valor === ativo ? ' ame-cor__pill--ativa' : '');
+        b.textContent = v.rotulo;
+        b.setAttribute('aria-pressed', v.valor === ativo ? 'true' : 'false');
+        // Clicar na pastilha ATIVA desliga o filtro: é o mesmo toque para ligar
+        // e desligar, que é o que se espera de um filtro que começa desligado.
+        b.addEventListener('click', () => onEscolher(v.valor === ativo ? null : v.valor));
+        container.appendChild(b);
+      }
+    }
+
+    // ── Carga ───────────────────────────────────────────────────────────────
+    let carregando = false;
+
+    async function carregar(estado, empurrar) {
+      if (!estado.tom) {
+        el.resumo.textContent = 'Escolha um tom para ver as peças.';
+        el.grade.innerHTML = '';
+        el.paginacao.hidden = true;
+        return;
+      }
+      if (carregando) return;
+      carregando = true;
+      escreverURL(estado, empurrar);
+      el.amostra.style.background = estado.tom;
+
+      const q = new URLSearchParams({
+        hex: estado.tom,
+        limite: String(POR_PAGINA),
+        offset: String((estado.pagina - 1) * POR_PAGINA),
+        pagina: location.pathname,
+      });
+      if (estado.metal) q.set('metal', estado.metal);
+      if (estado.tipo) q.set('tipo', estado.tipo);
+      const origem = sessionStorage.getItem('ameCorOrigem');
+      if (origem) q.set('origem', origem);
+
+      try {
+        const r = await fetch(`${API}/api/public/cores/vitrine?${q}`).then((x) => x.json());
+        if (!r.sucesso) throw new Error(r.erro || 'falhou');
+        pintar(r, estado);
+      } catch (e) {
+        el.resumo.textContent = 'Não consegui carregar as peças agora.';
+        el.grade.innerHTML = '';
+      } finally {
+        carregando = false;
+      }
+    }
+
+    function pintar(r, estado) {
+      const proximo = r.tom_proximo;
+      el.resumo.innerHTML = proximo
+        ? `mais próximo: <strong>${esc(proximo.nome)}</strong> · ${r.total} peça${r.total === 1 ? '' : 's'}`
+        : `${r.total} peças`;
+
+      // Fora do corte, a página DIZ isso antes da grade. Prometer a cor e
+      // entregar outra é o jeito mais rápido de virar troca.
+      if (r.dentro_do_corte === false) {
+        el.aviso.hidden = false;
+        el.aviso.textContent = 'Não temos exatamente esse tom — estas são as peças mais parecidas.';
+      } else {
+        el.aviso.hidden = true;
+      }
+
+      pills(el.metais, METAIS.map((m) => ({ valor: m, rotulo: m })), estado.metal,
+        (v) => carregar({ ...estado, metal: v, pagina: 1 }, true));
+
+      // As categorias vêm do resultado INTEIRO, não da página: mostrar só o que
+      // calhou de cair nas primeiras 24 faria o filtro mentir sobre o que existe.
+      const tipos = (r.categorias || []).map((c) => ({ valor: c.tipo, rotulo: `${c.tipo} (${c.n})` }));
+      el.filtroTipo.hidden = tipos.length < 2;
+      pills(el.tipos, tipos, estado.tipo,
+        (v) => carregar({ ...estado, tipo: v, pagina: 1 }, true));
+
+      el.grade.innerHTML = (r.itens || []).map((i) => card(i, r.consulta_id)).join('');
+      el.vazio.hidden = (r.itens || []).length > 0;
+
+      const paginas = Math.max(Math.ceil(r.total / POR_PAGINA), 1);
+      el.paginacao.hidden = paginas < 2;
+      el.pagInfo.textContent = `${estado.pagina} de ${paginas}`;
+      el.anterior.disabled = estado.pagina <= 1;
+      el.proxima.disabled = estado.pagina >= paginas;
+      el.anterior.onclick = () => carregar({ ...estado, pagina: estado.pagina - 1 }, true);
+      el.proxima.onclick = () => {
+        carregar({ ...estado, pagina: estado.pagina + 1 }, true);
+        secao.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+    }
+
+    // ── Clique numa peça ────────────────────────────────────────────────────
+    // `sendBeacon` porque a navegação começa no mesmo instante: um fetch normal
+    // seria cancelado pelo unload e o clique sumiria da medição.
+    el.grade.addEventListener('click', (ev) => {
+      const card = ev.target.closest('[data-cor-card]');
+      if (!card || !card.dataset.consulta) return;
+      try {
+        navigator.sendBeacon(`${API}/api/public/cores/log`,
+          new Blob([JSON.stringify({ consulta_id: card.dataset.consulta })],
+            { type: 'application/json' }));
+      } catch (e) { /* medição não pode atrapalhar a compra */ }
+    });
+
+    window.addEventListener('popstate', () => carregar(lerURL(), false));
+    carregar(lerURL(), false);
+  })();
+</script>
+
+{% stylesheet %}
+.ame-cor {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+.ame-cor__topo { margin-bottom: 20px; }
+
+.ame-cor__tom { display: flex; align-items: center; gap: 14px; }
+
+/* A amostra do tom pedido fica sempre à vista: é o contrato da página. */
+.ame-cor__amostra {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 50%;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container);
+}
+
+.ame-cor__titulo {
+  font-size: 26px;
+  line-height: 1.2;
+  margin: 0;
+  color: var(--color-on-background);
+}
+
+.ame-cor__sub { margin: 2px 0 0; color: var(--color-on-surface-variant); font-size: 14px; }
+
+.ame-cor__aviso {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+}
+
+.ame-cor__filtros { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.ame-cor__filtro { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ame-cor__filtro-rotulo {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  min-width: 68px;
+}
+.ame-cor__pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Pastilha, e não <select>: são poucos valores e a cliente precisa poder
+   DESLIGAR com o mesmo toque com que ligou. */
+.ame-cor__pill {
+  border: 1px solid var(--color-outline-variant);
+  background: transparent;
+  color: var(--color-on-surface);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.ame-cor__pill:hover { background: var(--color-surface-container-low); }
+.ame-cor__pill--ativa {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ame-cor__grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.ame-cor__card-cor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 6px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+.ame-cor__card-ponto {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--color-outline-variant);
+  flex: 0 0 12px;
+}
+
+.ame-cor__paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+.ame-cor__pag-btn {
+  border: 1px solid var(--color-outline-variant);
+  background: transparent;
+  color: var(--color-on-surface);
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.ame-cor__pag-btn:disabled { opacity: .4; cursor: default; }
+.ame-cor__pag-info { font-size: 14px; color: var(--color-on-surface-variant); }
+
+.ame-cor__vazio { text-align: center; padding: 48px 0; color: var(--color-on-surface-variant); }
+
+@media (max-width: 600px) {
+  .ame-cor { padding: 20px 16px 48px; }
+  .ame-cor__titulo { font-size: 21px; }
+  .ame-cor__grade { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .ame-cor__filtro { align-items: flex-start; flex-direction: column; gap: 6px; }
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Compre por cor",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título da página",
+      "default": "Compre por cor"
+    },
+    {
+      "type": "text",
+      "id": "api_url",
+      "label": "URL do Waltz",
+      "info": "Sem barra no fim. Ex.: https://waltz.up.railway.app",
+      "default": "https://waltz.up.railway.app"
+    },
+    {
+      "type": "range",
+      "id": "itens_pagina",
+      "label": "Peças por página",
+      "min": 12,
+      "max": 48,
+      "step": 6,
+      "default": 24
+    }
+  ],
+  "presets": [{ "name": "Compre por cor" }]
+}
+{% endschema %}

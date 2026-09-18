@@ -1633,6 +1633,30 @@
     // Re-aplica após Section Rendering API substituir o markup das opções.
     document.addEventListener('pdp:variant-changed', updateSelectionInfo);
 
+    /* ── ?cor=<valor> — chegada pela vitrine do Compre por Cor ──────────────
+       A vitrine manda a cliente para cá com a COR já escolhida e o tamanho em
+       aberto. A Shopify não preenche `option_value.selected` a partir de um
+       parâmetro qualquer: o nativo é `?variant=` (que escolheria o tamanho por
+       ela) ou `?option_values=` com IDs de valor de opção, que a vitrine não
+       tem — ela conhece a cor pelo NOME, que é o que vem do catálogo.
+
+       Como cada swatch já carrega `data-value` com o nome da cor, preselecionar
+       é achar o botão e clicar nele: o handler existente marca o ativo, leva a
+       galeria para a foto daquela cor e atualiza preço/CTA pelo Section
+       Rendering. Sem o parâmetro, ou com uma cor que o produto não tem, nada
+       acontece — a página abre normal.
+       Vide Waltz/docs/compre-por-cor/08-adrs.md (ADR-019). */
+    (function preSelecionarCorDaURL() {
+      const cor = new URLSearchParams(location.search).get('cor');
+      if (!cor) return;
+      const alvo = decodeURIComponent(cor).trim().toLowerCase();
+      for (const group of document.querySelectorAll('#pdp-options-wrap [data-option-index]')) {
+        const btn = [...group.querySelectorAll('.pdp__swatch')]
+          .find(b => (b.dataset.value || '').trim().toLowerCase() === alvo);
+        if (btn && !btn.classList.contains('pdp__swatch--active')) { btn.click(); return; }
+      }
+    })();
+
     /* ── Validação no submit: destaca opções faltantes + scroll + toast ── */
     function validateAndHighlight() {
       const groups = document.querySelectorAll('#pdp-options-wrap [data-option-index]');
