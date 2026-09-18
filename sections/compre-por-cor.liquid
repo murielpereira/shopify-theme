@@ -17,6 +17,7 @@
 
   ── Contrato da URL ────────────────────────────────────────────────────────
     ?tom=b6b79d     o tom pedido, SEM o "#" (que na URL vira fragmento)
+                    A vitrine mostra os N tons mais proximos (cor_config.tons_vitrine).
     &metal=Ouro     opcional — o passo de metal, que começa desligado
     &tipo=Coleira   opcional — categoria
     &p=2            página (24 por página)
@@ -63,6 +64,8 @@
     <button type="button" class="ame-cor__pag-btn" data-cor-proxima>Próxima</button>
   </div>
 
+  <p class="ame-cor__fim" data-cor-fim hidden></p>
+
   <p class="ame-cor__vazio" data-cor-vazio hidden>
     Não encontrei peças nesse tom. Tente uma cor vizinha.
   </p>
@@ -90,6 +93,7 @@
       anterior: secao.querySelector('[data-cor-anterior]'),
       proxima: secao.querySelector('[data-cor-proxima]'),
       vazio: secao.querySelector('[data-cor-vazio]'),
+      fim: secao.querySelector('[data-cor-fim]'),
     };
 
     // Estado inteiro na URL (e só nela): a página colada em outra aba mostra
@@ -155,9 +159,56 @@
       </div>`;
     }
 
-    function pills(container, valores, ativo, onEscolher) {
+    // Quantas categorias ficam à vista antes do "mais categorias". A loja tem 22
+    // tipos, e a cauda (Necessaire, Porta Aliança, Porta Carteira de Vacinação —
+    // 1 peça cada) ocupava três linhas do espaço nobre, empurrando a grade para
+    // baixo da dobra. As maiores ficam; o resto fica a um toque.
+    const CATEGORIAS_A_VISTA = 8;
+
+    // ── Grade agrupada por tom ──────────────────────────────────────────────
+    // A ordem é por proximidade de cor, e sem marcação isso fica misterioso: a
+    // cliente pediu sépia, rola um pouco e começa a ver rosa sem entender por
+    // quê. O cabeçalho a cada troca de tom torna a régua visível — ela sai do
+    // tom dela por escolha, não por acidente.
+    //
+    // Quando a página COMEÇA no meio de um grupo (a paginação corta onde tem
+    // que cortar), o primeiro cabeçalho vem marcado como continuação.
+    function grade(r, estado) {
+      const itens = r.itens || [];
+      if (!itens.length) return '';
+      const totalPorTom = new Map((r.tons || []).map((t) => [t.nome, t.n]));
+
+      let html = '';
+      let tomAtual = null;
+      itens.forEach((item, i) => {
+        if (item.tom_primario !== tomAtual) {
+          tomAtual = item.tom_primario;
+          const n = totalPorTom.get(tomAtual) || 0;
+          const continuando = i === 0 && estado.pagina > 1;
+          html += `
+            <h2 class="ame-cor__grupo">
+              <span class="ame-cor__grupo-ponto" style="background:${esc(item.hex)}" aria-hidden="true"></span>
+              ${esc(tomAtual)}
+              <span class="ame-cor__grupo-n">${continuando ? 'continuando · ' : ''}${n} peça${n === 1 ? '' : 's'}</span>
+            </h2>`;
+        }
+        html += card(item, r.consulta_id);
+      });
+      return html;
+    }
+
+    function pills(container, valores, ativo, onEscolher, limite) {
       container.innerHTML = '';
-      for (const v of valores) {
+      const esconder = limite && valores.length > limite + 1;
+      const visiveis = esconder ? valores.slice(0, limite) : valores;
+      // A categoria ESCOLHIDA aparece sempre, mesmo que esteja na cauda: some
+      // dela seria esconder o filtro que está ligado.
+      if (esconder && ativo && !visiveis.some((v) => v.valor === ativo)) {
+        const escolhida = valores.find((v) => v.valor === ativo);
+        if (escolhida) visiveis.unshift(escolhida);
+      }
+
+      const monta = (v) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'ame-cor__pill' + (v.valor === ativo ? ' ame-cor__pill--ativa' : '');
@@ -166,7 +217,22 @@
         // Clicar na pastilha ATIVA desliga o filtro: é o mesmo toque para ligar
         // e desligar, que é o que se espera de um filtro que começa desligado.
         b.addEventListener('click', () => onEscolher(v.valor === ativo ? null : v.valor));
-        container.appendChild(b);
+        return b;
+      };
+
+      visiveis.forEach((v) => container.appendChild(monta(v)));
+
+      if (esconder) {
+        const resto = valores.filter((v) => !visiveis.includes(v));
+        const mais = document.createElement('button');
+        mais.type = 'button';
+        mais.className = 'ame-cor__pill ame-cor__pill--mais';
+        mais.textContent = `+ ${resto.length} categorias`;
+        mais.addEventListener('click', () => {
+          mais.remove();
+          resto.forEach((v) => container.appendChild(monta(v)));
+        });
+        container.appendChild(mais);
       }
     }
 
@@ -210,9 +276,41 @@
 
     function pintar(r, estado) {
       const proximo = r.tom_proximo;
-      el.resumo.innerHTML = proximo
-        ? `mais próximo: <strong>${esc(proximo.nome)}</strong> · ${r.total} peça${r.total === 1 ? '' : 's'}`
-        : `${r.total} peças`;
+      // O resumo diz quantas peças estão NO TOM pedido e quantas vêm depois, em
+      // tons vizinhos. "1.516 peças" ao lado de "mais próximo: Sépia" lia como
+      // "1.516 peças em Sépia" — e são as da loja inteira, ordenadas por
+      // proximidade. A promessa da página tem que caber na primeira linha.
+      //
+      // ⚠️ E "em tons parecidos" seria mentira no fim da lista: medido em
+      // 18/09/2026, quem pede Sépia tem Off White a ΔE 9,6 — parecido mesmo —
+      // mas também Preto a ΔE 63, que é outra cor. A frase diz o que a ordem
+      // realmente é: do mais parecido ao mais distante.
+      const listados = r.tons || [];
+      const noTom = listados.find((t) => t.nome === proximo?.nome)?.n || 0;
+      const vizinhos = listados.filter((t) => t.nome !== proximo?.nome);
+      const resto = r.total - noTom;
+      if (!proximo || !noTom) {
+        el.resumo.innerHTML = `${r.total} peça${r.total === 1 ? '' : 's'}`;
+      } else if (vizinhos.length === 0) {
+        el.resumo.innerHTML = `<strong>${esc(proximo.nome)}</strong> · ${noTom} peça${noTom === 1 ? '' : 's'}`;
+      } else if (vizinhos.length === 1) {
+        // Com um vizinho só, vale nomeá-lo: "e mais 104 em Off White" diz à
+        // cliente exatamente o que ela vai ver ao rolar.
+        el.resumo.innerHTML = `<strong>${esc(proximo.nome)}</strong> · ${noTom} peça${noTom === 1 ? '' : 's'} nesse tom`
+          + ` · e mais ${resto.toLocaleString('pt-BR')} em <strong>${esc(vizinhos[0].nome)}</strong>, o tom mais próximo`;
+      } else {
+        el.resumo.innerHTML = `<strong>${esc(proximo.nome)}</strong> · ${noTom} peça${noTom === 1 ? '' : 's'} nesse tom`
+          + ` · e mais ${resto.toLocaleString('pt-BR')} nos ${vizinhos.length} tons mais próximos`;
+      }
+
+      // A vitrine acaba onde o tom deixa de ser uma alternativa — mas a loja
+      // não acaba ali. Sem esta saída, o fim da lista parece "é só isso que
+      // vocês têm" (RN-17).
+      el.fim.hidden = !r.tons_ocultos;
+      if (r.tons_ocultos) {
+        el.fim.innerHTML = `Esses são os tons mais próximos de <strong>${esc(proximo ? proximo.nome : 'sua cor')}</strong>.`
+          + ` <a href="/collections/all">Ver a loja inteira</a>`;
+      }
 
       // Fora do corte, a página DIZ isso antes da grade. Prometer a cor e
       // entregar outra é o jeito mais rápido de virar troca.
@@ -231,9 +329,9 @@
       const tipos = (r.categorias || []).map((c) => ({ valor: c.tipo, rotulo: `${c.tipo} (${c.n})` }));
       el.filtroTipo.hidden = tipos.length < 2;
       pills(el.tipos, tipos, estado.tipo,
-        (v) => carregar({ ...estado, tipo: v, pagina: 1 }, true));
+        (v) => carregar({ ...estado, tipo: v, pagina: 1 }, true), CATEGORIAS_A_VISTA);
 
-      el.grade.innerHTML = (r.itens || []).map((i) => card(i, r.consulta_id)).join('');
+      el.grade.innerHTML = grade(r, estado);
       el.vazio.hidden = (r.itens || []).length > 0;
 
       const paginas = Math.max(Math.ceil(r.total / POR_PAGINA), 1);
@@ -339,6 +437,40 @@
   gap: 20px;
 }
 
+/* Cabeçalho de grupo: ocupa a linha inteira da grade. Sem `1 / -1` ele viraria
+   mais um card e a grade se desalinharia. */
+.ame-cor__grupo {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-outline-variant);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-on-background);
+}
+.ame-cor__grupo:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.ame-cor__grupo-ponto {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--color-outline-variant);
+  flex: 0 0 16px;
+}
+.ame-cor__grupo-n {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-on-surface-variant);
+}
+
+/* "+ N categorias": mesma pastilha, sem peso de filtro — é navegação, não escolha. */
+.ame-cor__pill--mais {
+  border-style: dashed;
+  color: var(--color-on-surface-variant);
+}
+
 .ame-cor__card-cor {
   display: flex;
   align-items: center;
@@ -373,6 +505,16 @@
 }
 .ame-cor__pag-btn:disabled { opacity: .4; cursor: default; }
 .ame-cor__pag-info { font-size: 14px; color: var(--color-on-surface-variant); }
+
+.ame-cor__fim {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-outline-variant);
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+}
+.ame-cor__fim a { color: var(--color-primary); text-decoration: underline; }
 
 .ame-cor__vazio { text-align: center; padding: 48px 0; color: var(--color-on-surface-variant); }
 
