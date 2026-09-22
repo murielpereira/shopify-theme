@@ -1,20 +1,21 @@
 {% comment %}
   Widget flutuante de CASHBACK (saldo / extrato / resgate).
-  Carrega o widget servido pelo Waltz e identifica o cliente pelo e-mail do
-  cliente LOGADO (Liquid {{ customer.email }}), enviado no header
-  x-shopify-customer-email. O resgate é seguro contra roubo: o cupom gerado
-  fica travado no cliente na Shopify (só ele consegue usar).
+  Carrega o widget servido pelo Waltz e identifica o cliente LOGADO pelo e-mail
+  do Liquid ({{ customer.email }}), enviado no header x-shopify-customer-email.
+  O resgate é seguro contra roubo: o cupom gerado fica travado no cliente na
+  Shopify (só ele consegue usar).
 
-  Só renderiza pra cliente logado; o próprio widget se esconde se o programa
-  estiver desativado no painel (config.widget_ativo).
+  Renderiza SEMPRE desde 22/09/2026: visitante deslogado vê o widget em modo
+  vitrine — as regras do programa e o convite pra entrar na conta, sem nenhuma
+  chamada autenticada. O próprio widget se esconde se o programa estiver
+  desativado no painel (config.widget_ativo).
 {% endcomment %}
 
-{%- if customer -%}
-  <script>
-    window.WALTZ_CB = {
-      email: {{ customer.email | json }},
-      loggedIn: true
-    };
-  </script>
-  <script src="https://waltz.up.railway.app/widget-cashback.js" defer></script>
-{%- endif -%}
+<script>
+  window.WALTZ_CB = {
+    email: {% if customer %}{{ customer.email | json }}{% else %}null{% endif %},
+    loggedIn: {% if customer %}true{% else %}false{% endif %},
+    loginUrl: {{ routes.account_login_url | json }}
+  };
+</script>
+<script src="https://waltz.up.railway.app/widget-cashback.js" defer></script>
