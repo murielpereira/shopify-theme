@@ -165,7 +165,7 @@
     "custom_field_15_name": "Raça",
     "custom_field_15_title": "Raça do Pet",
     "custom_field_15_placeholder": "Informe a raça do pet",
-    "custom_field_15_limiter": "35",
+    "custom_field_15_limiter": "18",
     "custom_field_16_enable": true,
     "custom_field_16_tag": "customizacao_aniversario_pet",
     "custom_field_16_name": "Data de Nascimento",
