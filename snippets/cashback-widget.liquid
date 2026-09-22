@@ -1,14 +1,26 @@
 {% comment %}
-  Widget flutuante de CASHBACK (saldo / extrato / resgate).
-  Carrega o widget servido pelo Waltz e identifica o cliente LOGADO pelo e-mail
-  do Liquid ({{ customer.email }}), enviado no header x-shopify-customer-email.
-  O resgate é seguro contra roubo: o cupom gerado fica travado no cliente na
-  Shopify (só ele consegue usar).
+  IDENTIDADE do widget de cashback (saldo / extrato / resgate).
 
-  Renderiza SEMPRE desde 22/09/2026: visitante deslogado vê o widget em modo
-  vitrine — as regras do programa e o convite pra entrar na conta, sem nenhuma
-  chamada autenticada. O próprio widget se esconde se o programa estiver
-  desativado no painel (config.widget_ativo).
+  Este snippet NÃO carrega o widget. Quem carrega é o `waltz-core.js` (incluído
+  no topo deste layout), que pergunta ao Waltz quais módulos estão ligados e
+  injeta o script de cada um. O que só o tema consegue fazer é dizer QUEM está
+  na página: o e-mail do cliente logado vem do Liquid, e a API do Waltz não tem
+  como descobrir isso sozinha.
+
+  Até 22/09/2026 o snippet também carregava `widget-cashback.js` na mão. Os dois
+  caminhos coexistiam: o waltz-core via a tag já na página, avisava no console
+  ("já existe um <script src=…>. Pulando injeção") e desistia. Funcionava por
+  acidente — e furava o interruptor do módulo, porque o widget entrava mesmo com
+  o cashback desligado em /api/loja/modulos-ativos.
+
+  ORDEM (importa): este bloco é inline e roda enquanto a página é lida; o
+  waltz-core é `defer` e só executa depois. Então `window.WALTZ_CB` sempre existe
+  antes de o widget carregar.
+
+  Cliente logado → e-mail no header x-shopify-customer-email; o resgate é seguro
+  porque o cupom nasce travado no cliente na Shopify. Deslogado → email null e o
+  widget abre em modo vitrine: regras do programa e convite pra entrar na conta.
+  O programa desativado no painel (config.widget_ativo) esconde tudo.
 {% endcomment %}
 
 <script>
@@ -18,4 +30,3 @@
     loginUrl: {{ routes.account_login_url | json }}
   };
 </script>
-<script src="https://waltz.up.railway.app/widget-cashback.js" defer></script>
