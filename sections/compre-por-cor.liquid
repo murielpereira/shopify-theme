@@ -236,6 +236,29 @@
       }
     }
 
+    // ── A consulta é a COR PEDIDA, não o carregamento ───────────────────────
+    // Trocar de página, ligar o filtro de metal e escolher categoria são
+    // carregamentos da mesma busca. Se cada um virasse uma consulta, quem olha
+    // três páginas antes de clicar apareceria no relatório como 1 clique em 5
+    // consultas — e a taxa ficaria menor justo onde há mais peças para ver.
+    //
+    // Guardado em sessionStorage e não numa variável: recarregar a página ou
+    // voltar pelo histórico é a mesma cliente, na mesma cor.
+    const CHAVE = 'ameCorConsulta';
+
+    function consultaGuardada(tom) {
+      try {
+        const bruto = sessionStorage.getItem(CHAVE);
+        if (!bruto) return null;
+        const g = JSON.parse(bruto);
+        return g && g.tom === tom ? g.id : null;
+      } catch (e) { return null; }
+    }
+
+    function guardarConsulta(tom, id) {
+      try { sessionStorage.setItem(CHAVE, JSON.stringify({ tom, id })); } catch (e) { /* aba anônima */ }
+    }
+
     // ── Carga ───────────────────────────────────────────────────────────────
     let carregando = false;
 
@@ -261,10 +284,15 @@
       if (estado.tipo) q.set('tipo', estado.tipo);
       const origem = sessionStorage.getItem('ameCorOrigem');
       if (origem) q.set('origem', origem);
+      // Continuando a mesma cor: o servidor reaproveita a linha em vez de abrir
+      // outra. Ele confere se é mesmo a mesma cor antes de aceitar.
+      const anterior = consultaGuardada(estado.tom);
+      if (anterior) q.set('consulta', anterior);
 
       try {
         const r = await fetch(`${API}/api/public/cores/vitrine?${q}`).then((x) => x.json());
         if (!r.sucesso) throw new Error(r.erro || 'falhou');
+        if (r.consulta_id) guardarConsulta(estado.tom, r.consulta_id);
         pintar(r, estado);
       } catch (e) {
         el.resumo.textContent = 'Não consegui carregar as peças agora.';
@@ -352,10 +380,22 @@
     el.grade.addEventListener('click', (ev) => {
       const card = ev.target.closest('[data-cor-card]');
       if (!card || !card.dataset.consulta) return;
+      // ⚠️ O id vai na URL e o corpo vai VAZIO, de propósito.
+      //
+      // A primeira versão mandava um Blob `application/json`. Esse content-type
+      // não está na lista segura do CORS, então o beacon vira uma requisição
+      // COM PREFLIGHT — e beacon com preflight é descartado pelo navegador sem
+      // erro nenhum no console. Resultado medido em 22/09/2026: 116 consultas,
+      // ZERO cliques, com o endpoint respondendo 200 no curl.
+      //
+      // Sem corpo e sem cabeçalho, é requisição simples: sai direto.
+      const url = `${API}/api/public/cores/log?consulta=${encodeURIComponent(card.dataset.consulta)}`;
       try {
-        navigator.sendBeacon(`${API}/api/public/cores/log`,
-          new Blob([JSON.stringify({ consulta_id: card.dataset.consulta })],
-            { type: 'application/json' }));
+        // `keepalive` é a rede de segurança: se o sendBeacon for recusado (fila
+        // cheia, navegador antigo), o fetch ainda sobrevive à navegação.
+        if (!navigator.sendBeacon || !navigator.sendBeacon(url)) {
+          fetch(url, { method: 'POST', keepalive: true, mode: 'no-cors' });
+        }
       } catch (e) { /* medição não pode atrapalhar a compra */ }
     });
 
