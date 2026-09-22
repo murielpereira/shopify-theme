@@ -505,11 +505,20 @@
       max-width: 24rem;
       align-self: flex-end;
     }
-    /* Sozinha (título no banner): largura de leitura confortável. */
+    /* Sozinha (título no banner): bloco e texto centralizados — alinhada à
+       esquerda, sobrava meia tela vazia à direita. O margin-inline: auto
+       centraliza o item único no flex em linha do .ame-col-header__inner. */
     .ame-col-header__desc:only-child {
       max-width: 42rem;
+      margin-inline: auto;
+      text-align: center;
       font-size: 0.9375rem;
       line-height: 1.7;
+    }
+    /* Linhas de tamanho parecido: texto centralizado com a última linha
+       curtinha fica torto. Sobrescreve o text-wrap: pretty global do <p>. */
+    .ame-col-header__desc:only-child p {
+      text-wrap: balance;
     }
   }
 
