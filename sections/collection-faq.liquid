@@ -1,0 +1,446 @@
+{%- comment -%}
+  Âme — FAQ da coleção (logo antes do rodapé)
+
+  Conteúdo: metafield custom.faq da COLEÇÃO, tipo Texto rico. Mesmo formato
+  da FAQ por produto: cada pergunta é um Título (qualquer nível no editor) e
+  a resposta é tudo o que vem embaixo dele, até o próximo Título. Coleção sem
+  o metafield não renderiza nada.
+
+  Por que o parse é no Liquid e não no JS (como na PDP): esta FAQ existe pra
+  busca por voz e IA. Os crawlers das IAs leem o HTML cru e quase nunca
+  executam JS, então pergunta e resposta precisam sair prontas do servidor.
+  Pelo mesmo motivo o toggle é <details> nativo (zero JS; o Chrome ainda abre
+  sozinho o item quando um link de IA/Google aponta pra um trecho dele), e o
+  JSON-LD FAQPage sai do MESMO loop, sem chance de divergir do que está visível.
+
+  Sobre o rich snippet: o Google parou de exibir o resultado de FAQ em
+  07/05/2026 (changelog do Search Central, maio/2026). O JSON-LD fica porque
+  outros buscadores e as IAs ainda leem o schema, mas não esperar o
+  "acordeão" no resultado do Google.
+{%- endcomment -%}
+
+{%- liquid
+  assign faq_meta = collection.metafields.custom.faq
+  assign faq_items_html = ''
+  assign faq_ld = ''
+
+  if faq_meta != blank
+    # metafield_tag entrega <div class="metafield-rich_text_field"><h3>Pergunta</h3><p>Resposta</p>...</div>
+    # com os títulos sem atributo (doc do filtro). Todo nível de título vira o
+    # mesmo par de marcadores; o '>' do tag de abertura sobra colado na
+    # pergunta e sai no strip_html do loop abaixo.
+    assign faq_html = faq_meta | metafield_tag
+    for faq_level in (1..6)
+      assign faq_h_open = '<h' | append: faq_level
+      assign faq_h_close = '</h' | append: faq_level | append: '>'
+      assign faq_html = faq_html | replace: faq_h_open, '[[ame-faq-q]]' | replace: faq_h_close, '[[ame-faq-a]]'
+    endfor
+    # O primeiro pedaço é o que vem antes do primeiro Título (abertura do
+    # wrapper e texto solto): fica de fora, igual à FAQ da PDP.
+    assign faq_chunks = faq_html | split: '[[ame-faq-q]]'
+  endif
+-%}
+
+{%- if faq_meta != blank -%}
+  {%- capture faq_items_html -%}
+    {%- for faq_chunk in faq_chunks offset: 1 -%}
+      {%- liquid
+        assign faq_pair = faq_chunk | split: '[[ame-faq-a]]'
+
+        # '<h' devolve o começo do tag que o marcador engoliu: assim o
+        # strip_html limpa o '>' que sobrou (e negrito/itálico no título).
+        assign faq_question = '<h' | append: faq_pair[0] | strip_html | strip
+
+        # Texto rico não gera <div>: o único </div> possível é o fechamento
+        # do wrapper, que cai colado na última resposta.
+        assign faq_answer = faq_pair[1] | remove: '</div>' | replace: 'target="_blank"', 'target="_blank" rel="noopener noreferrer"' | strip
+        assign faq_answer_text = faq_answer | replace: '</p>', ' ' | replace: '</li>', ' ' | replace: '<br>', ' ' | strip_html | strip
+        if faq_question == blank or faq_answer_text == blank
+          continue
+        endif
+
+        # Texto puro pro JSON-LD, que é o que assistente de voz e IA leem e
+        # citam: entidades decodificadas (JSON não interpreta &amp;) e espaços
+        # colapsados. &amp; sai por último pra não decodificar duas vezes.
+        assign faq_ld_name = faq_question | replace: '&nbsp;', ' ' | replace: '&quot;', '"' | replace: '&#39;', "'" | replace: '&#x27;', "'" | replace: '&lt;', '<' | replace: '&gt;', '>' | replace: '&amp;', '&'
+        assign faq_ld_text = faq_answer_text | replace: '&nbsp;', ' ' | replace: '&quot;', '"' | replace: '&#39;', "'" | replace: '&#x27;', "'" | replace: '&lt;', '<' | replace: '&gt;', '>' | replace: '&amp;', '&' | split: ' ' | join: ' '
+
+        # Âncora por pergunta: a IA pode citar /collections/x#faq-... e o
+        # link cai direto na resposta.
+        assign faq_id = faq_ld_name | handle | prepend: 'faq-'
+        assign faq_ld_url = canonical_url | append: '#' | append: faq_id
+
+        assign faq_ld_name_json = faq_ld_name | json
+        assign faq_ld_text_json = faq_ld_text | json
+        assign faq_ld_url_json = faq_ld_url | json
+        assign faq_ld = faq_ld | append: ', { "@type": "Question", "name": ' | append: faq_ld_name_json | append: ', "url": ' | append: faq_ld_url_json | append: ', "acceptedAnswer": { "@type": "Answer", "text": ' | append: faq_ld_text_json | append: ' } }'
+      -%}
+      <details class="ame-col-faq__item" id="{{ faq_id }}">
+        <summary class="ame-col-faq__question">
+          <span>{{ faq_question }}</span>
+          <span class="ame-col-faq__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="ame-col-faq__answer">{{ faq_answer }}</div>
+      </details>
+    {%- endfor -%}
+  {%- endcapture -%}
+{%- endif -%}
+{%- assign faq_items_html = faq_items_html | strip -%}
+
+{%- if faq_items_html != blank -%}
+  {%- liquid
+    assign faq_title = section.settings.title | default: 'Perguntas frequentes'
+    assign faq_ld_page_name = faq_title | strip_html | append: ' — ' | append: collection.title
+    assign faq_ld_page_id = canonical_url | append: '#faq'
+  -%}
+  <section id="faq" class="ame-col-faq full-width" aria-labelledby="ame-col-faq-title-{{ section.id }}">
+    <div class="ame-col-faq__inner">
+      <div class="ame-col-faq__head">
+        <p class="ame-label-sm">{{ collection.title }}</p>
+        <h2 id="ame-col-faq-title-{{ section.id }}" class="ame-col-faq__title">{{ faq_title }}</h2>
+      </div>
+
+      <div class="ame-col-faq__list">
+        {{ faq_items_html }}
+      </div>
+
+      {%- if section.settings.cta_url != blank and section.settings.cta_label != blank -%}
+        <p class="ame-col-faq__cta">
+          {%- if section.settings.cta_text != blank -%}
+            <span>{{ section.settings.cta_text }}</span>
+          {%- endif -%}
+          <a
+            class="ame-col-faq__cta-link"
+            href="{{ section.settings.cta_url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{- section.settings.cta_label -}}
+            <span class="ame-col-faq__cta-arrow" aria-hidden="true">→</span>
+          </a>
+        </p>
+      {%- endif -%}
+    </div>
+  </section>
+
+  {%- comment -%}
+    Nada de comentário DENTRO do JSON: o bundle da Konfidency faz JSON.parse
+    de todo application/ld+json da página (ver meta-tags.liquid). Tipo é
+    "FAQPage" puro, fora da lista que ela processa, então é ignorado por ela.
+  {%- endcomment -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": {{ faq_ld_page_id | json }},
+      "url": {{ canonical_url | json }},
+      "name": {{ faq_ld_page_name | json }},
+      "inLanguage": {{ request.locale.iso_code | json }},
+      "mainEntity": [{{ faq_ld | remove_first: ', ' }}]
+    }
+  </script>
+{%- elsif request.design_mode -%}
+  {%- comment -%} Só no editor de temas: explica por que a seção está vazia. {%- endcomment -%}
+  <div class="ame-col-faq-empty">
+    {%- if faq_meta != blank -%}
+      <p>
+        <strong>FAQ da coleção:</strong> o metacampo FAQ desta coleção está preenchido, mas nenhuma linha está
+        formatada como Título. Cada pergunta precisa ser um Título, com a resposta logo abaixo.
+      </p>
+    {%- else -%}
+      <p>
+        <strong>FAQ da coleção:</strong> esta coleção não tem FAQ. Preencha o metacampo FAQ em Produtos → Coleções →
+        {{ collection.title }}. Sem ele, esta seção não aparece na loja.
+      </p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* ── FAQ da coleção ──
+     Mobile-first (90% do tráfego): uma coluna, pergunta inteira clicável com
+     alvo de toque de 56px. A partir de 1024px vira duas colunas no mesmo
+     compasso da coleção acima (15rem + 3rem, igual ao .ame-col-sidebar), então
+     as perguntas alinham com o grid de produtos.
+     Faixa em surface-container com cards em surface-container-lowest:
+     aninhamento tonal, sem borda (regra "No-Line" do instructions.md).
+     A faixa é full-width e refaz o grid de conteúdo da .shopify-section, então
+     o miolo alinha com as outras seções sem padding lateral próprio. */
+  .ame-col-faq {
+    display: grid;
+    grid-template-columns: var(--content-grid);
+    padding-block: clamp(3rem, 8vw, 6rem);
+    background: var(--color-surface-container, #f8ece0);
+    scroll-margin-top: 6.5rem;
+  }
+  .ame-col-faq__inner {
+    grid-column: 2;
+    display: grid;
+    gap: 1.75rem;
+  }
+  .ame-col-faq__title {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--color-on-background, #201b14);
+    text-wrap: balance;
+  }
+  /* Mesmo itálico leve do "Curado." no título da coleção. */
+  .ame-col-faq__title em,
+  .ame-col-faq__title i {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-primary, #5a4742);
+  }
+
+  .ame-col-faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 52rem;
+  }
+  .ame-col-faq__item {
+    background: var(--color-surface-container-lowest, #ffffff);
+    border-radius: var(--radius-lg, 0.5rem);
+    /* Link com âncora (#faq-...) não para embaixo do header fixo. */
+    scroll-margin-top: 6.5rem;
+  }
+  .ame-col-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 1rem 1.125rem;
+    border-radius: inherit;
+    list-style: none;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-on-background, #201b14);
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.3s ease;
+  }
+  .ame-col-faq__question::-webkit-details-marker {
+    display: none;
+  }
+  /* O outline global (:focus-visible do critical.css) fica pra dentro do card. */
+  .ame-col-faq__question:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Ícone: "+" desenhado em CSS que vira "−" ao abrir (a barra vertical deita). */
+  .ame-col-faq__icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--color-surface-container, #f8ece0);
+    transition: background 0.3s ease;
+  }
+  .ame-col-faq__icon::before,
+  .ame-col-faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.625rem;
+    height: 1.5px;
+    border-radius: 1px;
+    background: var(--color-primary, #5a4742);
+    transform: translate(-50%, -50%);
+    transition: transform 0.35s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)), background 0.3s ease;
+  }
+  .ame-col-faq__icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+  .ame-col-faq__item[open] .ame-col-faq__icon {
+    background: var(--color-primary, #5a4742);
+  }
+  .ame-col-faq__item[open] .ame-col-faq__icon::before,
+  .ame-col-faq__item[open] .ame-col-faq__icon::after {
+    background: var(--color-on-primary, #ffffff);
+  }
+  .ame-col-faq__item[open] .ame-col-faq__icon::after {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  .ame-col-faq__answer {
+    padding: 0 1.125rem 1.25rem;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  /* O reset global zera margin de tudo; devolve o respiro entre parágrafos. */
+  .ame-col-faq__answer > * + * {
+    margin-top: 0.75em;
+  }
+  .ame-col-faq__answer ul,
+  .ame-col-faq__answer ol {
+    padding-left: 1.25em;
+  }
+  .ame-col-faq__answer li + li {
+    margin-top: 0.25em;
+  }
+  .ame-col-faq__answer strong {
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-col-faq__answer a {
+    font-weight: 600;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ame-col-faq__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+  .ame-col-faq__cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 2.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .ame-col-faq__cta-arrow {
+    transition: transform 0.3s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+
+  /* Hover só em quem tem mouse: no toque ele "gruda" depois do tap. */
+  @media (hover: hover) {
+    .ame-col-faq__question:hover {
+      color: var(--color-primary, #5a4742);
+    }
+    .ame-col-faq__item:not([open]) > .ame-col-faq__question:hover .ame-col-faq__icon {
+      background: var(--color-surface-container-high, #f2e6da);
+    }
+    .ame-col-faq__cta-link:hover .ame-col-faq__cta-arrow {
+      transform: translateX(3px);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .ame-col-faq__question {
+      padding: 1.25rem 1.5rem;
+      font-size: 1rem;
+    }
+    .ame-col-faq__answer {
+      padding: 0 1.5rem 1.5rem;
+    }
+  }
+
+  /* Desktop: título + contato na coluna da sidebar, perguntas na do grid. */
+  @media (min-width: 1024px) {
+    .ame-col-faq__inner {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        'head list'
+        'cta list';
+      column-gap: 3rem;
+      row-gap: 1.5rem;
+      align-items: start;
+    }
+    .ame-col-faq__head {
+      grid-area: head;
+    }
+    .ame-col-faq__list {
+      grid-area: list;
+    }
+    .ame-col-faq__cta {
+      grid-area: cta;
+    }
+  }
+
+  /* Abertura suave onde o navegador anima height:auto (Chrome/Android 131+).
+     Nos outros abre na hora, sem quebrar nada. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) {
+      .ame-col-faq__item {
+        interpolate-size: allow-keywords;
+      }
+      .ame-col-faq__item::details-content {
+        block-size: 0;
+        overflow-y: clip;
+        transition: block-size 0.45s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1)),
+          content-visibility 0.45s allow-discrete;
+      }
+      .ame-col-faq__item[open]::details-content {
+        block-size: auto;
+      }
+    }
+  }
+
+  /* Aviso do editor de temas (coleção sem FAQ). Nunca aparece na loja. */
+  .ame-col-faq-empty {
+    margin-block: 2rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-lg, 0.5rem);
+    outline: 1px dashed var(--color-outline, #817471);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ da coleção",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "As perguntas vêm do metacampo FAQ (custom.faq, tipo Texto rico) de cada coleção: Produtos → Coleções → [coleção] → Metacampos. Cada pergunta é um Título (qualquer nível) e a resposta é o texto logo abaixo, até o próximo Título. Coleção sem FAQ não mostra esta seção. Os dados estruturados (FAQPage) são gerados automaticamente a partir das mesmas perguntas."
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Título",
+      "info": "O trecho em itálico ganha o tom da marca, igual ao título da coleção.",
+      "default": "Perguntas <em>frequentes</em>"
+    },
+    {
+      "type": "header",
+      "content": "Contato"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Texto antes do link",
+      "default": "Ainda com dúvida?"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "Texto do link",
+      "default": "Chama a gente no WhatsApp"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Link",
+      "info": "Ex.: https://wa.me/55... Vazio esconde o contato."
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ da coleção"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
+  }
+}
+{% endschema %}

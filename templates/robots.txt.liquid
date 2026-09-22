@@ -38,6 +38,12 @@
 # tráfego direto de volta. Bloqueio total — não afeta a capacidade
 # das IAs recomendarem sua loja em tempo real (esses bots de busca
 # viva estão liberados na seção abaixo).
+# Google-Extended NÃO está aqui de propósito (liberado em 22/09/2026):
+# o mesmo token controla o treino do Gemini E o grounding do app Gemini
+# (a busca que ele faz na hora de responder, inclusive por voz no
+# Android). Bloqueado, a loja sumia das respostas do Gemini, e não dá
+# pra liberar uma coisa sem a outra. AI Overviews/AI Mode da busca usam
+# o Googlebot e nunca dependeram dele.
 User-agent: GPTBot
 Disallow: /
 
@@ -45,9 +51,6 @@ User-agent: ClaudeBot
 Disallow: /
 
 User-agent: anthropic-ai
-Disallow: /
-
-User-agent: Google-Extended
 Disallow: /
 
 User-agent: Applebot-Extended
@@ -88,13 +91,20 @@ Disallow: /
 
 # ── AI: BUSCA EM TEMPO REAL ────────────────────────────────────────
 # NÃO estão listados aqui de propósito — ficam LIBERADOS pra que a
-# loja apareça em recomendações quando clientes pesquisam pelas IAs:
-#   • ChatGPT-User (usuário ativo do ChatGPT navegando)
-#   • OAI-SearchBot (SearchGPT — buscador da OpenAI)
-#   • Claude-User / Claude-Web (usuário do Claude lendo URL)
-#   • PerplexityBot / Perplexity-User (Perplexity Search)
+# loja apareça quando clientes perguntam pras IAs e assistentes de voz.
+# Cada empresa separa o robô de busca do de treino (Google, Amazon e
+# Meta conferidos nas docs oficiais em 22/09/2026):
+#   • OAI-SearchBot / ChatGPT-User (busca e navegação do ChatGPT)
+#   • Claude-SearchBot / Claude-User (busca e leitura de URL do Claude)
+#   • PerplexityBot / Perplexity-User (Perplexity)
+#   • Google-Extended (grounding do app Gemini — ver nota acima)
+#   • Amzn-SearchBot / Amzn-User (respostas da Alexa; o Amazonbot
+#     bloqueado acima é o de treino)
+#   • Meta-WebIndexer (busca do Meta AI, inclusive no WhatsApp; o
+#     Meta-ExternalAgent bloqueado acima é o de treino)
+#   • Applebot (Siri e Spotlight; o Applebot-Extended acima é só treino)
 #   • YouBot (You.com AI search)
-#   • Meta-ExternalFetcher (previews Instagram/WhatsApp)
+#   • Meta-ExternalFetcher (links abertos a pedido do usuário no Meta AI)
 # Se um dia quiser bloquear algum destes também, adiciona um bloco
 # "User-agent: NOME" + "Disallow: /" aqui.
 

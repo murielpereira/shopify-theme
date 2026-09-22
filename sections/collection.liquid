@@ -75,9 +75,15 @@
     <div class="ame-col-banner__overlay"></div>
 
     {%- if section.settings.banner_show_title -%}
+      {%- comment -%}
+        h1 e não h2: com o título no banner, o h1 editorial do header é
+        escondido (hide_editorial_title) e a página ficava sem nenhum h1 —
+        buscadores e IAs usam ele pra saber o assunto da página. As duas
+        condições são a mesma, então sempre sai exatamente um h1.
+      {%- endcomment -%}
       <div class="ame-col-banner__content">
         <p class="ame-col-banner__eyebrow">Coleção</p>
-        <h2 class="ame-col-banner__title">{{ collection.title }}</h2>
+        <h1 class="ame-col-banner__title">{{ collection.title }}</h1>
       </div>
     {%- endif -%}
   </div>
@@ -96,7 +102,12 @@
       </div>
     {%- endunless -%}
     {%- if collection.description != blank -%}
-      <p class="ame-col-header__desc ame-fade-up ame-delay-2">{{ collection.description }}</p>
+      {%- comment -%}
+        <div> e não <p>: a descrição do admin já chega como <p>...</p>, e
+        <p> dentro de <p> é HTML inválido — o navegador fechava o wrapper
+        vazio antes do texto e nenhum estilo de .ame-col-header__desc pegava.
+      {%- endcomment -%}
+      <div class="ame-col-header__desc ame-fade-up ame-delay-2">{{ collection.description }}</div>
     {%- endif -%}
   </div>
 
@@ -445,12 +456,61 @@
     font-weight: 300;
     color: var(--color-primary, #5a4742);
   }
+  /* Descrição da coleção — HTML livre do editor do admin (parágrafos,
+     negrito, itálico, listas, links). Mobile-first: no celular ocupa a
+     largura toda em corpo 14px, pra não empurrar demais o grid pra baixo. */
   .ame-col-header__desc {
+    max-width: 38rem;
     font-size: 0.875rem;
-    line-height: 1.7;
+    line-height: 1.65;
     color: var(--color-on-surface-variant, #4f4442);
-    max-width: 22rem;
-    align-self: flex-end;
+  }
+  /* O reset global zera margin de tudo; devolve o respiro entre blocos. */
+  .ame-col-header__desc > * + * {
+    margin-top: 0.75em;
+  }
+  .ame-col-header__desc strong,
+  .ame-col-header__desc b {
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+  }
+  /* Itálico no tom da marca, igual ao "Curado." do título. */
+  .ame-col-header__desc em,
+  .ame-col-header__desc i {
+    font-style: italic;
+    color: var(--color-primary, #5a4742);
+  }
+  .ame-col-header__desc a {
+    font-weight: 600;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .ame-col-header__desc ul,
+  .ame-col-header__desc ol {
+    padding-left: 1.25em;
+  }
+  .ame-col-header__desc li + li {
+    margin-top: 0.25em;
+  }
+  .ame-col-header__desc :is(h2, h3, h4, h5, h6) {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-on-background, #201b14);
+  }
+  @media (min-width: 768px) {
+    /* Ao lado do título gigante: coluna estreita, alinhada pela base. */
+    .ame-col-header__desc {
+      max-width: 24rem;
+      align-self: flex-end;
+    }
+    /* Sozinha (título no banner): largura de leitura confortável. */
+    .ame-col-header__desc:only-child {
+      max-width: 42rem;
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
   }
 
   .ame-col-header__tabs {

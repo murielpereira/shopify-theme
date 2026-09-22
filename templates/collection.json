@@ -21,9 +21,19 @@
         "pagination_mode": "infinite",
         "card_btn_label": "Comprar"
       }
+    },
+    "collection_faq": {
+      "type": "collection-faq",
+      "settings": {
+        "title": "Perguntas <em>frequentes</em>",
+        "cta_text": "Ainda com dúvida?",
+        "cta_label": "Chama a gente no WhatsApp",
+        "cta_url": "https://wa.me/5548991574943"
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "collection_faq"
   ]
 }
