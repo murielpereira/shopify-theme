@@ -1174,6 +1174,7 @@
         return {
             variantId: String(resp.variante_id),
             cor: resp.cor || null,
+            cor2: resp.cor2 || null,
             metal: resp.metal || null,
             motivo: resp.motivo || null,
         };
@@ -1192,6 +1193,17 @@
         }
         if (auto.motivo === 'cor' && auto.cor) {
             return `combinou com a cor ${auto.cor} do pedido`;
+        }
+        // Degrau da segunda cor: a property diz QUAL cor casou e que ela era a
+        // secundária, senão quem lê o pedido acha que o match errou a cor.
+        if (auto.motivo === 'cor2+metal' && auto.cor2 && auto.metal) {
+            return `combinou com a 2ª cor ${auto.cor2} / ${auto.metal} do pedido`;
+        }
+        if (auto.motivo === 'cor2' && auto.cor2) {
+            return `combinou com a 2ª cor ${auto.cor2} do pedido`;
+        }
+        if (auto.cor && auto.cor2) {
+            return `sorteado — ${auto.cor} e ${auto.cor2} do pedido não estavam disponíveis`;
         }
         if (auto.cor) return `sorteado — ${auto.cor} do pedido não estava disponível`;
         return 'sorteado';
