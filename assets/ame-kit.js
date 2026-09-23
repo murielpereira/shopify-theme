@@ -496,7 +496,7 @@
                         const minCents = Math.round(cbMin * 100);
                         if (cashbackCents >= minCents) {
                             const fmtVal = (cashbackCents / 100).toFixed(2).replace('.', ',');
-                            textEl.innerHTML = `Ganhe <strong class="ame-cashback__cifra">R$</strong> <strong class="ame-cashback__value" data-cashback-value>${fmtVal}</strong> de cashback.`;
+                            textEl.innerHTML = `Ganhe até <strong class="ame-cashback__cifra">R$</strong> <strong class="ame-cashback__value" data-cashback-value>${fmtVal}</strong> de cashback.`;
                         } else {
                             textEl.innerHTML = `Ganhe <strong class="ame-cashback__value" data-cashback-value>${Math.round(cbPct)}%</strong> de cashback.`;
                         }
