@@ -86,7 +86,15 @@
                     try { resolve(JSON.parse(xhr.responseText || '{}')); }
                     catch (e) { reject(e); }
                 } else {
-                    reject(new Error('HTTP ' + xhr.status));
+                    // O CORPO vai junto de propósito. A Shopify explica o motivo ali
+                    // ("Impossível encontrar variante"), e sem ele o console mostra só
+                    // "HTTP 422" — status sem causa. Em 23/09/2026 isso custou um
+                    // diagnóstico inteiro pra descobrir que a variação não existia na
+                    // vitrine. Erro que não diz o porquê não serve pra nada.
+                    const erro = new Error('HTTP ' + xhr.status);
+                    erro.status = xhr.status;
+                    erro.corpo = String(xhr.responseText || '').slice(0, 300);
+                    reject(erro);
                 }
             };
             xhr.onerror = () => reject(new Error('Network'));
@@ -297,6 +305,30 @@
         return [{ handle: regra.brinde_handle, titulo: regra.brinde_titulo }];
     }
 
+    // Variações que a LOJA recusou no carrinho, nesta sessão.
+    //
+    // POR QUE EXISTE (23/09/2026): o espelho do Waltz vem do Admin API e pode
+    // listar variação que a VITRINE não vende. Na Capa de AirTag o admin tinha
+    // 36 e a loja 30 — Turquesa, Vermelho e Branco estão ocultas, e para elas
+    // `/cart/add.js` responde 422 "Impossível encontrar variante" (o permalink
+    // responde 410). O espelho marca as três como `available: true`, então nada
+    // no tema as reprovava.
+    //
+    // Sozinho isso era invisível: enquanto havia 18 variações ofertadas o match
+    // de cor caía nas boas. Quando a COTA esgotou 12, sobraram 6 — metade delas
+    // mortas — e o auto match passou a escolher as mortas. O add falhava, o erro
+    // era engolido num console.warn, e o brinde simplesmente não entrava.
+    //
+    // Guardar a recusa tira a variação da oferta em TODOS os caminhos (vitrine,
+    // auto match, escolha manual) pelo resto da sessão, em vez de insistir nela
+    // a cada avaliação do carrinho — que é o que gerava o 429 de tanto repetir.
+    const _variantesRecusadas = new Set();
+
+    // 422 do /cart/add.js = a loja não aceita ESTA variação (não existe pra
+    // vitrine, ou acabou). Nos dois casos a resposta certa é a mesma: parar de
+    // oferecer essa e tentar outra.
+    const recusaDeVariante = (e) => !!(e && e.status === 422);
+
     // Subconjunto de variantes permitidas (modo "cliente escolhe entre algumas"),
     // ou null (todas).
     function listaVariantesRegra(regra) {
@@ -316,6 +348,9 @@
         // é infinito, loja sob encomenda) — quem reprova é a cota do Waltz.
         const esgotadas = (regra && regra.variantes_esgotadas) || [];
         if (esgotadas.length) vars = vars.filter(v => !esgotadas.includes(String(v.id)));
+        // Variação que a loja já recusou não volta a ser oferecida (vide
+        // _variantesRecusadas): sem isto o cliente escolhe uma cor que some.
+        if (_variantesRecusadas.size) vars = vars.filter(v => !_variantesRecusadas.has(String(v.id)));
         return vars;
     }
 
@@ -733,8 +768,12 @@
                         if (ok) toast('🎁 Brinde trocado!');
                         else { faixaBtn.disabled = false; toast('Não consegui trocar agora, tente de novo.'); }
                     } catch (err) {
+                        // O cliente CLICOU: se falhar, ele tem que ver. Sem este
+                        // toast o botão voltava ao normal e o clique parecia não ter
+                        // registrado — foi exatamente o sintoma relatado em 23/09.
                         faixaBtn.disabled = false;
-                        console.warn('[Brindes] troca de faixa travada falhou', err.message);
+                        toast('Não consegui trocar agora, tente de novo.');
+                        console.warn('[Brindes] troca de faixa travada falhou:', err.message, err.corpo || '');
                     }
                     return;
                 }
@@ -832,7 +871,15 @@
                     _trocandoBrinde = false;
                     if (window.AmeCart?.refresh) window.AmeCart.refresh(cartAtualizado);
                 } catch (err) {
-                    console.warn('[Brindes] falha no resgate', err.message);
+                    console.warn('[Brindes] falha no resgate:', err.message, err.corpo || '');
+                    // Se a LOJA recusou esta variação, tirar da oferta agora. Sem
+                    // isto o repaint abaixo devolve a mesma cor à lista e o cliente
+                    // fica num "Tente novamente" que nunca vai funcionar.
+                    if (recusaDeVariante(err)) {
+                        _variantesRecusadas.add(String(s.variantId));
+                        _seletoresState.delete(String(regraId));
+                        toast('Essa cor acabou de sair do ar — escolha outra.');
+                    }
                     _trocandoBrinde = false;
                     addBtn.disabled = false;
                     addBtn.textContent = 'Tente novamente';
@@ -1209,6 +1256,27 @@
         return 'sorteado';
     }
 
+    // Escolhe pelo auto match e adiciona. Se a LOJA recusar a variação escolhida,
+    // marca a variação e pede outra — uma cor morta não pode custar o brinde
+    // inteiro (vide _variantesRecusadas). O teto de tentativas existe pra não
+    // varrer 30 variações uma a uma se a loja estiver recusando tudo.
+    async function adicionarPorAutoMatch(regra, cart, tentativas = 4) {
+        for (let i = 0; i < tentativas; i++) {
+            const auto = await pedirAutoMatch(regra, cart);
+            if (!auto) return null;
+            try {
+                await adicionarBrinde(regra, auto.variantId, { [PROP_AUTO]: descricaoAuto(auto) });
+                return auto;
+            } catch (e) {
+                if (!recusaDeVariante(e)) throw e;
+                _variantesRecusadas.add(String(auto.variantId));
+                console.warn('[Brindes] a loja recusou a variação ' + auto.variantId
+                    + ' (' + (e.corpo || e.message) + ') — tirando da oferta e tentando outra');
+            }
+        }
+        return null;
+    }
+
     // Resolve a variação pelo auto match e coloca o brinde no carrinho, tirando o
     // que estava. É o caminho de quem clica numa faixa TRAVADA na vitrine: sem
     // seletor de variação, o clique já é a decisão inteira.
@@ -1216,14 +1284,17 @@
         _trocandoBrinde = true;
         try {
             const cart = await xhrJson('/cart.js?t=' + Date.now());
-            const auto = await pedirAutoMatch(regra, cart);
-            if (!auto) return false;
+            // Confere que EXISTE variação antes de encostar no carrinho. A ordem
+            // importa: remover primeiro e só então descobrir que não há o que pôr
+            // deixaria o cliente sem o brinde que ele já tinha.
+            if (!(await pedirAutoMatch(regra, cart))) return false;
             // Remove ANTES de adicionar, igual ao resgate manual: só cabe um brinde,
             // e ficar sem por um instante é melhor do que sair cobrado.
             for (const it of (cart.items || [])) {
                 if ((it.properties || {})[PROP_REGRA_ID]) await removerBrinde(it);
             }
-            await adicionarBrinde(regra, auto.variantId, { [PROP_AUTO]: descricaoAuto(auto) });
+            const auto = await adicionarPorAutoMatch(regra, cart);
+            if (!auto) return false;
             const novo = await xhrJson('/cart.js?t=' + Date.now());
             _trocandoBrinde = false;
             if (window.AmeCart && window.AmeCart.refresh) window.AmeCart.refresh(novo);
@@ -1516,9 +1587,8 @@
                     r.auto_match && !r.brinde_pingente && !regraEsgotada(r));
                 if (alvo) {
                     try {
-                        const auto = await pedirAutoMatch(alvo, cart);
+                        const auto = await adicionarPorAutoMatch(alvo, cart);
                         if (auto) {
-                            await adicionarBrinde(alvo, auto.variantId, { [PROP_AUTO]: descricaoAuto(auto) });
                             // O brinde entrou: fecha o que estiver aberto. Sem isto o
                             // card de variação fica em cima de um brinde já escolhido
                             // (mesmo motivo do foco implícito em renderizarVitrine).
@@ -1527,7 +1597,13 @@
                             toast('🎁 Brinde adicionado ao seu carrinho');
                             mudouCart = true;
                         }
-                    } catch (e) { console.warn('[Brindes] auto match falhou', e.message); }
+                    } catch (e) {
+                        // Sem toast: este caminho é automático e o cliente não pediu
+                        // nada — incomodá-lo com um erro que ele não provocou não
+                        // ajuda. Mas o log leva o CORPO da resposta, senão vira
+                        // "HTTP 422" e a causa se perde.
+                        console.warn('[Brindes] auto match falhou:', e.message, e.corpo || '');
+                    }
                 }
             }
 
