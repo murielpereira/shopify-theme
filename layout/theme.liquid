@@ -380,6 +380,26 @@
             el.textContent = fmt(cart.total_price);
           });
 
+          /* Descontos já aplicados no carrinho.
+             Reconstruídos a cada atualização porque o valor muda junto com o
+             carrinho — o Pix é 5% do total. Renderizar só no Liquid deixaria a
+             linha com o valor de antes, que é pior do que não mostrar nada. */
+          document.querySelectorAll('[data-cart-descontos]').forEach((el) => {
+            const aplicados = cart.cart_level_discount_applications || [];
+            if (!aplicados.length) { el.innerHTML = ''; return; }
+            const escapar = (t) =>
+              String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            el.innerHTML =
+              '<div class="ame-cart-totals__row ame-cart-totals__row--itens">' +
+                '<span>Itens</span><span>' + fmt(cart.items_subtotal_price) + '</span>' +
+              '</div>' +
+              aplicados.map((d) =>
+                '<div class="ame-cart-totals__row ame-cart-totals__row--desconto">' +
+                  '<span>' + escapar(d.title) + '</span>' +
+                  '<span>\u2212 ' + fmt(d.total_allocated_amount) + '</span>' +
+                '</div>').join('');
+          });
+
           const d = drawer();
           const list = d?.querySelector('[data-cart-items]');
           const footer = d?.querySelector('[data-cart-footer]');

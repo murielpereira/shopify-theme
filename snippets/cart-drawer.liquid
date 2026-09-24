@@ -254,8 +254,30 @@
     {%- render 'cart-shipping-calculator' -%}
 
     <!-- Totals — sem linhas de Frete/Total porque o cliente escolhe o
-         frete só no checkout. Aqui mostramos apenas o subtotal dos itens. -->
+         frete só no checkout.
+
+         O "Subtotal" daqui é o `cart.total_price`, que já vem COM os descontos
+         de carrinho aplicados (o Pix automático, um cupom de cashback, boas-
+         vindas). Sem a lista abaixo, a cliente via o item a R$ 252 e um
+         "Subtotal" de R$ 199,08, com R$ 52,92 sumindo sem explicação nenhuma.
+
+         O bloco é reconstruído pelo JS a cada mudança do carrinho — o valor do
+         Pix é 5% e muda junto. Ver [data-cart-descontos] no theme.liquid. -->
     <div class="ame-cart-totals">
+      <div data-cart-descontos>
+        {%- if cart.cart_level_discount_applications.size > 0 -%}
+          <div class="ame-cart-totals__row ame-cart-totals__row--itens">
+            <span>Itens</span>
+            <span>{{ cart.items_subtotal_price | money }}</span>
+          </div>
+          {%- for aplicado in cart.cart_level_discount_applications -%}
+            <div class="ame-cart-totals__row ame-cart-totals__row--desconto">
+              <span>{{ aplicado.title }}</span>
+              <span>− {{ aplicado.total_allocated_amount | money }}</span>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
       <div class="ame-cart-totals__row">
         <span>Subtotal</span>
         <span data-cart-subtotal>{{ cart.total_price | money }}</span>

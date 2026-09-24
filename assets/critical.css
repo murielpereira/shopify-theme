@@ -2055,6 +2055,26 @@ body::after {
   letter-spacing: -0.015em;
 }
 
+/* Itens + descontos aplicados: linhas de apoio acima do subtotal, menores que
+   ele de propósito — quem manda na leitura é o valor final. */
+.ame-cart-totals__row--itens span:first-child,
+.ame-cart-totals__row--itens span:last-child,
+.ame-cart-totals__row--desconto span:first-child,
+.ame-cart-totals__row--desconto span:last-child {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+}
+
+.ame-cart-totals__row--itens span:last-child,
+.ame-cart-totals__row--itens span:first-child {
+  color: var(--color-on-surface-muted, #6f645d);
+}
+
+.ame-cart-totals__row--desconto span:first-child,
+.ame-cart-totals__row--desconto span:last-child {
+  color: #15803d;
+}
+
 .ame-cart-totals__note {
   font-size: 0.7rem;
   letter-spacing: 0.06em;
