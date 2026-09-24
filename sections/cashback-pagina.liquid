@@ -1,0 +1,130 @@
+{% comment %}
+  MEU CASHBACK — a página.
+
+  É o mesmo painel do widget flutuante, inteiro na página, para a loja poder
+  mandar um link direto para a cliente ("veja seu saldo aqui") em vez de pedir
+  que ela ache o botãozinho no canto.
+
+  ── Como funciona ──────────────────────────────────────────────────────────
+  Não há JavaScript próprio aqui. O contêiner `[data-waltz-cashback-pagina]` é
+  o sinal: o widget-cashback.js procura por ele e, achando, monta o painel
+  DENTRO dele — sem botão flutuante, sem pulso, já aberto e sem rolagem
+  interna (quem rola é a página). Achando nada, ele segue flutuando como em
+  qualquer outra página. Ver Waltz/public/widget-cashback.js, MODO_PAGINA.
+
+  Quem carrega o widget é o `waltz-core.js` (no topo do layout), que pergunta
+  ao Waltz quais módulos estão ligados. Aqui não se carrega nada na mão: fazer
+  isso duplicaria o script e furaria o interruptor do módulo — foi o defeito
+  que o snippet do widget tinha até 22/09/2026.
+
+  A identidade da cliente vem do `snippets/cashback-widget.liquid`, que o
+  layout já renderiza em toda página.
+
+  ── Para publicar ──────────────────────────────────────────────────────────
+  Admin → Conteúdo → Páginas → Criar página → em "Modelo de tema", escolher
+  "cashback". O link fica /pages/<o-que-você-escolher>.
+{% endcomment %}
+
+<section class="ame-cashback-pagina">
+  <div class="ame-cashback-pagina__cabecalho">
+    {%- if section.settings.titulo != blank -%}
+      <h1>{{ section.settings.titulo | escape }}</h1>
+    {%- endif -%}
+    {%- if section.settings.subtitulo != blank -%}
+      <p>{{ section.settings.subtitulo | escape }}</p>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%}
+    O painel entra aqui. Enquanto o widget não monta (ou se o programa estiver
+    desativado no painel do Waltz), fica o aviso abaixo — melhor do que um
+    buraco branco no meio da página.
+  {%- endcomment -%}
+  <div class="ame-cashback-pagina__caixa" data-waltz-cashback-pagina>
+    <noscript>
+      <p class="ame-cashback-pagina__aviso">
+        Seu saldo de cashback precisa de JavaScript para aparecer.
+      </p>
+    </noscript>
+  </div>
+
+  {%- unless customer -%}
+    {%- comment -%}
+      Deslogada, o próprio painel já mostra as regras e o convite para entrar.
+      Este aviso é só para o caso de o programa estar desativado e o painel não
+      aparecer — aí a página explica em vez de ficar vazia.
+    {%- endcomment -%}
+    <p class="ame-cashback-pagina__aviso" data-cashback-sem-painel>
+      Entre na sua conta para ver seu saldo.
+      <a href="{{ routes.account_login_url }}">Fazer login</a>
+    </p>
+  {%- endunless -%}
+</section>
+
+<style>
+  .ame-cashback-pagina {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+  }
+  .ame-cashback-pagina__cabecalho {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .ame-cashback-pagina__cabecalho h1 {
+    font-size: 1.75rem;
+    line-height: 1.2;
+    margin: 0 0 0.5rem;
+    color: var(--color-on-background, #201b14);
+  }
+  .ame-cashback-pagina__cabecalho p {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    margin: 0;
+    color: var(--color-on-surface-muted, #6f645d);
+  }
+  /* O painel se posiciona sozinho (ver .wcb-pagina no widget); aqui só
+     garantimos que ele tenha onde ficar mesmo antes de montar, para a página
+     não dar um salto quando o script chega. */
+  .ame-cashback-pagina__caixa {
+    min-height: 420px;
+  }
+  .ame-cashback-pagina__aviso {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-on-surface-muted, #6f645d);
+    margin: 1rem 0 0;
+  }
+  .ame-cashback-pagina__aviso a {
+    color: inherit;
+    text-decoration: underline;
+  }
+  /* Com o painel montado, o aviso de "entre na sua conta" vira ruído: o próprio
+     painel já traz o convite, com botão. */
+  .ame-cashback-pagina__caixa:has(#wcb-root) ~ [data-cashback-sem-painel] {
+    display: none;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Meu cashback",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "titulo",
+      "label": "Título",
+      "default": "Meu cashback"
+    },
+    {
+      "type": "text",
+      "id": "subtitulo",
+      "label": "Linha de apoio",
+      "info": "Deixe em branco para não mostrar.",
+      "default": "Seu saldo, seus cupons e o resgate — tudo aqui."
+    }
+  ],
+  "presets": [{ "name": "Meu cashback" }]
+}
+{% endschema %}

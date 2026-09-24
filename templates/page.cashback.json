@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "cashback-pagina": {
+      "type": "cashback-pagina",
+      "settings": {
+        "titulo": "Meu cashback",
+        "subtitulo": "Seu saldo, seus cupons e o resgate — tudo aqui."
+      }
+    }
+  },
+  "order": [
+    "cashback-pagina"
+  ]
+}
