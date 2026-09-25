@@ -62,7 +62,9 @@
             {{- settings.pingente_optin_message -}}
           </p>
         {%- endif -%}
-        <p class="ame-pingente__step-label">Deseja adicionar um pingente personalizado? <span class="ame-pingente__req" aria-hidden="true">*</span></p>
+        <p class="ame-pingente__step-label">
+          Deseja adicionar um pingente personalizado? <span class="ame-pingente__req" aria-hidden="true">*</span>
+        </p>
         <div class="ame-pingente__opt-row" data-pingente-opt-row>
           <label class="ame-pingente__opt">
             <input type="radio" name="ame-pingente-opt" value="sim" data-pingente-opt>
@@ -202,12 +204,13 @@
       padding: 1.25rem 1.25rem 1rem;
       border: 1px solid rgba(210, 195, 192, 0.3);
       border-radius: var(--radius-lg, 0.5rem);
-      /*background: linear-gradient(180deg, var(--color-surface-container, #f8ece0) 0%, transparent 100%);*/
+      background: linear-gradient(180deg, var(--color-surface-container, #f8ece0) 0%, transparent 100%);
     }
 
     .ame-pingente__header {
       margin-bottom: 1rem;
     }
+
     .ame-pingente__eyebrow {
       font-size: 0.625rem;
       letter-spacing: 0.22em;
@@ -307,6 +310,7 @@
       text-transform: uppercase;
       color: var(--color-on-surface-variant, #4f4442);
       margin: 0 0 0.75rem;
+      font-weight: bold;
     }
 
     /* Passo 1 — Sim / Não */
@@ -336,6 +340,8 @@
       flex: 1;
       cursor: pointer;
       position: relative;
+      background: #f7ece1;
+      font-weight: bold;
     }
     .ame-pingente__opt input {
       position: absolute;
@@ -837,24 +843,36 @@
          No modo obrigatório o pingente é cortesia (preço somado = 0). */
       function pingentePriceCents() {
         if (OBRIGATORIO) return 0; // cortesia — não soma no total
-        return (state.opted && state.variant && state.variant.available)
-          ? (state.variant.price || 0) : 0;
+        return state.opted && state.variant && state.variant.available ? state.variant.price || 0 : 0;
       }
       function notificarPrecoPingente() {
-        document.dispatchEvent(new CustomEvent('ame:pingente-price', {
-          detail: { cents: pingentePriceCents() },
-        }));
+        document.dispatchEvent(
+          new CustomEvent('ame:pingente-price', {
+            detail: { cents: pingentePriceCents() },
+          })
+        );
       }
       (function instrumentarPreco() {
-        let _opted = state.opted, _variant = state.variant;
+        let _opted = state.opted,
+          _variant = state.variant;
         Object.defineProperty(state, 'opted', {
-          get() { return _opted; },
-          set(v) { _opted = v; notificarPrecoPingente(); },
+          get() {
+            return _opted;
+          },
+          set(v) {
+            _opted = v;
+            notificarPrecoPingente();
+          },
           configurable: true,
         });
         Object.defineProperty(state, 'variant', {
-          get() { return _variant; },
-          set(v) { _variant = v; notificarPrecoPingente(); },
+          get() {
+            return _variant;
+          },
+          set(v) {
+            _variant = v;
+            notificarPrecoPingente();
+          },
           configurable: true,
         });
       })();
@@ -1293,7 +1311,17 @@
       (function () {
         const stripEmoji = (v) => {
           v = String(v == null ? '' : v).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
-          try { v = v.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+          try {
+            v = v.replace(
+              new RegExp(
+                '[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]',
+                'g'
+              ),
+              ''
+            );
+          } catch (e) {
+            /* no-op */
+          }
           return v;
         };
         [petInput, root.querySelector('[data-pingente-tutor]')].forEach((elx) => {
@@ -1429,7 +1457,17 @@
           // 🚀) + dingbats/setas/símbolos do BMP + seletores de variação + ZWJ.
           const limpar = (s) => {
             s = String(s == null ? '' : s).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
-            try { s = s.replace(new RegExp('[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]', 'g'), ''); } catch (e) { /* no-op */ }
+            try {
+              s = s.replace(
+                new RegExp(
+                  '[\\u2190-\\u21FF\\u2300-\\u27BF\\u2600-\\u26FF\\u2B00-\\u2BFF\\uFE00-\\uFE0F\\u200D\\u20E3]',
+                  'g'
+                ),
+                ''
+              );
+            } catch (e) {
+              /* no-op */
+            }
             return s.replace(/[ \t]{2,}/g, ' ').trim();
           };
           const pet = limpar(petInput?.value.trim() || '');
