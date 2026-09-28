@@ -31,6 +31,7 @@
     "header_sticky": true,
     "header_transparent": true,
     "cart_type": "drawer",
+    "aviso_correios_ativo": false,
     "cashback_percent": 10,
     "social_instagram": "",
     "social_facebook": "",
