@@ -324,10 +324,18 @@
        instância, renderizada por bloco) porque a tag style inline vence a
        tag stylesheet na cascata — se width fosse declarado lá, aquele bloco
        sobrescreveria e quebrava o layout. O overflow-x clip no html
-       (critical.css) evita scroll horizontal. */
+       (critical.css) evita scroll horizontal.
+       Em viewport mais larga que --page-width (monitor grande ou zoom < 100%)
+       o grid trava o conteúdo em page-width - 2x page-margin e as colunas
+       laterais crescem além de --page-margin: só a margem fixa deixava faixas
+       vazias dos lados. O max() soma o quanto cada coluna cresceu. Como 100vw
+       inclui a barra de rolagem, nessas telas o banner sobra metade da barra
+       de cada lado (simétrico, o centro não desloca), cortado pelo mesmo
+       overflow-x clip. Abaixo de page-width o max() dá 0 e nada muda. */
+    --ame-hero-bleed: calc(var(--page-margin) + max(0px, (100vw - var(--page-width)) / 2));
     width: auto;
-    margin-left: calc(-1 * var(--page-margin));
-    margin-right: calc(-1 * var(--page-margin));
+    margin-left: calc(-1 * var(--ame-hero-bleed));
+    margin-right: calc(-1 * var(--ame-hero-bleed));
     overflow: hidden;
     height: {{ block.settings.height_mobile }}px;
   }
