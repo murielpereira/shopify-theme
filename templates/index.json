@@ -72,15 +72,15 @@
             "slide_4_align": "flex-start flex-end",
             "slide_4_start_at": "2026-09-01 00:00",
             "slide_4_end_at": "2026-09-30 23:59",
-            "slide_5_image": "shopify://shop_images/semana-cachorro.webp",
-            "slide_5_image_mobile": "shopify://shop_images/SEMANA_CACHORRO_STORIES.png",
+            "slide_5_image": "shopify://shop_images/frete_fixo_desktop.png",
+            "slide_5_image_mobile": "shopify://shop_images/frete_fixo_mobile.png",
             "slide_5_heading": "",
             "slide_5_text": "",
             "slide_5_cta_label": "",
-            "slide_5_cta_url": "shopify://collections/cachorros",
+            "slide_5_cta_url": "shopify://collections/mais-vendidos",
             "slide_5_align": "flex-start flex-end",
-            "slide_5_start_at": "2026-08-24 00:00",
-            "slide_5_end_at": "2026-08-31 23:59"
+            "slide_5_start_at": "2026-10-01 00:00",
+            "slide_5_end_at": "2026-10-31 23:59"
           },
           "blocks": {}
         }
