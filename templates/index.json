@@ -205,6 +205,15 @@
             "cta_url": ""
           }
         },
+        "video_WFczj7": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/garantia.MOV",
+            "title": "Garantia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
         "video_7rAmLE": {
           "type": "video",
           "settings": {
@@ -240,26 +249,17 @@
             "cta_label": "",
             "cta_url": ""
           }
-        },
-        "video_WFczj7": {
-          "type": "video",
-          "settings": {
-            "video": "shopify://files/videos/garantia.MOV",
-            "title": "Garantia",
-            "cta_label": "",
-            "cta_url": ""
-          }
         }
       },
       "block_order": [
         "video_h73FKm",
         "video_cJVXcQ",
         "video_8VLgQf",
+        "video_WFczj7",
         "video_7rAmLE",
         "video_nkxYgz",
         "video_DHbMjJ",
-        "video_9NCbzb",
-        "video_WFczj7"
+        "video_9NCbzb"
       ],
       "name": "Vídeos (stories)",
       "settings": {
