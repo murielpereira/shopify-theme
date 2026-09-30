@@ -78,6 +78,25 @@
         hidden
       ></div>
 
+      {%- comment -%}
+        COMPRE POR COR dentro da busca.
+
+        Esta caixa é a PORTA; o painel de cores é do Waltz (widget-cor.js, que
+        o waltz-core carrega). O tema declara ONDE ela cabe e QUANDO aparece —
+        com a busca aberta e o campo ainda vazio, que é o instante em que a
+        cliente está procurando alguma coisa e não sabe o nome dela. O widget
+        só preenche o conteúdo e marca `data-ame-cor-entrada="pronta"`.
+
+        Fica FORA do `[data-predictive-dropdown]` de propósito: aquele elemento
+        tem o innerHTML apagado a cada tecla, e levaria a tira de cores junto.
+      {%- endcomment -%}
+      <div
+        class="ame-predictive ame-cor-entrada"
+        data-ame-cor-entrada
+        data-ame-cor-scope="desktop"
+        hidden
+      ></div>
+
       <button
         type="button"
         class="ame-header__icon-btn"
@@ -228,6 +247,14 @@
     aria-live="polite"
     hidden
   ></div>
+
+  {%- comment -%} A mesma porta do desktop, aqui dentro do overlay. {%- endcomment -%}
+  <div
+    class="ame-cor-entrada ame-cor-entrada--mobile"
+    data-ame-cor-entrada
+    data-ame-cor-scope="mobile"
+    hidden
+  ></div>
 </div>
 
 <!-- Mobile nav drawer (fora do grupo fixed) -->
@@ -303,6 +330,17 @@
     box-shadow: none;
     background: transparent;
     padding: 0;
+  }
+
+  /* ── Compre por cor dentro da busca ──
+     No desktop herda a caixa do dropdown (as duas nunca aparecem juntas: uma
+     vale com o campo vazio, a outra a partir de 2 letras). No mobile fica no
+     fluxo do overlay, logo abaixo do campo. O CONTEÚDO é desenhado pelo
+     widget do Waltz — aqui só a caixa. */
+  .ame-cor-entrada[hidden] { display: none; }
+  .ame-cor-entrada--mobile {
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(210, 195, 192, 0.35);
   }
 
   .ame-predictive__list {
@@ -532,6 +570,34 @@
 
     const isDesktop = () => window.innerWidth >= 768;
 
+    /* ── Compre por cor: a tira de tons no campo vazio ──
+       A caixa só existe depois que o widget do Waltz a preenche (ele marca
+       `data-ame-cor-entrada="pronta"`). Enquanto isso, e se o módulo estiver
+       desligado no painel, ela fica escondida e o resto da busca não muda. */
+    function corEntradaDo(escopo) {
+      return document.querySelector(`[data-ame-cor-entrada][data-ame-cor-scope="${escopo}"]`);
+    }
+    function atualizarCorEntrada() {
+      const escopo = isDesktop() ? 'desktop' : 'mobile';
+      const caixa = corEntradaDo(escopo);
+      const input = isDesktop() ? searchInputInline : searchInputMobile;
+      const aberta = isDesktop()
+        ? searchWrap?.classList.contains('is-open')
+        : searchOverlay?.classList.contains('is-open');
+      // Vazia: a tira é para quem ainda não sabe o que digitar. A partir da 2ª
+      // letra o dropdown preditivo assume, e os dois na tela ao mesmo tempo
+      // seriam duas respostas para a mesma pergunta.
+      const vazio = !((input?.value || '').trim().length >= 2);
+      const pronta = caixa?.getAttribute('data-ame-cor-entrada') === 'pronta';
+      // A outra caixa nunca fica pendurada ao trocar de largura de tela.
+      const outra = corEntradaDo(escopo === 'desktop' ? 'mobile' : 'desktop');
+      if (outra) outra.hidden = true;
+      if (caixa) caixa.hidden = !(pronta && aberta && vazio);
+    }
+    // O widget é `defer`: quando ele termina, avisa — e se a busca já estiver
+    // aberta a tira entra na hora, sem a cliente ter de fechar e abrir.
+    document.addEventListener('ame:cor-pronto', atualizarCorEntrada);
+
     function openSearch() {
       if (isDesktop()) {
         searchWrap?.classList.add('is-open');
@@ -543,6 +609,7 @@
         setTimeout(() => searchInputMobile?.focus(), 80);
       }
       searchBtn?.setAttribute('aria-expanded', 'true');
+      atualizarCorEntrada();
     }
     function closeSearch() {
       searchWrap?.classList.remove('is-open');
@@ -556,6 +623,9 @@
         d.hidden = true;
         d.innerHTML = '';
       });
+      // A tira de cores fecha junto — no desktop ela flutua sob o cabeçalho e
+      // ficaria sozinha na tela depois de a busca sumir.
+      document.querySelectorAll('[data-ame-cor-entrada]').forEach(c => { c.hidden = true; });
     }
 
     searchBtn?.addEventListener('click', () => {
@@ -675,6 +745,8 @@
         const query = input.value.trim();
         clearTimeout(predictiveTimer);
         predictiveAbort?.abort?.();
+        // Digitou: a tira de cores sai e o preditivo entra; apagou: ela volta.
+        atualizarCorEntrada();
 
         if (query.length < 2) {
           dropdown.hidden = true;
