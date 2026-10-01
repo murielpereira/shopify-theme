@@ -1500,6 +1500,101 @@ body::after {
   font-size: 0.75rem !important;
 }
 
+/* Coleira + pingente add-on (mesma `_kit`): o pingente vem logo abaixo da
+   coleira, recuado, com foto menor e preso a ela por um traço em "└" que sai
+   do meio da foto da coleira. A ordem é montada no cart-drawer.liquid e em
+   ordenarGrupos() no theme.liquid. */
+.ame-cart-item--kit-pai,
+.ame-cart-item--kit-filho {
+  --kit-foto: 5rem;        /* foto da coleira (= .ame-cart-item__img-wrap) */
+  --kit-foto-filho: 4rem;
+  --kit-recuo: 4rem;
+  --kit-traco: rgba(90, 71, 66, 0.3);
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .ame-cart-item--kit-pai,
+  .ame-cart-item--kit-filho {
+    --kit-foto: 5.5rem;
+    --kit-recuo: 4.25rem;
+  }
+}
+
+/* Coleira: sem divisória embaixo — o pingente continua o mesmo bloco. */
+.ame-cart-item--kit-pai {
+  border-bottom: 0;
+  padding-bottom: 0.5rem;
+}
+
+/* Traço descendo da foto da coleira até o pingente. */
+.ame-cart-item--kit-pai::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--kit-foto) / 2);
+  top: calc(1rem + var(--kit-foto) + 0.375rem);
+  bottom: 0;
+  border-left: 1px solid var(--kit-traco);
+  pointer-events: none;
+}
+
+.ame-cart-item--kit-filho {
+  padding-top: 0.5rem;
+  padding-left: var(--kit-recuo);
+}
+
+.ame-cart-item--kit-filho:not(.ame-cart-item--kit-ultimo) {
+  border-bottom: 0;
+  padding-bottom: 0.5rem;
+}
+
+/* "└": continua o traço até o meio da foto do pingente e vira pra ela. */
+.ame-cart-item--kit-filho::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--kit-foto) / 2);
+  top: 0;
+  width: calc(var(--kit-recuo) - var(--kit-foto) / 2 - 0.375rem);
+  height: calc(0.5rem + var(--kit-foto-filho) / 2);
+  border-left: 1px solid var(--kit-traco);
+  border-bottom: 1px solid var(--kit-traco);
+  border-bottom-left-radius: 0.5rem;
+  pointer-events: none;
+}
+
+/* Mais de um pingente na mesma coleira: o traço segue até o próximo. */
+.ame-cart-item--kit-filho:not(.ame-cart-item--kit-ultimo)::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--kit-foto) / 2);
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--kit-traco);
+  pointer-events: none;
+}
+
+.ame-cart-item--kit-filho .ame-cart-item__img-wrap {
+  width: var(--kit-foto-filho);
+  height: var(--kit-foto-filho);
+}
+
+.ame-cart-item__kit-chip {
+  align-self: flex-start;
+  margin-bottom: 0.125rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-muted, #6f645d);
+}
+
+/* Cross-sell da coleira (guia) que desceu pro fim do grupo: ocupa a largura
+   toda, sem o recuo do pingente. */
+.ame-cart-item--kit-filho>.ame-cart-crosssell--kit {
+  flex-basis: calc(100% + var(--kit-recuo));
+  margin-left: calc(-1 * var(--kit-recuo));
+}
+
 .ame-cart-item__variant {
   font-size: 0.6875rem;
   color: var(--color-on-surface-muted, #6f645d);

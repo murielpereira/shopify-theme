@@ -318,11 +318,17 @@
               b.style.opacity = '0.4';
             });
 
-          // Sincroniza itens pareados (coleira ↔ pingente brinde):
-          // - Remoção (quantity=0): zera todos da mesma _kit
-          // - Mudança de quantidade: aplica a mesma quantidade nos pareados
+          // Sincroniza itens pareados pela mesma _kit — num sentido só:
+          // - Coleira → pingente: remover a coleira remove o(s) pingente(s)
+          //   dela; mudar a quantidade da coleira aplica a mesma nos pingentes.
+          // - Pingente → nada: a cliente pode tirar (ou mudar) só o pingente,
+          //   a coleira fica. Antes o vínculo valia nos dois sentidos e tirar o
+          //   pingente levava a coleira junto.
+          // Pingente = .ame-cart-item--kit-filho (ordenarGrupos / cart-drawer.liquid).
+          // Pingente sem a coleira no carrinho não tem par, então não precisa da classe.
           const coleiraKey = item?.dataset.coleiraKey;
-          const pairedKeys = coleiraKey
+          const ehPingente = !!item?.classList.contains('ame-cart-item--kit-filho');
+          const pairedKeys = coleiraKey && !ehPingente
             ? Array.from(drawer().querySelectorAll(`[data-coleira-key="${coleiraKey}"]`))
                 .map((el) => el.dataset.itemKey)
                 .filter((k) => k && k !== key)
@@ -415,12 +421,15 @@
           body?.querySelector('[data-cart-empty]')?.remove();
           if (footer) footer.style.display = '';
 
+          const itensHTML = ordenarGrupos(cart.items)
+            .map((g) => itemHTML(g.item, g.papel, g.paiKey))
+            .join('');
           if (list) {
-            list.innerHTML = cart.items.map(itemHTML).join('');
+            list.innerHTML = itensHTML;
           } else if (body) {
             const ul = Object.assign(document.createElement('ul'), { className: 'ame-cart-items' });
             ul.setAttribute('data-cart-items', '');
-            ul.innerHTML = cart.items.map(itemHTML).join('');
+            ul.innerHTML = itensHTML;
             body.prepend(ul);
           }
 
@@ -439,7 +448,41 @@
             </a></div>`;
         }
 
-        function itemHTML(item) {
+        /* Ordem de exibição: cada pingente add-on vem LOGO ABAIXO da sua coleira,
+           recuado e ligado a ela (CSS .ame-cart-item--kit-*). Vínculo = mesma
+           `_kit` (ou `_coleira_key`, legado). Pai = item com chave que NÃO é
+           pingente add-on; filho = pingente add-on (`Personalização`) cuja chave
+           tem pai no carrinho. Pingente sem pai fica na posição normal.
+           papel: s (solo), p (pai), f (filho), u (último filho — recebe o slot
+           de cross-sell da coleira, `paiKey`, pra o card da guia vir depois do
+           grupo). (Espelha snippets/cart-drawer.liquid — manter em sincronia.) */
+        function ordenarGrupos(items) {
+          const chave = (it) => (it.properties || {})._kit || (it.properties || {})._coleira_key || '';
+          const ehPingente = (it) => !!(it.properties || {})['Personalização'];
+          const pais = new Set(items.filter((it) => chave(it) && !ehPingente(it)).map(chave));
+          const colocados = new Set();
+          const out = [];
+          items.forEach((it) => {
+            const k = chave(it);
+            if (!k) return out.push({ item: it, papel: 's' });
+            if (ehPingente(it)) {
+              if (!pais.has(k)) out.push({ item: it, papel: 's' });
+              return;
+            }
+            const filhos = items.filter((f) => chave(f) === k && ehPingente(f) && !colocados.has(f.key));
+            if (!filhos.length) return out.push({ item: it, papel: 's' });
+            out.push({ item: it, papel: 'p' });
+            filhos.forEach((f, i) => {
+              colocados.add(f.key);
+              const ultimo = i === filhos.length - 1;
+              out.push({ item: f, papel: ultimo ? 'u' : 'f', paiKey: ultimo ? it.key : '' });
+            });
+          });
+          return out;
+        }
+
+        function itemHTML(item, papel = 's', paiKey = '') {
+          const kitFilho = papel === 'f' || papel === 'u';
           const img = item.featured_image?.url
             ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2')
             : '';
@@ -471,11 +514,28 @@
             ? `<span class="ame-cart-item__name">${esc(item.product_title)}</span>`
             : `<a href="${esc(item.url)}" class="ame-cart-item__name">${esc(item.product_title)}</a>`;
           const propEntries = Object.entries(props).filter(([k, val]) => k && val && !k.startsWith('_'));
-          const propsHTML = propEntries.length
-            ? `<ul class="ame-cart-item__props">${propEntries
-                .map(([k, val]) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`)
-                .join('')}</ul>`
-            : '';
+          const propLi = (k, val) => `<li><span class="ame-cart-item__prop-key">${esc(k)}:</span> ${esc(val)}</li>`;
+          // `Personalização` empacota várias infos separadas por \n (o Tiny só
+          // preserva as linhas DENTRO de uma property). No HTML o \n vira espaço
+          // e o "anexo a: <coleira>" — que mostra o vínculo do pingente — sumia
+          // no meio do parágrafo. Cada linha volta a ser um item próprio. Com o
+          // pingente agrupado abaixo da coleira, o "anexo a" é redundante (o
+          // grupo já mostra o vínculo) e sai — no pedido ele continua.
+          // (Espelha snippets/cart-drawer.liquid — manter em sincronia.)
+          const propsLis = propEntries.flatMap(([k, val]) => {
+            if (k !== 'Personalização') return [propLi(k, val)];
+            return String(val)
+              .split(/\r?\n/)
+              .map((l) => l.trim())
+              .filter(Boolean)
+              .flatMap((l) => {
+                const i = l.indexOf(': ');
+                if (i === -1) return [`<li>${esc(l)}</li>`];
+                if (kitFilho && l.slice(0, i) === 'anexo a') return [];
+                return [propLi(l.slice(0, i), l.slice(i + 2))];
+              });
+          });
+          const propsHTML = propsLis.length ? `<ul class="ame-cart-item__props">${propsLis.join('')}</ul>` : '';
           const brindeChip = isBrinde
             ? `<span class="ame-cart-item__brinde-chip"><span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>Brinde</span>`
             : '';
@@ -503,7 +563,24 @@
                     <span class="material-symbols-outlined" aria-hidden="true">add</span>
                   </button>
                </div>`;
-          return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}" data-item-key="${esc(
+          const kitClasses =
+            papel === 'p'
+              ? ' ame-cart-item--kit-pai'
+              : kitFilho
+              ? ' ame-cart-item--kit-filho' + (papel === 'u' ? ' ame-cart-item--kit-ultimo' : '')
+              : '';
+          // Coleira com pingente agrupado: o slot de cross-sell dela desce pro
+          // último pingente do grupo (paiKey), pra o card da guia vir DEPOIS do
+          // grupo e não separar a coleira do pingente. O pingente agrupado não
+          // tem slot próprio: nunca recebe sugestão (o cross-sell só resolve
+          // coleira-/peitoral-), e cada slot vazio soma o `gap` do flex como
+          // linha extra — desalinhava o espaçamento do grupo.
+          const csSlots =
+            (papel === 's' ? `<div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="${esc(item.key)}"></div>` : '') +
+            (paiKey
+              ? `<div class="ame-cart-crosssell ame-cart-crosssell--kit" data-cs-slot data-cs-source-key="${esc(paiKey)}"></div>`
+              : '');
+          return `<li class="ame-cart-item${isBrinde ? ' ame-cart-item--brinde' : ''}${kitClasses}" data-item-key="${esc(
             item.key
           )}"${coleiraKey ? ` data-coleira-key="${esc(coleiraKey)}"` : ''}>
             ${imgOpen}
@@ -514,6 +591,7 @@
               }</div>
             ${imgClose}
             <div class="ame-cart-item__info">
+              ${kitFilho ? '<span class="ame-cart-item__kit-chip">Anexo à coleira</span>' : ''}
               ${nameHTML}
               ${brindeChip}
               ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
@@ -525,7 +603,7 @@
           )}">${fmt(item.final_line_price)}</span></div>
               </div>
             </div>
-            <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="${esc(item.key)}"></div></li>`;
+            ${csSlots}</li>`;
         }
 
         function fmt(c) {
@@ -560,14 +638,53 @@
           if (remove) updateItem(remove.dataset.remove, 0, remove);
         });
 
-        /* ── Checkout ── */
-        document.addEventListener('click', (e) => {
-          const checkout = e.target.closest('[data-cart-checkout]');
-          if (checkout) {
-            e.preventDefault();
+        /* ── Checkout ──
+           Checkout Yampi ligado (Configurações do tema → Checkout): chama
+           yampiClick() do snippets/YampiSnippet.liquid, que manda o /cart.json
+           pra API da Yampi e redireciona pro checkout deles. Desligado — ou se
+           o snippet não carregou — vai pro /checkout da Shopify.
+
+           Listener direto no botão, não delegation no document: se um app
+           engolir o click no document, o href="/checkout" do <a> navega sozinho
+           e a cliente cai no checkout da Shopify sem erro nenhum — com a Yampi
+           ligada, a troca de checkout falharia em silêncio.
+
+           yampiClick() não trata erro: se a API da Yampi falhar, o loader dela
+           (tela branca) fica pra sempre. Passados YAMPI_TIMEOUT_MS sem a página
+           sair, segue pro checkout da Shopify — venda garantida. */
+        const YAMPI_ATIVO = {{ settings.checkout_yampi_ativo | json }};
+        const YAMPI_TIMEOUT_MS = 12000;
+        let indoProCheckout = false;
+
+        function irProCheckout(e) {
+          e.preventDefault();
+          if (indoProCheckout) return;
+          indoProCheckout = true;
+
+          if (!YAMPI_ATIVO || typeof window.yampiClick !== 'function') {
             window.location.href = '/checkout';
+            return;
           }
+
+          // pagehide também dispara ao entrar no bfcache: na volta (botão
+          // voltar do checkout Yampi) o timer retomado não redireciona.
+          let saiu = false;
+          window.addEventListener('pagehide', () => (saiu = true), { once: true });
+          window.yampiClick();
+          setTimeout(() => {
+            if (!saiu) window.location.href = '/checkout';
+          }, YAMPI_TIMEOUT_MS);
+        }
+
+        // Volta do checkout pelo bfcache: a página é restaurada como saiu —
+        // com o loader da Yampi cobrindo a tela e o botão travado.
+        window.addEventListener('pageshow', (e) => {
+          if (!e.persisted) return;
+          indoProCheckout = false;
+          if (typeof window.hideYampiLoader === 'function') window.hideYampiLoader();
         });
+
+        document.querySelectorAll('[data-cart-checkout]').forEach((el) => el.addEventListener('click', irProCheckout));
 
         /* ─────────────────────────────────────────────────────────────
            Cross-sell — sugere guia quando há coleira/peitoral no carrinho
@@ -1337,5 +1454,24 @@
 
       Ref.: https://support.google.com/merchants/answer/14629205
     {%- endcomment -%}
+
+    {%- comment -%}
+      Checkout Yampi — liga/desliga em Configurações do tema → Checkout →
+      "Usar checkout Yampi". Desligado, o snippet nem é renderizado e o
+      botão "Finalizar compra" do drawer vai pro /checkout da Shopify.
+
+      As três linhas abaixo são o bloco que o app da Yampi injeta no tema —
+      mantidas como eles entregaram (a Yampi procura esse marcador), só
+      embrulhadas no `if`. O snippet é o deles, com dois ajustes: o da
+      própria equipe Yampi ('product1'/'index1' desliga o sequestro do botão
+      de comprar da PDP — nosso submit monta coleira + pingente num POST só)
+      e o nosso (`async` nos scripts do Mercado Pago — ver o snippet).
+      O botão do drawer chama yampiClick() pelo handler "Checkout" mais acima.
+    {%- endcomment -%}
+    {%- if settings.checkout_yampi_ativo -%}
+  <!-- Não remova. Checkout Yampi. -->
+{% capture yampi_snippet_content %}{% include 'YampiSnippet' %}{% endcapture %} {% unless yampi_snippet_content contains 'Liquid error' %} {% include 'YampiSnippet' %} {% endunless %}
+<!-- Não remova. Checkout Yampi. -->
+    {%- endif -%}
    </body>
 </html>

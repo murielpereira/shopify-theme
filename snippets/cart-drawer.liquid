@@ -96,9 +96,90 @@
         </div>
       </div>
 
+      {%- comment -%}
+        Ordem de exibição: cada pingente add-on vem LOGO ABAIXO da sua coleira,
+        recuado e ligado a ela (CSS .ame-cart-item--kit-*). Na ordem natural da
+        Shopify o pingente aparecia ACIMA da coleira, solto, e nada mostrava
+        que os dois iam juntos.
+
+        Vínculo = mesma chave `_kit` (ou `_coleira_key`, legado). Pai = item com
+        chave que NÃO é pingente add-on; filho = pingente add-on (property
+        `Personalização`) cuja chave tem pai no carrinho. Pingente sem pai fica
+        na posição normal.
+
+        `kit_ordem` = lista "índice:papel" — s (solo), p (pai), f (filho),
+        u (último filho, + ":índice do pai", que recebe o slot de cross-sell
+        da coleira pra o card da guia não ficar entre a coleira e o pingente).
+        (Espelha ordenarGrupos() no theme.liquid — manter em sincronia.)
+      {%- endcomment -%}
+      {%- liquid
+        assign kit_chaves_pai = '|'
+        for it in cart.items
+          assign it_chave = it.properties._kit | default: it.properties._coleira_key | default: ''
+          if it_chave != '' and it.properties['Personalização'] == blank
+            assign kit_chaves_pai = kit_chaves_pai | append: it_chave | append: '|'
+          endif
+        endfor
+        assign kit_ordem = ''
+        assign kit_colocados = '|'
+        for it in cart.items
+          assign it_idx = forloop.index0
+          assign it_chave = it.properties._kit | default: it.properties._coleira_key | default: ''
+          assign it_marca = '|' | append: it_chave | append: '|'
+          if it_chave == ''
+            assign kit_ordem = kit_ordem | append: ',' | append: it_idx | append: ':s'
+          elsif it.properties['Personalização'] != blank
+            unless kit_chaves_pai contains it_marca
+              assign kit_ordem = kit_ordem | append: ',' | append: it_idx | append: ':s'
+            endunless
+          else
+            assign it_filhos = ''
+            for ch in cart.items
+              assign ch_chave = ch.properties._kit | default: ch.properties._coleira_key | default: ''
+              assign ch_marca = '|' | append: forloop.index0 | append: '|'
+              if ch_chave == it_chave and ch.properties['Personalização'] != blank
+                unless kit_colocados contains ch_marca
+                  assign it_filhos = it_filhos | append: ',' | append: forloop.index0
+                  assign kit_colocados = kit_colocados | append: forloop.index0 | append: '|'
+                endunless
+              endif
+            endfor
+            if it_filhos == ''
+              assign kit_ordem = kit_ordem | append: ',' | append: it_idx | append: ':s'
+            else
+              assign kit_ordem = kit_ordem | append: ',' | append: it_idx | append: ':p'
+              assign it_filhos_lista = it_filhos | remove_first: ',' | split: ','
+              for f_idx in it_filhos_lista
+                if forloop.last
+                  assign kit_ordem = kit_ordem | append: ',' | append: f_idx | append: ':u:' | append: it_idx
+                else
+                  assign kit_ordem = kit_ordem | append: ',' | append: f_idx | append: ':f'
+                endif
+              endfor
+            endif
+          endif
+        endfor
+        assign kit_ordem_lista = kit_ordem | remove_first: ',' | split: ','
+      -%}
+
       <!-- Lista de itens -->
       <ul class="ame-cart-items" data-cart-items>
-        {%- for item in cart.items -%}
+        {%- for kit_entrada in kit_ordem_lista -%}
+          {%- liquid
+            assign kit_partes = kit_entrada | split: ':'
+            assign kit_idx = kit_partes[0] | plus: 0
+            assign item = cart.items[kit_idx]
+            assign kit_papel = kit_partes[1]
+            assign kit_filho = false
+            if kit_papel == 'f' or kit_papel == 'u'
+              assign kit_filho = true
+            endif
+            assign kit_pai_key = ''
+            if kit_papel == 'u'
+              assign kit_pai_idx = kit_partes[2] | plus: 0
+              assign kit_pai_key = cart.items[kit_pai_idx].key
+            endif
+          -%}
           {%- comment -%} Lê _kit (novo) ou _coleira_key (legado, carts abertos antes da renomeação) {%- endcomment -%}
           {%- assign coleira_key = item.properties._kit | default: item.properties._coleira_key | default: '' -%}
           {%- comment -%}
@@ -133,7 +214,7 @@
             {%- assign is_pingente_addon = true -%}
           {%- endif -%}
           <li
-            class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}"
+            class="ame-cart-item{% if is_brinde != '' %} ame-cart-item--brinde{% endif %}{% if kit_papel == 'p' %} ame-cart-item--kit-pai{% elsif kit_filho %} ame-cart-item--kit-filho{% endif %}{% if kit_papel == 'u' %} ame-cart-item--kit-ultimo{% endif %}"
             data-item-key="{{ item.key }}"
             {% if coleira_key != '' %}data-coleira-key="{{ coleira_key }}"{% endif %}
           >
@@ -152,6 +233,9 @@
             {%- if is_pingente_addon -%}</span>{%- else -%}</a>{%- endif -%}
 
             <div class="ame-cart-item__info">
+              {%- if kit_filho -%}
+                <span class="ame-cart-item__kit-chip">Anexo à coleira</span>
+              {%- endif -%}
               {%- if is_pingente_addon -%}
                 <span class="ame-cart-item__name">{{ item.product.title }}</span>
               {%- else -%}
@@ -180,7 +264,33 @@
                     {%- if p.last != blank and p.first != blank -%}
                       {%- assign first_char = p.first | slice: 0 -%}
                       {%- unless first_char == '_' -%}
-                        <li><span class="ame-cart-item__prop-key">{{ p.first | escape }}:</span> {{ p.last | escape }}</li>
+                        {%- if p.first == 'Personalização' -%}
+                          {%- comment -%}
+                            `Personalização` empacota várias infos numa property só, separadas
+                            por \n (o Tiny só preserva as linhas DENTRO de uma property). No
+                            HTML o \n vira espaço e tudo grudava num parágrafo — inclusive o
+                            "anexo a: <coleira>", que é o que mostra o vínculo do pingente com
+                            a coleira. Aqui cada linha volta a ser um item próprio. Com o
+                            pingente agrupado abaixo da coleira, o "anexo a" é redundante
+                            (o grupo já mostra o vínculo) e sai — no pedido ele continua.
+                            (Espelha itemHTML() no theme.liquid — manter em sincronia.)
+                          {%- endcomment -%}
+                          {%- assign linhas = p.last | newline_to_br | split: '<br />' -%}
+                          {%- for linha in linhas -%}
+                            {%- assign linha_txt = linha | strip -%}
+                            {%- if linha_txt == blank -%}{%- continue -%}{%- endif -%}
+                            {%- if linha_txt contains ': ' -%}
+                              {%- assign linha_chave = linha_txt | split: ': ' | first -%}
+                              {%- if kit_filho and linha_chave == 'anexo a' -%}{%- continue -%}{%- endif -%}
+                              {%- assign linha_prefixo = linha_chave | append: ': ' -%}
+                              <li><span class="ame-cart-item__prop-key">{{ linha_chave | escape }}:</span> {{ linha_txt | remove_first: linha_prefixo | escape }}</li>
+                            {%- else -%}
+                              <li>{{ linha_txt | escape }}</li>
+                            {%- endif -%}
+                          {%- endfor -%}
+                        {%- else -%}
+                          <li><span class="ame-cart-item__prop-key">{{ p.first | escape }}:</span> {{ p.last | escape }}</li>
+                        {%- endif -%}
                       {%- endunless -%}
                     {%- endif -%}
                   {%- endfor -%}
@@ -240,8 +350,20 @@
               sugestão pra este item via heurística (coleira/peitoral → guia)
               ou fallback Atena. Produtos com tag `crosssell:<handle>` agora
               mostram o widget "Compre Junto" na PDP (não no drawer).
+
+              Coleira com pingente agrupado: o slot dela desce pro último
+              pingente do grupo (kit_pai_key), pra o card da guia vir DEPOIS
+              do grupo e não separar a coleira do pingente. O pingente agrupado
+              não tem slot próprio: nunca recebe sugestão (o cross-sell só
+              resolve coleira-/peitoral-), e cada slot vazio soma o `gap` do
+              flex como linha extra — desalinhava o espaçamento do grupo.
             {%- endcomment -%}
-            <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="{{ item.key }}"></div>
+            {%- if kit_papel == 's' -%}
+              <div class="ame-cart-crosssell" data-cs-slot data-cs-source-key="{{ item.key }}"></div>
+            {%- endif -%}
+            {%- if kit_pai_key != '' -%}
+              <div class="ame-cart-crosssell ame-cart-crosssell--kit" data-cs-slot data-cs-source-key="{{ kit_pai_key }}"></div>
+            {%- endif -%}
           </li>
         {%- endfor -%}
       </ul>

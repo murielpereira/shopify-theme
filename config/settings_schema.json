@@ -245,6 +245,22 @@
     ]
   },
   {
+    "name": "Checkout",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Checkout externo da Yampi. Ligado: o botão \"Finalizar compra\" do carrinho manda o carrinho pra Yampi e leva a cliente pro checkout deles. Desligado: volta na hora pro checkout padrão da Shopify — é a chave de emergência se algo der errado na Yampi."
+      },
+      {
+        "type": "checkbox",
+        "id": "checkout_yampi_ativo",
+        "label": "Usar checkout Yampi",
+        "info": "Se a Yampi não responder em alguns segundos, a cliente segue pro checkout da Shopify sozinha, pra não ficar presa no carregamento.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "Aviso dos Correios",
     "settings": [
       {
