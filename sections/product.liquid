@@ -2684,6 +2684,24 @@
     margin-bottom: 0.1rem;
   }
 
+  /* O atributo `hidden` precisa VENCER o `display` das três linhas que o
+     ame-kit.js liga e desliga. `[hidden]` só existe na folha do NAVEGADOR, e
+     qualquer regra de autor com `display` a derruba — então `el.hidden = true`
+     não escondia nada aqui.
+     Apareceu em 01/10/2026, quando as promoções do "Mês do Cliente" acabaram:
+     sem desconto o kit cai no ramo que esconde a linha do "De:", o display:flex
+     ignorou, e os kits passaram a exibir "De: —" riscado — o placeholder que o
+     Liquid deixa no span. Durante a promoção o bug era invisível, porque a
+     linha devia mesmo aparecer.
+     `.classe[hidden]` tem especificidade maior que `.classe`, então vence sem
+     precisar de !important. O `.pdp__discount-badge` não entra na lista: ele
+     não tem `display` próprio, então o `hidden` já funciona nele. */
+  .pdp__price-compare-row[hidden],
+  .pdp__price-pix-row[hidden],
+  .pdp__installments[hidden] {
+    display: none;
+  }
+
   .pdp__price-compare {
     font-size: 0.875rem;
     /* AA: alpha .45 dava 2,14:1 sobre o creme — era o pior do bloco de preço. */

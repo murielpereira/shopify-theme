@@ -696,6 +696,14 @@
     gap: 0.5rem;
   }
 
+  /* Sem esta guarda o `hidden` do <ul> não vale nada: `[hidden]` só existe na
+     folha do navegador e o `display:flex` acima a derruba. A lista fica vazia
+     antes de calcular o frete, então o estrago é só o `margin-top` sobrando —
+     mas é o mesmo defeito que fez os kits mostrarem "De: —" em 01/10/2026. */
+  .ame-cart-freight__results[hidden] {
+    display: none;
+  }
+
   /* Card informativo — sem seleção. Cliente escolhe o frete no checkout,
      aqui apenas mostramos as cotações pra o cliente ter previsibilidade. */
   .ame-cart-freight__result {
