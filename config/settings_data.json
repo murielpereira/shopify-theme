@@ -31,6 +31,7 @@
     "header_sticky": true,
     "header_transparent": true,
     "cart_type": "drawer",
+    "checkout_yampi_ativo": true,
     "aviso_correios_ativo": false,
     "cashback_percent": 10,
     "social_instagram": "",
