@@ -154,6 +154,21 @@
 
     {%- sections 'footer-group' -%}
 
+    {%- comment -%}
+      Checkout Yampi só pra quem a Shopify identifica como Brasil: o checkout
+      deles não aceita endereço estrangeiro, o da Shopify aceita. O país vem
+      do Markets (IP do visitante, ou o que ele escolheu) — o mesmo que define
+      moeda e preço, então a página já é renderizada/cacheada por país.
+      Fora do Brasil o snippet nem carrega e o botão vai pro /checkout.
+      Usado no handler "Checkout" (abaixo) e no include do fim do body.
+    {%- endcomment -%}
+    {%- liquid
+      assign checkout_yampi = false
+      if settings.checkout_yampi_ativo and localization.country.iso_code == 'BR'
+        assign checkout_yampi = true
+      endif
+    -%}
+
     <script>
       /* ── Scroll reveal ── */
       document.addEventListener('DOMContentLoaded', () => {
@@ -639,10 +654,11 @@
         });
 
         /* ── Checkout ──
-           Checkout Yampi ligado (Configurações do tema → Checkout): chama
+           Checkout Yampi ligado (Configurações do tema → Checkout) e visitante
+           no Brasil (`checkout_yampi`, calculado antes deste script): chama
            yampiClick() do snippets/YampiSnippet.liquid, que manda o /cart.json
-           pra API da Yampi e redireciona pro checkout deles. Desligado — ou se
-           o snippet não carregou — vai pro /checkout da Shopify.
+           pra API da Yampi e redireciona pro checkout deles. Desligado, fora
+           do Brasil — ou se o snippet não carregou — vai pro /checkout da Shopify.
 
            Listener direto no botão, não delegation no document: se um app
            engolir o click no document, o href="/checkout" do <a> navega sozinho
@@ -652,7 +668,7 @@
            yampiClick() não trata erro: se a API da Yampi falhar, o loader dela
            (tela branca) fica pra sempre. Passados YAMPI_TIMEOUT_MS sem a página
            sair, segue pro checkout da Shopify — venda garantida. */
-        const YAMPI_ATIVO = {{ settings.checkout_yampi_ativo | json }};
+        const YAMPI_ATIVO = {{ checkout_yampi | json }};
         const YAMPI_TIMEOUT_MS = 12000;
         let indoProCheckout = false;
 
@@ -1457,8 +1473,10 @@
 
     {%- comment -%}
       Checkout Yampi — liga/desliga em Configurações do tema → Checkout →
-      "Usar checkout Yampi". Desligado, o snippet nem é renderizado e o
-      botão "Finalizar compra" do drawer vai pro /checkout da Shopify.
+      "Usar checkout Yampi" — e só pra visitante no Brasil (`checkout_yampi`,
+      ver o comentário antes do script do drawer). Desligado ou fora do
+      Brasil, o snippet nem é renderizado e o botão "Finalizar compra" do
+      drawer vai pro /checkout da Shopify.
 
       As três linhas abaixo são o bloco que o app da Yampi injeta no tema —
       mantidas como eles entregaram (a Yampi procura esse marcador), só
@@ -1468,7 +1486,7 @@
       e o nosso (`async` nos scripts do Mercado Pago — ver o snippet).
       O botão do drawer chama yampiClick() pelo handler "Checkout" mais acima.
     {%- endcomment -%}
-    {%- if settings.checkout_yampi_ativo -%}
+    {%- if checkout_yampi -%}
   <!-- Não remova. Checkout Yampi. -->
 {% capture yampi_snippet_content %}{% include 'YampiSnippet' %}{% endcapture %} {% unless yampi_snippet_content contains 'Liquid error' %} {% include 'YampiSnippet' %} {% endunless %}
 <!-- Não remova. Checkout Yampi. -->

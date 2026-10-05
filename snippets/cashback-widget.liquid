@@ -17,16 +17,34 @@
   waltz-core é `defer` e só executa depois. Então `window.WALTZ_CB` sempre existe
   antes de o widget carregar.
 
-  Cliente logado → e-mail no header x-shopify-customer-email; o resgate é seguro
-  porque o cupom nasce travado no cliente na Shopify. Deslogado → email null e o
-  widget abre em modo vitrine: regras do programa e convite pra entrar na conta.
-  O programa desativado no painel (config.widget_ativo) esconde tudo.
+  ── `proxy`: por onde o widget fala com o Waltz (05/10/2026) ──
+
+  Com o App Proxy configurado no app da Shopify, o widget chama
+  `/apps/waltz/cashback/...` — a própria loja — e a Shopify ASSINA a requisição
+  com o segredo do app, mandando junto quem está logado. É o que permite ao
+  servidor saber de quem é o saldo sem acreditar no que o navegador diz.
+
+  Antes, a identidade ia num cabeçalho que o servidor aceitava sem prova. Isso
+  bastava enquanto o cupom nascia travado no cliente — forjar o cabeçalho no
+  máximo movia o saldo da vítima para um código que só ela usava. A trava saiu
+  (o checkout da Yampi recusa cupom restrito), e aí o cabeçalho forjado virou
+  saque.
+
+  ⚠️ Enquanto o App Proxy NÃO estiver criado no painel do app, deixe `proxy`
+  como null: o widget volta a falar direto com o Waltz e tudo funciona como
+  antes. Apagar a linha tem o mesmo efeito. Com o proxy no ar e confirmado,
+  desligue o caminho antigo no Railway com CASHBACK_AUTH_LEGADO=off.
+
+  Cliente deslogado → email null e o widget abre em modo vitrine: regras do
+  programa e convite pra entrar na conta. O programa desativado no painel
+  (config.widget_ativo) esconde tudo.
 {% endcomment %}
 
 <script>
   window.WALTZ_CB = {
     email: {% if customer %}{{ customer.email | json }}{% else %}null{% endif %},
     loggedIn: {% if customer %}true{% else %}false{% endif %},
-    loginUrl: {{ routes.account_login_url | json }}
+    loginUrl: {{ routes.account_login_url | json }},
+    proxy: "/apps/waltz"
   };
 </script>

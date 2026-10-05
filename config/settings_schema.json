@@ -249,7 +249,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Checkout externo da Yampi. Ligado: o botão \"Finalizar compra\" do carrinho manda o carrinho pra Yampi e leva a cliente pro checkout deles. Desligado: volta na hora pro checkout padrão da Shopify — é a chave de emergência se algo der errado na Yampi."
+        "content": "Checkout externo da Yampi. Ligado: o botão \"Finalizar compra\" do carrinho manda o carrinho pra Yampi e leva a cliente pro checkout deles. Desligado: volta na hora pro checkout padrão da Shopify — é a chave de emergência se algo der errado na Yampi. Vale só pra quem a Shopify identifica como Brasil (o checkout da Yampi não aceita endereço estrangeiro): visitante de outro país sempre usa o checkout da Shopify."
       },
       {
         "type": "checkbox",
