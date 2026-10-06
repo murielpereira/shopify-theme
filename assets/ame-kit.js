@@ -71,6 +71,13 @@
         });
     }
 
+    // Waltz manda `available` por variante (estoque + política de venda).
+    // Variante sem o campo (resposta antiga em cache) conta como disponível,
+    // que era o comportamento anterior.
+    function isAvailable(v) {
+        return !!v && v.available !== false;
+    }
+
     function fmtMoney(value) {
         const cents = typeof value === 'string'
             ? Math.round(parseFloat(value.replace(',', '.')) * 100)
@@ -291,11 +298,55 @@
             return;
         }
 
+        // A variante do componente bate com as opções já escolhidas em `st`?
+        // Opção ainda não escolhida não restringe.
+        function variantMatches(v, compIdx, st) {
+            return unified.every(u => {
+                if (u.appliesTo.indexOf(compIdx) < 0 || !st[u.name]) return true;
+                const ve = u.values.find(x => x.display === st[u.name]);
+                return !!ve && v['option' + (u.optIdxByComp[compIdx] + 1)] === ve.perComp[compIdx];
+            });
+        }
+
+        // Primeira combinação (na ordem das opções) em que TODOS os componentes
+        // têm estoque — equivalente ao selected_or_first_available_variant do
+        // PDP normal. Busca em profundidade com poda: ao fixar uma opção, cada
+        // componente ainda precisa ter alguma variante disponível compatível.
+        // `budget` limita o custo em kits com muitas opções.
+        function firstAvailableState() {
+            const opts = unified.filter(u => u.values.length > 0);
+            const st = {};
+            let budget = 2000;
+            const stillPossible = () => components.every((comp, ci) =>
+                (comp.variants || []).some(v => isAvailable(v) && variantMatches(v, ci, st))
+            );
+            function dfs(i) {
+                if (i === opts.length) return true;
+                for (const val of opts[i].values) {
+                    if (--budget < 0) return false;
+                    st[opts[i].name] = val.display;
+                    if (stillPossible() && dfs(i + 1)) return true;
+                }
+                delete st[opts[i].name];
+                return false;
+            }
+            return dfs(0) ? st : null;
+        }
+
         // ── Estado de seleção ──
-        const state = {};
+        // Sem nenhuma combinação em estoque, cai no primeiro valor de cada opção.
+        const state = firstAvailableState() || {};
         unified.forEach(u => {
-            if (u.values.length > 0) state[u.name] = u.values[0].display;
+            if (!state[u.name] && u.values.length > 0) state[u.name] = u.values[0].display;
         });
+
+        // Valor "esgotado" = trocando só ele na seleção atual, algum componente
+        // fica sem estoque (ou sem variante). Mesma leitura do
+        // option_value.available do PDP normal: o botão continua clicável,
+        // só sinaliza com o risco diagonal / opacidade.
+        function valueAvailable(name, display) {
+            return resolveVariants({ ...state, [name]: display }, unified, components).every(isAvailable);
+        }
 
         function isColorOption(name) {
             const n = String(name).toLowerCase();
@@ -325,16 +376,20 @@
 
                 const items = u.values.map(val => {
                     const isSel = val.display === selected;
+                    const off = !valueAvailable(u.name, val.display);
+                    const label = esc(val.display) + (off ? ' (Esgotado)' : '');
+                    const offAttrs = off ? ` aria-disabled="true" aria-label="${label}" title="${label}"` : '';
                     if (isColor) {
                         return `
                             <button
                                 type="button"
-                                class="pdp__swatch ${isSel ? 'pdp__swatch--active' : ''}"
+                                class="pdp__swatch ${isSel ? 'pdp__swatch--active' : ''}${off ? ' pdp__swatch--disabled' : ''}"
                                 data-kit-opt="${esc(u.name)}"
                                 data-kit-val="${esc(val.display)}"
-                                aria-label="${esc(val.display)}"
-                                title="${esc(val.display)}"
+                                aria-label="${label}"
+                                title="${label}"
                                 aria-pressed="${isSel}"
+                                ${off ? 'aria-disabled="true"' : ''}
                             >
                                 <span class="ame-swatch-solido ${val.display.toLowerCase().includes(' com ') ? 'ame-swatch-solido--dual' : 'ame-swatch-solido--single'}"
                                       style="background: ${swatchBg(val.display)};"
@@ -347,10 +402,10 @@
                         return `
                             <button
                                 type="button"
-                                class="pdp__size-btn pdp__size-btn--metal ${isSel ? 'pdp__size-btn--active' : ''}"
+                                class="pdp__size-btn pdp__size-btn--metal ${isSel ? 'pdp__size-btn--active' : ''}${off ? ' pdp__size-btn--disabled' : ''}"
                                 data-kit-opt="${esc(u.name)}"
                                 data-kit-val="${esc(val.display)}"
-                                aria-pressed="${isSel}"
+                                aria-pressed="${isSel}"${offAttrs}
                             >
                                 <span class="pdp__metal-dot" aria-hidden="true"
                                       style="background:var(--metal-${slug}, var(--color-surface-container,#f8ece0));"></span>
@@ -361,10 +416,10 @@
                     return `
                         <button
                             type="button"
-                            class="pdp__size-btn ${isSel ? 'pdp__size-btn--active' : ''}"
+                            class="pdp__size-btn ${isSel ? 'pdp__size-btn--active' : ''}${off ? ' pdp__size-btn--disabled' : ''}"
                             data-kit-opt="${esc(u.name)}"
                             data-kit-val="${esc(val.display)}"
-                            aria-pressed="${isSel}"
+                            aria-pressed="${isSel}"${offAttrs}
                         >${esc(val.display)}</button>
                     `;
                 }).join('');
@@ -426,16 +481,19 @@
                 summaryWrap.innerHTML = components.map((comp, i) => {
                     const v = variants[i];
                     const variantTitle = v ? v.title : '— (combinação indisponível)';
+                    const soldOutTag = v && !isAvailable(v)
+                        ? '<b class="pdp-kit__summary-tag">Esgotado</b>' : '';
                     return `
                         <li class="pdp-kit__summary-item">
                             <strong>${esc(comp.title)}</strong>
-                            <span>${esc(variantTitle)}</span>
+                            <span>${esc(variantTitle)}${soldOutTag}</span>
                         </li>
                     `;
                 }).join('');
             }
 
             const allResolved = variants.every(v => v !== null);
+            const soldOut = allResolved && !variants.every(isAvailable);
             if (allResolved) {
                 // price vem em REAIS (float) do Waltz, converte pra cents
                 const totalCents = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
@@ -503,15 +561,9 @@
                     }
                 }
 
-                if (ctaBtn) {
-                    ctaBtn.disabled = false;
-                    ctaBtn.removeAttribute('aria-disabled');
-                    ctaBtn.classList.remove('pdp__add-btn--sold-out');
-                    const labelTextNode = ctaBtn.childNodes[0];
-                    if (labelTextNode && labelTextNode.nodeType === 3) {
-                        labelTextNode.textContent = 'Adicionar Kit ao Carrinho';
-                    }
-                }
+                // Preço continua visível com item esgotado (igual ao PDP
+                // normal); só o CTA trava.
+                setCta(soldOut ? 'Esgotado nesta combinação' : 'Adicionar Kit ao Carrinho', soldOut);
             } else {
                 if (priceTotalEl) priceTotalEl.textContent = '—';
                 if (pixRow) pixRow.hidden = true;
@@ -519,15 +571,22 @@
                 if (compareRow) compareRow.hidden = true;
                 if (discountBadge) discountBadge.hidden = true;
                 if (imgBadgeWrap) imgBadgeWrap.innerHTML = '';
-                if (ctaBtn) {
-                    ctaBtn.disabled = true;
-                    ctaBtn.setAttribute('aria-disabled', 'true');
-                    const labelTextNode = ctaBtn.childNodes[0];
-                    if (labelTextNode && labelTextNode.nodeType === 3) {
-                        labelTextNode.textContent = 'Combinação indisponível';
-                    }
-                }
+                setCta('Combinação indisponível', true);
             }
+        }
+
+        function setCta(label, disabled) {
+            if (!ctaBtn) return;
+            ctaBtn.disabled = disabled;
+            if (disabled) ctaBtn.setAttribute('aria-disabled', 'true');
+            else ctaBtn.removeAttribute('aria-disabled');
+            ctaBtn.classList.toggle('pdp__add-btn--sold-out', disabled);
+            const labelTextNode = ctaBtn.childNodes[0];
+            if (labelTextNode && labelTextNode.nodeType === 3) labelTextNode.textContent = label;
+            // Ícone da sacola some com o botão travado, como no "Produto esgotado"
+            // do PDP normal. style.display porque [hidden] perde pra regra da classe.
+            const icon = ctaBtn.querySelector('.material-symbols-outlined');
+            if (icon) icon.style.display = disabled ? 'none' : '';
         }
 
         function onOptionClick(e) {
@@ -598,6 +657,15 @@
             e?.preventDefault?.();
             const variants = resolveVariants(state, unified, components);
             if (variants.some(v => v === null)) return;
+            // O CTA já fica travado, mas Enter num campo de texto ainda
+            // submete o form — barra aqui também.
+            const soldOutIdx = variants.findIndex(v => !isAvailable(v));
+            if (soldOutIdx >= 0) {
+                (window.AmePdpToast || ((m) => alert(m)))(
+                    components[soldOutIdx].title + ' está esgotado nesta combinação. Escolha outra opção.'
+                );
+                return;
+            }
             if (!validateRequiredCustomFields()) return;
 
             // Pingente opcional: valida ANTES do POST. Se inválido, aborta.
@@ -650,8 +718,16 @@
                 xhr.setRequestHeader('Accept', 'application/json');
                 const done = new Promise((resolve, reject) => {
                     xhr.onload = () => {
-                        if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText));
-                        else reject(new Error('HTTP ' + xhr.status + ': ' + xhr.responseText));
+                        if (xhr.status >= 200 && xhr.status < 300) return resolve(JSON.parse(xhr.responseText));
+                        // 422 = Shopify recusou o lote (ex: estoque acabou dentro
+                        // dos 5 min de cache do Waltz). O `description` vem em
+                        // PT-BR dizendo qual item — é o que o cliente precisa ler.
+                        const err = new Error('HTTP ' + xhr.status + ': ' + xhr.responseText);
+                        try {
+                            const d = JSON.parse(xhr.responseText).description;
+                            if (typeof d === 'string') err.userMessage = d;
+                        } catch (_) {}
+                        reject(err);
                     };
                     xhr.onerror = () => reject(new Error('Network'));
                 });
@@ -673,7 +749,9 @@
                 cartXhr.send();
             } catch (err) {
                 console.error('[Kit] erro ao adicionar', err);
-                alert('Não foi possível adicionar o kit. Tente novamente.');
+                (window.AmePdpToast || ((m) => alert(m)))(
+                    err.userMessage || 'Não foi possível adicionar o kit. Tente novamente.'
+                );
             } finally {
                 if (ctaBtn) ctaBtn.disabled = false;
                 if (labelTextNode && labelTextNode.nodeType === 3) labelTextNode.textContent = originalLabel;
