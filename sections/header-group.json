@@ -15,8 +15,8 @@
       "type": "countdown-bar",
       "settings": {
         "enabled": true,
-        "message": "Mês do cliente termina em",
-        "end_date": "2026-09-30",
+        "message": "Semana do Frete Amigo termina em",
+        "end_date": "2026-10-10",
         "end_time": "23:59:59",
         "link": ""
       }
