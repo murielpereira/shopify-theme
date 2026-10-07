@@ -148,6 +148,20 @@
         const { swatchBg } = makeColorResolver(config.swatch_colors);
 
         const optionsWrap     = host.querySelector('[data-kit-options]');
+        // Caixa do passo a passo (snippets/kit-picker.liquid).
+        const wizardEl = host.querySelector('[data-kit-wizard]');
+        const navEl    = host.querySelector('[data-kit-wizard-nav]');
+        const voltarEl = host.querySelector('[data-kit-voltar]');
+        const corpoEl  = host.querySelector('[data-kit-wizard-corpo]');
+        const liveEl   = host.querySelector('[data-kit-wizard-live]');
+        const paineis  = {
+            info:     host.querySelector('[data-kit-painel="info"]'),
+            pingente: host.querySelector('[data-kit-painel="pingente"]'),
+            resumo:   host.querySelector('[data-kit-painel="resumo"]'),
+        };
+        // A etapa atual vai no .pdp como data-attr: o CSS do kit-picker esconde
+        // o CTA e o Compre Junto fora das etapas em que eles cabem.
+        const pdpRoot = document.querySelector('.pdp--is-kit');
         // Showcase virou child direto de .pdp (coluna lateral sticky no
         // desktop) e summary fica logo antes do CTA — ambos hosts injetados
         // em sections/product.liquid via Liquid quando is_kit.
@@ -162,11 +176,17 @@
                         Itens inclusos no kit
                     </p>
                     <ul class="pdp-kit__summary" data-kit-summary></ul>
+                    <div class="pdp-kit__summary-total" data-kit-summary-total hidden>
+                        <span>Total do kit</span>
+                        <strong data-kit-summary-total-valor></strong>
+                        <small data-kit-summary-total-pix></small>
+                    </div>
                 </div>
             `;
             summaryWrap = summaryBottomHost.querySelector('[data-kit-summary]');
         }
         const summaryWrapBox = summaryBottomHost?.querySelector('[data-kit-summary-wrap]');
+        const summaryTotal = summaryBottomHost?.querySelector('[data-kit-summary-total]');
 
         // Preço/CTA ficam no #pdp-price-block / #pdp-add-btn padrão do PDP.
         // Pix e parcelas são apenas anúncio (pagar.me calcula no checkout —
@@ -308,44 +328,83 @@
             });
         }
 
-        // Primeira combinação (na ordem das opções) em que TODOS os componentes
-        // têm estoque — equivalente ao selected_or_first_available_variant do
-        // PDP normal. Busca em profundidade com poda: ao fixar uma opção, cada
-        // componente ainda precisa ter alguma variante disponível compatível.
-        // `budget` limita o custo em kits com muitas opções.
-        function firstAvailableState() {
-            const opts = unified.filter(u => u.values.length > 0);
+        // Completa uma seleção: mantém as opções de `fixos` e acha valores pras
+        // demais de modo que TODOS os componentes tenham variante em estoque.
+        // Devolve { opção: valor } ou null. Tenta primeiro o valor de
+        // `preferencia` em cada opção livre — assim trocar o tamanho não
+        // embaralha a cor que já estava. Busca em profundidade com poda: com
+        // uma opção fixada, cada componente ainda precisa ter alguma variante
+        // disponível compatível. `budget` limita kits com muitas opções.
+        function completar(fixos, preferencia) {
             const st = {};
-            let budget = 2000;
+            for (const u of unified) {
+                if (fixos[u.name] != null && u.values.some(v => v.display === fixos[u.name])) st[u.name] = fixos[u.name];
+            }
+            const livres = unified.filter(u => u.values.length > 0 && st[u.name] == null);
+            let budget = 3000;
             const stillPossible = () => components.every((comp, ci) =>
                 (comp.variants || []).some(v => isAvailable(v) && variantMatches(v, ci, st))
             );
             function dfs(i) {
-                if (i === opts.length) return true;
-                for (const val of opts[i].values) {
+                if (i === livres.length) return true;
+                const u = livres[i];
+                const pref = preferencia && preferencia[u.name];
+                const valores = pref
+                    ? [...u.values].sort((a, b) => (b.display === pref) - (a.display === pref))
+                    : u.values;
+                for (const val of valores) {
                     if (--budget < 0) return false;
-                    st[opts[i].name] = val.display;
+                    st[u.name] = val.display;
                     if (stillPossible() && dfs(i + 1)) return true;
                 }
-                delete st[opts[i].name];
+                delete st[u.name];
                 return false;
             }
-            return dfs(0) ? st : null;
+            return stillPossible() && dfs(0) ? { ...st } : null;
         }
 
         // ── Estado de seleção ──
-        // Sem nenhuma combinação em estoque, cai no primeiro valor de cada opção.
-        const state = firstAvailableState() || {};
+        // Começa na primeira combinação com TODOS os componentes em estoque
+        // (equivalente ao selected_or_first_available_variant do PDP normal) —
+        // é ela que dá o "A partir de" do preço enquanto a cliente escolhe.
+        // Sem nenhuma em estoque, cai no primeiro valor de cada opção.
+        const state = completar({}, null) || {};
         unified.forEach(u => {
             if (!state[u.name] && u.values.length > 0) state[u.name] = u.values[0].display;
         });
 
-        // Valor "esgotado" = trocando só ele na seleção atual, algum componente
-        // fica sem estoque (ou sem variante). Mesma leitura do
-        // option_value.available do PDP normal: o botão continua clicável,
-        // só sinaliza com o risco diagonal / opacidade.
+        // Seleção atual {opção: valor} — o Compre Junto (ame-pdp-bundle.js)
+        // casa a variante do cross-sell com ela. Lida sob demanda, então
+        // sempre reflete o state do momento.
+        window.AmeKit = { getSelection: () => ({ ...state }) };
+
+        // ── Passo a passo ──
+        // Opção com um valor só não vira etapa: já nasce escolhida.
+        // `confirmados` = opções que a CLIENTE escolheu (o resto do state é só
+        // o preenchimento automático que sustenta o preço "A partir de").
+        const confirmados = new Set(unified.filter(u => u.values.length === 1).map(u => u.name));
+        const feitos = new Set();   // etapas que não são opção: 'info', 'pingente'
+        let passos = [];
+        let passoAtual = 0;
+        let timerAvanco = null;
+
+        // Escolhas confirmadas ANTES desta opção, na ordem das etapas. Etapa
+        // posterior não conta: escolher um tamanho nunca fica bloqueado pela cor
+        // que ainda vai ser escolhida (se ela não servir, volta a ser pergunta).
+        function fixosAntesDe(nome) {
+            const out = {};
+            for (const u of unified) {
+                if (u.name === nome) break;
+                if (confirmados.has(u.name)) out[u.name] = state[u.name];
+            }
+            return out;
+        }
+
+        // Valor "esgotado" = não existe combinação em estoque com ele e com o que
+        // a cliente já escolheu antes. O botão continua visível (risco diagonal),
+        // e tocar nele avisa em vez de avançar.
         function valueAvailable(name, display) {
-            return resolveVariants({ ...state, [name]: display }, unified, components).every(isAvailable);
+            return completar({ ...fixosAntesDe(name), [name]: display }, state) !== null;
         }
 
         function isColorOption(name) {
@@ -372,7 +431,9 @@
 
                 const isColor = isColorOption(u.name);
                 const isMetal = isMetalColorOption(u.name);
-                const selected = state[u.name];
+                // Etapa ainda não respondida não mostra nada marcado: o valor no
+                // state é só o preenchimento automático, a cliente escolhe.
+                const selected = confirmados.has(u.name) ? state[u.name] : '';
 
                 const items = u.values.map(val => {
                     const isSel = val.display === selected;
@@ -438,6 +499,7 @@
             }).join('');
 
             optionsWrap.innerHTML = html;
+            if (passos.length) aplicarVisibilidade();
         }
 
         function renderSummaryAndPrice() {
@@ -459,8 +521,10 @@
                     // O 1º card é (na maioria dos kits) o que renderiza acima do
                     // fold → é o LCP element. PSI confirmou: lazy nesse img
                     // adicionava 900ms+ de "resource load delay". Eager-load só
-                    // o primeiro, demais ficam lazy.
-                    const isFirst = i === 0;
+                    // o primeiro, demais ficam lazy. No celular o showcase fica
+                    // oculto (as fotos vão pro resumo do passo a passo): lá nada
+                    // de eager, senão a foto escondida disputa banda com o LCP.
+                    const isFirst = i === 0 && window.matchMedia('(min-width: 1024px)').matches;
                     const loading = isFirst ? 'eager' : 'lazy';
                     const fetchprio = isFirst ? ' fetchpriority="high"' : '';
                     return `
@@ -483,10 +547,17 @@
                     const variantTitle = v ? v.title : '— (combinação indisponível)';
                     const soldOutTag = v && !isAvailable(v)
                         ? '<b class="pdp-kit__summary-tag">Esgotado</b>' : '';
+                    const foto = (v && v.featured_image) || comp.featured_image || '';
+                    const thumb = foto
+                        ? `<img class="pdp-kit__summary-thumb" src="${esc(foto + (foto.includes('?') ? '&' : '?') + 'width=120')}" alt="" loading="lazy" width="48" height="48">`
+                        : '<span class="pdp-kit__summary-thumb" aria-hidden="true"></span>';
                     return `
                         <li class="pdp-kit__summary-item">
-                            <strong>${esc(comp.title)}</strong>
-                            <span>${esc(variantTitle)}${soldOutTag}</span>
+                            ${thumb}
+                            <div class="pdp-kit__summary-txt">
+                                <strong>${esc(comp.title)}</strong>
+                                <span>${esc(variantTitle)}${soldOutTag}</span>
+                            </div>
                         </li>
                     `;
                 }).join('');
@@ -524,10 +595,18 @@
                 }
 
                 const pixPct = parseInt(host.dataset.pixPct || '5', 10);
+                const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
                 if (pricePixEl && pixRow) {
-                    const pixCents = totalCents - Math.floor(totalCents * pixPct / 100);
                     pricePixEl.textContent = fmtMoney(pixCents / 100);
                     pixRow.hidden = false;
+                }
+                // Total repetido no resumo: na última etapa o preço do topo já
+                // saiu da tela, e é ali que a cliente decide.
+                if (summaryTotal) {
+                    summaryTotal.querySelector('[data-kit-summary-total-valor]').textContent = fmtMoney(totalCents / 100);
+                    summaryTotal.querySelector('[data-kit-summary-total-pix]').textContent =
+                        pixPct > 0 ? `ou ${fmtMoney(pixCents / 100)} no Pix` : '';
+                    summaryTotal.hidden = false;
                 }
                 // Parcelas: max sem juros viável (respeita min_value)
                 const bestN = bestNoInterestN(totalCents);
@@ -563,7 +642,9 @@
 
                 // Preço continua visível com item esgotado (igual ao PDP
                 // normal); só o CTA trava.
-                setCta(soldOut ? 'Esgotado nesta combinação' : 'Adicionar Kit ao Carrinho', soldOut);
+                ctaResumo = soldOut
+                    ? { rotulo: 'Esgotado nesta combinação', travado: true }
+                    : { rotulo: 'Adicionar Kit ao Carrinho', travado: false };
             } else {
                 if (priceTotalEl) priceTotalEl.textContent = '—';
                 if (pixRow) pixRow.hidden = true;
@@ -571,11 +652,23 @@
                 if (compareRow) compareRow.hidden = true;
                 if (discountBadge) discountBadge.hidden = true;
                 if (imgBadgeWrap) imgBadgeWrap.innerHTML = '';
-                setCta('Combinação indisponível', true);
+                if (summaryTotal) summaryTotal.hidden = true;
+                ctaResumo = { rotulo: 'Combinação indisponível', travado: true };
             }
+            atualizarCta();
         }
 
-        function setCta(label, disabled) {
+        // O que o CTA diz na etapa Resumo (calculado com o preço). Nas outras
+        // etapas ele é o "Continuar" do passo a passo.
+        let ctaResumo = { rotulo: 'Adicionar Kit ao Carrinho', travado: false };
+
+        function atualizarCta() {
+            const p = passos[passoAtual];
+            if (p && p.tipo !== 'resumo') setCta('Continuar', false, 'arrow_forward');
+            else setCta(ctaResumo.rotulo, ctaResumo.travado, 'shopping_bag');
+        }
+
+        function setCta(label, disabled, icone) {
             if (!ctaBtn) return;
             ctaBtn.disabled = disabled;
             if (disabled) ctaBtn.setAttribute('aria-disabled', 'true');
@@ -585,20 +678,201 @@
             if (labelTextNode && labelTextNode.nodeType === 3) labelTextNode.textContent = label;
             // Ícone da sacola some com o botão travado, como no "Produto esgotado"
             // do PDP normal. style.display porque [hidden] perde pra regra da classe.
+            // `icone` precisa estar no subset da fonte (snippets/css-variables.liquid).
             const icon = ctaBtn.querySelector('.material-symbols-outlined');
-            if (icon) icon.style.display = disabled ? 'none' : '';
+            if (icon) {
+                if (icone) icon.textContent = icone;
+                icon.style.display = disabled ? 'none' : '';
+            }
         }
 
         function onOptionClick(e) {
             const btn = e.target.closest('[data-kit-opt]');
             if (!btn) return;
             e.preventDefault();
-            state[btn.dataset.kitOpt] = btn.dataset.kitVal;
+            escolher(btn.dataset.kitOpt, btn.dataset.kitVal);
+        }
+
+        function toast(msg) {
+            (window.AmePdpToast || ((m) => alert(m)))(msg);
+        }
+
+        // A cliente escolheu um valor numa etapa de opção.
+        function escolher(nome, valor) {
+            pararAvanco();
+            // Mesmo valor numa etapa já respondida: só segue em frente.
+            if (confirmados.has(nome) && state[nome] === valor) {
+                irPara(proximoPendente());
+                return;
+            }
+            // Mantém tudo que já foi escolhido, se der. Se a escolha nova não
+            // combina com alguma posterior (ex: cor que não existe no tamanho
+            // novo), mantém só as anteriores e a posterior volta a ser pergunta.
+            const outras = {};
+            confirmados.forEach(n => { if (n !== nome) outras[n] = state[n]; });
+            const novo = completar({ ...outras, [nome]: valor }, state)
+                || completar({ ...fixosAntesDe(nome), [nome]: valor }, state);
+            if (!novo) {
+                toast(`${valor} está esgotado nesta combinação. Escolha outra opção.`);
+                return;
+            }
+            unified.forEach(u => {
+                if (u.name !== nome && confirmados.has(u.name) && novo[u.name] !== state[u.name]) confirmados.delete(u.name);
+            });
+            Object.assign(state, novo);
+            confirmados.add(nome);
+
+            // Pausa curta pra cliente ver o botão marcado antes de a caixa trocar.
+            // Armada ANTES do render: aplicarVisibilidade() lê o timer.
+            timerAvanco = setTimeout(() => {
+                timerAvanco = null;
+                irPara(proximoPendente());
+            }, 280);
             renderOptions();
             renderSummaryAndPrice();
+            renderNav();
             // Notifica o pingente (e quaisquer outros listeners de variante)
             // sobre a mudança — análogo ao que o PDP normal faz.
             document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
+        }
+
+        function pararAvanco() {
+            clearTimeout(timerAvanco);
+            timerAvanco = null;
+        }
+
+        function passoFeito(p) {
+            if (p.tipo === 'opcao') return confirmados.has(p.nome);
+            if (p.tipo === 'resumo') return false;
+            return feitos.has(p.tipo);
+        }
+
+        // Primeira etapa por responder; com tudo respondido, o Resumo.
+        function proximoPendente() {
+            const i = passos.findIndex(p => !passoFeito(p));
+            return i < 0 ? passos.length - 1 : i;
+        }
+
+        function irPara(i) {
+            const dir = i > passoAtual ? 1 : (i < passoAtual ? -1 : 0);
+            passoAtual = Math.max(0, Math.min(i, passos.length - 1));
+            aplicarPasso(dir);
+        }
+
+        // "Continuar" (o CTA fora do Resumo, ou Enter num campo de texto).
+        function avancar() {
+            const p = passos[passoAtual];
+            if (p.tipo === 'opcao' && !confirmados.has(p.nome)) {
+                toast(`Escolha ${articleFor(p.nome)} ${p.nome.toLowerCase()}.`);
+                return;
+            }
+            if (p.tipo === 'info') {
+                if (!validateRequiredCustomFields()) return;
+                feitos.add('info');
+            }
+            if (p.tipo === 'pingente') {
+                if (window.amePingente?.hasAnswered && !window.amePingente.hasAnswered()) {
+                    toast('Escolha se deseja adicionar um pingente personalizado.');
+                    document.querySelector('[data-pingente-opt-row]')?.classList.add('is-invalid');
+                    return;
+                }
+                if (window.amePingente?.isActive()) {
+                    const pv = window.amePingente.validate();
+                    if (!pv.ok) { toast(pv.msg); return; }
+                }
+                feitos.add('pingente');
+            }
+            irPara(proximoPendente());
+        }
+
+        // Mostra só a etapa atual. Não redesenha as opções: trocar de etapa é
+        // só classe — o botão da tabela de medidas (Waltz) injetado no
+        // cabeçalho do Tamanho sobrevive.
+        function aplicarVisibilidade() {
+            const p = passos[passoAtual];
+            if (!p) return;
+            optionsWrap.querySelectorAll('.pdp__option').forEach(el => {
+                el.classList.toggle('is-kit-step-hidden', !(p.tipo === 'opcao' && el.dataset.kitOption === p.nome));
+            });
+            optionsWrap.classList.toggle('is-kit-step-hidden', p.tipo !== 'opcao');
+            Object.entries(paineis).forEach(([tipo, el]) => el && el.classList.toggle('is-ativo', p.tipo === tipo));
+            if (pdpRoot) {
+                pdpRoot.dataset.kitPasso = p.tipo;
+                // Durante a pausa do avanço automático o "Continuar" não aparece:
+                // surgiria por 280 ms e sumiria, empurrando a página.
+                pdpRoot.dataset.kitPassoOk = passoFeito(p) && !timerAvanco ? '1' : '0';
+            }
+        }
+
+        function aplicarPasso(dir) {
+            aplicarVisibilidade();
+            renderNav();
+            atualizarCta();
+            const p = passos[passoAtual];
+            if (liveEl && dir) liveEl.textContent = `Etapa ${passoAtual + 1} de ${passos.length}: ${p.titulo}`;
+            if (dir && corpoEl) {
+                corpoEl.classList.remove('is-entrando-frente', 'is-entrando-tras');
+                void corpoEl.offsetWidth; // reinicia a animação
+                corpoEl.classList.add(dir > 0 ? 'is-entrando-frente' : 'is-entrando-tras');
+            }
+            if (dir) rolarParaEtapa();
+        }
+
+        // Traz a etapa nova pra tela só quando ela não está à vista — rolar a
+        // cada toque cansaria. No Resumo, garante também o CTA visível.
+        function rolarParaEtapa() {
+            if (!wizardEl) return;
+            const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
+            const margem = 12;
+            const r = wizardEl.getBoundingClientRect();
+            let delta = 0;
+            if (r.top < headerH + margem) {
+                delta = r.top - headerH - margem;
+            } else if (r.bottom > window.innerHeight) {
+                const alvo = passos[passoAtual].tipo === 'resumo' && ctaBtn
+                    ? ctaBtn.getBoundingClientRect().bottom + margem
+                    : r.bottom + margem;
+                // Desce o necessário, sem tirar o topo da caixa da tela.
+                delta = Math.min(alvo - window.innerHeight, r.top - headerH - margem);
+            }
+            if (delta > 4 || delta < -4) {
+                const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                window.scrollBy({ top: delta, behavior: suave ? 'smooth' : 'auto' });
+            }
+        }
+
+        function rotuloCurto(nome) {
+            // "Cor do Metal" → "Metal": a etapa tem pouco espaço no celular.
+            return String(nome).replace(/^cor d[oa]s?\s+/i, '').replace(/^./, c => c.toUpperCase());
+        }
+
+        function renderNav() {
+            if (!navEl) return;
+            const fronteira = proximoPendente();
+            navEl.innerHTML = `
+                <ol class="pdp-kit-wizard__chips" style="--kit-passos:${passos.length}">
+                    ${passos.map((p, i) => {
+                        const feito = passoFeito(p);
+                        const atual = i === passoAtual;
+                        const alcancavel = feito || i <= fronteira;
+                        const valor = p.tipo === 'opcao' && feito ? state[p.nome] : '';
+                        return `
+                            <li>
+                                <button type="button"
+                                    class="pdp-kit-wizard__chip${atual ? ' is-atual' : ''}${feito ? ' is-feito' : ''}"
+                                    data-kit-ir="${i}"
+                                    ${atual ? 'aria-current="step"' : ''}
+                                    ${alcancavel ? '' : 'disabled'}
+                                    aria-label="${esc(p.titulo + (valor ? ': ' + valor : ''))}">
+                                    <span class="pdp-kit-wizard__chip-rotulo">${esc(p.curto)}</span>
+                                    ${valor ? `<span class="pdp-kit-wizard__chip-valor">${esc(valor)}</span>` : ''}
+                                </button>
+                            </li>
+                        `;
+                    }).join('')}
+                </ol>
+            `;
+            if (voltarEl) voltarEl.hidden = passoAtual === 0;
         }
 
         function collectPropertiesByComponent() {
@@ -628,22 +902,24 @@
             return props;
         }
 
-        function validateRequiredCustomFields() {
-            const fields = document.querySelectorAll('.pdp__custom-field[data-cf-tag]');
+        // Campos obrigatórios em branco, sem marcar nada na tela.
+        function camposObrigatoriosVazios() {
             const invalids = [];
-            fields.forEach(node => {
+            document.querySelectorAll('.pdp__custom-field[data-cf-tag]').forEach(node => {
                 const tag = node.dataset.cfTag;
                 const isRelevant = components.some(c => (c.tags || []).indexOf(tag) >= 0);
                 if (!isRelevant) return;
                 const input = node.querySelector('[data-cf-required]');
                 if (!input) return;
-                const value = String(input.value || '').trim();
-                if (!value) {
-                    node.classList.add('pdp__custom-field--invalid');
-                    invalids.push({ node, input });
-                } else {
-                    node.classList.remove('pdp__custom-field--invalid');
-                }
+                if (!String(input.value || '').trim()) invalids.push({ node, input });
+            });
+            return invalids;
+        }
+
+        function validateRequiredCustomFields() {
+            const invalids = camposObrigatoriosVazios();
+            document.querySelectorAll('.pdp__custom-field[data-cf-tag]').forEach(node => {
+                node.classList.toggle('pdp__custom-field--invalid', invalids.some(x => x.node === node));
             });
             if (invalids.length === 0) return true;
             const headerH = document.querySelector('.ame-header-group')?.getBoundingClientRect().height || 0;
@@ -655,6 +931,13 @@
 
         async function onSubmit(e) {
             e?.preventDefault?.();
+            pararAvanco();
+            // Fora do Resumo, o botão (e o Enter num campo de texto) é o
+            // "Continuar" do passo a passo.
+            if (passos.length && passos[passoAtual].tipo !== 'resumo') {
+                avancar();
+                return;
+            }
             const variants = resolveVariants(state, unified, components);
             if (variants.some(v => v === null)) return;
             // O CTA já fica travado, mas Enter num campo de texto ainda
@@ -666,13 +949,30 @@
                 );
                 return;
             }
+            // Rede de segurança: as etapas já validaram, mas se algo ficou para
+            // trás, volta pra etapa dele ANTES de validar — a rolagem até o
+            // campo precisa dele à vista.
+            const idxInfo = passos.findIndex(p => p.tipo === 'info');
+            if (idxInfo >= 0 && camposObrigatoriosVazios().length) irPara(idxInfo);
             if (!validateRequiredCustomFields()) return;
 
             // Pingente opcional: valida ANTES do POST. Se inválido, aborta.
+            const idxPingente = passos.findIndex(p => p.tipo === 'pingente');
             if (window.amePingente?.isActive()) {
                 const pv = window.amePingente.validate();
                 if (!pv.ok) {
+                    if (idxPingente >= 0) irPara(idxPingente);
                     (window.AmePdpToast || ((m) => alert(m)))(pv.msg);
+                    return;
+                }
+            }
+
+            // Compre Junto: campo obrigatório de cross-sell marcado em branco
+            // (ex: "Comprimento da guia") barra o add — igual ao PDP normal.
+            if (window.AmePdpBundle?.validate) {
+                const bv = window.AmePdpBundle.validate();
+                if (!bv.ok) {
+                    (window.AmePdpToast || ((m) => alert(m)))(bv.msg);
                     return;
                 }
             }
@@ -704,6 +1004,13 @@
             if (willAddPingente) {
                 const pingenteItem = window.amePingente.getCartItem(1, coleiraKey);
                 if (pingenteItem) items.push(pingenteItem);
+            }
+
+            // Cross-sells marcados no Compre Junto vão no mesmo POST atômico.
+            // Sem `_from_kit`: não fazem parte do kit.
+            if (window.AmePdpBundle?.getSelectedItems) {
+                const bundleItems = window.AmePdpBundle.getSelectedItems();
+                if (bundleItems && bundleItems.length) items.push(...bundleItems);
             }
 
             const labelTextNode = ctaBtn && ctaBtn.childNodes[0];
@@ -758,12 +1065,48 @@
             }
         }
 
+        // ── Monta as etapas ──
+        // Campos personalizados, pingente e resumo saem do lugar de origem no
+        // form e entram nos painéis da caixa. Mover o nó leva junto os ouvintes
+        // (pílulas de rádio, contador, máscara de telefone) e o `name` dos
+        // inputs — continuam dentro do mesmo form.
+        const camposInfo = productForm
+            ? [...productForm.querySelectorAll('.pdp__custom-field[data-cf-tag]')].filter(el => !host.contains(el))
+            : [];
+        if (paineis.info) camposInfo.forEach(el => paineis.info.appendChild(el));
+        const pingenteEl = productForm ? productForm.querySelector('.ame-pingente') : null;
+        if (pingenteEl && paineis.pingente) paineis.pingente.appendChild(pingenteEl);
+        if (summaryBottomHost && paineis.resumo) paineis.resumo.appendChild(summaryBottomHost);
+
+        passos = [
+            ...unified.filter(u => u.values.length > 1).map(u => ({
+                tipo: 'opcao', nome: u.name, curto: rotuloCurto(u.name), titulo: u.name + (u.labelSuffix || ''),
+            })),
+            ...(camposInfo.length ? [{ tipo: 'info', curto: 'Detalhes', titulo: 'Informações adicionais' }] : []),
+            ...(pingenteEl ? [{ tipo: 'pingente', curto: 'Pingente', titulo: 'Pingente' }] : []),
+            { tipo: 'resumo', curto: 'Resumo', titulo: 'Resumo do kit' },
+        ];
+        passoAtual = proximoPendente();
+
         optionsWrap.addEventListener('click', onOptionClick);
         if (productForm) productForm.addEventListener('submit', onSubmit);
         else if (ctaBtn) ctaBtn.addEventListener('click', onSubmit);
+        // Direto no elemento, não delegado no document: apps da loja (Easify)
+        // interceptam clique no document.
+        if (navEl) navEl.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-kit-ir]');
+            if (!b || b.disabled) return;
+            pararAvanco();
+            irPara(Number(b.dataset.kitIr));
+        });
+        if (voltarEl) voltarEl.addEventListener('click', () => {
+            pararAvanco();
+            irPara(passoAtual - 1);
+        });
 
         renderOptions();
         renderSummaryAndPrice();
+        aplicarPasso(0);
 
         // Dispatch pra widgets externos (ex: tabela de medidas do Waltz)
         // saberem que o kit terminou de renderizar. Sem isso, widgets que

@@ -1280,11 +1280,10 @@
         Aparece ANTES do CTA pra o cliente ver os complementos antes de
         decidir comprar. Os items marcados vão junto no mesmo POST
         /cart/add.js do submit do form (handler abaixo).
-        Kit tem seu próprio fluxo de itens inclusos (kit-picker).
+        No kit, as tags `crosssell:` são as do produto-pai; o auto-match de
+        variante usa a seleção do ame-kit.js e o submit dele inclui os itens.
       {%- endcomment -%}
-      {%- unless is_kit -%}
-        {%- render 'pdp-bundle', product: product -%}
-      {%- endunless -%}
+      {%- render 'pdp-bundle', product: product, is_kit: is_kit -%}
 
       <!-- CTAs -->
       <div class="pdp__ctas">

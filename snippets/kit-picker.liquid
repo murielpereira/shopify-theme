@@ -15,6 +15,14 @@
 
   Variants, options unificadas, etc — tudo vem do Waltz via XHR no boot.
   Vide [Waltz/routes/kits.js](../../Waltz/routes/kits.js).
+
+  Passo a passo (2026-10-07): uma etapa por vez dentro de uma caixa só —
+  Tamanho → Cor → Metal → Informações → Pingente → Resumo —, pra cliente
+  rolar o mínimo no celular. As opções continuam TODAS no DOM (só a etapa
+  atual aparece): o pingente e o widget de tabela de medidas do Waltz leem
+  as opções de lá. Campos personalizados, pingente e o resumo são MOVIDOS
+  pelo ame-kit.js pra dentro dos painéis abaixo; até lá ficam ocultos via
+  CSS pra não piscar fora do lugar.
 {% endcomment %}
 
 <div
@@ -50,19 +58,29 @@
     de .pdp. JS continua procurando [data-kit-showcase] no document.
   {%- endcomment -%}
 
-  <div class="pdp-kit__options" data-kit-options>
-    <div class="pdp-kit__skeleton" aria-hidden="true">
-      <div class="pdp-kit__skeleton-bar"></div>
-      <div class="pdp-kit__skeleton-bar"></div>
-      <div class="pdp-kit__skeleton-bar pdp-kit__skeleton-bar--short"></div>
-    </div>
-  </div>
+  <div class="pdp-kit-wizard" data-kit-wizard>
+    <nav class="pdp-kit-wizard__nav" aria-label="Etapas do kit" data-kit-wizard-nav></nav>
+    <button type="button" class="pdp-kit-wizard__voltar" data-kit-voltar hidden>
+      <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+      Voltar
+    </button>
 
-  {%- comment -%}
-    Summary "Itens inclusos no kit" foi movido pra cima do bloco de preço —
-    é renderizado pelo JS em [data-kit-summary-top] que vive em
-    sections/product.liquid, antes do #pdp-price-block.
-  {%- endcomment -%}
+    <div class="pdp-kit-wizard__corpo" data-kit-wizard-corpo>
+      <div class="pdp-kit__options" data-kit-options>
+        <div class="pdp-kit__skeleton" aria-hidden="true">
+          <div class="pdp-kit__skeleton-bar"></div>
+          <div class="pdp-kit__skeleton-bar"></div>
+          <div class="pdp-kit__skeleton-bar pdp-kit__skeleton-bar--short"></div>
+        </div>
+      </div>
+
+      <div class="pdp-kit-wizard__painel" data-kit-painel="info"></div>
+      <div class="pdp-kit-wizard__painel" data-kit-painel="pingente"></div>
+      <div class="pdp-kit-wizard__painel" data-kit-painel="resumo"></div>
+    </div>
+
+    <p class="pdp-kit-wizard__live" aria-live="polite" data-kit-wizard-live></p>
+  </div>
 </div>
 
 <style>
@@ -190,14 +208,32 @@
     gap: 0.375rem;
   }
 
+  /* Cada item: miniatura da variante escolhida + nome + variação. No
+     passo a passo o resumo é a última etapa, e no celular ele substitui o
+     showcase (oculto lá) — a foto é o que deixa a cliente conferir. */
   .pdp-kit__summary-item {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     gap: 0.75rem;
     font-size: 0.8125rem;
     line-height: 1.4;
     color: var(--color-on-background, #201b14);
+  }
+
+  .pdp-kit__summary-thumb {
+    flex: 0 0 3rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--color-surface-container, #f8ece0);
+  }
+
+  .pdp-kit__summary-txt {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
   }
 
   .pdp-kit__summary-item strong {
@@ -207,7 +243,35 @@
   .pdp-kit__summary-item span {
     font-size: 0.75rem;
     color: var(--color-on-surface-variant, #4f4442);
+  }
+
+  .pdp-kit__summary-total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-outline-variant, #e6dad1);
+    font-size: 0.8125rem;
+    color: var(--color-on-surface-variant, #4f4442);
+  }
+
+  .pdp-kit__summary-total[hidden] {
+    display: none;
+  }
+
+  .pdp-kit__summary-total strong {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+  }
+
+  .pdp-kit__summary-total small {
+    flex-basis: 100%;
     text-align: right;
+    font-size: 0.75rem;
   }
 
   /* Componente sem estoque na combinação escolhida — ame-kit.js anexa
@@ -220,6 +284,228 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #b3261e;
+  }
+
+  /* ── Passo a passo ─────────────────────────────────────────────────── */
+
+  .pdp-kit-wizard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--color-surface-container-lowest, #ffffff);
+    border: 1px solid var(--color-outline-variant, #e6dad1);
+    border-radius: 16px;
+    /* Corta o deslize da troca de etapa — sem isso o translateX vaza e
+       cria rolagem horizontal no celular durante a animação. */
+    overflow: hidden;
+  }
+
+  /* Etapas: uma barrinha por etapa (progresso) + nome + o que foi escolhido.
+     Etapa feita é tocável (volta direto pra ela); futura fica travada. */
+  .pdp-kit-wizard__chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--kit-passos, 4), minmax(0, 1fr));
+    gap: 0.375rem;
+  }
+
+  .pdp-kit-wizard__chip {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    padding: 0 0 0.25rem;
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--color-on-surface-muted, #6f645d);
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .pdp-kit-wizard__chip::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 3px;
+    margin-bottom: 0.25rem;
+    border-radius: 999px;
+    background: var(--color-outline-variant, #e6dad1);
+    transition: background 0.25s ease;
+  }
+
+  .pdp-kit-wizard__chip.is-feito::before,
+  .pdp-kit-wizard__chip.is-atual::before {
+    background: var(--pdp-btn-bg, var(--color-primary, #5a4742));
+  }
+
+  .pdp-kit-wizard__chip.is-atual {
+    color: var(--color-on-background, #201b14);
+  }
+
+  .pdp-kit-wizard__chip:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  .pdp-kit-wizard__chip-rotulo {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.625rem;
+    font-weight: 500;
+    /* 0.05em (e não o 0.1em dos rótulos da PDP): com 5 etapas num celular
+       de 390px, "DETALHES" cortava. */
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .pdp-kit-wizard__chip-valor {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-on-background, #201b14);
+  }
+
+  @media (hover: hover) {
+    .pdp-kit-wizard__chip.is-feito:not(.is-atual):hover .pdp-kit-wizard__chip-valor {
+      text-decoration: underline;
+    }
+  }
+
+  .pdp-kit-wizard__voltar {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    min-height: 44px;
+    margin: -0.5rem 0 -0.75rem -0.375rem;
+    padding: 0 0.5rem 0 0.25rem;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant, #4f4442);
+    cursor: pointer;
+  }
+
+  .pdp-kit-wizard__voltar[hidden] {
+    display: none;
+  }
+
+  .pdp-kit-wizard__voltar .material-symbols-outlined {
+    font-size: 1.125rem;
+  }
+
+  .pdp-kit-wizard__corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pdp-kit-wizard__corpo.is-entrando-frente {
+    animation: pdp-kit-entra-frente 0.24s ease-out;
+  }
+
+  .pdp-kit-wizard__corpo.is-entrando-tras {
+    animation: pdp-kit-entra-tras 0.24s ease-out;
+  }
+
+  @keyframes pdp-kit-entra-frente {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes pdp-kit-entra-tras {
+    from { opacity: 0; transform: translateX(-16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pdp-kit-wizard__corpo.is-entrando-frente,
+    .pdp-kit-wizard__corpo.is-entrando-tras {
+      animation: none;
+    }
+  }
+
+  /* Só a etapa atual aparece. Classe própria (e não [hidden]) porque
+     .pdp__option e os painéis têm display definido por classe. */
+  .pdp-kit-wizard .is-kit-step-hidden,
+  .pdp-kit-wizard__painel:not(.is-ativo) {
+    display: none !important;
+  }
+
+  .pdp-kit-wizard .pdp__option {
+    margin: 0;
+  }
+
+  .pdp-kit-wizard__painel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pdp-kit-wizard .pdp__custom-field {
+    margin: 0;
+  }
+
+  /* No resumo, a caixa já é a do passo a passo: tira o fundo próprio. */
+  .pdp-kit-wizard .pdp-kit__summary-wrap {
+    background: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pdp-kit-wizard__live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Antes do ame-kit.js mover campos, pingente e resumo pra dentro dos
+     painéis, eles NÃO aparecem no lugar de origem (piscariam fora da caixa).
+     O CTA e o Compre Junto só aparecem quando a etapa pede: no resumo, ou
+     numa etapa já respondida (aí o botão vira "Continuar"). */
+  .pdp--is-kit #pdp-form > .pdp__custom-field,
+  .pdp--is-kit #pdp-form > .ame-pingente,
+  .pdp--is-kit #pdp-form > [data-kit-summary-bottom] {
+    display: none;
+  }
+
+  .pdp.pdp--is-kit:not([data-kit-passo]) .pdp__ctas,
+  .pdp.pdp--is-kit[data-kit-passo='opcao']:not([data-kit-passo-ok='1']) .pdp__ctas {
+    display: none;
+  }
+
+  .pdp.pdp--is-kit:not([data-kit-passo='resumo']) .pdp-bundle {
+    display: none !important;
+  }
+
+  /* Celular/tablet: o showcase dos componentes sai — a foto do kit, o preço
+     e a primeira etapa ficam juntos na tela. As fotos dos componentes
+     aparecem no resumo, com a variação escolhida. */
+  @media (max-width: 1023px) {
+    .pdp.pdp--is-kit .pdp-kit__showcase {
+      display: none;
+    }
   }
 
   .pdp-kit__skeleton {

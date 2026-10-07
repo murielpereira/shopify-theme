@@ -13,6 +13,8 @@
  *    as opções, mostra pílulas pro cliente escolher
  *  - Re-faz auto-match no evento `pdp:variant-changed`
  *  - Produto atual NÃO aparece no widget (já vai pelo CTA principal)
+ *  - Kit: tags são as do produto-pai, a seleção vem de window.AmeKit
+ *    (ame-kit.js) e quem chama getSelectedItems() é o submit do kit
  */
 (function () {
     'use strict';
@@ -180,6 +182,29 @@
             return product.variants.find(v => v.available) || product.variants[0];
         }
 
+        // Seleção atual do produto principal como {nome da opção: valor}, em
+        // minúsculas. No kit vem do ame-kit.js (opções unificadas dos
+        // componentes): o produto-pai só tem "Default Title" e nada casaria.
+        // Antes do kit terminar de carregar o Waltz, volta {} — sem dimensão
+        // em comum, os itens ficam ocultos até o `ame:kit-rendered`.
+        function getTargetByDim() {
+            const out = {};
+            if (cfg.isKit) {
+                const sel = window.AmeKit?.getSelection?.() || {};
+                for (const name in sel) {
+                    out[name.toLowerCase().trim()] = String(sel[name] || '').toLowerCase().trim();
+                }
+                return out;
+            }
+            const dims = nomeOpcoes(currentProduct);
+            const opts = (getCurrentVariant(currentProduct)?.options || [])
+                .map(s => String(s || '').toLowerCase().trim());
+            for (let i = 0; i < dims.length; i++) {
+                if (dims[i]) out[dims[i]] = opts[i] || '';
+            }
+            return out;
+        }
+
         // Split de valor de option em tokens comparáveis. Cores compostas
         // do Âme usam " com " ("Chiclete com Rosa Bebê") e valores de
         // Tamanho da guia usam " / " ("XPP / XPP+ / 12mm"). Também aceita
@@ -216,14 +241,7 @@
         //     Bebê"), enquanto coleira "Chiclete com Rosa Bebê" aceita
         //     "Chiclete", "Rosa Bebê" e "Chiclete com Rosa Bebê" (rejeita
         //     "Rosa Bebê com Off White").
-        function autoMatchVariant(product, currentVariant, targetProduct) {
-            const targetDims = nomeOpcoes(targetProduct);
-            const targetOpts = (currentVariant?.options || []).map(s => String(s || '').toLowerCase().trim());
-            const targetByDim = {};
-            for (let i = 0; i < targetDims.length; i++) {
-                if (targetDims[i]) targetByDim[targetDims[i]] = targetOpts[i] || '';
-            }
-
+        function autoMatchVariant(product, targetByDim) {
             const candidateDims = nomeOpcoes(product);
 
             let best = null;
@@ -288,18 +306,19 @@
         }
 
         // Carrega produto atual (pra ter as opções da variante selecionada)
-        // + todos os cross-sells em paralelo
+        // + todos os cross-sells em paralelo. Kit pula o produto atual — a
+        // seleção vem do ame-kit.js (getTargetByDim).
         Promise.all([
-            xhrJson('/products/' + encodeURIComponent(cfg.currentHandle) + '.js').catch(() => null),
+            cfg.isKit ? null : xhrJson('/products/' + encodeURIComponent(cfg.currentHandle) + '.js').catch(() => null),
             ...csHandles.map(h => xhrJson('/products/' + encodeURIComponent(h) + '.js').catch(() => null)),
         ]).then(([self, ...others]) => {
-            if (!self) return;
+            if (!self && !cfg.isKit) return;
             currentProduct = self;
 
-            const cur = getCurrentVariant(self);
+            const target = getTargetByDim();
             for (const p of others) {
                 if (!p || !p.available) continue;
-                const m = autoMatchVariant(p, cur, self);
+                const m = autoMatchVariant(p, target);
                 _items.push({
                     product: p,
                     selectedVariantId: m.variant.id,
@@ -520,19 +539,24 @@
         }
 
         // Re-match quando o cliente muda variante do produto principal
-        // (Section Rendering API substitui o picker → dispatch deste evento)
-        document.addEventListener('pdp:variant-changed', () => {
-            if (!currentProduct) return;
-            const cur = getCurrentVariant(currentProduct);
+        // (Section Rendering API substitui o picker → dispatch deste evento;
+        // no kit, o ame-kit.js dispara o mesmo evento a cada opção clicada)
+        function rematch() {
+            if (!_items.length) return;
+            const target = getTargetByDim();
             for (const it of _items) {
-                const m = autoMatchVariant(it.product, cur, currentProduct);
+                const m = autoMatchVariant(it.product, target);
                 it.selectedVariantId = m.variant.id;
                 it.matched = m.matched;
                 it.matchedExact = m.matchedExact;
                 it.acceptedVariantIds = m.acceptedVariantIds;
             }
             renderAll();
-        });
+        }
+        document.addEventListener('pdp:variant-changed', rematch);
+        // Kit: a seleção só existe depois que o ame-kit.js carrega o Waltz,
+        // o que pode terminar antes ou depois dos cross-sells chegarem.
+        document.addEventListener('ame:kit-rendered', rematch);
     }
 
     if (document.readyState === 'loading') {

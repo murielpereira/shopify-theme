@@ -63,6 +63,7 @@
 <script type="application/json" data-pdp-bundle-config>
   {
     "currentHandle": {{ product.handle | json }},
+    "isKit": {{ is_kit | default: false | json }},
     "tags": {{ product.tags | json }},
     "customFields": {{ cfs_json }}
   }
