@@ -55,12 +55,22 @@
       assign card_compare = card_cv.compare_at_price | default: 0
     endif
   endif
-  if card_is_kit
+  # Kit já convertido em BUNDLE (aba Kits do Waltz) tem variações próprias com
+  # o preço do kit (desconto embutido) e o "De:" = soma cheia das peças: vale o
+  # preço dele, como qualquer produto. Somar as peças por cima apagava o
+  # desconto do card (08/10/2026). Kit não convertido só tem a variação padrão,
+  # sem preço de verdade → continua a soma do price_min de cada peça.
+  # O laço acima só enxerga 250 variações (limite do Liquid); se a mais barata
+  # ficou de fora, o "De:" sai do compare_at_price_min — no bundle preço e "De:"
+  # são somas das mesmas peças, então a mais barata é a mesma nos dois.
+  if card_is_kit and card_product.has_only_default_variant
     assign card_price = 0
     for comp in card_kit_components
       assign comp_price = comp.price_min | default: comp.price
       assign card_price = card_price | plus: comp_price
     endfor
+  elsif card_is_kit and card_compare == 0 and card_product.compare_at_price_min > card_price
+    assign card_compare = card_product.compare_at_price_min
   endif
   if card_compare > card_price
     assign card_has_discount = true

@@ -515,6 +515,23 @@
     margin: 0;
   }
 
+  /* Swatches menores no celular (08/10/2026): 44px fixos — o mínimo de toque
+     da loja — em vez de esticar 6 por linha (até ~55px em tela grande). As
+     colunas se espalham pela largura; em celular grande cabem 7 e a lista de
+     32 cores perde uma linha. Só no kit: a PDP normal fica como está. */
+  @media (max-width: 1023px) {
+    .pdp-kit-wizard .pdp__swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 2.75rem);
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .pdp-kit-wizard .pdp__swatch {
+      width: 2.75rem;
+    }
+  }
+
   /* Fotos dos produtos na variação marcada, dentro da caixa, nas etapas de
      cor e metal: a cliente toca nas cores e vê o couro de verdade sem rolar
      de volta pro topo. No desktop quem faz isso é o showcase lateral. */
