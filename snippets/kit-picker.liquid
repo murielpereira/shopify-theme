@@ -275,6 +275,16 @@
     font-size: 0.75rem;
   }
 
+  /* Kit vendido como bundle: quanto sai mais barato que as peças separadas. */
+  .pdp-kit__summary-total .pdp-kit__summary-economia {
+    font-weight: 600;
+    color: var(--pdp-btn-bg, var(--color-primary, #5a4742));
+  }
+
+  .pdp-kit__summary-total .pdp-kit__summary-economia[hidden] {
+    display: none;
+  }
+
   /* Componente sem estoque na combinação escolhida — ame-kit.js anexa
      dentro do <span> da variante, e o CTA fica travado. */
   .pdp-kit__summary-tag {

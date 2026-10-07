@@ -181,6 +181,7 @@
                         <span>Total do kit</span>
                         <strong data-kit-summary-total-valor></strong>
                         <small data-kit-summary-total-pix></small>
+                        <small class="pdp-kit__summary-economia" data-kit-summary-economia hidden></small>
                     </div>
                 </div>
             `;
@@ -314,6 +315,10 @@
 
         const components = data.components || [];
         const unified = data.unified_options || [];
+        // Kit vendido como BUNDLE (aba Kits do Waltz): cada combinação tem uma
+        // variação do próprio kit, com o desconto do kit no preço. Sem mapa (kit
+        // não convertido, pausado ou ressincronizando), vende pelas peças.
+        const bundle = data.bundle && data.bundle.variantes ? data.bundle : null;
         if (components.length < 2 || unified.length === 0) {
             optionsWrap.innerHTML = '<p class="pdp-kit__option-empty">Kit incompleto.</p>';
             return;
@@ -378,6 +383,14 @@
         // casa a variante do cross-sell com ela. Lida sob demanda, então
         // sempre reflete o state do momento.
         window.AmeKit = { getSelection: () => ({ ...state }) };
+
+        // Variação do kit-bundle para a seleção atual, ou null. A chave é a
+        // mesma que o Waltz monta (utils/kit-bundle.js): os valores de TODAS as
+        // opções do kit, na ordem, separados por "|".
+        function varianteDoKit() {
+            if (!bundle) return null;
+            return bundle.variantes[unified.map(u => state[u.name]).join('|')] || null;
+        }
 
         // ── Passo a passo ──
         // Opção com um valor só não vira etapa: já nasce escolhida.
@@ -568,7 +581,11 @@
             const soldOut = allResolved && !variants.every(isAvailable);
             if (allResolved) {
                 // price vem em REAIS (float) do Waltz, converte pra cents
-                const totalCents = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
+                const somaPecas = variants.reduce((acc, v) => acc + Math.round((v.price || 0) * 100), 0);
+                // Kit-bundle: o preço é o da variação do kit (soma − desconto do
+                // kit, calculado pelo Waltz). O "De:" é a soma cheia das peças.
+                const bv = varianteDoKit();
+                const totalCents = bv ? bv.preco : somaPecas;
                 if (priceTotalEl) priceTotalEl.textContent = fmtMoney(totalCents / 100);
 
                 // Selo de desconto DINÂMICO: soma o compare_at de cada componente
@@ -577,7 +594,7 @@
                 // ex: 5% no peitoral + 15% na guia → % ponderada pelo valor.
                 // Degrada bem: se o Waltz ainda não devolve compare_at (cache
                 // antigo), c fica 0, compareCents == totalCents e o selo some.
-                const compareCents = variants.reduce((acc, v) => {
+                const compareCents = bv ? Math.max(bv.cheio, bv.preco) : variants.reduce((acc, v) => {
                     const p = Math.round((v.price || 0) * 100);
                     const c = Math.round((v.compare_at || 0) * 100);
                     return acc + (c > p ? c : p);
@@ -607,6 +624,15 @@
                     summaryTotal.querySelector('[data-kit-summary-total-valor]').textContent = fmtMoney(totalCents / 100);
                     summaryTotal.querySelector('[data-kit-summary-total-pix]').textContent =
                         pixPct > 0 ? `ou ${fmtMoney(pixCents / 100)} no Pix` : '';
+                    // A vantagem do kit à vista onde a cliente decide: quanto sai
+                    // mais barato que comprar as mesmas peças separadas hoje.
+                    const economiaEl = summaryTotal.querySelector('[data-kit-summary-economia]');
+                    if (economiaEl) {
+                        const economia = somaPecas - totalCents;
+                        economiaEl.textContent = economia > 0
+                            ? `Você economiza ${fmtMoney(economia / 100)} levando o kit` : '';
+                        economiaEl.hidden = economia <= 0;
+                    }
                     summaryTotal.hidden = false;
                 }
                 // Parcelas: max sem juros viável (respeita min_value)
@@ -994,19 +1020,33 @@
                 coleiraKey = 'k' + Math.random().toString(36).slice(2, 6);
             }
 
-            const items = variants.map((v, i) => {
-                const item = { id: v.id, quantity: 1 };
-                const props = { ...propsByComp[i] };
-                // Vincula só o PRIMEIRO componente do kit com a _kit.
-                if (willAddPingente && i === 0) props['_kit'] = coleiraKey;
-                // Marca o item como componente de kit — impede o cross-sell
-                // "Adicione a guia perfeita" no drawer de sugerir mais uma
-                // guia quando o kit já vem com uma. Prefixo `_` esconde do
-                // cart visível pro cliente.
-                props['_from_kit'] = '1';
-                if (Object.keys(props).length > 0) item.properties = props;
-                return item;
-            });
+            const bv = varianteDoKit();
+            const items = bv
+                // Kit-bundle: UMA linha, a variação do kit. A Shopify divide nas
+                // peças no checkout e guarda os campos no grupo do bundle (a folha
+                // de impressão do Waltz lê de lá). Campos de todas as peças vão
+                // juntos na linha do kit.
+                ? [{
+                    id: Number(bv.id),
+                    quantity: 1,
+                    properties: Object.assign({}, ...propsByComp, {
+                        _from_kit: '1',
+                        ...(willAddPingente ? { _kit: coleiraKey } : {}),
+                    }),
+                }]
+                : variants.map((v, i) => {
+                    const item = { id: v.id, quantity: 1 };
+                    const props = { ...propsByComp[i] };
+                    // Vincula só o PRIMEIRO componente do kit com a _kit.
+                    if (willAddPingente && i === 0) props['_kit'] = coleiraKey;
+                    // Marca o item como componente de kit — impede o cross-sell
+                    // "Adicione a guia perfeita" no drawer de sugerir mais uma
+                    // guia quando o kit já vem com uma. Prefixo `_` esconde do
+                    // cart visível pro cliente.
+                    props['_from_kit'] = '1';
+                    if (Object.keys(props).length > 0) item.properties = props;
+                    return item;
+                });
 
             if (willAddPingente) {
                 const pingenteItem = window.amePingente.getCartItem(1, coleiraKey);
