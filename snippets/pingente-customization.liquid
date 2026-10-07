@@ -1,12 +1,15 @@
 {% comment %}
   Âme — Customização de Pingente
-  Ativado em produtos com a tag 'customizacao_pingente'.
+  Ativado quando `oferece_pingente` é verdadeiro — calculado em
+  sections/product.liquid (`pdp_oferece_pingente`): tag 'customizacao_pingente'
+  (ou '_obrigatorio') E o produto não é um dos próprios pingentes das
+  configurações do tema. Render sem o parâmetro = bloco não aparece.
   Progressive disclosure: Sim/Não → Tipo → Formato → Dados do pet/tutor.
   No submit, o produto pingente correspondente é adicionado ao carrinho
   junto da coleira como um item separado.
 {% endcomment %}
 
-{%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+{%- if oferece_pingente -%}
   {%- liquid
     assign pingente_obrigatorio = false
     if product.tags contains 'customizacao_pingente_obrigatorio'

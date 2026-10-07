@@ -68,6 +68,31 @@
     assign is_kit = true
   endif
 
+  # Oferta de pingente personalizado (snippets/pingente-customization.liquid
+  # + overlay da galeria + total coleira+pingente). Gatilho: a tag
+  # `customizacao_pingente` (ou `_obrigatorio`). EXCEÇÃO: o pingente que a
+  # própria oferta vende nunca oferece pingente. Os 20 pingentes add-on
+  # estavam com a tag, a página deles tratava o pingente como "coleira" e a
+  # cliente levava DOIS — o nome do pet só tinha onde ser digitado na oferta
+  # (pedido 55167, 07/10/2026). Pingente = os das configurações do tema.
+  assign pdp_oferece_pingente = false
+  if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio'
+    assign pdp_oferece_pingente = true
+  endif
+  if settings.pingente_metal_product != blank and settings.pingente_metal_product.id == product.id
+    assign pdp_oferece_pingente = false
+  endif
+  for pingente_cfg in settings.pingente_couro_products
+    if pingente_cfg.id == product.id
+      assign pdp_oferece_pingente = false
+    endif
+  endfor
+  for pingente_cfg in settings.pingente_metal_couro_products
+    if pingente_cfg.id == product.id
+      assign pdp_oferece_pingente = false
+    endif
+  endfor
+
   # Setting global do painel: galeria/showcase sticky no scroll mobile.
   # Default true (comportamento existente). Quando false, o `.pdp` recebe
   # a classe `.pdp--no-sticky-mobile` que desativa o sticky do showcase
@@ -332,9 +357,7 @@
           {%- endif -%}
         </div>
 
-        {%- if product.tags contains 'customizacao_pingente'
-          or product.tags contains 'customizacao_pingente_obrigatorio'
-        -%}
+        {%- if pdp_oferece_pingente -%}
           <div class="pdp__pingente-overlay" data-pingente-overlay hidden aria-hidden="true">
             {%- assign transparent_gif = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' -%}
             <img
@@ -650,7 +673,7 @@
           data-attrs da nova variante) a cada troca — o JS re-soma no evento
           `pdp:variant-changed`. `hidden` até o cliente escolher um pingente.
         {%- endcomment -%}
-        {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+        {%- if pdp_oferece_pingente -%}
           <div
             class="pdp__pingente-total"
             data-pingente-total
@@ -669,7 +692,7 @@
       no document, requeryando o [data-pingente-total] fresco a cada render —
       sobrevive ao Section Rendering API. Guard evita bind duplicado.
     {%- endcomment -%}
-    {%- if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio' -%}
+    {%- if pdp_oferece_pingente -%}
       <script>
         (function () {
           if (window.__amePingenteTotalBound) return;
@@ -978,11 +1001,12 @@
 
       {%- comment -%}
         Pingente customizado: pro kit, render exige que o produto-pai (kit)
-        tenha a tag `customizacao_pingente` no admin Shopify. O snippet
-        renderiza checando `product.tags`. Em kits, o snippet adapta a
+        tenha a tag `customizacao_pingente` no admin Shopify. Quem decide se
+        a oferta aparece é `pdp_oferece_pingente` (topo deste arquivo: tag,
+        menos os próprios pingentes). Em kits, o snippet adapta a
         leitura das opções pra ler `[data-kit-options]` (vide JS interno).
       {%- endcomment -%}
-      {%- render 'pingente-customization', product: product -%}
+      {%- render 'pingente-customization', product: product, oferece_pingente: pdp_oferece_pingente -%}
 
       <!-- ── Campos Personalizados ── -->
       {%- comment -%}
