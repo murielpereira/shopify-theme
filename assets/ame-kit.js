@@ -1049,6 +1049,14 @@
             }
 
             const bv = varianteDoKit();
+            // De qual peça é cada campo (a mesma regra por tag do kit em peças):
+            // { "Observações": ["<id do peitoral>"] }. Vai oculto (`_`) na
+            // linha do kit, e a folha de impressão do Waltz usa pra pôr cada
+            // campo SÓ na peça certa — sem isso a raça saía também na guia.
+            const camposPorPeca = {};
+            propsByComp.forEach((props, i) => Object.keys(props).forEach((nome) => {
+                (camposPorPeca[nome] = camposPorPeca[nome] || []).push(String(components[i].id));
+            }));
             const items = bv
                 // Kit-bundle: UMA linha, a variação do kit. A Shopify divide nas
                 // peças no checkout e guarda os campos no grupo do bundle (a folha
@@ -1060,6 +1068,7 @@
                     properties: Object.assign({}, ...propsByComp, {
                         _from_kit: '1',
                         ...(willAddPingente ? { _kit: coleiraKey } : {}),
+                        ...(Object.keys(camposPorPeca).length ? { _campos_kit: JSON.stringify(camposPorPeca) } : {}),
                     }),
                 }]
                 : variants.map((v, i) => {
