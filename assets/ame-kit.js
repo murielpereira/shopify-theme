@@ -686,12 +686,12 @@
         }
 
         // O que o CTA diz na etapa Resumo (calculado com o preço). Nas outras
-        // etapas ele é o "Continuar" do passo a passo.
+        // etapas ele é o "Próximo passo" do passo a passo.
         let ctaResumo = { rotulo: 'Adicionar Kit ao Carrinho', travado: false };
 
         function atualizarCta() {
             const p = passos[passoAtual];
-            if (p && p.tipo !== 'resumo') setCta('Continuar', false, 'arrow_forward');
+            if (p && p.tipo !== 'resumo') setCta('Próximo passo', false, 'arrow_forward');
             else setCta(ctaResumo.rotulo, ctaResumo.travado, 'shopping_bag');
         }
 
@@ -726,7 +726,7 @@
 
         // A cliente escolheu um valor numa etapa de opção. NÃO avança sozinho:
         // muita cliente fica tocando nas cores pra ver as fotos na cor real
-        // (07/10/2026, pedido do Muriel). Quem avança é o "Continuar".
+        // (07/10/2026, pedido do Muriel). Quem avança é o "Próximo passo".
         function escolher(nome, valor) {
             if (confirmados.has(nome) && state[nome] === valor) return;
             // Mantém tudo que já foi escolhido, se der. Se a escolha nova não
@@ -769,18 +769,39 @@
         function irPara(i) {
             const dir = i > passoAtual ? 1 : (i < passoAtual ? -1 : 0);
             passoAtual = Math.max(0, Math.min(i, passos.length - 1));
+            // O contorno de "faltou escolher" é da tentativa de avançar; mudou
+            // de etapa, ele sai (senão reapareceria ao voltar pra ela).
+            optionsWrap.querySelectorAll('.pdp__option.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             aplicarPasso(dir);
         }
 
-        // "Continuar" (o CTA fora do Resumo, ou Enter num campo de texto).
+        // Contorno vermelho + tremida, igual ao pingente personalizado. Tira e
+        // põe a classe pra a tremida repetir se a cliente insistir no botão.
+        function tremer(el, classe) {
+            if (!el) return;
+            el.classList.remove(classe);
+            void el.offsetWidth;
+            el.classList.add(classe);
+        }
+
+        // "Próximo passo" (o CTA fora do Resumo, ou Enter num campo de texto).
         function avancar() {
             const p = passos[passoAtual];
             if (p.tipo === 'opcao' && !confirmados.has(p.nome)) {
+                // Some quando ela escolher: renderOptions() redesenha a opção.
+                const opcao = [...optionsWrap.querySelectorAll('.pdp__option')].find(el => el.dataset.kitOption === p.nome);
+                tremer(opcao, 'is-invalid');
                 toast(`Escolha ${articleFor(p.nome)} ${p.nome.toLowerCase()}.`);
                 return;
             }
             if (p.tipo === 'info') {
-                if (!validateRequiredCustomFields()) return;
+                if (!validateRequiredCustomFields()) {
+                    paineis.info?.querySelectorAll('.pdp__custom-field--invalid').forEach(el => {
+                        tremer(el, 'is-kit-tremer');
+                        setTimeout(() => el.classList.remove('is-kit-tremer'), 1600);
+                    });
+                    return;
+                }
                 feitos.add('info');
             }
             if (p.tipo === 'pingente') {
@@ -906,7 +927,14 @@
                     }).join('')}
                 </ol>
             `;
-            if (voltarEl) voltarEl.hidden = passoAtual === 0;
+            if (voltarEl) {
+                voltarEl.hidden = passoAtual === 0;
+                // Diz PARA ONDE volta ("Voltar para tamanho") — mais fácil de
+                // achar e de entender do que um "Voltar" solto.
+                const anterior = passos[passoAtual - 1];
+                const rotulo = voltarEl.querySelector('[data-kit-voltar-rotulo]');
+                if (rotulo) rotulo.textContent = anterior ? `Voltar para ${anterior.curto.toLowerCase()}` : 'Voltar';
+            }
         }
 
         function collectPropertiesByComponent() {
