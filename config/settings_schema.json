@@ -551,6 +551,13 @@
         "info": "Mesmo critério: handle termina com o slug da cor da coleira."
       },
       {
+        "type": "checkbox",
+        "id": "pingente_addon_link_avulso",
+        "label": "Página dos pingentes acima: trocar o botão de compra por link para a versão avulsa",
+        "info": "Os pingentes destas listas não têm campo para o nome do pet. Ligado, a página deles não vende: mostra um link para o mesmo pingente vendido avulso (com os campos), na mesma variante. Desligado, volta o botão Adicionar ao Carrinho.",
+        "default": true
+      },
+      {
         "type": "header",
         "content": "Mapeamento de tamanhos"
       },

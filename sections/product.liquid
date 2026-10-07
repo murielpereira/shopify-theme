@@ -68,30 +68,74 @@
     assign is_kit = true
   endif
 
-  # Oferta de pingente personalizado (snippets/pingente-customization.liquid
-  # + overlay da galeria + total coleira+pingente). Gatilho: a tag
-  # `customizacao_pingente` (ou `_obrigatorio`). EXCEÇÃO: o pingente que a
-  # própria oferta vende nunca oferece pingente. Os 20 pingentes add-on
-  # estavam com a tag, a página deles tratava o pingente como "coleira" e a
-  # cliente levava DOIS — o nome do pet só tinha onde ser digitado na oferta
-  # (pedido 55167, 07/10/2026). Pingente = os das configurações do tema.
-  assign pdp_oferece_pingente = false
-  if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio'
-    assign pdp_oferece_pingente = true
-  endif
+  # Pingente ADD-ON: os pingentes que a oferta de pingente vende junto da
+  # coleira — os das configurações do tema (Pingente personalizado). Não têm
+  # campo de nome do pet: quem grava é a oferta, na página da coleira.
+  # '' = não é add-on; senão 'metal', 'couro' ou 'metal-couro'.
+  assign pdp_pingente_addon = ''
   if settings.pingente_metal_product != blank and settings.pingente_metal_product.id == product.id
-    assign pdp_oferece_pingente = false
+    assign pdp_pingente_addon = 'metal'
   endif
   for pingente_cfg in settings.pingente_couro_products
     if pingente_cfg.id == product.id
-      assign pdp_oferece_pingente = false
+      assign pdp_pingente_addon = 'couro'
     endif
   endfor
   for pingente_cfg in settings.pingente_metal_couro_products
     if pingente_cfg.id == product.id
-      assign pdp_oferece_pingente = false
+      assign pdp_pingente_addon = 'metal-couro'
     endif
   endfor
+
+  # Oferta de pingente personalizado (snippets/pingente-customization.liquid
+  # + overlay da galeria + total coleira+pingente). Gatilho: a tag
+  # `customizacao_pingente` (ou `_obrigatorio`). EXCEÇÃO: o pingente add-on
+  # nunca oferece pingente. Os 20 add-on estavam com a tag, a página deles
+  # tratava o pingente como "coleira" e a cliente levava DOIS — o nome do pet
+  # só tinha onde ser digitado na oferta (pedido 55167, 07/10/2026).
+  assign pdp_oferece_pingente = false
+  if pdp_pingente_addon == blank
+    if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio'
+      assign pdp_oferece_pingente = true
+    endif
+  endif
+
+  # A página do add-on também não VENDE: sem campo de nome, quem chegasse aqui
+  # (histórico do navegador, link antigo) compraria um pingente sem gravação.
+  # No lugar do botão de compra vai um link para o MESMO pingente vendido
+  # avulso — que tem os campos —, na mesma variante (as opções dos dois são
+  # iguais: Tamanho / Cor do Metal / Formato do Pingente). O par sai do nome:
+  #   pingente-de-metal                  → pingente-de-identificacao-para-pet-metal
+  #   pingente-de-couro-<cor>            → pingente-de-identificacao-para-pet-couro-<cor>
+  #   pingente-de-metal-com-couro-<cor>  → pingente-de-metal-com-couro-para-identificacao-pet-<cor>
+  # Sem o par na loja, o link vai para a coleção de pingentes. O fluxo da
+  # coleira não passa por esta página (adiciona o add-on pelo /cart/add.js).
+  # Desliga em Configurações do tema → Pingente personalizado.
+  assign pdp_addon_sem_compra = false
+  assign pdp_addon_destino = ''
+  if pdp_pingente_addon != blank and settings.pingente_addon_link_avulso
+    assign pdp_addon_sem_compra = true
+    case pdp_pingente_addon
+      when 'metal'
+        assign avulso_handle = 'pingente-de-identificacao-para-pet-metal'
+      when 'couro'
+        assign avulso_handle = product.handle | remove_first: 'pingente-de-couro-' | prepend: 'pingente-de-identificacao-para-pet-couro-'
+      when 'metal-couro'
+        assign avulso_handle = product.handle | remove_first: 'pingente-de-metal-com-couro-' | prepend: 'pingente-de-metal-com-couro-para-identificacao-pet-'
+    endcase
+    assign avulso = all_products[avulso_handle]
+    if avulso != blank
+      assign pdp_addon_destino = avulso.url
+      if cv != blank
+        assign avulso_variante = avulso.variants | where: 'title', cv.title | first
+        if avulso_variante != blank
+          assign pdp_addon_destino = avulso_variante.url
+        endif
+      endif
+    else
+      assign pdp_addon_destino = routes.collections_url | append: '/pingente-de-identificacao'
+    endif
+  endif
 
   # Setting global do painel: galeria/showcase sticky no scroll mobile.
   # Default true (comportamento existente). Quando false, o `.pdp` recebe
@@ -1242,8 +1286,10 @@
         cliente pode aumentar manualmente no drawer depois). O CTA padrão
         ABAIXO continua visível: o ame-kit.js intercepta o submit do form
         e dispara cart/add.js com N items em vez do submit padrão.
+        Também escondida no pingente add-on, que não vende por esta página
+        (`pdp_addon_sem_compra`, topo do arquivo).
       {%- endcomment -%}
-      {%- unless is_kit -%}
+      {%- unless is_kit or pdp_addon_sem_compra -%}
         <!-- Quantidade -->
         <div class="pdp__qty">
           <span class="pdp__option-label">Quantidade</span>
@@ -1309,9 +1355,27 @@
       {%- endcomment -%}
       {%- render 'pdp-bundle', product: product, is_kit: is_kit -%}
 
+      {%- if pdp_addon_sem_compra -%}
+        <p class="pdp__addon-aviso">
+          Para comprar este pingente com o nome do seu pet gravado, continue pela página de personalização.
+        </p>
+      {%- endif -%}
+
       <!-- CTAs -->
       <div class="pdp__ctas">
         <div id="pdp-add-btn-wrap" style="display:contents">
+          {%- comment -%}
+            Pingente add-on: link para a versão avulsa no lugar do botão.
+            Fica DENTRO do #pdp-add-btn-wrap porque o destino leva a
+            variante escolhida, e este wrap é recriado pelo Section
+            Rendering a cada troca de opção.
+          {%- endcomment -%}
+          {%- if pdp_addon_sem_compra -%}
+            <a href="{{ pdp_addon_destino }}" class="ame-cta pdp__add-btn pdp__add-btn--link">
+              Personalizar meu pingente
+              <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">arrow_forward</span>
+            </a>
+          {%- else -%}
           {%- liquid
             # Desabilita o botão em dois cenários:
             # 1. Produto inteiro esgotado (product.available == false → todas as variantes sem estoque)
@@ -1347,6 +1411,7 @@
               <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
             {%- endif -%}
           </button>
+          {%- endif -%}
         </div>
 
         <button
@@ -1840,6 +1905,11 @@
     /* ── Add to cart AJAX ── */
     document.getElementById('pdp-form')?.addEventListener('submit', async e => {
       e.preventDefault();
+
+      /* Pingente add-on: a página não vende (o botão virou link para a versão
+         avulsa). Um Enter num campo ainda dispara o submit — sem esta saída,
+         o handler adicionava o pingente sem gravação. */
+      if (!document.getElementById('pdp-add-btn')) return;
 
       /* Em PDP de kit, o ame-kit.js já cuida do submit (adiciona só os
          componentes do kit). Este handler adicionaria a variante do produto
@@ -3243,6 +3313,19 @@
 
   .pdp__add-btn {
     flex: 1;
+  }
+
+  /* Pingente add-on: o botão vira link para a versão avulsa (topo do arquivo,
+     `pdp_addon_sem_compra`) — mesmo visual do CTA, sem o sublinhado de <a>. */
+  .pdp__add-btn--link {
+    text-decoration: none;
+  }
+
+  .pdp__addon-aviso {
+    margin: 0 0 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-on-surface-muted, #6f645d);
   }
 
   /* Estado "esgotado" do CTA — fundo cinza, sem hover, sem clique.
