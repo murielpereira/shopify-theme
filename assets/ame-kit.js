@@ -153,6 +153,7 @@
         const navEl    = host.querySelector('[data-kit-wizard-nav]');
         const voltarEl = host.querySelector('[data-kit-voltar]');
         const corpoEl  = host.querySelector('[data-kit-wizard-corpo]');
+        const fotosEl  = host.querySelector('[data-kit-wizard-fotos]');
         const liveEl   = host.querySelector('[data-kit-wizard-live]');
         const paineis  = {
             info:     host.querySelector('[data-kit-painel="info"]'),
@@ -386,7 +387,6 @@
         const feitos = new Set();   // etapas que não são opção: 'info', 'pingente'
         let passos = [];
         let passoAtual = 0;
-        let timerAvanco = null;
 
         // Escolhas confirmadas ANTES desta opção, na ordem das etapas. Etapa
         // posterior não conta: escolher um tamanho nunca fica bloqueado pela cor
@@ -504,6 +504,7 @@
 
         function renderSummaryAndPrice() {
             const variants = resolveVariants(state, unified, components);
+            renderFotos(variants);
 
             if (showcaseWrap) {
                 showcaseWrap.dataset.kitCount = String(components.length);
@@ -697,14 +698,11 @@
             (window.AmePdpToast || ((m) => alert(m)))(msg);
         }
 
-        // A cliente escolheu um valor numa etapa de opção.
+        // A cliente escolheu um valor numa etapa de opção. NÃO avança sozinho:
+        // muita cliente fica tocando nas cores pra ver as fotos na cor real
+        // (07/10/2026, pedido do Muriel). Quem avança é o "Continuar".
         function escolher(nome, valor) {
-            pararAvanco();
-            // Mesmo valor numa etapa já respondida: só segue em frente.
-            if (confirmados.has(nome) && state[nome] === valor) {
-                irPara(proximoPendente());
-                return;
-            }
+            if (confirmados.has(nome) && state[nome] === valor) return;
             // Mantém tudo que já foi escolhido, se der. Se a escolha nova não
             // combina com alguma posterior (ex: cor que não existe no tamanho
             // novo), mantém só as anteriores e a posterior volta a ser pergunta.
@@ -722,23 +720,12 @@
             Object.assign(state, novo);
             confirmados.add(nome);
 
-            // Pausa curta pra cliente ver o botão marcado antes de a caixa trocar.
-            // Armada ANTES do render: aplicarVisibilidade() lê o timer.
-            timerAvanco = setTimeout(() => {
-                timerAvanco = null;
-                irPara(proximoPendente());
-            }, 280);
             renderOptions();
             renderSummaryAndPrice();
             renderNav();
             // Notifica o pingente (e quaisquer outros listeners de variante)
             // sobre a mudança — análogo ao que o PDP normal faz.
             document.dispatchEvent(new CustomEvent('pdp:variant-changed'));
-        }
-
-        function pararAvanco() {
-            clearTimeout(timerAvanco);
-            timerAvanco = null;
         }
 
         function passoFeito(p) {
@@ -796,12 +783,33 @@
             });
             optionsWrap.classList.toggle('is-kit-step-hidden', p.tipo !== 'opcao');
             Object.entries(paineis).forEach(([tipo, el]) => el && el.classList.toggle('is-ativo', p.tipo === tipo));
-            if (pdpRoot) {
-                pdpRoot.dataset.kitPasso = p.tipo;
-                // Durante a pausa do avanço automático o "Continuar" não aparece:
-                // surgiria por 280 ms e sumiria, empurrando a página.
-                pdpRoot.dataset.kitPassoOk = passoFeito(p) && !timerAvanco ? '1' : '0';
+            if (fotosEl) fotosEl.classList.toggle('is-ativo', p.tipo === 'opcao' && !!p.fotos);
+            if (pdpRoot) pdpRoot.dataset.kitPasso = p.tipo;
+        }
+
+        // Fotos dos componentes na variação do state, pra faixa de fotos da
+        // caixa (celular). Atualiza o src das <img> existentes em vez de
+        // recriar: recriar piscaria a cada toque numa cor.
+        function renderFotos(variants) {
+            if (!fotosEl) return;
+            fotosEl.style.setProperty('--kit-fotos', String(Math.min(components.length, 3)));
+            const urls = components.map((comp, i) => {
+                const foto = (variants[i] && variants[i].featured_image) || comp.featured_image || '';
+                return foto ? foto + (foto.includes('?') ? '&' : '?') + 'width=400' : '';
+            });
+            const imgs = fotosEl.querySelectorAll('img');
+            if (imgs.length === components.length && urls.every(Boolean)) {
+                imgs.forEach((img, i) => { if (img.getAttribute('src') !== urls[i]) img.src = urls[i]; });
+                return;
             }
+            fotosEl.innerHTML = components.map((comp, i) => `
+                <figure class="pdp-kit-wizard__foto">
+                    ${urls[i]
+                        ? `<img src="${esc(urls[i])}" alt="${esc(comp.title)}" loading="lazy" width="400" height="300">`
+                        : '<span class="pdp-kit-wizard__foto-vazia" aria-hidden="true"></span>'}
+                    <figcaption>${esc(comp.title)}</figcaption>
+                </figure>
+            `).join('');
         }
 
         function aplicarPasso(dir) {
@@ -931,7 +939,6 @@
 
         async function onSubmit(e) {
             e?.preventDefault?.();
-            pararAvanco();
             // Fora do Resumo, o botão (e o Enter num campo de texto) é o
             // "Continuar" do passo a passo.
             if (passos.length && passos[passoAtual].tipo !== 'resumo') {
@@ -1081,6 +1088,9 @@
         passos = [
             ...unified.filter(u => u.values.length > 1).map(u => ({
                 tipo: 'opcao', nome: u.name, curto: rotuloCurto(u.name), titulo: u.name + (u.labelSuffix || ''),
+                // Faixa de fotos só onde a escolha muda a foto (cor, metal).
+                // No Tamanho ela só empurraria a primeira etapa pra baixo.
+                fotos: isColorOption(u.name) || isMetalColorOption(u.name),
             })),
             ...(camposInfo.length ? [{ tipo: 'info', curto: 'Detalhes', titulo: 'Informações adicionais' }] : []),
             ...(pingenteEl ? [{ tipo: 'pingente', curto: 'Pingente', titulo: 'Pingente' }] : []),
@@ -1096,11 +1106,9 @@
         if (navEl) navEl.addEventListener('click', (e) => {
             const b = e.target.closest('[data-kit-ir]');
             if (!b || b.disabled) return;
-            pararAvanco();
             irPara(Number(b.dataset.kitIr));
         });
         if (voltarEl) voltarEl.addEventListener('click', () => {
-            pararAvanco();
             irPara(passoAtual - 1);
         });
 
