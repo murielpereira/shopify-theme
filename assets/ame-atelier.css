@@ -504,6 +504,14 @@
   color: var(--atl-tinta);
 }
 
+/* Estrelas da Konfidency (o widget preenche); a altura mínima evita pulo. */
+.atl-hero__nota {
+  display: flex;
+  justify-content: center;
+  min-height: 1.25rem;
+  margin-top: 0.55rem;
+}
+
 .atl-hero__confianca {
   display: flex;
   justify-content: center;
@@ -862,7 +870,7 @@
   z-index: 4;
   display: grid;
   place-items: center;
-  perspective: 900px;
+  perspective: 1400px;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s ease;
@@ -1745,17 +1753,37 @@ textarea.atl-campo__input {
   color: var(--atl-couro-2);
 }
 
-.atl-resumo__acoes {
-  display: grid;
-  gap: 0.6rem;
-  margin-top: 1.1rem;
+/* Compre Junto no resumo. O widget e o CSS base são os da página padrão
+   (snippets/pdp-bundle.liquid); aqui ele só entra na linguagem do ateliê. */
+.atl-compre-junto .pdp-bundle {
+  margin: 1.1rem 0 0;
+  padding: 1rem 1rem 0.9rem;
+  border: 1px solid var(--atl-fio);
+  border-radius: 10px;
+  background: var(--color-surface, #fff);
 }
 
-.atl-resumo__acoes .atl-btn--secundario {
-  min-height: 52px;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.3;
+.atl-compre-junto .pdp-bundle__title {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--atl-couro-2);
+}
+
+.atl-compre-junto .pdp-bundle__subtitle {
+  margin: 0.3rem 0 0.85rem;
+  font-size: 0.875rem;
+  color: var(--atl-tinta-2);
+}
+
+.atl-compre-junto .pdp-bundle__name {
+  font-weight: 400;
+}
+
+.atl-compre-junto .pdp-bundle__price {
+  font-weight: 500;
 }
 
 .atl-giro {
@@ -2295,6 +2323,30 @@ html.atl-travado body {
   pointer-events: auto;
 }
 
+/* ═══════════════════ SEÇÕES VIZINHAS DO TEMPLATE ═══════════════════
+   O FAQ (product-accordions) e as avaliações (product-reviews) vêm do
+   template product.atelier. O recuo do contêiner do FAQ mora no CSS de
+   sections/product.liquid, que esta página não carrega — sem estas regras
+   os cartões encostavam na borda da tela. Mesmos valores da PDP. */
+.pdp-accordions {
+  padding: 10px var(--page-margin, 20px);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 1280px) {
+  .pdp-accordions {
+    padding: 10px 0;
+    max-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pdp-accordions {
+    padding: 0 var(--page-margin, 20px) 3rem;
+  }
+}
+
 /* ═══════════════════════════ COMPUTADOR ═══════════════════════════ */
 
 @media (min-width: 990px) {
@@ -2355,7 +2407,8 @@ html.atl-travado body {
     max-width: 24rem;
   }
 
-  .atl-hero__confianca {
+  .atl-hero__confianca,
+  .atl-hero__nota {
     justify-content: flex-start;
   }
 

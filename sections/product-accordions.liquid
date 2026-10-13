@@ -118,9 +118,17 @@
   # O accordion de Descrição abre se HOUVER qualquer conteúdo: descrição
   # textual, etapas do Depois da compra ou FAQ. Sem isso, produtos sem
   # descrição perdiam tudo (Depois da compra + FAQ eram filhos do accordion).
+  # Com o FAQ fora da Descrição, ele deixa de contar para abrir o acordeão.
+  assign faq_no_acordeao = false
+  unless section.settings.faq_fora_da_descricao
+    if has_global_faq or has_product_faq
+      assign faq_no_acordeao = true
+    endif
+  endunless
+
   assign show_desc_accordion = false
   if section.settings.show_description
-    if product.description != blank or has_steps or has_global_faq or has_product_faq
+    if product.description != blank or has_steps or faq_no_acordeao
       assign show_desc_accordion = true
     endif
   endif
@@ -194,6 +202,42 @@
   endunless
 -%}
 
+{%- capture faq_html -%}
+  {%- comment -%}
+    FAQ — globais (definidas na section) + específicas do produto
+    (metafield product.metafields.custom.faq, rich text com cada
+    pergunta como <h3> ou <h4> seguida pelo conteúdo da resposta).
+  {%- endcomment -%}
+  {%- comment -%}
+    has_global_faq / has_product_faq foram calculados no topo do template.
+  {%- endcomment -%}
+  {%- if has_global_faq or has_product_faq -%}
+    <div class="pdp__faq">
+      <h2 class="pdp__faq__title">
+        {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
+      </h2>
+      <div class="pdp__faq__list" data-pdp-faq>
+        {{ global_faqs_html }}
+
+        {%- if has_product_faq -%}
+          {%- comment -%}
+            O metafield é rich text. Cada pergunta deve ser um Título
+            (H1..H6 no editor), seguido pelo conteúdo da resposta até
+            o próximo Título. O filtro `metafield_tag` converte o
+            rich text (que internamente é JSON) em HTML — sem ele,
+            o {{ product_faq }} renderiza o JSON cru como texto.
+            Renderizamos o HTML como bloco extra abaixo das FAQ
+            globais — o JS abaixo converte em <details> reais.
+          {%- endcomment -%}
+          <div class="pdp__faq__product-source" data-pdp-faq-source hidden>
+            {{ product.metafields.custom.faq | metafield_tag }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
 <div class="pdp-accordions full-width" data-pdp-accordions>
   {%- if show_desc_accordion -%}
     <div class="ame-accordion">
@@ -254,42 +298,23 @@
           {%- endif -%}
 
           {%- comment -%}
-            FAQ — globais (definidas na section) + específicas do produto
-            (metafield product.metafields.custom.faq, rich text com cada
-            pergunta como <h3> ou <h4> seguida pelo conteúdo da resposta).
+            FAQ (globais + específicas do produto) montado UMA vez em
+            `faq_html`, logo acima do wrapper. Aqui ele entra dentro da
+            Descrição, que é o padrão da PDP; com `faq_fora_da_descricao` ele
+            sai sozinho depois dos acordeões.
           {%- endcomment -%}
-          {%- comment -%}
-            has_global_faq / has_product_faq foram calculados no topo do template.
-          {%- endcomment -%}
-          {%- if has_global_faq or has_product_faq -%}
-            <div class="pdp__faq">
-              <h2 class="pdp__faq__title">
-                {{ section.settings.faq_title | default: 'Perguntas Frequentes' }}
-              </h2>
-              <div class="pdp__faq__list" data-pdp-faq>
-                {{ global_faqs_html }}
-
-                {%- if has_product_faq -%}
-                  {%- comment -%}
-                    O metafield é rich text. Cada pergunta deve ser um Título
-                    (H1..H6 no editor), seguido pelo conteúdo da resposta até
-                    o próximo Título. O filtro `metafield_tag` converte o
-                    rich text (que internamente é JSON) em HTML — sem ele,
-                    o {{ product_faq }} renderiza o JSON cru como texto.
-                    Renderizamos o HTML como bloco extra abaixo das FAQ
-                    globais — o JS abaixo converte em <details> reais.
-                  {%- endcomment -%}
-                  <div class="pdp__faq__product-source" data-pdp-faq-source hidden>
-                    {{ product.metafields.custom.faq | metafield_tag }}
-                  </div>
-                {%- endif -%}
-              </div>
-            </div>
-          {%- endif -%}
+          {%- unless section.settings.faq_fora_da_descricao -%}{{ faq_html }}{%- endunless -%}
         </div>
       </div>
     </div>
   {%- endif -%}
+
+  {%- comment -%}
+    FAQ sozinho, sem o acordeão de Descrição. Ligado no template
+    product.atelier (landing do Ateliê), que não mostra a descrição: antes
+    disso o FAQ sumia junto com ela.
+  {%- endcomment -%}
+  {%- if section.settings.faq_fora_da_descricao -%}{{ faq_html }}{%- endif -%}
 
   {%- for block in section.blocks -%}
     {%- if block.type == 'accordion' -%}
@@ -856,6 +881,13 @@
       "id": "show_faq",
       "label": "Mostrar bloco de FAQ",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "faq_fora_da_descricao",
+      "label": "FAQ fora da Descrição",
+      "info": "Mostra as perguntas sozinhas, abaixo dos acordeões. Use quando a Descrição estiver desligada, como na landing do Ateliê.",
+      "default": false
     },
     {
       "type": "text",

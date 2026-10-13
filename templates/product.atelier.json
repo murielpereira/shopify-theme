@@ -181,7 +181,8 @@
         "step_8_title": "",
         "step_8_tags_filter": "",
         "show_faq": true,
-        "faq_title": "Perguntas frequentes"
+        "faq_title": "Perguntas frequentes",
+        "faq_fora_da_descricao": true
       }
     },
     "avaliacoes": {

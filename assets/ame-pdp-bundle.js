@@ -15,6 +15,8 @@
  *  - Produto atual NÃO aparece no widget (já vai pelo CTA principal)
  *  - Kit: tags são as do produto-pai, a seleção vem de window.AmeKit
  *    (ame-kit.js) e quem chama getSelectedItems() é o submit do kit
+ *  - Ateliê (template product.atelier): mesma interface do kit. O
+ *    ame-atelier.js fornece window.AmeKit e soma getSelectedLines() no total
  */
 (function () {
     'use strict';
@@ -49,6 +51,41 @@
         return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
+    // Avisa quem mostra o total da compra (o ateliê) que o que vai junto
+    // mudou: marcou, desmarcou, ou a variante casada trocou no re-match.
+    function avisarMudanca() {
+        document.dispatchEvent(new CustomEvent('ame:bundle-changed'));
+    }
+
+    // A /products/<handle>.js da loja para em 250 variações. A guia Atena tem
+    // 384 (3 larguras × 32 cores × 4 metais) e a loja não entrega NENHUMA de
+    // 20mm: coleira M e G nunca achava a guia certa. O Waltz pagina pelo
+    // Admin e devolve todas, e é a mesma fonte do cross-sell da gaveta
+    // (layout/theme.liquid). As variações da loja continuam valendo onde
+    // existem (o Admin pode divergir da vitrine); do Waltz entram só as que
+    // faltam. Waltz fora do ar: segue com as 250 da loja.
+    const WALTZ_BASE = 'https://waltz.up.railway.app';
+    const LIMITE_DA_LOJA = 250;
+    function completarVariantes(p) {
+        if (!p || !Array.isArray(p.variants) || p.variants.length < LIMITE_DA_LOJA) return p;
+        return xhrJson(WALTZ_BASE + '/api/public/produto/' + encodeURIComponent(p.handle))
+            .then(w => {
+                const daLoja = new Set(p.variants.map(v => String(v.id)));
+                const nOpcoes = (p.options || []).length;
+                const faltantes = (w && Array.isArray(w.variants) ? w.variants : [])
+                    .filter(v => !daLoja.has(String(v.id)))
+                    // O Waltz entrega option1..3, sem a lista `options` que o
+                    // auto-match lê.
+                    .map(v => Object.assign({}, v, {
+                        options: v.options || [v.option1, v.option2, v.option3].slice(0, nOpcoes),
+                    }));
+                return faltantes.length
+                    ? Object.assign({}, p, { variants: p.variants.concat(faltantes) })
+                    : p;
+            })
+            .catch(() => p);
+    }
+
     let _items = []; // estado global pra getSelectedItems
     let _cfDefs = []; // configs de custom fields globais (vem do data-pdp-bundle-config)
 
@@ -66,14 +103,20 @@
         );
     }
 
+    // Marcado E visível. Item que deixou de casar com a variante atual (a
+    // cliente trocou a cor depois de marcar) some da lista no renderAll, mas
+    // continuava `checked` e ia para o carrinho com a variante errada.
+    function selecionados() {
+        return _items.filter(it => it.checked && it.matchedExact);
+    }
+
     // API pública: o submit handler do PDP chama isto pra pegar os cross-sells
     // marcados e adicioná-los no mesmo POST /cart/add.js do produto principal.
     // Retorna { id, quantity, properties? } — properties só quando o cross-sell
     // tem CFs aplicáveis preenchidos.
     window.AmePdpBundle = {
         getSelectedItems() {
-            return _items
-                .filter(it => it.checked)
+            return selecionados()
                 .map(it => {
                     const payload = { id: it.selectedVariantId, quantity: 1 };
                     const props = readProperties(it) || {};
@@ -101,7 +144,7 @@
         // poder interromper o add se faltar algo.
         validate() {
             for (const it of _items) {
-                if (!it.checked) continue;
+                if (!it.checked || !it.matchedExact) continue;
                 const cfs = cfsForProduct(it.product);
                 for (const cf of cfs) {
                     const v = readSingleCf(it, cf);
@@ -116,6 +159,14 @@
                 }
             }
             return { ok: true };
+        },
+        // Título, variante e preço (centavos) do que vai junto. Quem mostra o
+        // total da compra (o ateliê da Atena) soma isto; a PDP não usa.
+        getSelectedLines() {
+            return selecionados().map(it => {
+                const v = it.product.variants.find(x => x.id === it.selectedVariantId) || {};
+                return { title: it.product.title, variant: v.title || '', price: Number(v.price) || 0 };
+            });
         },
     };
 
@@ -217,6 +268,22 @@
                 .filter(Boolean);
         }
 
+        // "Tamanho" da coleira/peitoral e "Largura" da guia são a MESMA
+        // medida com nomes diferentes. Casando só pelo nome, a largura ficava
+        // fora da conta e o widget sugeria a primeira da lista (12mm) até para
+        // coleira M e G (corrigido em 13/10/2026).
+        const MEDIDA = /^(tamanho|largura|size)$/;
+        function valorAlvo(dim, targetByDim) {
+            if (targetByDim[dim] !== undefined) return { valor: targetByDim[dim], apelido: false };
+            if (!MEDIDA.test(dim)) return null;
+            for (const k in targetByDim) {
+                if (k !== dim && MEDIDA.test(k) && targetByDim[k]) {
+                    return { valor: targetByDim[k], apelido: true };
+                }
+            }
+            return null;
+        }
+
         // Extrai nomes das dimensões (options) de um produto retornado por
         // /products/handle.js. Aceita tanto o formato simples (array de
         // strings) quanto o formato completo ({name, position, values}).
@@ -259,8 +326,9 @@
                 for (let i = 0; i < cOpts.length; i++) {
                     const dim = candidateDims[i];
                     if (!dim) continue;
-                    const tVal = targetByDim[dim];
-                    if (tVal === undefined) continue; // dimensão exclusiva do candidato
+                    const alvo = valorAlvo(dim, targetByDim);
+                    if (!alvo) continue; // dimensão exclusiva do candidato
+                    const tVal = alvo.valor;
                     hasSharedDim = true;
                     const cVal = cOpts[i];
 
@@ -275,10 +343,15 @@
                     // Tamanho da guia costuma ser multi-valor ("XPP / XPP+ /
                     // 12mm"). O tamanho da coleira/peitoral cabe se estiver
                     // contido nesse conjunto: target ⊆ candidate.
-                    const isTamanho = /tamanho|size/.test(dim);
-                    const ok = isTamanho
-                        ? tList.every(t => cList.includes(t))
-                        : cList.every(t => tList.includes(t));
+                    // Medida com nomes diferentes vale nos dois sentidos: "P"
+                    // cabe em "PP / P / 15mm" e, com a guia como produto
+                    // principal, "PP / P / 15mm" aceita a coleira "P".
+                    const isTamanho = /tamanho|largura|size/.test(dim);
+                    const ok = alvo.apelido
+                        ? (tList.every(t => cList.includes(t)) || cList.every(t => tList.includes(t)))
+                        : isTamanho
+                            ? tList.every(t => cList.includes(t))
+                            : cList.every(t => tList.includes(t));
 
                     if (ok) {
                         score += 1;
@@ -309,8 +382,13 @@
         // + todos os cross-sells em paralelo. Kit pula o produto atual — a
         // seleção vem do ame-kit.js (getTargetByDim).
         Promise.all([
-            cfg.isKit ? null : xhrJson('/products/' + encodeURIComponent(cfg.currentHandle) + '.js').catch(() => null),
-            ...csHandles.map(h => xhrJson('/products/' + encodeURIComponent(h) + '.js').catch(() => null)),
+            // O produto atual também passa pelo Waltz quando tem 250+ variações:
+            // a Atena tem 624 e a variante escolhida (input do #pdp-form) só é
+            // achada se estiver na lista. Fora dela, getCurrentVariant caía na
+            // primeira disponível e o widget sugeria a guia XPP Allure Grafite
+            // para qualquer coleira P, M ou G (pedido 54712).
+            cfg.isKit ? null : xhrJson('/products/' + encodeURIComponent(cfg.currentHandle) + '.js').then(completarVariantes).catch(() => null),
+            ...csHandles.map(h => xhrJson('/products/' + encodeURIComponent(h) + '.js').then(completarVariantes).catch(() => null)),
         ]).then(([self, ...others]) => {
             if (!self && !cfg.isKit) return;
             currentProduct = self;
@@ -375,6 +453,7 @@
                     if (pill) pill.setAttribute('aria-pressed', 'true');
                 }
             }
+            avisarMudanca();
         }
 
         function renderItem(it, idx) {
@@ -508,6 +587,7 @@
                     if (!_items[idx]) return;
                     _items[idx].checked = e.target.checked;
                     li.classList.toggle('is-unchecked', !e.target.checked);
+                    avisarMudanca();
                 });
             });
             // Pílulas dos CFs (tipo radio): clique seleciona, atualiza

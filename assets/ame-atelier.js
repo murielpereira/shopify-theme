@@ -191,8 +191,11 @@
         // Sem passador (cor lisa) vem primeiro.
         porCouro.forEach((lista) => lista.sort((a, b) => (a.passador ? 1 : 0) - (b.passador ? 1 : 0)));
 
+        const nomeDe = (i) => String(typeof opcoes[i] === 'string' ? opcoes[i] : opcoes[i].name);
         return {
             iTam, iCor, iMetal,
+            // Nomes reais das opções: o Compre Junto casa por nome.
+            nomes: { tamanho: nomeDe(iTam), cor: nomeDe(iCor), metal: nomeDe(iMetal) },
             tamanhos: valores(iTam),
             metais: valores(iMetal),
             couros,
@@ -374,13 +377,13 @@
     // da letra e quantas linhas cabem. O nome é medido e encolhe até caber
     // nos dois sentidos, então nunca sai da peça.
     //
-    // O OSSO foi traçado da foto do pingente "Bento" (raios do centro até a
-    // borda dourada, simetria esquerda/direita, média de 5°): 92 × 56 unidades,
-    // proporção 1,64 como a peça. Para retraçar com outra foto: de cada grau,
-    // um raio vindo de FORA até o primeiro pixel do aro (dourado ou sombra),
-    // a argola e a corrente descartadas, simetria esquerda/direita, média de
-    // 5° e 72 pontos ligados por Catmull-Rom.
-    const OSSO_D = 'M90.23,55.14 C90.38,56.38 92.48,57.61 93.16,58.91 C93.84,60.22 93.87,61.53 94.32,62.95 C94.78,64.37 95.72,65.98 95.90,67.44 C96.09,68.89 95.78,70.32 95.44,71.67 C95.09,73.03 94.51,74.35 93.80,75.56 C93.10,76.77 92.27,77.96 91.21,78.93 C90.15,79.89 88.79,80.69 87.45,81.36 C86.10,82.02 84.74,82.67 83.13,82.93 C81.52,83.19 79.54,83.06 77.79,82.92 C76.04,82.79 74.33,82.55 72.63,82.11 C70.93,81.66 69.16,80.94 67.58,80.25 C66.01,79.56 64.44,78.58 63.17,77.94 C61.89,77.31 60.90,76.85 59.94,76.46 C58.99,76.08 58.23,75.88 57.47,75.65 C56.70,75.42 56.01,75.24 55.34,75.08 C54.67,74.92 54.06,74.80 53.45,74.69 C52.84,74.58 52.26,74.47 51.69,74.42 C51.11,74.37 50.56,74.41 50.00,74.41 C49.44,74.41 48.89,74.37 48.31,74.42 C47.74,74.47 47.16,74.58 46.55,74.69 C45.94,74.80 45.33,74.92 44.66,75.08 C43.99,75.24 43.30,75.42 42.53,75.65 C41.77,75.88 41.01,76.08 40.06,76.46 C39.10,76.85 38.11,77.31 36.83,77.94 C35.56,78.58 33.99,79.56 32.42,80.25 C30.84,80.94 29.07,81.66 27.37,82.11 C25.67,82.55 23.96,82.79 22.21,82.92 C20.46,83.06 18.48,83.19 16.87,82.93 C15.26,82.67 13.90,82.02 12.55,81.36 C11.21,80.69 9.85,79.89 8.79,78.93 C7.73,77.96 6.90,76.77 6.20,75.56 C5.49,74.35 4.91,73.03 4.56,71.67 C4.22,70.32 3.91,68.89 4.10,67.44 C4.28,65.98 5.22,64.37 5.68,62.95 C6.13,61.53 6.16,60.22 6.84,58.91 C7.52,57.61 9.62,56.38 9.77,55.14 C9.91,53.89 8.48,52.75 7.71,51.44 C6.94,50.12 5.77,48.66 5.17,47.23 C4.56,45.80 4.20,44.28 4.10,42.84 C4.00,41.40 4.24,39.97 4.55,38.59 C4.85,37.22 5.17,35.76 5.95,34.60 C6.74,33.43 8.09,32.51 9.26,31.62 C10.43,30.72 11.78,29.99 12.96,29.20 C14.14,28.42 14.88,27.28 16.35,26.90 C17.82,26.52 19.97,26.73 21.80,26.94 C23.64,27.15 25.61,27.67 27.34,28.14 C29.08,28.60 30.70,29.15 32.21,29.74 C33.73,30.32 35.21,31.12 36.45,31.66 C37.69,32.21 38.74,32.72 39.67,32.98 C40.60,33.24 41.27,33.13 42.02,33.20 C42.77,33.27 43.48,33.34 44.18,33.40 C44.87,33.47 45.54,33.53 46.20,33.59 C46.86,33.65 47.50,33.72 48.13,33.78 C48.76,33.83 49.38,33.90 50.00,33.90 C50.62,33.90 51.24,33.83 51.87,33.78 C52.50,33.72 53.14,33.65 53.80,33.59 C54.46,33.53 55.13,33.47 55.82,33.40 C56.52,33.34 57.23,33.27 57.98,33.20 C58.73,33.13 59.40,33.24 60.33,32.98 C61.26,32.72 62.31,32.21 63.55,31.66 C64.79,31.12 66.27,30.32 67.79,29.74 C69.30,29.15 70.92,28.60 72.66,28.14 C74.39,27.67 76.36,27.15 78.20,26.94 C80.03,26.73 82.18,26.52 83.65,26.90 C85.12,27.28 85.86,28.42 87.04,29.20 C88.22,29.99 89.57,30.72 90.74,31.62 C91.91,32.51 93.26,33.43 94.05,34.60 C94.83,35.76 95.15,37.22 95.45,38.59 C95.76,39.97 96.00,41.40 95.90,42.84 C95.80,44.28 95.44,45.80 94.83,47.23 C94.23,48.66 93.06,50.12 92.29,51.44 C91.52,52.75 90.09,53.89 90.23,55.14 Z';
+    // O OSSO tem as medidas da peça "Bento" (foto do Muriel, 13/10/2026):
+    // 92 × 56 unidades, proporção 1,64. É GEOMÉTRICO de propósito — quatro
+    // lóbulos circulares de raio 13 e arcos côncavos tangentes a eles (entalhe
+    // lateral de 5,8 e curvas de cima e de baixo). Um contorno traçado ponto a
+    // ponto da foto herdava as ondulações da imagem e o Muriel achou as bordas
+    // tortas. Conferido sobrepondo este desenho à foto: encosta na borda.
+    const OSSO_D = 'M22.62,28.28 A63.35,63.35 0 0,0 77.38,28.28 A13,13 0 0,1 92.62,48.75 A9.3,9.3 0 0,0 92.62,61.25 A13,13 0 0,1 76.72,81.38 A55.31,55.31 0 0,0 23.28,81.38 A13,13 0 0,1 7.38,61.25 A9.3,9.3 0 0,0 7.38,48.75 A13,13 0 0,1 22.62,28.28 Z';
     const ARGOLA_RY = 8.5; // a argola, vista de frente, é um aro estreito na vertical ("I")
     const FORMAS = {
         circulo: {
@@ -710,7 +713,7 @@
     }
 
     // ── Pingente em 3D (etapa Pingente) ──
-    const giro = { ry: -18, rx: 6, alvoRy: -18, alvoRx: 6, arrastando: false, lado: 'frente', ultimoToque: 0, raf: 0 };
+    const giro = { ry: -10, rx: 3, alvoRy: -10, alvoRx: 3, arrastando: false, lado: 'frente', ultimoToque: 0, raf: 0 };
 
     function opcoesPingente(lado, extra) {
         const tipo = S.pTipo && S.pTipo !== 'nenhum' ? S.pTipo : 'metal';
@@ -769,9 +772,9 @@
             // Balanço suave enquanto ninguém mexe: parece pendurado no ar.
             const ocioso = t - giro.ultimoToque > 1400;
             const base = giro.lado === 'verso' ? 180 : 0;
-            const balanco = ocioso && !semMovimento ? Math.sin(t / 1600) * 16 : 0;
+            const balanco = ocioso && !semMovimento ? Math.sin(t / 1600) * 10 : 0;
             const alvoRy = (giro.alvoRy != null ? giro.alvoRy : base) + balanco;
-            const alvoRx = 6 + (ocioso && !semMovimento ? Math.sin(t / 2300) * 4 : 0);
+            const alvoRx = 3 + (ocioso && !semMovimento ? Math.sin(t / 2300) * 2 : 0);
             giro.ry += (alvoRy - giro.ry) * 0.075;
             giro.rx += (alvoRx - giro.rx) * 0.075;
             aplicarGiro();
@@ -823,7 +826,7 @@
                 const nx = (e.clientX - r.left) / r.width - 0.5;
                 const base = giro.lado === 'verso' ? 180 : 0;
                 const volta = Math.round((giro.ry - base) / 360) * 360;
-                giro.alvoRy = volta + base + nx * 40;
+                giro.alvoRy = volta + base + nx * 24;
                 giro.ultimoToque = performance.now();
             });
         }
@@ -1517,6 +1520,7 @@
         box.innerHTML = `
           <div class="atl-total__linha"><span>Coleira ${esc(S.tamanho || '')}</span><span>${dinheiro(tot.coleira)}</span></div>
           ${tot.pingente ? `<div class="atl-total__linha"><span>Pingente gravado</span><span>${dinheiro(tot.pingente)}</span></div>` : ''}
+          ${tot.junto.map((l) => `<div class="atl-total__linha"><span>${esc(l.title)}</span><span>${dinheiro(l.price)}</span></div>`).join('')}
           <div class="atl-total__linha atl-total__linha--total"><span>Total</span><span>${dinheiro(tot.total)}</span></div>
           <p class="atl-total__pix">${dinheiro(tot.pix)} no Pix${parc ? ` · ou ${parc.n}x de ${dinheiro(parc.valor)} sem juros` : ''}</p>`;
     }
@@ -1542,9 +1546,10 @@
         const coleira = vc ? vc.price : (S.tamanho && M ? M.precoTam.get(S.tamanho) : null);
         const vp = variantePingenteAtual();
         const pingente = vp ? vp.price : 0;
-        const total = (coleira || 0) + pingente;
+        const junto = linhasJunto();
+        const total = (coleira || 0) + pingente + junto.reduce((s, l) => s + l.price, 0);
         const pix = total - Math.floor((total * (parseFloat(CFG.pixPct) || 0)) / 100);
-        return { coleira: coleira || 0, temColeira: coleira != null, pingente, total, pix };
+        return { coleira: coleira || 0, temColeira: coleira != null, pingente, junto, total, pix };
     }
     function melhorParcela(total) {
         const P = CFG.parcelas || {};
@@ -1715,7 +1720,7 @@
     }
 
     function avancar() {
-        if (S.passo === PASSOS.length - 1) return finalizar('checkout');
+        if (S.passo === PASSOS.length - 1) return finalizar();
         const p = problemaDoPasso(S.passo);
         if (p) { mostrarProblema(p); return; }
         irPara(S.passo + 1);
@@ -1744,35 +1749,85 @@
         const rotulo = $('[data-atl-continuar-rotulo]');
         if (rotulo && !finalizando) {
             rotulo.textContent = S.passo === PASSOS.length - 1
-                ? 'Finalizar pedido'
+                ? 'Adicionar ao carrinho'
                 : S.passo === E.pingente ? 'Ver resumo' : 'Continuar';
         }
-        btnContinuar.setAttribute('aria-label', S.passo < PASSOS.length - 1 ? `Continuar para ${PASSOS[S.passo + 1]}` : 'Finalizar pedido');
+        btnContinuar.setAttribute('aria-label', S.passo < PASSOS.length - 1 ? `Continuar para ${PASSOS[S.passo + 1]}` : 'Adicionar ao carrinho');
         btnContinuar.classList.toggle('is-pronto', !problemaDoPasso(S.passo));
         atualizarBarra();
         if (S.passo === E.resumo) renderResumo();
         // Toda escolha passa por aqui: guardar aqui cobre cor, metal e tamanho
         // escolhidos sem avançar de etapa (a cliente sai e volta).
         salvar();
+        avisarSelecao();
     }
+
+    // ═══════════════════════════ Compre Junto ═══════════════════════════
+    // O widget da página padrão (snippets/pdp-bundle.liquid, no resumo, com
+    // is_kit: true) casa a guia e o peitoral com a coleira pela seleção
+    // {opção: valor} de window.AmeKit. No kit quem fornece é o ame-kit.js;
+    // aqui é o ateliê (esta página não carrega o kit). A cada troca de
+    // tamanho, cor ou metal o widget refaz o casamento pelo mesmo evento que
+    // o kit dispara, `ame:kit-rendered`.
+    function selecaoAtual() {
+        const n = (M && M.nomes) || { tamanho: 'Tamanho', cor: 'Cor', metal: 'Cor do Metal' };
+        const sel = {};
+        if (S.tamanho) sel[n.tamanho] = S.tamanho;
+        if (S.cor) sel[n.cor] = S.cor;
+        if (S.metal) sel[n.metal] = S.metal;
+        return sel;
+    }
+    if (!window.AmeKit) window.AmeKit = { getSelection: selecaoAtual };
+
+    function avisarSelecao() {
+        const chave = [S.tamanho, S.cor, S.metal].join('|');
+        if (chave === avisarSelecao.ultima) return;
+        avisarSelecao.ultima = chave;
+        document.dispatchEvent(new CustomEvent('ame:kit-rendered'));
+    }
+
+    /** Itens marcados no Compre Junto: [{ title, variant, price }], preço em centavos. */
+    function linhasJunto() {
+        const api = window.AmePdpBundle;
+        return api && typeof api.getSelectedLines === 'function' ? api.getSelectedLines() : [];
+    }
+
+    // Marcou, desmarcou ou a variante casada mudou: o total muda junto.
+    document.addEventListener('ame:bundle-changed', () => {
+        atualizarBarra();
+        if (S.passo === E.resumo) renderResumo();
+    });
 
     // ═══════════════════════════ carrinho ═══════════════════════════
 
+    // Um botão só, o "Adicionar ao carrinho" da página padrão: a gaveta abre
+    // e a cliente finaliza por lá. Ir direto ao checkout pulava o brinde por
+    // faixa, que só entra no carrinho depois de uma avaliação assíncrona da
+    // gaveta, e deixava o teste A/B com caminhos diferentes depois do clique.
     let finalizando = false;
-    async function finalizar(destino) {
+    async function finalizar() {
         if (finalizando) return;
         const prob = primeiroProblemaAte(PASSOS.length - 1);
         if (prob) { irPara(prob.passo); mostrarProblema(prob.p); return; }
         const vc = varianteColeira();
         if (!vc) { avisar('Não encontramos essa combinação. Recarregue a página e tente de novo.'); return; }
+        // Compre Junto: item marcado com campo obrigatório em branco (ex.:
+        // comprimento da guia) barra o add, igual à página padrão.
+        const bundle = window.AmePdpBundle;
+        const bv = bundle && typeof bundle.validate === 'function' ? bundle.validate() : { ok: true };
+        if (!bv.ok) {
+            avisar(bv.msg);
+            const cj = $('[data-pdp-bundle]');
+            if (cj) cj.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         const vp = variantePingenteAtual();
-        const botoes = [btnContinuar, $('[data-atl-sacola]')];
-        const alvo = destino === 'sacola' ? $('[data-atl-sacola]') : btnContinuar;
+        const alvo = btnContinuar;
         const textoOriginal = alvo.innerHTML;
         finalizando = true;
-        botoes.forEach((b) => { b.disabled = true; });
+        alvo.disabled = true;
         alvo.setAttribute('aria-busy', 'true');
-        alvo.innerHTML = '<span class="atl-giro" aria-hidden="true"></span><span>Preparando a sua peça…</span>';
+        alvo.innerHTML = '<span class="atl-giro" aria-hidden="true"></span><span>Adicionando…</span>';
 
         const chave = 'k' + Math.random().toString(36).slice(2, 6);
         const propsColeira = {};
@@ -1799,52 +1854,42 @@
             itens.push({ id: vp.id, quantity: 1, properties: { 'Personalização': linhas.join('\n'), _kit: chave, _origem: 'atelier' } });
         }
 
+        // Guia e peitoral marcados no Compre Junto vão no MESMO POST, com a
+        // marca `_origem = compre-junto` que o próprio widget põe (igual à PDP).
+        const junto = bundle && typeof bundle.getSelectedItems === 'function' ? bundle.getSelectedItems() : [];
+        if (junto.length) itens.push(...junto);
+
+        const destravar = () => {
+            alvo.innerHTML = textoOriginal;
+            alvo.disabled = false;
+            alvo.removeAttribute('aria-busy');
+            finalizando = false;
+            atualizarTudo();
+        };
         try {
             await xhr('POST', '/cart/add.js', { items: itens });
             const carrinho = await xhr('GET', '/cart.js');
             if (window.AmeCart && typeof window.AmeCart.refresh === 'function') window.AmeCart.refresh(carrinho);
-            publicar('adicionado', { destino, total: totais().total / 100, pingente: !!vp });
-            if (destino === 'sacola') {
-                alvo.innerHTML = '<span>Na sacola ✓</span>';
-                if (window.AmeCart && typeof window.AmeCart.open === 'function') window.AmeCart.open();
-                setTimeout(() => {
-                    alvo.innerHTML = textoOriginal;
-                    botoes.forEach((b) => { b.disabled = false; });
-                    alvo.removeAttribute('aria-busy');
-                    finalizando = false;
-                }, 1600);
-            } else {
-                alvo.innerHTML = '<span>Indo para o pagamento…</span>';
-                // O tratador do layout (Yampi ou /checkout) escuta este link.
-                const link = $('[data-atl-checkout]');
-                if (link) link.click(); else window.location.href = '/checkout';
-                setTimeout(() => {
-                    alvo.innerHTML = textoOriginal;
-                    botoes.forEach((b) => { b.disabled = false; });
-                    alvo.removeAttribute('aria-busy');
-                    finalizando = false;
-                }, 14000);
-            }
+            publicar('adicionado', { total: totais().total / 100, pingente: !!vp, compre_junto: junto.length });
+            alvo.innerHTML = '<span>Adicionado ✓</span>';
+            if (window.AmeCart && typeof window.AmeCart.open === 'function') window.AmeCart.open();
+            setTimeout(destravar, 1600);
         } catch (err) {
             console.error('[ateliê] carrinho', err, err && err.corpo);
             const desc = err && err.corpo && (err.corpo.description || err.corpo.message);
             avisar(desc ? `Não deu para adicionar: ${desc}` : 'Não deu para adicionar agora. Tente de novo.');
-            alvo.innerHTML = textoOriginal;
-            botoes.forEach((b) => { b.disabled = false; });
-            alvo.removeAttribute('aria-busy');
-            finalizando = false;
+            destravar();
         }
     }
 
-    $('[data-atl-sacola]').addEventListener('click', () => finalizar('sacola'));
-
-    // Volta do checkout pelo botão voltar (bfcache): destrava os botões.
+    // Volta pelo botão voltar (bfcache) depois de ir ao checkout pela gaveta:
+    // a página volta como saiu, então destrava o botão.
     window.addEventListener('pageshow', (e) => {
         if (!e.persisted) return;
         finalizando = false;
-        [btnContinuar, $('[data-atl-sacola]')].forEach((b) => { b.disabled = false; b.removeAttribute('aria-busy'); });
-        btnContinuar.innerHTML = '<span data-atl-continuar-rotulo>Finalizar pedido</span>';
-        $('[data-atl-sacola]').textContent = 'Adicionar à sacola e continuar comprando';
+        btnContinuar.disabled = false;
+        btnContinuar.removeAttribute('aria-busy');
+        btnContinuar.innerHTML = '<span data-atl-continuar-rotulo></span>';
         atualizarTudo();
     });
 

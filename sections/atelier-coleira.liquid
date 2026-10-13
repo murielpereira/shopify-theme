@@ -32,11 +32,17 @@
     E as duas linhas levam `_origem = 'atelier'`, que o Waltz conta no
     relatório Origem da peça (services/pedido-itens-service.js).
 
-  CHECKOUT
-    Depois do /cart/add.js, o botão Finalizar clica o link oculto
-    [data-cart-checkout] desta seção. É o MESMO tratador do carrinho em
-    layout/theme.liquid: Yampi quando ligada e visitante no Brasil, senão o
-    /checkout da Shopify, com o timeout de segurança de lá.
+  CARRINHO
+    No último passo o botão da barra é o "Adicionar ao carrinho" da página
+    padrão: /cart/add.js e a gaveta abre (AmeCart.open). A cliente finaliza
+    pela gaveta, onde ficam o brinde por faixa e a sugestão de guia. Até
+    13/10/2026 havia um "Finalizar pedido" direto para o checkout, que pulava
+    o brinde (ele só entra depois de uma avaliação assíncrona da gaveta).
+
+  COMPRE JUNTO
+    O widget da página padrão (snippets/pdp-bundle.liquid) entra no resumo.
+    A seleção vem do ame-atelier.js por window.AmeKit (is_kit: true), e os
+    itens marcados vão no mesmo /cart/add.js, com `_origem = compre-junto`.
 {%- endcomment -%}
 
 {%- liquid
@@ -266,6 +272,15 @@
             <span aria-hidden="true">·</span>
             {{ pix_pct }}% off no Pix
           </p>
+          {%- comment -%}
+            Resumo de estrelas da Konfidency, igual ao da PDP. Além de mostrar
+            a nota, ele é OBRIGATÓRIO para a lista de avaliações (seção
+            product-reviews) aparecer: sem .konfidency-reviews-summary na página
+            o SDK marca a lista com data-fail="no-summary-element" e não monta.
+          {%- endcomment -%}
+          <div class="atl-hero__nota">
+            <div class="konfidency-reviews-summary" data-sku="{%- render 'konfidency-id', product: product -%}"></div>
+          </div>
         </div>
         <ul class="atl-hero__confianca atl-in" style="--d: 6" role="list">
           <li>
@@ -426,17 +441,23 @@
         <section class="atl-painel" data-atl-painel="4" hidden aria-labelledby="atl-p5-t">
           <h3 class="atl-painel__titulo" id="atl-p5-t" tabindex="-1" data-atl-titulo-resumo>Pronta para ser feita</h3>
           <div class="atl-ficha" data-atl-ficha></div>
+          {%- comment -%}
+            Compre Junto da página padrão (guia e peitoral pelas tags
+            crosssell:<handle>). `is_kit: true` faz o widget ler a seleção de
+            window.AmeKit, que o ame-atelier.js preenche; sem isso ele
+            procuraria o formulário da PDP, que não existe aqui.
+          {%- endcomment -%}
+          <div class="atl-compre-junto">
+            {%- render 'pdp-bundle', product: product, is_kit: true -%}
+          </div>
           <div class="atl-total" data-atl-total-resumo></div>
           <p class="atl-producao">
             <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
             <span>{{ section.settings.producao_texto }}</span>
           </p>
-          <div class="atl-resumo__acoes">
-            <button type="button" class="atl-btn atl-btn--secundario" data-atl-sacola>Adicionar à sacola e continuar comprando</button>
-          </div>
         </section>
 
-        {%- comment -%} Barra do ateliê: total + voltar/continuar (no último passo, Finalizar pedido) {%- endcomment -%}
+        {%- comment -%} Barra do ateliê: total + voltar/continuar (no último passo, Adicionar ao carrinho) {%- endcomment -%}
         <div class="atl-barra" data-atl-barra role="group" aria-label="Total e navegação">
           <div class="atl-barra__preco">
             <span class="atl-barra__valor" data-atl-barra-valor aria-live="polite">a partir de {{ product.price_min | money_without_trailing_zeros }}</span>
@@ -586,12 +607,6 @@
 
   <div class="atl-aviso" data-atl-aviso role="status" aria-live="polite" hidden></div>
 
-  {%- comment -%}
-    Link do checkout. Oculto e com data-cart-checkout: o tratador de
-    layout/theme.liquid (Yampi ou /checkout) é ligado a ele no carregamento,
-    e o JS do ateliê o clica DEPOIS que o /cart/add.js volta.
-  {%- endcomment -%}
-  <a href="/checkout" data-cart-checkout data-atl-checkout hidden tabindex="-1" aria-hidden="true"></a>
 </div>
 
 <script src="{{ 'ame-atelier.js' | asset_url }}" defer></script>
