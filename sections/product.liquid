@@ -710,9 +710,10 @@
 
         {%- comment -%}
           Total combinado coleira + pingente. Só renderiza em produtos com
-          pingente (tag). Carrega os preços da coleira (Pix e cartão, em
-          centavos) como data-attrs; o JS soma o preço do pingente escolhido
-          (evento `ame:pingente-price`) e mostra o total. Fica DENTRO do
+          pingente (tag). Carrega o preço da coleira no cartão (centavos) e o
+          % do Pix como data-attrs; o JS soma o preço do pingente escolhido
+          (evento `ame:pingente-price`) e aplica o Pix sobre o TOTAL — o
+          desconto vale pro pedido inteiro, pingente incluso. Fica DENTRO do
           #pdp-price-block, então o Section Rendering API o recria (com os
           data-attrs da nova variante) a cada troca — o JS re-soma no evento
           `pdp:variant-changed`. `hidden` até o cliente escolher um pingente.
@@ -721,8 +722,8 @@
           <div
             class="pdp__pingente-total"
             data-pingente-total
-            data-coleira-pix="{{ pix_price_cents }}"
             data-coleira-card="{{ effective_price }}"
+            data-pix-pct="{{ pix_pct }}"
             hidden
           ></div>
         {%- endif -%}
@@ -751,12 +752,15 @@
             if (!box) return;
             const pingente = Number(cents) || 0;
             if (pingente <= 0) { box.hidden = true; box.innerHTML = ''; return; }
-            const coleiraPix = parseInt(box.dataset.coleiraPix, 10) || 0;
             const coleiraCard = parseInt(box.dataset.coleiraCard, 10) || 0;
+            const pixPct = parseInt(box.dataset.pixPct, 10) || 0;
+            const totalCard = coleiraCard + pingente;
+            // Mesmo arredondamento do Liquid (desconto em centavos, truncado).
+            const totalPix = totalCard - Math.floor((totalCard * pixPct) / 100);
             box.innerHTML =
               '<span class="pdp__pingente-total__label">Coleira + pingente</span>' +
-              '<span class="pdp__pingente-total__value">' + fmtBRL(coleiraPix + pingente) + ' <small>no Pix</small></span>' +
-              '<span class="pdp__pingente-total__card">ou ' + fmtBRL(coleiraCard + pingente) + ' no cartão</span>';
+              '<span class="pdp__pingente-total__value">' + fmtBRL(totalPix) + ' <small>no Pix</small></span>' +
+              '<span class="pdp__pingente-total__card">ou ' + fmtBRL(totalCard) + ' no cartão</span>';
             box.hidden = false;
           }
 

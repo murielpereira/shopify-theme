@@ -1,0 +1,701 @@
+{%- comment -%}
+  Ateliê — landing da coleira montada em etapas (template product.atelier).
+
+  Abre em /products/<handle>?view=atelier sem mexer na página normal do
+  produto. Quando estiver aprovada, pode virar o modelo do produto no admin
+  (Produto → Modelo do tema → "atelier").
+
+  O QUE ESTA SEÇÃO FAZ
+    Topo com a coleira trocando de cor, o ateliê em seis etapas (Nome → Cores
+    → Metal → Tamanho → Pingente → Resumo) e a história da peça logo abaixo.
+    O FAQ e as avaliações vêm das seções que a página normal já usa
+    (product-accordions e product-reviews), declaradas no template.
+
+  DE ONDE VÊM OS DADOS
+    · Coleira: Waltz, /api/public/produto/<handle>. A Atena tem 624 variações
+      e a vitrine só entrega 250 (/products/x.js e product.variants no
+      Liquid); o Waltz pagina a Admin API e devolve todas. É o mesmo endpoint
+      que o cross-sell e os brindes já usam.
+    · Tamanho por raça: Waltz, /api/tm/widget — a mesma Tabela de Medidas
+      do botão "Guia de Medidas" da página normal.
+    · Pingente: /products/<handle>.js da própria loja (até 48 variações cada),
+      com as MESMAS configurações do tema que o snippet pingente-customization
+      lê (listas de produtos, mapa de tamanho, termos a ignorar).
+
+  O QUE VAI PARA O CARRINHO
+    Exatamente o que a página normal manda, para Tiny, folha de produção e
+    relatórios não perceberem diferença:
+      coleira  → properties[<nome do campo da raça>] + _kit (se tem pingente)
+      pingente → properties["Personalização"] com "anexo a:", "Nome do pet:",
+                 "Nome do tutor:", "Telefone do tutor:" em linhas, + _kit
+    E as duas linhas levam `_origem = 'atelier'`, que o Waltz conta no
+    relatório Origem da peça (services/pedido-itens-service.js).
+
+  CHECKOUT
+    Depois do /cart/add.js, o botão Finalizar clica o link oculto
+    [data-cart-checkout] desta seção. É o MESMO tratador do carrinho em
+    layout/theme.liquid: Yampi quando ligada e visitante no Brasil, senão o
+    /checkout da Shopify, com o timeout de segurança de lá.
+{%- endcomment -%}
+
+{%- liquid
+  # Posição das opções pelo NOME — a posição muda de produto para produto.
+  # "Cor do Metal" contém "cor": o metal é testado antes.
+  assign i_cor = -1
+  assign i_metal = -1
+  for opt in product.options
+    assign n_opt = opt | downcase | strip
+    if n_opt == 'cor do metal' or n_opt == 'metal'
+      assign i_metal = forloop.index0
+    elsif n_opt == 'cor'
+      assign i_cor = forloop.index0
+    endif
+  endfor
+
+  assign pix_pct = settings.pix_discount | default: 5
+-%}
+
+{%- comment -%}
+  Combinações do carrossel do topo. Cada linha "Cor / Metal" vira a foto da
+  primeira variação com essa cor e metal. A primeira linha é também a foto
+  que o ateliê mostra antes da cliente escolher.
+{%- endcomment -%}
+{%- liquid
+  assign hero_lista = ''
+  assign hero_primeira = nil
+  assign hero_primeira_cor = ''
+  assign hero_primeiro_metal = ''
+  if i_cor >= 0 and i_metal >= 0
+    assign linhas_hero = section.settings.hero_combos | newline_to_br | split: '<br />'
+    for linha in linhas_hero
+      assign partes = linha | strip | split: '/'
+      if partes.size < 2
+        continue
+      endif
+      assign c_cor = partes[0] | strip
+      assign c_metal = partes[1] | strip
+      for v in product.variants
+        if v.options[i_cor] == c_cor and v.options[i_metal] == c_metal and v.featured_image
+          assign img_hero = v.featured_image | image_url: width: 1400
+          capture item_hero
+            echo '{"cor":'
+            echo c_cor | json
+            echo ',"metal":'
+            echo c_metal | json
+            echo ',"img":'
+            echo img_hero | json
+            echo '}'
+          endcapture
+          if hero_lista != ''
+            assign hero_lista = hero_lista | append: ','
+          endif
+          assign hero_lista = hero_lista | append: item_hero
+          if hero_primeira == nil
+            assign hero_primeira = v.featured_image
+            assign hero_primeira_cor = c_cor
+            assign hero_primeiro_metal = c_metal
+          endif
+          break
+        endif
+      endfor
+    endfor
+  endif
+  if hero_primeira == nil
+    assign hero_primeira = product.featured_image
+  endif
+
+  # Campos personalizados ativos para este produto (mesma regra da página normal).
+  assign cf_json = ''
+  for cf_i in (1..20)
+    assign k_en = 'custom_field_' | append: cf_i | append: '_enable'
+    assign k_tag = 'custom_field_' | append: cf_i | append: '_tag'
+    assign cf_tag = settings[k_tag]
+    if settings[k_en] and cf_tag != blank and product.tags contains cf_tag
+      assign k_nm = 'custom_field_' | append: cf_i | append: '_name'
+      assign k_tt = 'custom_field_' | append: cf_i | append: '_title'
+      assign k_ph = 'custom_field_' | append: cf_i | append: '_placeholder'
+      assign k_tp = 'custom_field_' | append: cf_i | append: '_type'
+      assign k_rq = 'custom_field_' | append: cf_i | append: '_required'
+      assign k_lm = 'custom_field_' | append: cf_i | append: '_limiter'
+      assign k_or = 'custom_field_' | append: cf_i | append: '_order'
+      capture item_cf
+        echo '{"tag":'
+        echo cf_tag | json
+        echo ',"nome":'
+        echo settings[k_nm] | json
+        echo ',"titulo":'
+        echo settings[k_tt] | json
+        echo ',"placeholder":'
+        echo settings[k_ph] | json
+        echo ',"tipo":'
+        echo settings[k_tp] | json
+        echo ',"obrigatorio":'
+        if settings[k_rq]
+          echo 'true'
+        else
+          echo 'false'
+        endif
+        echo ',"limite":'
+        echo settings[k_lm] | default: '' | json
+        echo ',"ordem":'
+        echo settings[k_or] | default: cf_i | json
+        echo '}'
+      endcapture
+      if cf_json != ''
+        assign cf_json = cf_json | append: ','
+      endif
+      assign cf_json = cf_json | append: item_cf
+    endif
+  endfor
+
+  capture pingente_metal_handle
+    if settings.pingente_metal_product != blank
+      echo settings.pingente_metal_product.handle
+    endif
+  endcapture
+  assign pingente_couro_handles = settings.pingente_couro_products | map: 'handle'
+  assign pingente_metal_couro_handles = settings.pingente_metal_couro_products | map: 'handle'
+
+  assign oferece_pingente = false
+  if product.tags contains 'customizacao_pingente' or product.tags contains 'customizacao_pingente_obrigatorio'
+    assign oferece_pingente = true
+  endif
+
+  assign palavra = section.settings.hero_palavra | default: product.title
+-%}
+
+<link rel="stylesheet" href="{{ 'ame-atelier.css' | asset_url }}">
+
+<div class="atl full-width" data-atl>
+  <script type="application/json" data-atl-config>
+    {
+      "handle": {{ product.handle | json }},
+      "produtoId": {{ product.id | json }},
+      "titulo": {{ product.title | json }},
+      "nomeCurto": {{ palavra | json }},
+      "waltz": {{ section.settings.waltz_base | default: 'https://waltz.up.railway.app' | json }},
+      "pixPct": {{ pix_pct | json }},
+      "parcelas": {
+        "max": {{ settings.installments_max | default: 12 | json }},
+        "semJuros": {{ settings.installments_no_interest | default: 6 | json }},
+        "minimo": {{ settings.installment_min_value | default: 40 | json }},
+        "tabela": {{ settings.installments_interest_table | default: '' | json }}
+      },
+      "swatches": {
+        {%- assign swatch_entradas = settings.swatch_solido_cores | default: '' | split: ',' -%}
+        {%- assign swatch_primeiro = true -%}
+        {%- for entrada in swatch_entradas -%}
+          {%- assign par = entrada | split: ':' -%}
+          {%- if par.size >= 2 -%}
+            {%- unless swatch_primeiro -%},{%- endunless -%}
+            {{ par[0] | strip | downcase | json }}: {{ par[1] | strip | json }}
+            {%- assign swatch_primeiro = false -%}
+          {%- endif -%}
+        {%- endfor -%}
+      },
+      "pingente": {
+        "ativo": {{ oferece_pingente | json }},
+        "metal": {{ pingente_metal_handle | strip | json }},
+        "couro": {{ pingente_couro_handles | json }},
+        "metalCouro": {{ pingente_metal_couro_handles | json }},
+        "mapaTamanho": {{ settings.pingente_size_map | default: '' | json }},
+        "ignorar": {{ settings.pingente_ignore_terms | default: '' | json }},
+        "remover": {{ settings.pingente_strip_terms | default: '' | json }}
+      },
+      "campos": [{{ cf_json }}],
+      "metais": {{ section.settings.metais_info | json }},
+      "producao": {{ section.settings.producao_texto | json }},
+      "hero": [{{ hero_lista }}],
+      "inicio": { "cor": {{ hero_primeira_cor | json }}, "metal": {{ hero_primeiro_metal | json }} }
+    }
+  </script>
+
+  {%- comment -%} ═══════════════════════ TOPO ═══════════════════════ {%- endcomment -%}
+  <section class="atl-hero" data-atl-hero aria-labelledby="atl-hero-titulo">
+    <div class="atl-hero__grain" aria-hidden="true"></div>
+    <div class="atl-hero__inner">
+      <p class="atl-eyebrow atl-hero__eyebrow atl-in" style="--d: 0">{{ section.settings.hero_eyebrow }}</p>
+
+      <div class="atl-hero__stage" data-atl-hero-stage>
+        <span class="atl-hero__word" aria-hidden="true" data-atl-hero-word>{{ palavra }}</span>
+        <div class="atl-hero__collar" data-atl-hero-collar>
+          <div class="atl-hero__float">
+            {%- if hero_primeira -%}
+              <img
+                class="atl-hero__img is-front"
+                src="{{ hero_primeira | image_url: width: 1200 }}"
+                srcset="{{ hero_primeira | image_url: width: 600 }} 600w, {{ hero_primeira | image_url: width: 900 }} 900w, {{ hero_primeira | image_url: width: 1200 }} 1200w, {{ hero_primeira | image_url: width: 1600 }} 1600w"
+                sizes="(min-width: 990px) 46vw, 108vw"
+                width="1600"
+                height="1600"
+                alt="{{ product.title | escape }}"
+                fetchpriority="high"
+                data-atl-hero-img
+              >
+            {%- endif -%}
+            <img class="atl-hero__img" alt="" aria-hidden="true" width="1600" height="1600" data-atl-hero-img-b>
+            <span class="atl-hero__sheen" aria-hidden="true"></span>
+          </div>
+          <span class="atl-hero__shadow" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="atl-hero__swatch atl-in" style="--d: 2">
+        <p class="atl-hero__swatch-nome" aria-live="polite" data-atl-hero-nome>
+          {%- if hero_primeira_cor != '' -%}{{ hero_primeira_cor }} · {{ hero_primeiro_metal }}{%- endif -%}
+        </p>
+        <div class="atl-hero__dots" data-atl-hero-dots aria-hidden="true"></div>
+      </div>
+
+      <div class="atl-hero__copy">
+        <h1 id="atl-hero-titulo" class="atl-hero__titulo atl-in" style="--d: 3">
+          {{- section.settings.hero_titulo -}}
+          {%- if section.settings.hero_titulo_destaque != blank -%}
+            <span class="atl-ouro"> {{ section.settings.hero_titulo_destaque }}</span>
+          {%- endif -%}
+        </h1>
+        <p class="atl-hero__texto atl-in" style="--d: 4">{{ section.settings.hero_texto }}</p>
+        <div class="atl-hero__acoes atl-in" style="--d: 5">
+          <a href="#atelie" class="atl-btn atl-btn--primario atl-btn--grande" data-atl-comecar>
+            <span>{{ section.settings.hero_cta }}</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h13m-5-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <p class="atl-hero__preco">
+            a partir de <strong>{{ product.price_min | money }}</strong>
+            <span aria-hidden="true">·</span>
+            {{ pix_pct }}% off no Pix
+          </p>
+        </div>
+        <ul class="atl-hero__confianca atl-in" style="--d: 6" role="list">
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M12 3c4 3 7 4.5 7 9.5S15.5 20 12 21c-3.5-1-7-3.5-7-8.5S8 6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v10" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2"/></svg>
+            Couro legítimo
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            Feita à mão
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8v3m4-3v4m4-4v3m4-3v4" stroke="currentColor" stroke-width="1.2"/></svg>
+            Tamanho conferido
+          </li>
+        </ul>
+      </div>
+    </div>
+    <a href="#atelie" class="atl-hero__descer" aria-label="Ir para o ateliê" data-atl-comecar>
+      <span></span>
+    </a>
+  </section>
+
+  {%- comment -%} ═══════════════════════ ATELIÊ ═══════════════════════ {%- endcomment -%}
+  <section class="atl-studio" id="atelie" data-atl-studio aria-labelledby="atl-studio-titulo">
+    <header class="atl-studio__head">
+      <p class="atl-eyebrow">{{ section.settings.studio_eyebrow }}</p>
+      <h2 id="atl-studio-titulo" class="atl-studio__titulo" tabindex="-1">
+        {{ palavra }}, feita para <span class="atl-ouro" data-atl-pet-titulo>seu pet</span>
+      </h2>
+      <p class="atl-studio__restaurado" data-atl-restaurado hidden>
+        Guardamos as suas escolhas da última visita.
+        <button type="button" class="atl-link" data-atl-recomecar>Começar do zero</button>
+      </p>
+    </header>
+
+    <nav class="atl-passos" aria-label="Etapas" data-atl-passos>
+      <ol role="list">
+        {%- assign rotulos = 'Nome,Cores,Metal,Tamanho,Pingente,Resumo' | split: ',' -%}
+        {%- for r in rotulos -%}
+          <li>
+            <button type="button" class="atl-passos__item" data-atl-ir="{{ forloop.index0 }}" disabled>
+              <span class="atl-passos__n">{{ forloop.index }}</span>
+              <span class="atl-passos__rotulo">{{ r }}</span>
+            </button>
+          </li>
+        {%- endfor -%}
+      </ol>
+      <span class="atl-passos__linha" aria-hidden="true"><span data-atl-passos-linha></span></span>
+    </nav>
+
+    <div class="atl-studio__corpo">
+      {%- comment -%} Palco: a coleira, o pingente em 3D e a legenda {%- endcomment -%}
+      <div class="atl-palco-wrap" data-atl-palco-wrap>
+        <div class="atl-palco" data-atl-palco data-modo="colar">
+          <div class="atl-palco__arte" data-atl-arte>
+            {%- if hero_primeira -%}
+              <img
+                class="atl-palco__img is-front"
+                src="{{ hero_primeira | image_url: width: 1000 }}"
+                alt=""
+                width="1000"
+                height="1000"
+                loading="lazy"
+                data-atl-img-a
+              >
+            {%- else -%}
+              <img class="atl-palco__img is-front" alt="" width="1000" height="1000" data-atl-img-a>
+            {%- endif -%}
+            <img class="atl-palco__img" alt="" width="1000" height="1000" data-atl-img-b>
+            <span class="atl-palco__foco" data-atl-foco aria-hidden="true"></span>
+            <div class="atl-palco__pendurado" data-atl-pendurado aria-hidden="true"></div>
+          </div>
+          <span class="atl-palco__brilho" aria-hidden="true" data-atl-brilho></span>
+          <div class="atl-p3d" data-atl-p3d aria-hidden="true">
+            <div class="atl-p3d__obj" data-atl-p3d-obj></div>
+            <span class="atl-p3d__sombra"></span>
+          </div>
+          <div class="atl-palco__ferramentas" data-atl-ferramentas>
+            <button type="button" class="atl-chip atl-chip--vidro" data-atl-virar hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-atl-virar-rotulo>Ver o verso</span>
+            </button>
+          </div>
+          <p class="atl-palco__selo" data-atl-selo hidden></p>
+          <span class="atl-palco__carregando" data-atl-carregando hidden aria-hidden="true"></span>
+        </div>
+        <p class="atl-palco__legenda" aria-live="polite" data-atl-legenda>&nbsp;</p>
+      </div>
+
+      {%- comment -%} Painéis das etapas — o conteúdo de cada um é montado pelo JS {%- endcomment -%}
+      <div class="atl-paineis" data-atl-paineis>
+        <div class="atl-esqueleto" data-atl-esqueleto>
+          <span></span><span></span><span class="is-curto"></span>
+        </div>
+        <div class="atl-erro" data-atl-erro hidden>
+          <p><strong>Não conseguimos abrir o ateliê agora.</strong> Verifique a sua conexão e tente de novo.</p>
+          <button type="button" class="atl-btn atl-btn--secundario" data-atl-tentar>Tentar de novo</button>
+        </div>
+
+        <section class="atl-painel" data-atl-painel="0" hidden aria-labelledby="atl-p0-t">
+          <h3 class="atl-painel__titulo" id="atl-p0-t" tabindex="-1">Como se chama o seu pet?</h3>
+          <p class="atl-painel__sub">É o nome que a gente grava no pingente, se você quiser um. Pode pular, se preferir.</p>
+          <div class="atl-campo atl-campo--grande">
+            <input
+              type="text"
+              id="atl-pet"
+              class="atl-campo__input"
+              maxlength="13"
+              autocomplete="off"
+              autocapitalize="words"
+              enterkeyhint="next"
+              placeholder="Ex.: Bebel"
+              data-atl-pet
+            >
+            <label for="atl-pet" class="atl-campo__rotulo">Nome do pet</label>
+            <span class="atl-campo__contador" data-atl-contador="atl-pet" aria-live="polite">0/13</span>
+          </div>
+        </section>
+
+        <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p1-t">
+          <h3 class="atl-painel__titulo" id="atl-p1-t" tabindex="-1">Escolha o couro</h3>
+          <p class="atl-painel__sub" data-atl-sub-cores>Couro bovino legítimo. Toque numa cor para ver na peça.</p>
+          <div class="atl-cores" role="group" aria-label="Cor do couro" data-atl-couros></div>
+          <div class="atl-passador" data-atl-passador-bloco hidden>
+            <h4 class="atl-painel__subtitulo">Detalhe do passador</h4>
+            <div class="atl-passador__opcoes" role="group" aria-label="Cor do passador" data-atl-passadores></div>
+            <p class="atl-nota" data-atl-passador-nota hidden></p>
+          </div>
+        </section>
+
+        <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p2-t">
+          <h3 class="atl-painel__titulo" id="atl-p2-t" tabindex="-1">Escolha o banho do metal</h3>
+          <p class="atl-painel__sub">Fivela e argola no mesmo acabamento. O pingente acompanha.</p>
+          <div class="atl-metais" role="group" aria-label="Cor do metal" data-atl-metais></div>
+        </section>
+
+        <section class="atl-painel" data-atl-painel="3" hidden aria-labelledby="atl-p3-t">
+          <h3 class="atl-painel__titulo" id="atl-p3-t" tabindex="-1">O tamanho certo</h3>
+          <p class="atl-painel__sub">Conte sobre o seu pet. A gente sugere o tamanho e confere tudo antes de produzir.</p>
+          <div class="atl-pet-info" data-atl-pet-info></div>
+          <div class="atl-recomendacao" data-atl-recomendacao hidden aria-live="polite"></div>
+          <h4 class="atl-painel__subtitulo">Tamanho</h4>
+          <div class="atl-tamanhos" role="group" aria-label="Tamanho" data-atl-tamanhos></div>
+          <p class="atl-nota" data-atl-tamanho-nota hidden></p>
+          <button type="button" class="atl-link atl-link--icone" data-atl-medir-abrir>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8v3m4-3v4m4-4v3" stroke="currentColor" stroke-width="1.2"/></svg>
+            Como medir o pescoço
+          </button>
+          <div class="atl-campos-extra" data-atl-campos-extra></div>
+        </section>
+
+        <section class="atl-painel" data-atl-painel="4" hidden aria-labelledby="atl-p4-t">
+          <h3 class="atl-painel__titulo" id="atl-p4-t" tabindex="-1" data-atl-titulo-pingente>Um pingente com o nome do seu pet</h3>
+          <p class="atl-painel__sub" data-atl-sub-pingente>Gravado frente e verso, no mesmo metal da coleira.</p>
+          <div class="atl-tipos" role="group" aria-label="Tipo de pingente" data-atl-tipos></div>
+          <div class="atl-pingente-detalhes" data-atl-pingente-detalhes hidden>
+            <h4 class="atl-painel__subtitulo">Formato</h4>
+            <div class="atl-formatos" role="group" aria-label="Formato do pingente" data-atl-formatos></div>
+            <h4 class="atl-painel__subtitulo">Gravação</h4>
+            <div class="atl-campo">
+              <input type="text" id="atl-p-frente" class="atl-campo__input" maxlength="13" autocomplete="off" autocapitalize="words" placeholder=" " data-atl-p-frente data-lado="frente">
+              <label for="atl-p-frente" class="atl-campo__rotulo">Nome do pet · frente</label>
+              <span class="atl-campo__contador" data-atl-contador="atl-p-frente">0/13</span>
+            </div>
+            <div class="atl-campo">
+              <input type="text" id="atl-p-tutor" class="atl-campo__input" maxlength="13" autocomplete="off" autocapitalize="words" placeholder=" " data-atl-p-tutor data-lado="verso">
+              <label for="atl-p-tutor" class="atl-campo__rotulo">Nome do tutor · verso</label>
+              <span class="atl-campo__contador" data-atl-contador="atl-p-tutor">0/13</span>
+            </div>
+            <div class="atl-campo">
+              <input type="tel" id="atl-p-tel" class="atl-campo__input" maxlength="13" autocomplete="off" inputmode="numeric" placeholder=" " data-atl-p-tel data-lado="verso">
+              <label for="atl-p-tel" class="atl-campo__rotulo">Telefone · verso</label>
+            </div>
+            <p class="atl-nota" data-atl-pingente-nota></p>
+          </div>
+        </section>
+
+        <section class="atl-painel" data-atl-painel="5" hidden aria-labelledby="atl-p5-t">
+          <h3 class="atl-painel__titulo" id="atl-p5-t" tabindex="-1" data-atl-titulo-resumo>Pronta para ser feita</h3>
+          <div class="atl-ficha" data-atl-ficha></div>
+          <div class="atl-total" data-atl-total-resumo></div>
+          <p class="atl-producao">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            <span>{{ section.settings.producao_texto }}</span>
+          </p>
+          <div class="atl-resumo__acoes">
+            <button type="button" class="atl-btn atl-btn--secundario" data-atl-sacola>Adicionar à sacola e continuar comprando</button>
+          </div>
+        </section>
+
+        {%- comment -%} Barra do ateliê: total + voltar/continuar (no último passo, Finalizar pedido) {%- endcomment -%}
+        <div class="atl-barra" data-atl-barra role="group" aria-label="Total e navegação">
+          <div class="atl-barra__preco">
+            <span class="atl-barra__valor" data-atl-barra-valor aria-live="polite">a partir de {{ product.price_min | money_without_trailing_zeros }}</span>
+            <span class="atl-barra__pix" data-atl-barra-pix></span>
+          </div>
+          <div class="atl-barra__acoes">
+            <button type="button" class="atl-btn atl-btn--icone" data-atl-voltar aria-label="Voltar" hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="atl-btn atl-btn--primario" data-atl-continuar>
+              <span data-atl-continuar-rotulo>Continuar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment -%} ═══════════════════════ HISTÓRIA ═══════════════════════ {%- endcomment -%}
+  {%- assign beneficios = section.blocks | where: 'type', 'beneficio' -%}
+  {%- if beneficios.size > 0 -%}
+    <section class="atl-beneficios" aria-labelledby="atl-ben-t">
+      <p class="atl-eyebrow atl-revela">{{ section.settings.beneficios_eyebrow }}</p>
+      <h2 class="atl-secao__titulo atl-revela" id="atl-ben-t">{{ section.settings.beneficios_titulo }}</h2>
+      <ul class="atl-beneficios__grade" role="list">
+        {%- for b in beneficios -%}
+          <li class="atl-beneficio atl-revela atl-beneficio--{{ b.settings.icone }}" style="--d: {{ forloop.index0 }}" {{ b.shopify_attributes }}>
+            <span class="atl-beneficio__icone" aria-hidden="true">
+              {%- case b.settings.icone -%}
+                {%- when 'couro' -%}
+                  <svg viewBox="0 0 48 48"><path d="M24 6c8 6 14 9 14 19S31 40 24 42c-7-2-14-7-14-17S16 12 24 6Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M24 13v24" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3"/></svg>
+                {%- when 'mao' -%}
+                  <svg viewBox="0 0 48 48"><path d="M8 40 30 18m-6-6 12 12M28 8l12 12-4 4-12-12 4-4Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M10 30c2 2 4 2 6 0" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+                {%- when 'gravacao' -%}
+                  <svg viewBox="0 0 48 48"><path d="M24 40C14 33 8 27 8 19a8 8 0 0 1 16-2 8 8 0 0 1 16 2c0 8-6 14-16 21Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M17 22h14M19 27h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                {%- when 'metal' -%}
+                  <svg viewBox="0 0 48 48"><rect x="8" y="14" width="18" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M17 14v20M26 24h14" stroke="currentColor" stroke-width="1.4"/><circle cx="34" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+                {%- when 'garantia' -%}
+                  <svg viewBox="0 0 48 48"><path d="M24 6 39 11v11c0 10-6.5 17-15 20-8.5-3-15-10-15-20V11l15-5Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m17 24 5 5 9-10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {%- when 'regua' -%}
+                  <svg viewBox="0 0 48 48"><path d="M6 16h36v16H6z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M13 16v6m7-6v9m7-9v6m7-6v9" stroke="currentColor" stroke-width="1.2"/></svg>
+                {%- else -%}
+                  <svg viewBox="0 0 48 48"><path d="M10 20h28v20H10zM8 14h32v6H8zM24 14v26M24 14c-4-6-12-6-10 0m10 0c4-6 12-6 10 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+              {%- endcase -%}
+            </span>
+            <h3 class="atl-beneficio__titulo">{{ b.settings.titulo }}</h3>
+            <p class="atl-beneficio__texto">{{ b.settings.texto }}</p>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </section>
+  {%- endif -%}
+
+  {%- assign etapas = section.blocks | where: 'type', 'etapa' -%}
+  {%- if etapas.size > 0 -%}
+    <section class="atl-processo" aria-labelledby="atl-proc-t" data-atl-processo>
+      <div class="atl-processo__inner">
+        <p class="atl-eyebrow atl-eyebrow--claro atl-revela">{{ section.settings.processo_eyebrow }}</p>
+        <h2 class="atl-secao__titulo atl-secao__titulo--claro atl-revela" id="atl-proc-t">{{ section.settings.processo_titulo }}</h2>
+        <p class="atl-processo__texto atl-revela">{{ section.settings.processo_texto }}</p>
+        <ol class="atl-processo__lista" role="list">
+          <span class="atl-processo__trilho" aria-hidden="true"><span data-atl-trilho></span></span>
+          {%- for e in etapas -%}
+            <li class="atl-processo__etapa atl-revela" {{ e.shopify_attributes }}>
+              <span class="atl-processo__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+              <div>
+                <h3>{{ e.settings.titulo }}</h3>
+                <p>{{ e.settings.texto }}</p>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ol>
+        <p class="atl-processo__assinatura atl-revela">{{ section.settings.processo_assinatura }}</p>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if section.settings.mostrar_videos -%}
+    {%- assign videos = product.media | where: 'media_type', 'video' -%}
+    {%- if videos.size > 0 -%}
+      <section class="atl-videos" aria-labelledby="atl-vid-t">
+        <p class="atl-eyebrow atl-revela">{{ section.settings.videos_eyebrow }}</p>
+        <h2 class="atl-secao__titulo atl-revela" id="atl-vid-t">{{ section.settings.videos_titulo }}</h2>
+        <div class="atl-videos__trilho" data-atl-videos>
+          {%- for m in videos limit: 4 -%}
+            {%- liquid
+              assign fonte = ''
+              assign fonte_altura = 0
+              for s in m.sources
+                if s.format == 'mp4' and s.height <= 720
+                  if s.height > fonte_altura
+                    assign fonte = s.url
+                    assign fonte_altura = s.height
+                  endif
+                endif
+              endfor
+              if fonte == ''
+                assign fonte = m.sources.first.url
+              endif
+            -%}
+            <figure class="atl-video atl-revela" style="--d: {{ forloop.index0 }}">
+              <video
+                muted
+                playsinline
+                loop
+                preload="none"
+                poster="{{ m.preview_image | image_url: width: 540 }}"
+                data-src="{{ fonte }}"
+                data-atl-video
+              ></video>
+              <button type="button" class="atl-video__som" data-atl-video-som aria-label="Ativar som">
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+            </figure>
+          {%- endfor -%}
+        </div>
+      </section>
+    {%- endif -%}
+  {%- endif -%}
+
+  <section class="atl-final" aria-labelledby="atl-final-t">
+    <h2 class="atl-final__titulo atl-revela" id="atl-final-t">{{ section.settings.final_titulo }}</h2>
+    <p class="atl-final__texto atl-revela">{{ section.settings.final_texto }}</p>
+    <a href="#atelie" class="atl-btn atl-btn--primario atl-btn--grande atl-revela" data-atl-comecar>
+      <span>{{ section.settings.hero_cta }}</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h13m-5-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  {%- comment -%} Chamada flutuante fora do ateliê (só celular) {%- endcomment -%}
+  <a href="#atelie" class="atl-flutuante" data-atl-flutuante data-atl-comecar aria-hidden="true" tabindex="-1">
+    <span data-atl-flutuante-texto>{{ section.settings.flutuante_texto }}</span>
+    <strong data-atl-flutuante-valor>{{ product.price_min | money }}</strong>
+  </a>
+
+  {%- comment -%} Folha "Como medir" {%- endcomment -%}
+  <div class="atl-folha" data-atl-folha hidden role="dialog" aria-modal="true" aria-labelledby="atl-folha-t">
+    <div class="atl-folha__fundo" data-atl-folha-fechar></div>
+    <div class="atl-folha__caixa">
+      <button type="button" class="atl-folha__fechar" data-atl-folha-fechar aria-label="Fechar">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <h3 id="atl-folha-t" class="atl-folha__titulo">Como medir o pescoço</h3>
+      <div class="atl-folha__conteudo" data-atl-folha-conteudo></div>
+    </div>
+  </div>
+
+  <div class="atl-aviso" data-atl-aviso role="status" aria-live="polite" hidden></div>
+
+  {%- comment -%}
+    Link do checkout. Oculto e com data-cart-checkout: o tratador de
+    layout/theme.liquid (Yampi ou /checkout) é ligado a ele no carregamento,
+    e o JS do ateliê o clica DEPOIS que o /cart/add.js volta.
+  {%- endcomment -%}
+  <a href="/checkout" data-cart-checkout data-atl-checkout hidden tabindex="-1" aria-hidden="true"></a>
+</div>
+
+<script src="{{ 'ame-atelier.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Ateliê da coleira",
+  "class": "atl-section",
+  "settings": [
+    { "type": "header", "content": "Topo" },
+    { "type": "text", "id": "hero_eyebrow", "label": "Sobretítulo", "default": "Coleira Atena · couro legítimo" },
+    { "type": "text", "id": "hero_palavra", "label": "Palavra grande no fundo", "info": "Vazio = título do produto", "default": "Atena" },
+    { "type": "text", "id": "hero_titulo", "label": "Título", "default": "Feita para um só pet." },
+    { "type": "text", "id": "hero_titulo_destaque", "label": "Título — parte em destaque", "default": "O seu." },
+    { "type": "textarea", "id": "hero_texto", "label": "Texto", "default": "Couro legítimo em 26 cores, quatro banhos de metal e o nome do seu pet gravado no pingente. Cada peça é feita depois do seu pedido." },
+    { "type": "text", "id": "hero_cta", "label": "Botão", "default": "Criar a coleira do meu pet" },
+    {
+      "type": "textarea",
+      "id": "hero_combos",
+      "label": "Cores que passam no topo",
+      "info": "Uma por linha, no formato Cor / Metal, com os nomes exatos das variações. A primeira é a foto inicial do ateliê.",
+      "default": "Allure com Off White / Ouro\nRosa Bebê / Rose\nMilitar com Off White / Grafite\nChiclete com Rosa Bebê / Rose\nPreto com Branco / Prata\nCamel com Nude / Ouro\nLilás Candy / Prata"
+    },
+    { "type": "header", "content": "Ateliê" },
+    { "type": "text", "id": "studio_eyebrow", "label": "Sobretítulo", "default": "Ateliê Âme" },
+    {
+      "type": "textarea",
+      "id": "metais_info",
+      "label": "Metais: descrição e cores que combinam",
+      "info": "Uma linha por metal: Nome | descrição | cores do couro que combinam (separadas por vírgula).",
+      "default": "Ouro | Clássico e refinado. | Camel, Nude, Sépia, Café, Off White\nPrata | Versátil e atemporal. | Azul Bebê, Lilás Candy, Off White, Preto, Allure, Marinho\nRose | Delicado. Realça os tons rosados. | Rosa Bebê, Rosa Seco, Chiclete, Borgonha, Nude\nGrafite | Escuro e neutro. Combina com qualquer cor. | Preto, Militar, Marinho, Café, Allure"
+    },
+    { "type": "text", "id": "producao_texto", "label": "Prazo de produção", "default": "Produção artesanal: de 3 a 5 dias úteis antes do envio." },
+    { "type": "text", "id": "flutuante_texto", "label": "Botão flutuante (celular)", "default": "Criar a minha" },
+    { "type": "header", "content": "Benefícios" },
+    { "type": "text", "id": "beneficios_eyebrow", "label": "Sobretítulo", "default": "Por que a Atena" },
+    { "type": "text", "id": "beneficios_titulo", "label": "Título", "default": "Os detalhes que você sente na mão" },
+    { "type": "header", "content": "Processo" },
+    { "type": "text", "id": "processo_eyebrow", "label": "Sobretítulo", "default": "Produção artesanal" },
+    { "type": "text", "id": "processo_titulo", "label": "Título", "default": "Ela não existia antes do seu pedido" },
+    { "type": "textarea", "id": "processo_texto", "label": "Texto", "default": "As peças da Âme não são feitas em série. Cada pedido aprovado dá início a uma peça nova, feita do começo ao fim por uma pessoa." },
+    { "type": "text", "id": "processo_assinatura", "label": "Fecho", "default": "Cada peça que sai daqui é única." },
+    { "type": "header", "content": "Vídeos" },
+    { "type": "checkbox", "id": "mostrar_videos", "label": "Mostrar os vídeos do produto", "default": true },
+    { "type": "text", "id": "videos_eyebrow", "label": "Sobretítulo", "default": "Veja de perto" },
+    { "type": "text", "id": "videos_titulo", "label": "Título", "default": "Do ateliê para o pescoço deles" },
+    { "type": "header", "content": "Fechamento" },
+    { "type": "text", "id": "final_titulo", "label": "Título", "default": "Pronta para criar a sua?" },
+    { "type": "text", "id": "final_texto", "label": "Texto", "default": "Leva dois minutos. A gente cuida do resto." },
+    { "type": "header", "content": "Integração" },
+    { "type": "text", "id": "waltz_base", "label": "Endereço do Waltz", "default": "https://waltz.up.railway.app" }
+  ],
+  "blocks": [
+    {
+      "type": "beneficio",
+      "name": "Benefício",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icone",
+          "label": "Ícone",
+          "options": [
+            { "value": "couro", "label": "Couro" },
+            { "value": "mao", "label": "Feito à mão" },
+            { "value": "gravacao", "label": "Gravação" },
+            { "value": "metal", "label": "Metal" },
+            { "value": "regua", "label": "Medida" },
+            { "value": "presente", "label": "Presente" },
+            { "value": "garantia", "label": "Garantia" }
+          ],
+          "default": "couro"
+        },
+        { "type": "text", "id": "titulo", "label": "Título", "default": "Couro legítimo" },
+        { "type": "textarea", "id": "texto", "label": "Texto", "default": "Couro bovino curtido para ficar macio no pescoço." }
+      ]
+    },
+    {
+      "type": "etapa",
+      "name": "Etapa do processo",
+      "settings": [
+        { "type": "text", "id": "titulo", "label": "Título", "default": "Cortar" },
+        { "type": "textarea", "id": "texto", "label": "Texto", "default": "O couro é cortado na medida do seu pedido." }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Ateliê da coleira" }]
+}
+{% endschema %}
