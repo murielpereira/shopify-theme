@@ -638,33 +638,87 @@
         }).observe(palco);
     }
 
-    let fotoAtual = '';
-    let fotoPedida = '';
-    let animFoto = null;
+    // ── Troca de foto ──
+    // A foto nova entra por cima da velha com a "tinta": varre da esquerda
+    // (couro) ou abre num círculo a partir do ponto que mudou (passador,
+    // metal). Durante a troca as duas ficam em PRETO E BRANCO (classe
+    // is-trocando na arte, 13/10/2026): no "multiply" a nova se mistura com a
+    // velha por baixo, e em cores a coleira aparecia num terceiro tom, que não
+    // existe. Clientes ficavam em dúvida sobre a cor real. A cor volta só
+    // quando a foto certa está sozinha no palco.
+    //
+    // As trocas rodam UMA DE CADA VEZ, sempre para a última cor escolhida.
+    // Antes, uma troca pedida durante a varredura da anterior reaproveitava a
+    // foto que ainda estava entrando; no fim as duas referências apontavam
+    // para o mesmo <img> e o palco ficava VAZIO até recarregar a página.
+    let fotoAtual = imgA.getAttribute('src') || '';
+    let fotoAlvo = '';
+    let efeitoAlvo = null;
+    let trocando = false;
 
-    /**
-     * Troca a foto do palco com a "tinta": a foto nova entra por cima da velha,
-     * varrendo da esquerda (couro) ou abrindo num círculo a partir do ponto
-     * que mudou (passador, metal).
-     */
-    async function trocarFoto(src, efeito) {
+    // A mesma foto chega com endereços diferentes (o Liquid usa o CDN da loja,
+    // o Waltz o da Shopify, e a largura muda): compara pelo nome do arquivo.
+    const arquivoDa = (u) => String(u || '').split('?')[0].split('/').pop();
+    const mesmaFoto = (a, b) => !!arquivoDa(a) && arquivoDa(a) === arquivoDa(b);
+
+    /** Baixa e decodifica fora do palco: o <img> do palco só recebe a foto pronta. */
+    function decodificar(url) {
+        const i = new Image();
+        i.decoding = 'async';
+        i.src = url;
+        return Promise.race([i.decode(), espera(4000)]).catch(() => { /* segue mesmo assim */ });
+    }
+
+    function trocarFoto(src, efeito) {
         if (!src) return;
-        const url = urlFoto(src);
-        if (url === fotoAtual || url === fotoPedida) return;
-        fotoPedida = url;
-        let mostrouCarregando = false;
-        const t = setTimeout(() => { carregando.hidden = false; mostrouCarregando = true; }, 220);
-        const prox = imgB;
-        prox.src = url;
-        try { await Promise.race([prox.decode(), espera(4000)]); } catch (e) { /* segue mesmo assim */ }
-        clearTimeout(t);
-        if (mostrouCarregando) carregando.hidden = true;
-        if (fotoPedida !== url) return; // outra troca passou na frente
-        if (animFoto) { try { animFoto.finish(); } catch (e) { /* no-op */ } }
+        fotoAlvo = urlFoto(src);
+        efeitoAlvo = efeito;
+        if (!trocando) rodarTrocas();
+    }
 
-        prox.classList.add('is-entrando');
+    async function rodarTrocas() {
+        trocando = true;
+        try {
+            while (fotoAlvo && !mesmaFoto(fotoAlvo, fotoAtual)) {
+                const url = fotoAlvo;
+                const efeito = efeitoAlvo;
+                // A foto perde a cor já no clique: enquanto a nova carrega, a
+                // velha não pode passar por cor certa (a legenda já mostra o
+                // nome da nova).
+                arte.classList.add('is-trocando');
+                const t = setTimeout(() => { carregando.hidden = false; }, 220);
+                await decodificar(url);
+                clearTimeout(t);
+                carregando.hidden = true;
+                if (url !== fotoAlvo) continue; // escolheu outra enquanto carregava
+                await animarEntrada(url, efeito);
+            }
+            // Mesma foto em outra largura (a do Liquid tem 1000 px): troca
+            // calada, sem tinta e sem tirar a cor.
+            if (fotoAlvo && fotoAlvo !== fotoAtual) {
+                const url = fotoAlvo;
+                await decodificar(url);
+                if (url === fotoAlvo && mesmaFoto(url, fotoAtual)) {
+                    imgA.src = url;
+                    fotoAtual = url;
+                }
+            }
+        } finally {
+            trocando = false;
+            arte.classList.remove('is-trocando');
+        }
+        // Pedido que chegou durante a troca calada.
+        if (fotoAlvo && fotoAlvo !== fotoAtual && !mesmaFoto(fotoAlvo, fotoAtual)) rodarTrocas();
+    }
+
+    async function animarEntrada(url, efeito) {
+        const prox = imgB;
+        const velha = imgA;
+        prox.src = url;
+        try { await Promise.race([prox.decode(), espera(1500)]); } catch (e) { /* já veio decodificada */ }
+        const circulo = !!(efeito && efeito.x != null);
         let quadros;
-        if (efeito && efeito.x != null) {
+        if (circulo) {
             const at = `at ${(efeito.x * 100).toFixed(1)}% ${(efeito.y * 100).toFixed(1)}%`;
             quadros = [{ clipPath: `circle(0% ${at})` }, { clipPath: `circle(150% ${at})` }];
         } else {
@@ -677,26 +731,41 @@
             arte.appendChild(s);
             return s;
         })();
-        const dur = semMovimento ? 1 : (efeito && efeito.x != null ? 760 : 900);
-        if (!(efeito && efeito.x != null) && !semMovimento) {
-            // A faixa de luz acompanha a borda da tinta (de 0 a 100 % da foto).
-            varredura.animate([
-                { transform: 'translateX(-50%)', opacity: 0.95 },
-                { transform: 'translateX(40%)', opacity: 0.95, offset: 0.8 },
-                { transform: 'translateX(50%)', opacity: 0 },
-            ], { duration: dur, easing: 'cubic-bezier(.22,1,.36,1)' });
+        const curva = { duration: semMovimento ? 1 : (circulo ? 760 : 900), easing: 'cubic-bezier(.22,1,.36,1)' };
+        let saida = null;
+        if (!circulo) {
+            if (!semMovimento) {
+                // A faixa de luz acompanha a borda da tinta (de 0 a 100 % da foto).
+                varredura.animate([
+                    { transform: 'translateX(-50%)', opacity: 0.95 },
+                    { transform: 'translateX(40%)', opacity: 0.95, offset: 0.8 },
+                    { transform: 'translateX(50%)', opacity: 0 },
+                ], curva);
+            }
+            // Na varredura a foto velha sai na mesma medida em que a nova
+            // entra, então as duas nunca se sobrepõem.
+            saida = velha.animate([{ clipPath: 'inset(0 0 0 0%)' }, { clipPath: 'inset(0 0 0 100%)' }], Object.assign({ fill: 'forwards' }, curva));
+        } else {
+            // No círculo não dá para recortar a foto velha "por fora": uma tampa
+            // da cor do estúdio abre junto com a nova e esconde a velha por
+            // baixo dela. Sem isso, em cinza sobre cinza, o couro escurecia.
+            const tampa = arte.querySelector('.atl-palco__tampa') || (() => {
+                const s = document.createElement('span');
+                s.className = 'atl-palco__tampa';
+                s.setAttribute('aria-hidden', 'true');
+                arte.appendChild(s);
+                return s;
+            })();
+            saida = tampa.animate(quadros.map((q) => Object.assign({ opacity: 1 }, q)), Object.assign({ fill: 'forwards' }, curva));
         }
-        try {
-            animFoto = prox.animate(quadros, { duration: dur, easing: 'cubic-bezier(.22,1,.36,1)' });
-            await animFoto.finished;
-        } catch (e) { /* cancelada */ }
-        animFoto = null;
+        prox.classList.add('is-entrando');
+        try { await prox.animate(quadros, curva).finished; } catch (e) { /* cancelada */ }
         prox.classList.remove('is-entrando');
         prox.classList.add('is-front');
-        imgA.classList.remove('is-front');
-        [imgA, imgB] = [prox, imgA];
+        velha.classList.remove('is-front');
+        if (saida) saida.cancel();
+        [imgA, imgB] = [prox, velha];
         fotoAtual = url;
-        if (fotoPedida === url) fotoPedida = '';
     }
 
     function preCarregar(srcs) {
@@ -2024,7 +2093,12 @@
             try { await Promise.race([prox.decode(), espera(3000)]); } catch (e) { /* segue */ }
             prox.classList.add('is-entrando');
             const dur = semMovimento ? 1 : (manual ? 800 : 1100);
-            const a = prox.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: dur, easing: 'cubic-bezier(.22,1,.36,1)' });
+            const curva = { duration: dur, easing: 'cubic-bezier(.22,1,.36,1)' };
+            const a = prox.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], curva);
+            // A foto velha sai na mesma medida em que a nova entra. No
+            // "multiply" as duas se misturavam na faixa já varrida, e a coleira
+            // aparecia num tom que não existe (13/10/2026).
+            const saida = atual.animate([{ clipPath: 'inset(0 0 0 0%)' }, { clipPath: 'inset(0 0 0 100%)' }], Object.assign({ fill: 'forwards' }, curva));
             const brilho = $('.atl-hero__sheen');
             if (brilho && !semMovimento) brilho.animate([{ transform: 'translateX(-60%)', opacity: 0 }, { opacity: 0.9, offset: 0.4 }, { transform: 'translateX(60%)', opacity: 0 }], { duration: dur, easing: 'ease-out' });
             nome.classList.add('is-trocando');
@@ -2040,6 +2114,7 @@
             prox.classList.remove('is-entrando');
             prox.classList.add('is-front');
             atual.classList.remove('is-front');
+            saida.cancel();
             frente = 1 - frente;
             ocupado = false;
             if (pedido) { const p = pedido; pedido = null; mostrar(p.alvo, p.manual); return; }

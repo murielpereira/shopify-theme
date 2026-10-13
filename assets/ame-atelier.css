@@ -108,8 +108,16 @@
 }
 
 @keyframes atl-brilho-texto {
-  0%, 55% { background-position: 100% 0; }
-  85%, 100% { background-position: 0% 0; }
+
+  0%,
+  55% {
+    background-position: 100% 0;
+  }
+
+  85%,
+  100% {
+    background-position: 0% 0;
+  }
 }
 
 .atl-secao__titulo {
@@ -187,6 +195,7 @@
     transform: scale(1.02);
     box-shadow: 0 18px 32px -16px rgba(90, 71, 66, 0.85);
   }
+
   .atl-btn--secundario:hover,
   .atl-btn--icone:hover {
     background: rgba(90, 71, 66, 0.11);
@@ -249,8 +258,15 @@
 }
 
 @keyframes atl-sobe {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ═══════════════════════════ TOPO ═══════════════════════════ */
@@ -338,9 +354,8 @@
    só essa faixa, com a coleira de ponta a ponta. */
 .atl-hero__img {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 112%;
+  left: 53%;
+  width: 105%;
   max-width: none;
   height: auto;
   aspect-ratio: 1;
@@ -389,13 +404,29 @@
 }
 
 @keyframes atl-flutua {
-  0%, 100% { translate: 0 calc(var(--p) * -18px); }
-  50% { translate: 0 calc(var(--p) * -18px - 7px); }
+
+  0%,
+  100% {
+    translate: 0 calc(var(--p) * -18px);
+  }
+
+  50% {
+    translate: 0 calc(var(--p) * -18px - 7px);
+  }
 }
 
 @keyframes atl-sombra {
-  0%, 100% { transform: translateX(-50%) scaleX(1); opacity: 1; }
-  50% { transform: translateX(-50%) scaleX(0.9); opacity: 0.7; }
+
+  0%,
+  100% {
+    transform: translateX(-50%) scaleX(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateX(-50%) scaleX(0.9);
+    opacity: 0.7;
+  }
 }
 
 .atl-hero__swatch {
@@ -558,9 +589,20 @@
 }
 
 @keyframes atl-descer {
-  0% { opacity: 0; transform: translateY(0); }
-  30% { opacity: 1; }
-  80%, 100% { opacity: 0; transform: translateY(12px); }
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 /* ═══════════════════════════ ATELIÊ ═══════════════════════════ */
@@ -769,6 +811,7 @@
   transform: scale(1.015);
   mix-blend-mode: multiply;
   opacity: 0;
+  transition: filter 0.45s ease;
 }
 
 .atl-palco__img.is-front,
@@ -780,11 +823,32 @@
   z-index: 2;
 }
 
+/* Troca de cor em preto e branco: a foto perde a cor no clique, a nova
+   entra em cinza e a cor só volta com a foto certa sozinha no palco. Em
+   cores, a mistura das duas fotos na varredura mostrava um tom que não
+   existe (ver trocarFoto em ame-atelier.js). */
+.atl-palco__arte.is-trocando .atl-palco__img {
+  filter: grayscale(1);
+  transition-duration: 0.18s;
+}
+
+/* Tampa da troca em círculo (ver animarEntrada): da cor do estúdio e na
+   mesma escala das fotos, esconde a foto velha embaixo da nova. */
+.atl-palco__tampa {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--atl-estudio);
+  transform: scale(1.015);
+  opacity: 0;
+  pointer-events: none;
+}
+
 .atl-palco__tinta {
   position: absolute;
   inset: 0;
   z-index: 3;
-  background: linear-gradient(90deg, transparent 44%, rgba(255, 248, 230, 0.75) 50%, transparent 56%);
+  background: linear-gradient(90deg, transparent 44%, rgba(255, 255, 255, 0.7) 50%, transparent 56%);
   mix-blend-mode: soft-light;
   opacity: 0;
   pointer-events: none;
@@ -808,9 +872,19 @@
 }
 
 @keyframes atl-foco {
-  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-  35% { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25);
+  }
 }
 
 .atl-palco__brilho {
@@ -854,13 +928,25 @@
 }
 
 @keyframes atl-balanco {
-  0%, 100% { transform: translate(calc(-1 * var(--furo-x)), calc(-1 * var(--furo-y))) rotate(calc(var(--ang) - 4deg)); }
-  50% { transform: translate(calc(-1 * var(--furo-x)), calc(-1 * var(--furo-y))) rotate(calc(var(--ang) + 4deg)); }
+
+  0%,
+  100% {
+    transform: translate(calc(-1 * var(--furo-x)), calc(-1 * var(--furo-y))) rotate(calc(var(--ang) - 4deg));
+  }
+
+  50% {
+    transform: translate(calc(-1 * var(--furo-x)), calc(-1 * var(--furo-y))) rotate(calc(var(--ang) + 4deg));
+  }
 }
 
 @keyframes atl-aparece {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Pingente em 3D */
@@ -997,7 +1083,9 @@
 }
 
 @keyframes atl-carrega {
-  to { transform: translateX(350%); }
+  to {
+    transform: translateX(350%);
+  }
 }
 
 .atl-palco__legenda {
@@ -1015,6 +1103,7 @@
   .atl--digitando .atl-palco {
     aspect-ratio: 100 / 42;
   }
+
   .atl--digitando .atl-palco__legenda {
     display: none;
   }
@@ -1085,7 +1174,9 @@
 }
 
 @keyframes atl-esqueleto {
-  to { background-position: -200% 0; }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .atl-erro {
@@ -1801,7 +1892,9 @@ textarea.atl-campo__input {
 }
 
 @keyframes atl-gira {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Barra do ateliê ──
@@ -1865,8 +1958,13 @@ body.atl-com-barra .atl-barra {
 }
 
 @keyframes atl-pronto {
-  0% { box-shadow: 0 0 0 0 rgba(194, 154, 82, 0.55); }
-  100% { box-shadow: 0 0 0 10px rgba(194, 154, 82, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(194, 154, 82, 0.55);
+  }
+
+  100% {
+    box-shadow: 0 0 0 10px rgba(194, 154, 82, 0);
+  }
 }
 
 .atl-tremer {
@@ -1874,8 +1972,16 @@ body.atl-com-barra .atl-barra {
 }
 
 @keyframes atl-tremer {
-  20%, 60% { transform: translateX(-5px); }
-  40%, 80% { transform: translateX(5px); }
+
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 /* A barra empurra os botões flutuantes do Waltz (WhatsApp, cashback, cor). */
@@ -2202,8 +2308,8 @@ html.atl-travado body {
   padding: 4.5rem 0 3.5rem;
 }
 
-.atl-videos > .atl-eyebrow,
-.atl-videos > .atl-secao__titulo {
+.atl-videos>.atl-eyebrow,
+.atl-videos>.atl-secao__titulo {
   max-width: var(--atl-largura);
   margin-left: auto;
   margin-right: auto;
@@ -2495,6 +2601,7 @@ html.atl-travado body {
 /* ═══════════════════════════ MOVIMENTO REDUZIDO ═══════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
+
   .atl *,
   .atl *::before,
   .atl *::after {
@@ -2502,10 +2609,12 @@ html.atl-travado body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+
   .atl-revela {
     opacity: 1;
     transform: none;
   }
+
   .atl-hero__word {
     opacity: 1;
   }
@@ -2517,19 +2626,23 @@ html.atl-travado body {
     height: 60vw;
     max-height: 560px;
   }
+
   .atl-palco__arte {
     height: 0;
     padding-bottom: 100%;
   }
+
   .atl-p3d__obj {
     width: 50vw;
     max-width: 380px;
     height: 50vw;
     max-height: 380px;
   }
+
   .atl-pendurado__balanco svg {
     height: auto;
   }
+
   .atl-video {
     height: 110vw;
   }
