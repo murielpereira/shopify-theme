@@ -369,25 +369,43 @@
     // CENTRO, em cima, como nas peças reais (fotos "Wendy" e "Bento" que o
     // Muriel mandou em 13/10/2026). Por isso o pingente pendura reto, com o
     // nome alinhado à coleira, e o verso é o mesmo recorte, sem espelhar.
-    // `texto` e `verso` = [centro x, centro y, largura útil, corpo máximo].
+    //
+    // `texto` e `verso`: centro (x, y), largura e altura úteis, corpo máximo
+    // da letra e quantas linhas cabem. O nome é medido e encolhe até caber
+    // nos dois sentidos, então nunca sai da peça.
+    //
+    // O OSSO foi traçado da foto do pingente "Bento" (raios do centro até a
+    // borda dourada, simetria esquerda/direita, média de 5°): 92 × 56 unidades,
+    // proporção 1,64 como a peça. Para retraçar com outra foto: de cada grau,
+    // um raio vindo de FORA até o primeiro pixel do aro (dourado ou sombra),
+    // a argola e a corrente descartadas, simetria esquerda/direita, média de
+    // 5° e 72 pontos ligados por Catmull-Rom.
+    const OSSO_D = 'M90.23,55.14 C90.38,56.38 92.48,57.61 93.16,58.91 C93.84,60.22 93.87,61.53 94.32,62.95 C94.78,64.37 95.72,65.98 95.90,67.44 C96.09,68.89 95.78,70.32 95.44,71.67 C95.09,73.03 94.51,74.35 93.80,75.56 C93.10,76.77 92.27,77.96 91.21,78.93 C90.15,79.89 88.79,80.69 87.45,81.36 C86.10,82.02 84.74,82.67 83.13,82.93 C81.52,83.19 79.54,83.06 77.79,82.92 C76.04,82.79 74.33,82.55 72.63,82.11 C70.93,81.66 69.16,80.94 67.58,80.25 C66.01,79.56 64.44,78.58 63.17,77.94 C61.89,77.31 60.90,76.85 59.94,76.46 C58.99,76.08 58.23,75.88 57.47,75.65 C56.70,75.42 56.01,75.24 55.34,75.08 C54.67,74.92 54.06,74.80 53.45,74.69 C52.84,74.58 52.26,74.47 51.69,74.42 C51.11,74.37 50.56,74.41 50.00,74.41 C49.44,74.41 48.89,74.37 48.31,74.42 C47.74,74.47 47.16,74.58 46.55,74.69 C45.94,74.80 45.33,74.92 44.66,75.08 C43.99,75.24 43.30,75.42 42.53,75.65 C41.77,75.88 41.01,76.08 40.06,76.46 C39.10,76.85 38.11,77.31 36.83,77.94 C35.56,78.58 33.99,79.56 32.42,80.25 C30.84,80.94 29.07,81.66 27.37,82.11 C25.67,82.55 23.96,82.79 22.21,82.92 C20.46,83.06 18.48,83.19 16.87,82.93 C15.26,82.67 13.90,82.02 12.55,81.36 C11.21,80.69 9.85,79.89 8.79,78.93 C7.73,77.96 6.90,76.77 6.20,75.56 C5.49,74.35 4.91,73.03 4.56,71.67 C4.22,70.32 3.91,68.89 4.10,67.44 C4.28,65.98 5.22,64.37 5.68,62.95 C6.13,61.53 6.16,60.22 6.84,58.91 C7.52,57.61 9.62,56.38 9.77,55.14 C9.91,53.89 8.48,52.75 7.71,51.44 C6.94,50.12 5.77,48.66 5.17,47.23 C4.56,45.80 4.20,44.28 4.10,42.84 C4.00,41.40 4.24,39.97 4.55,38.59 C4.85,37.22 5.17,35.76 5.95,34.60 C6.74,33.43 8.09,32.51 9.26,31.62 C10.43,30.72 11.78,29.99 12.96,29.20 C14.14,28.42 14.88,27.28 16.35,26.90 C17.82,26.52 19.97,26.73 21.80,26.94 C23.64,27.15 25.61,27.67 27.34,28.14 C29.08,28.60 30.70,29.15 32.21,29.74 C33.73,30.32 35.21,31.12 36.45,31.66 C37.69,32.21 38.74,32.72 39.67,32.98 C40.60,33.24 41.27,33.13 42.02,33.20 C42.77,33.27 43.48,33.34 44.18,33.40 C44.87,33.47 45.54,33.53 46.20,33.59 C46.86,33.65 47.50,33.72 48.13,33.78 C48.76,33.83 49.38,33.90 50.00,33.90 C50.62,33.90 51.24,33.83 51.87,33.78 C52.50,33.72 53.14,33.65 53.80,33.59 C54.46,33.53 55.13,33.47 55.82,33.40 C56.52,33.34 57.23,33.27 57.98,33.20 C58.73,33.13 59.40,33.24 60.33,32.98 C61.26,32.72 62.31,32.21 63.55,31.66 C64.79,31.12 66.27,30.32 67.79,29.74 C69.30,29.15 70.92,28.60 72.66,28.14 C74.39,27.67 76.36,27.15 78.20,26.94 C80.03,26.73 82.18,26.52 83.65,26.90 C85.12,27.28 85.86,28.42 87.04,29.20 C88.22,29.99 89.57,30.72 90.74,31.62 C91.91,32.51 93.26,33.43 94.05,34.60 C94.83,35.76 95.15,37.22 95.45,38.59 C95.76,39.97 96.00,41.40 95.90,42.84 C95.80,44.28 95.44,45.80 94.83,47.23 C94.23,48.66 93.06,50.12 92.29,51.44 C91.52,52.75 90.09,53.89 90.23,55.14 Z';
+    const ARGOLA_RY = 8.5; // a argola, vista de frente, é um aro estreito na vertical ("I")
     const FORMAS = {
         circulo: {
             d: 'M12,54 A38,38 0 1,0 88,54 A38,38 0 1,0 12,54 Z',
-            furo: [50, 23], texto: [50, 58, 56, 15], verso: [50, 57, 58, 9.5],
+            furo: [50, 20.5],
+            texto: { x: 50, y: 54, w: 58, h: 34, max: 17, linhas: 2 },
+            verso: { x: 50, y: 55, w: 60, h: 30, max: 10, linhas: 2 },
         },
         coracao: {
             d: 'M50,90 C46,86 10,62 10,36 C10,22 21,13 33,13 C41,13 47,18 50,24 C53,18 59,13 67,13 C79,13 90,22 90,36 C90,62 54,86 50,90 Z',
-            furo: [50, 30.5], texto: [50, 51, 50, 14], verso: [50, 51, 52, 9],
+            furo: [50, 29],
+            texto: { x: 50, y: 49, w: 54, h: 28, max: 15, linhas: 2 },
+            verso: { x: 50, y: 49, w: 52, h: 24, max: 9, linhas: 2 },
         },
         flor: {
             d: florPath(50, 54, 6, 25, 15, -Math.PI / 2),
-            furo: [50, 21.5], texto: [50, 57, 44, 14], verso: [50, 56, 46, 8.5],
+            furo: [50, 19.5],
+            texto: { x: 50, y: 54, w: 50, h: 32, max: 15, linhas: 2 },
+            verso: { x: 50, y: 55, w: 50, h: 26, max: 9, linhas: 2 },
         },
         osso: {
-            // Osso largo, de meio cheio (cerca de 70 % da altura das pontas) e
-            // entalhe raso nas pontas, como o pingente real.
-            d: 'M24.1,36.08 C31.47,41.25 68.53,41.25 75.9,36.08 A11.5,11.5 0 1,1 88.98,55 A11.5,11.5 0 1,1 75.9,73.92 C68.53,68.75 31.47,68.75 24.1,73.92 A11.5,11.5 0 1,1 11.02,55 A11.5,11.5 0 1,1 24.1,36.08 Z',
-            furo: [50, 45], texto: [50, 58.5, 52, 11], verso: [50, 59, 56, 7],
+            d: OSSO_D,
+            furo: [50, 37.5],
+            texto: { x: 50, y: 57, w: 62, h: 26, max: 19, linhas: 1 },
+            verso: { x: 50, y: 57.5, w: 64, h: 26, max: 10, linhas: 2 },
         },
     };
     const formaDe = (formato) => FORMAS[compacto(formato)] || FORMAS.coracao;
@@ -464,7 +482,7 @@
             // Metal com couro: couro por dentro e aro de metal. O traço grosso
             // recortado pela própria forma deixa só a metade de dentro.
             corpo += `<path d="${f.d}" fill="${couroHex}" filter="url(#${id}g)"/>`;
-            corpo += `<path d="${f.d}" fill="none" stroke="url(#${id}m)" stroke-width="10" clip-path="url(#${id}c)"/>`;
+            corpo += `<path d="${f.d}" fill="none" stroke="url(#${id}m)" stroke-width="5.4" clip-path="url(#${id}c)"/>`;
         } else {
             corpo += `<path d="${f.d}" fill="url(#${id}m)"/>`;
         }
@@ -474,16 +492,19 @@
             <path d="${f.d}" fill="none" stroke="rgba(0,0,0,${tudoCouro ? 0.2 : 0.28})" stroke-width="2.2" transform="translate(-.6 -.9)"/>
           </g>`;
 
-        // Furo no centro, em cima, e a argola passando por ele (dos dois lados).
+        // Furo no centro, em cima. No couro e no metal com couro, um ilhós de metal.
         const fx = f.furo[0], fy = f.furo[1];
-        corpo += `<circle cx="${fx}" cy="${fy}" r="2.8" fill="rgba(32,27,20,.55)"/>`;
+        if (temCouro) corpo += `<circle cx="${fx}" cy="${fy}" r="3.4" fill="none" stroke="url(#${id}m)" stroke-width="1.6"/>`;
+        corpo += `<circle cx="${fx}" cy="${fy}" r="2.1" fill="rgba(32,27,20,.6)"/>`;
+        // A argola atravessa o furo de lado: de frente ela é um aro estreito
+        // na vertical, como um "I" (no 3D, um aro perpendicular vira "O" ao girar).
         let argola = '';
         if (op.argola !== false) {
-            const ax = fx, ay = fy - 9.5;
-            argola = `<g fill="none" stroke-linecap="round">
-                <circle cx="${ax}" cy="${ay}" r="9.5" stroke="${me.aresta}" stroke-width="3.4"/>
-                <circle cx="${ax}" cy="${ay}" r="9.5" stroke="url(#${id}m)" stroke-width="2.4"/>
-                <path d="M${ax - 8.2},${ay - 4.8} A9.5,9.5 0 0 1 ${ax + 4.8},${ay - 8.2}" stroke="rgba(255,255,255,.6)" stroke-width=".9"/>
+            const ay = fy - ARGOLA_RY + 1.6;
+            argola = `<g fill="none">
+                <ellipse cx="${fx}" cy="${ay}" rx="2.5" ry="${ARGOLA_RY}" stroke="${me.aresta}" stroke-width="2.6"/>
+                <ellipse cx="${fx}" cy="${ay}" rx="2.5" ry="${ARGOLA_RY}" stroke="url(#${id}m)" stroke-width="1.5"/>
+                <path d="M${fx - 1.2},${ay - ARGOLA_RY + 1.4} L${fx - 1.2},${ay + ARGOLA_RY - 1.4}" stroke="rgba(255,255,255,.55)" stroke-width=".5" stroke-linecap="round"/>
               </g>`;
         }
 
@@ -492,33 +513,30 @@
             return `<svg viewBox="-8 -8 116 116" aria-hidden="true">${defs}${corpo}${brilhoMini}${argola}</svg>`;
         }
 
-        // Gravação: escura no couro claro e no metal, clara no couro escuro e no grafite.
-        const corTexto = temCouro ? (claroOuEscuro(couroHex) === 'escuro' ? '#f3ece4' : '#1d1a18') : me.gravura;
+        // Gravação: sempre PRETA, porque é queimada a laser (metal ou couro).
+        // O corpo da letra é o maior que cabe na largura E na altura da área.
         const area = verso ? f.verso : f.texto;
-        const linhas = (verso ? [op.tutor, op.tel] : quebrarNome(op.nome)).filter((l) => l && String(l).trim());
+        const linhas = (verso ? [op.tutor, op.tel] : quebrarNome(op.nome, area.linhas)).filter((l) => l && String(l).trim());
         const vazio = !linhas.length;
-        const usar = vazio ? (verso ? ['Nome do tutor', '11 99999-9999'] : ['nome do', 'seu pet']) : linhas;
+        const marcador = verso ? ['Nome do tutor', '11 99999-9999'] : (area.linhas > 1 ? ['nome do', 'seu pet'] : ['nome do pet']);
+        const usar = vazio ? marcador : linhas;
         const maior = usar.reduce((m, l) => Math.max(m, larguraPorCorpo(l)), 0.01);
-        const fs = Math.max(4.2, Math.min(area[3], area[2] / maior));
-        const lh = fs * 1.14;
-        const y0 = area[1] - ((usar.length - 1) * lh) / 2 + fs * 0.36;
-        const opac = vazio ? 0.34 : 0.92;
-        const tspans = usar.map((l, i) => `<tspan x="${area[0]}" y="${(y0 + i * lh).toFixed(2)}">${esc(l)}</tspan>`).join('');
-        let gravura = '';
-        if (!temCouro) {
-            gravura += `<text text-anchor="middle" font-family="${FONTE_GRAVACAO}" font-weight="500" font-size="${fs.toFixed(2)}" fill="${me.luz}" opacity="${vazio ? 0.2 : 0.5}" transform="translate(.35 .45)">${tspans}</text>`;
-        }
-        gravura += `<text text-anchor="middle" font-family="${FONTE_GRAVACAO}" font-weight="500" font-size="${fs.toFixed(2)}" fill="${corTexto}" opacity="${opac}">${tspans}</text>`;
+        const lhFator = 1.12;
+        const fs = Math.max(3.6, Math.min(area.max, area.w / maior, area.h / (usar.length * lhFator)));
+        const lh = fs * lhFator;
+        const y0 = area.y - ((usar.length - 1) * lh) / 2 + fs * 0.36;
+        const tspans = usar.map((l, i) => `<tspan x="${area.x}" y="${(y0 + i * lh).toFixed(2)}">${esc(l)}</tspan>`).join('');
+        const gravura = `<text text-anchor="middle" font-family="${FONTE_GRAVACAO}" font-weight="500" font-size="${fs.toFixed(2)}" fill="#1b1714" opacity="${vazio ? 0.3 : 0.9}">${tspans}</text>`;
 
         const brilho = `<rect x="-10" y="-10" width="120" height="120" fill="url(#${id}b)" clip-path="url(#${id}c)" style="mix-blend-mode:screen"/>`;
 
         return `<svg viewBox="-8 -8 116 116" role="img" aria-label="${esc(verso ? 'Verso do pingente' : 'Frente do pingente')}">${defs}${corpo}${gravura}${brilho}${argola}</svg>`;
     }
 
-    function quebrarNome(nome) {
+    function quebrarNome(nome, maxLinhas) {
         const n = String(nome || '').trim();
         if (!n) return [];
-        if (n.length <= 9 || !n.includes(' ')) return [n];
+        if (maxLinhas === 1 || n.length <= 9 || !n.includes(' ')) return [n];
         // Duas linhas equilibradas, quebrando num espaço.
         let melhor = [n], dif = Infinity;
         n.split('').forEach((ch, i) => {
@@ -555,7 +573,7 @@
     // Pontos da coleira, em fração da foto quadrada (mesmo enquadramento nas 104).
     const PONTOS = {
         inteira: { x: 0.5, y: 0.5, s: 1 },
-        resumo: { x: 0.5, y: 0.54, s: 1 },
+        resumo: { x: 0.5, y: 0.575, s: 1 },
         passador: { x: 0.47, y: 0.47, s: 2.1 },
         fivela: { x: 0.165, y: 0.47, s: 2.3 },
         argola: { x: 0.68, y: 0.5, s: 2.1 },
@@ -603,6 +621,18 @@
         foco.classList.remove('is-ativo');
         void foco.offsetWidth;
         foco.classList.add('is-ativo');
+    }
+
+    // Se o palco muda de altura (teclado, rotação da tela), o mesmo ponto
+    // precisa voltar ao centro; sem isto a coleira some do palco encolhido.
+    if ('ResizeObserver' in window) {
+        let alturaPalco = 0;
+        new ResizeObserver(() => {
+            const h = Math.round(palco.getBoundingClientRect().height);
+            if (!h || h === alturaPalco) return;
+            alturaPalco = h;
+            enquadrar(palco.dataset.ponto || 'inteira', true);
+        }).observe(palco);
     }
 
     let fotoAtual = '';
@@ -705,6 +735,15 @@
         }
         html += `<div class="atl-p3d__face atl-p3d__face--frente">${svgPingente(opcoesPingente('frente'))}</div>`;
         html += `<div class="atl-p3d__face atl-p3d__face--verso">${svgPingente(opcoesPingente('verso'))}</div>`;
+        // A argola de verdade fica perpendicular à peça: de frente ela some
+        // (o "I" desenhado nas faces faz esse papel) e, girando, vira "O".
+        const op = opcoesPingente('frente');
+        const f = formaDe(op.formato);
+        const me = METAL_ESTILO[chaveMetal(op.metal)];
+        const lado = ((2 * ARGOLA_RY + 2.6) / 116) * 100;
+        const cxA = ((f.furo[0] + 8) / 116) * 100 - lado / 2;
+        const cyA = ((f.furo[1] - ARGOLA_RY + 1.6 + 8) / 116) * 100 - lado / 2;
+        html += `<div class="atl-p3d__argola" style="left:${cxA.toFixed(2)}%;top:${cyA.toFixed(2)}%;width:${lado.toFixed(2)}%;height:${lado.toFixed(2)}%"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.7" fill="none" stroke="${me.aresta}" stroke-width="2.4"/><circle cx="10" cy="10" r="8.7" fill="none" stroke="${me.g[1]}" stroke-width="1.3"/></svg></div>`;
         p3dObj.innerHTML = html;
         aplicarGiro();
     }
@@ -1842,17 +1881,21 @@
         window.scrollTo({ top: y, behavior: semMovimento ? 'auto' : 'smooth' });
     }
 
-    // Enquanto digita no celular, o palco encolhe e a barra sai da frente do teclado.
-    root.addEventListener('focusin', (e) => {
-        if (e.target.matches('.atl-paineis input, .atl-paineis textarea')) root.classList.add('atl--digitando');
-    });
-    root.addEventListener('focusout', (e) => {
-        if (e.target.matches('.atl-paineis input, .atl-paineis textarea')) {
-            setTimeout(() => {
-                if (!root.querySelector('.atl-paineis input:focus, .atl-paineis textarea:focus')) root.classList.remove('atl--digitando');
-            }, 120);
-        }
-    });
+    // Com o TECLADO aberto (celular de verdade), o palco encolhe para o campo
+    // e a gravação caberem na tela. A barra com "Continuar" nunca some: antes
+    // ela sumia com qualquer campo em foco e, depois de digitar o peso (que já
+    // escolhe o tamanho), a cliente ficava sem botão até tocar fora.
+    function tecladoAberto() {
+        const vv = window.visualViewport;
+        return !!vv && window.innerHeight - vv.height > 140;
+    }
+    function atualizarDigitando() {
+        const foco = root.querySelector('.atl-paineis input:focus, .atl-paineis textarea:focus');
+        root.classList.toggle('atl--digitando', !!foco && tecladoAberto());
+    }
+    root.addEventListener('focusin', () => setTimeout(atualizarDigitando, 350));
+    root.addEventListener('focusout', () => setTimeout(atualizarDigitando, 150));
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', atualizarDigitando);
 
     // Chamadas para o ateliê
     $$('[data-atl-comecar]').forEach((a) => a.addEventListener('click', (e) => {

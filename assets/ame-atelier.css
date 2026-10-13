@@ -816,12 +816,14 @@
 }
 
 /* Pingente pendurado na argola (resumo) */
+/* O furo do pingente fica logo abaixo da argola da coleira; a argola do
+   pingente ("I") sobe até ela. Maior e mais baixo a pedido do Muriel. */
 .atl-palco__pendurado {
   position: absolute;
   z-index: 4;
   left: 68%;
-  top: 59.6%;
-  width: 19%;
+  top: 61.2%;
+  width: 24%;
   pointer-events: none;
 }
 
@@ -898,6 +900,17 @@
 
 .atl-p3d__camada svg,
 .atl-p3d__face svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.atl-p3d__argola {
+  position: absolute;
+  transform: rotateY(90deg);
+}
+
+.atl-p3d__argola svg {
   display: block;
   width: 100%;
   height: 100%;
@@ -988,16 +1001,14 @@
   color: var(--atl-tinta-2);
 }
 
-/* Teclado aberto no celular: o palco encolhe e a barra sai da frente. */
+/* Teclado aberto no celular (o JS só liga com teclado de verdade): o palco
+   encolhe para o campo caber. A barra fica onde está. */
 @media (max-width: 989px) {
   .atl--digitando .atl-palco {
-    aspect-ratio: 100 / 38;
+    aspect-ratio: 100 / 42;
   }
   .atl--digitando .atl-palco__legenda {
     display: none;
-  }
-  body.atl-com-barra .atl--digitando .atl-barra {
-    transform: translateY(110%);
   }
 }
 
