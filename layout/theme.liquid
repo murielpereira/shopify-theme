@@ -429,7 +429,16 @@
           if (cart.item_count === 0) {
             list?.remove();
             if (footer) footer.style.display = 'none';
-            if (body && !body.querySelector('[data-cart-empty]')) body.innerHTML = emptyHTML();
+            /* Trocar o innerHTML do corpo levava a barra de frete junto — ela é
+               renderizada no Liquid uma vez só e ninguém a recria, então quem
+               adicionasse outro item na mesma visita ficava sem barra até
+               recarregar. Agora ela só é escondida. A de brinde sai mesmo: o
+               ame-gifts.js a recria sozinho quando volta a fazer sentido. */
+            body?.querySelector('[data-shipping-bar]')?.setAttribute('hidden', '');
+            body?.querySelector('[data-gift-bar]')?.remove();
+            if (body && !body.querySelector('[data-cart-empty]')) {
+              body.insertAdjacentHTML('beforeend', emptyHTML());
+            }
             return;
           }
 
@@ -445,12 +454,18 @@
             const ul = Object.assign(document.createElement('ul'), { className: 'ame-cart-items' });
             ul.setAttribute('data-cart-items', '');
             ul.innerHTML = itensHTML;
-            body.prepend(ul);
+            /* Depois das barras, nunca antes: `prepend` jogaria a lista acima
+               da barra de frete, que agora sobrevive ao carrinho vazio.
+               (Ordem do snippets/cart-drawer.liquid.) */
+            const barras = body.querySelector('[data-gift-bar]') || body.querySelector('[data-shipping-bar]');
+            if (barras) barras.insertAdjacentElement('afterend', ul);
+            else body.prepend(ul);
           }
 
-          const pct = Math.min((cart.total_price / 100 / 300) * 100, 100);
-          const fill = d?.querySelector('.ame-cart-shipping-bar__fill');
-          if (fill) fill.style.width = pct + '%';
+          /* A largura da barra de frete é do cart-shipping-calculator.liquid,
+             que conhece o teto da região do CEP (vindo de settings). Aqui havia
+             um cálculo com teto fixo de R$ 300 pintando outro valor no mesmo nó
+             um instante antes — errado sempre que o teto não fosse 300. */
         }
 
         function emptyHTML() {

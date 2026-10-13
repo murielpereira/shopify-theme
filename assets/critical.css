@@ -1257,6 +1257,14 @@ body::after {
   padding: 1rem 0 0.25rem;
 }
 
+/* Sem esta guarda o `hidden` da barra não esconde nada: `[hidden]` mora na
+   folha do navegador e perde pro `display:flex` acima. O JS marcava a barra
+   como hidden e ela seguia na tela com o texto da última vez — inclusive o
+   "Você ganhou frete grátis". Mesma armadilha do "De: —" dos kits. */
+.ame-cart-shipping-bar[hidden] {
+  display: none;
+}
+
 .ame-cart-shipping-bar--achieved {
   flex-direction: row;
   align-items: center;

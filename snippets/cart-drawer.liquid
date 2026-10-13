@@ -33,6 +33,62 @@
   <!-- Conteúdo -->
   <div class="ame-cart-drawer__body" data-cart-body>
 
+    {%- comment -%}
+      Barra de frete grátis com threshold DINÂMICO por região do CEP.
+      Os valores vêm de settings (shipping_bar_t_regional pra SUL/SE,
+      shipping_bar_t_nacional pro resto). Quando o cliente digita CEP no
+      widget de cálculo, o JS detecta a região via prefixo do CEP e
+      atualiza data-current-threshold + a barra. Sem CEP vale o teto
+      regional, o mais otimista — o número fica exato quando o CEP chega.
+    {%- endcomment -%}
+    {%- liquid
+      assign t_regional_cents = settings.shipping_bar_t_regional | default: 30000
+      assign t_nacional_cents = settings.shipping_bar_t_nacional | default: 50000
+      # Default antes do cliente digitar CEP: usa o regional (mais otimista)
+      assign initial_threshold = t_regional_cents
+      assign cart_cents = cart.total_price
+      assign initial_remaining = initial_threshold | minus: cart_cents
+      assign initial_progress = cart_cents | times: 100 | divided_by: initial_threshold | at_most: 100
+      if initial_remaining < 0
+        assign initial_remaining = 0
+      endif
+    -%}
+    {%- comment -%}
+      A barra fica FORA do if de carrinho vazio de propósito: o nó é
+      renderizado uma única vez e nenhum JS o recria. Enquanto ela morava
+      dentro do else, esvaziar o carrinho a apagava junto com o corpo do
+      drawer e quem adicionasse outro item na mesma visita ficava sem barra
+      até recarregar a página.
+
+      Nasce `hidden` e quem manda na visibilidade é o
+      cart-shipping-calculator.liquid: aparece com o carrinho cheio (teto
+      regional enquanto não há CEP, exato depois que o CEP chega) e some
+      quando o carrinho zera.
+    {%- endcomment -%}
+    <div
+      class="ame-cart-shipping-bar"
+      data-shipping-bar
+      data-t-regional="{{ t_regional_cents }}"
+      data-t-nacional="{{ t_nacional_cents }}"
+      data-current-threshold="{{ initial_threshold }}"
+      hidden
+    >
+      {%- if cart_cents >= initial_threshold -%}
+        <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
+          <span class="material-symbols-outlined" aria-hidden="true" style="font-size:0.95rem;vertical-align:middle;">local_shipping</span>
+          Você ganhou <strong>frete grátis</strong>!
+        </p>
+      {%- else -%}
+        <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
+          Faltam <strong data-shipping-bar-remaining>{{ initial_remaining | money }}</strong>
+          para <strong>frete grátis</strong>
+        </p>
+      {%- endif -%}
+      <div class="ame-cart-shipping-bar__track">
+        <div class="ame-cart-shipping-bar__fill" data-shipping-bar-fill style="width: {{ initial_progress | round }}%"></div>
+      </div>
+    </div>
+
     {%- if cart.item_count == 0 -%}
       <!-- Empty state -->
       <div class="ame-cart-empty" data-cart-empty>
@@ -45,57 +101,6 @@
         </a>
       </div>
     {%- else -%}
-      {%- comment -%}
-        Barra de frete grátis com threshold DINÂMICO por região do CEP.
-        Os valores vêm de settings (shipping_bar_t_regional pra SUL/SE,
-        shipping_bar_t_nacional pro resto). Quando o cliente digita CEP no
-        widget de cálculo, o JS detecta a região via prefixo do CEP e
-        atualiza data-current-threshold + a barra. Sem CEP: usa o threshold
-        nacional (cenário pior — incentiva o cliente a digitar pra ver melhor).
-      {%- endcomment -%}
-      {%- liquid
-        assign t_regional_cents = settings.shipping_bar_t_regional | default: 30000
-        assign t_nacional_cents = settings.shipping_bar_t_nacional | default: 50000
-        # Default antes do cliente digitar CEP: usa o regional (mais otimista)
-        assign initial_threshold = t_regional_cents
-        assign cart_cents = cart.total_price
-        assign initial_remaining = initial_threshold | minus: cart_cents
-        assign initial_progress = cart_cents | times: 100 | divided_by: initial_threshold | at_most: 100
-        if initial_remaining < 0
-          assign initial_remaining = 0
-        endif
-      -%}
-      {%- comment -%}
-        Barra fica hidden até o cliente calcular o frete — sem CEP não
-        sabemos qual threshold (regional/nacional) aplicar, então a barra
-        mostrada agora seria imprecisa. O calculator dispara `removeAttribute('hidden')`
-        quando as rates chegam. Só se o cart já vem com nota fiscal / CEP
-        salvo em session, poderia começar visível — hoje sempre esconde.
-      {%- endcomment -%}
-      <div
-        class="ame-cart-shipping-bar"
-        data-shipping-bar
-        data-t-regional="{{ t_regional_cents }}"
-        data-t-nacional="{{ t_nacional_cents }}"
-        data-current-threshold="{{ initial_threshold }}"
-        hidden
-      >
-        {%- if cart_cents >= initial_threshold -%}
-          <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
-            <span class="material-symbols-outlined" aria-hidden="true" style="font-size:0.95rem;vertical-align:middle;">local_shipping</span>
-            Você ganhou <strong>frete grátis</strong>!
-          </p>
-        {%- else -%}
-          <p class="ame-cart-shipping-bar__text" data-shipping-bar-text>
-            Faltam <strong data-shipping-bar-remaining>{{ initial_remaining | money }}</strong>
-            para <strong>frete grátis</strong>
-          </p>
-        {%- endif -%}
-        <div class="ame-cart-shipping-bar__track">
-          <div class="ame-cart-shipping-bar__fill" data-shipping-bar-fill style="width: {{ initial_progress | round }}%"></div>
-        </div>
-      </div>
-
       {%- comment -%}
         Ordem de exibição: cada pingente add-on vem LOGO ABAIXO da sua coleira,
         recuado e ligado a ela (CSS .ame-cart-item--kit-*). Na ordem natural da
