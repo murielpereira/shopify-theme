@@ -1,7 +1,8 @@
 /**
  * Ateliê — a coleira montada em etapas (sections/atelier-coleira.liquid).
  *
- * Etapas: 0 Nome · 1 Cores · 2 Metal · 3 Tamanho · 4 Pingente · 5 Resumo.
+ * Etapas: Cores · Metal · Tamanho · Pingente · Resumo (índices em `E`).
+ * O nome do pet só é pedido dentro do Pingente, depois de escolher um tipo.
  *
  * O palco mostra a FOTO REAL da combinação escolhida. As 104 fotos (26 cores ×
  * 4 metais) têm o mesmo enquadramento (medido em 13/10/2026: a coleira ocupa
@@ -84,7 +85,8 @@
     }
 
     const guarda = {
-        chave: 'ame-atelier:v1:' + CFG.handle,
+        // v2: em 13/10/2026 a etapa Nome saiu e os índices mudaram.
+        chave: 'ame-atelier:v2:' + CFG.handle,
         ler() {
             try { return JSON.parse(window.localStorage.getItem(this.chave) || 'null'); } catch (e) { return null; }
         },
@@ -103,11 +105,12 @@
 
     // ═══════════════════════════ estado ═══════════════════════════
 
-    const PASSOS = ['Nome', 'Cores', 'Metal', 'Tamanho', 'Pingente', 'Resumo'];
+    const PASSOS = ['Cores', 'Metal', 'Tamanho', 'Pingente', 'Resumo'];
+    // Índice de cada etapa pelo nome: mudar a ordem é mudar só aqui.
+    const E = { cores: 0, metal: 1, tamanho: 2, pingente: 3, resumo: 4 };
     const S = {
         passo: 0,
         maxPasso: 0,
-        pet: '',
         couro: null,      // cor principal ("Allure")
         cor: null,        // valor da opção Cor ("Allure com Off White")
         metal: null,
@@ -120,12 +123,11 @@
         extras: {},       // outros campos personalizados, por nome
         pTipo: null,      // 'nenhum' | 'metal' | 'couro' | 'metal-couro'
         pFormato: null,
-        pFrente: '',
-        pFrenteTocada: false,
+        pFrente: '',      // nome do pet: frente do pingente
         pTutor: '',
         pTel: '',
     };
-    const CAMPOS_SALVOS = ['maxPasso', 'pet', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'raca', 'idade', 'idadeUn', 'peso', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pFrenteTocada', 'pTutor', 'pTel'];
+    const CAMPOS_SALVOS = ['maxPasso', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'raca', 'idade', 'idadeUn', 'peso', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pTutor', 'pTel'];
 
     let salvarTimer = 0;
     function salvar() {
@@ -363,34 +365,61 @@
         return s + ' Z';
     }
 
-    // viewBox 0..100. `furo` é onde passa a argola (canto superior direito,
-    // como nas fotos). `texto` é o centro e a largura útil da gravação.
-    // `pendura` é o ângulo que o pingente toma pendurado pelo furo.
+    // viewBox 0..100. As quatro formas são simétricas e o furo fica no
+    // CENTRO, em cima, como nas peças reais (fotos "Wendy" e "Bento" que o
+    // Muriel mandou em 13/10/2026). Por isso o pingente pendura reto, com o
+    // nome alinhado à coleira, e o verso é o mesmo recorte, sem espelhar.
+    // `texto` e `verso` = [centro x, centro y, largura útil, corpo máximo].
     const FORMAS = {
         circulo: {
             d: 'M12,54 A38,38 0 1,0 88,54 A38,38 0 1,0 12,54 Z',
-            furo: [71, 30], texto: [50, 57, 56], verso: [50, 54, 58], pendura: -41,
+            furo: [50, 23], texto: [50, 58, 56, 15], verso: [50, 57, 58, 9.5],
         },
         coracao: {
             d: 'M50,90 C46,86 10,62 10,36 C10,22 21,13 33,13 C41,13 47,18 50,24 C53,18 59,13 67,13 C79,13 90,22 90,36 C90,62 54,86 50,90 Z',
-            furo: [70, 23], texto: [50, 45, 52], verso: [50, 43, 54], pendura: -33,
+            furo: [50, 30.5], texto: [50, 51, 50, 14], verso: [50, 51, 52, 9],
         },
         flor: {
-            d: florPath(50, 54, 6, 25, 15, -Math.PI / 3),
-            furo: [64, 31], texto: [50, 56, 44], verso: [50, 54, 46], pendura: -28,
+            d: florPath(50, 54, 6, 25, 15, -Math.PI / 2),
+            furo: [50, 21.5], texto: [50, 57, 44, 14], verso: [50, 56, 46, 8.5],
         },
         osso: {
-            d: 'M32.70,44 L67.30,44 A15,15 0 1,1 87.39,55 A15,15 0 1,1 67.30,66 L32.70,66 A15,15 0 1,1 12.61,55 A15,15 0 1,1 32.70,44 Z',
-            furo: [85, 36], texto: [50, 56.5, 46], verso: [50, 55, 48], pendura: -58,
+            // Osso largo, de meio cheio (cerca de 70 % da altura das pontas) e
+            // entalhe raso nas pontas, como o pingente real.
+            d: 'M24.1,36.08 C31.47,41.25 68.53,41.25 75.9,36.08 A11.5,11.5 0 1,1 88.98,55 A11.5,11.5 0 1,1 75.9,73.92 C68.53,68.75 31.47,68.75 24.1,73.92 A11.5,11.5 0 1,1 11.02,55 A11.5,11.5 0 1,1 24.1,36.08 Z',
+            furo: [50, 45], texto: [50, 58.5, 52, 11], verso: [50, 59, 56, 7],
         },
     };
     const formaDe = (formato) => FORMAS[compacto(formato)] || FORMAS.coracao;
+
+    // Gravação em Exo Medium (a fonte da gravação de verdade). A largura é
+    // medida no canvas para o nome caber na peça; até a fonte carregar, uma
+    // estimativa, e o pingente é redesenhado quando ela chega.
+    const FONTE_GRAVACAO = "Exo, 'Lexend', system-ui, sans-serif";
+    const medidor = document.createElement('canvas').getContext('2d');
+    let exoPronta = false;
+    function larguraPorCorpo(texto) {
+        if (exoPronta && medidor) {
+            medidor.font = '500 100px Exo';
+            return medidor.measureText(String(texto)).width / 100;
+        }
+        return String(texto).length * 0.58;
+    }
+    if (document.fonts && document.fonts.load) {
+        document.fonts.load('500 20px Exo').then(() => {
+            exoPronta = document.fonts.check('500 20px Exo');
+            if (!exoPronta) return;
+            if (palco.dataset.modo === 'p3d') desenhar3D();
+            desenharPendurado();
+            if (S.passo === E.pingente) renderTipos();
+        }).catch(() => { /* fica a estimativa */ });
+    }
 
     let svgSeq = 0;
 
     /**
      * Uma face do pingente. `lado` = 'frente' | 'verso' | 'aresta'.
-     * `brilho` dá o id do gradiente do reflexo, que o palco desliza ao girar.
+     * Couro e metal com couro são iguais dos dois lados; o metal é metal dos dois.
      */
     function svgPingente(op) {
         const id = 'atlp' + (++svgSeq);
@@ -398,12 +427,8 @@
         const me = METAL_ESTILO[chaveMetal(op.metal)];
         const couroHex = op.couroHex || '#d3cec3';
         const verso = op.lado === 'verso';
-        // A face do verso é o mesmo recorte espelhado: o furo, que está em
-        // cima à direita na frente, aparece em cima à esquerda atrás.
-        const espelho = verso ? ' transform="translate(100,0) scale(-1,1)"' : '';
-        const temCouro = !verso && (op.tipo === 'couro' || op.tipo === 'metal-couro');
+        const temCouro = op.tipo === 'couro' || op.tipo === 'metal-couro';
         const tudoCouro = op.tipo === 'couro';
-        const corpoMetal = !tudoCouro;
 
         if (op.lado === 'aresta') {
             const cor = tudoCouro ? sombraHex(couroHex, 0.62) : me.aresta;
@@ -422,73 +447,68 @@
               <stop offset=".5" stop-color="${me.luz}" stop-opacity="${tudoCouro ? 0.16 : 0.55}"/>
               <stop offset=".65" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
-            <clipPath id="${id}c"><path d="${f.d}"${espelho}/></clipPath>
+            <clipPath id="${id}c"><path d="${f.d}"/></clipPath>
             <filter id="${id}g" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-              <feTurbulence type="fractalNoise" baseFrequency=".34" numOctaves="3" seed="11" result="n"/>
-              <feDiffuseLighting in="n" surfaceScale="1.3" lighting-color="#fff" result="l"><feDistantLight azimuth="235" elevation="60"/></feDiffuseLighting>
-              <feComponentTransfer in="l" result="l2"><feFuncR type="linear" slope=".5" intercept=".56"/><feFuncG type="linear" slope=".5" intercept=".56"/><feFuncB type="linear" slope=".5" intercept=".56"/></feComponentTransfer>
+              <feTurbulence type="fractalNoise" baseFrequency=".62" numOctaves="2" seed="11" result="n"/>
+              <feDiffuseLighting in="n" surfaceScale=".9" lighting-color="#fff" result="l"><feDistantLight azimuth="235" elevation="60"/></feDiffuseLighting>
+              <feComponentTransfer in="l" result="l2"><feFuncR type="linear" slope=".34" intercept=".72"/><feFuncG type="linear" slope=".34" intercept=".72"/><feFuncB type="linear" slope=".34" intercept=".72"/></feComponentTransfer>
               <feComposite in="l2" in2="SourceAlpha" operator="in" result="lc"/>
               <feBlend in="SourceGraphic" in2="lc" mode="multiply"/>
             </filter>
           </defs>`;
 
         let corpo = '';
-        if (corpoMetal) corpo += `<path d="${f.d}"${espelho} fill="url(#${id}m)"/>`;
-        if (tudoCouro) corpo += `<path d="${f.d}"${espelho} fill="${couroHex}" filter="url(#${id}g)"/>`;
-        if (temCouro && op.tipo === 'metal-couro') {
-            // Couro por dentro e um aro de metal: o traço grosso recortado pela
-            // própria forma deixa só a metade de dentro visível.
+        if (tudoCouro) {
+            corpo += `<path d="${f.d}" fill="${couroHex}" filter="url(#${id}g)"/>`;
+        } else if (temCouro) {
+            // Metal com couro: couro por dentro e aro de metal. O traço grosso
+            // recortado pela própria forma deixa só a metade de dentro.
             corpo += `<path d="${f.d}" fill="${couroHex}" filter="url(#${id}g)"/>`;
             corpo += `<path d="${f.d}" fill="none" stroke="url(#${id}m)" stroke-width="10" clip-path="url(#${id}c)"/>`;
-            corpo += `<path d="${f.d}" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="10.8" stroke-opacity=".0" clip-path="url(#${id}c)"/>`;
+        } else {
+            corpo += `<path d="${f.d}" fill="url(#${id}m)"/>`;
         }
-        // Bisel: luz em cima, sombra em baixo, sempre dentro da forma.
+        // Bisel: luz em cima, sombra embaixo, sempre dentro da forma.
         corpo += `<g clip-path="url(#${id}c)">
-            <path d="${f.d}"${espelho} fill="none" stroke="rgba(255,255,255,${tudoCouro ? 0.18 : 0.55})" stroke-width="2.2" transform="translate(.6 .9)"/>
-            <path d="${f.d}"${espelho} fill="none" stroke="rgba(0,0,0,${tudoCouro ? 0.2 : 0.28})" stroke-width="2.2" transform="translate(-.6 -.9)"/>
+            <path d="${f.d}" fill="none" stroke="rgba(255,255,255,${tudoCouro ? 0.18 : 0.55})" stroke-width="2.2" transform="translate(.6 .9)"/>
+            <path d="${f.d}" fill="none" stroke="rgba(0,0,0,${tudoCouro ? 0.2 : 0.28})" stroke-width="2.2" transform="translate(-.6 -.9)"/>
           </g>`;
 
-        // Furo e argola (a argola só na frente; no verso fica o furo).
-        const fx = verso ? 100 - f.furo[0] : f.furo[0];
-        const fy = f.furo[1];
-        corpo += `<circle cx="${fx}" cy="${fy}" r="3" fill="rgba(32,27,20,.55)"/>`;
+        // Furo no centro, em cima, e a argola passando por ele (dos dois lados).
+        const fx = f.furo[0], fy = f.furo[1];
+        corpo += `<circle cx="${fx}" cy="${fy}" r="2.8" fill="rgba(32,27,20,.55)"/>`;
         let argola = '';
-        if (!verso && op.argola !== false) {
-            const ax = fx + 6, ay = fy - 8;
+        if (op.argola !== false) {
+            const ax = fx, ay = fy - 9.5;
             argola = `<g fill="none" stroke-linecap="round">
                 <circle cx="${ax}" cy="${ay}" r="9.5" stroke="${me.aresta}" stroke-width="3.4"/>
                 <circle cx="${ax}" cy="${ay}" r="9.5" stroke="url(#${id}m)" stroke-width="2.4"/>
-                <path d="M${ax - 8.6},${ay + 4} A9.5,9.5 0 0 1 ${ax + 4},${ay - 8.6}" stroke="rgba(255,255,255,.6)" stroke-width=".9"/>
+                <path d="M${ax - 8.2},${ay - 4.8} A9.5,9.5 0 0 1 ${ax + 4.8},${ay - 8.2}" stroke="rgba(255,255,255,.6)" stroke-width=".9"/>
               </g>`;
         }
 
-        // Gravação
-        const serif = op.tipo === 'metal-couro' && !verso;
-        const naCouro = (op.tipo === 'couro') || (op.tipo === 'metal-couro' && !verso);
-        const corTexto = naCouro ? (claroOuEscuro(couroHex) === 'escuro' ? '#f3ece4' : '#1d1a18') : me.gravura;
-        const familia = serif ? "Georgia, 'Times New Roman', serif" : "Lexend, 'Segoe UI', system-ui, sans-serif";
-        const peso = serif ? 500 : 500;
-        const area = verso ? f.verso : f.texto;
         if (op.semTexto) {
             const brilhoMini = `<rect x="-10" y="-10" width="120" height="120" fill="url(#${id}b)" clip-path="url(#${id}c)" style="mix-blend-mode:screen"/>`;
             return `<svg viewBox="-8 -8 116 116" aria-hidden="true">${defs}${corpo}${brilhoMini}${argola}</svg>`;
         }
+
+        // Gravação: escura no couro claro e no metal, clara no couro escuro e no grafite.
+        const corTexto = temCouro ? (claroOuEscuro(couroHex) === 'escuro' ? '#f3ece4' : '#1d1a18') : me.gravura;
+        const area = verso ? f.verso : f.texto;
         const linhas = (verso ? [op.tutor, op.tel] : quebrarNome(op.nome)).filter((l) => l && String(l).trim());
         const vazio = !linhas.length;
         const usar = vazio ? (verso ? ['Nome do tutor', '11 99999-9999'] : ['nome do', 'seu pet']) : linhas;
-        const maior = usar.reduce((m, l) => Math.max(m, String(l).length), 1);
-        const k = serif ? 0.56 : 0.6;
-        let fs = Math.min(verso ? 9.5 : 15, area[2] / (maior * k));
-        fs = Math.max(4.6, fs);
-        const lh = fs * 1.12;
-        const y0 = area[1] - ((usar.length - 1) * lh) / 2 + fs * 0.35;
+        const maior = usar.reduce((m, l) => Math.max(m, larguraPorCorpo(l)), 0.01);
+        const fs = Math.max(4.2, Math.min(area[3], area[2] / maior));
+        const lh = fs * 1.14;
+        const y0 = area[1] - ((usar.length - 1) * lh) / 2 + fs * 0.36;
         const opac = vazio ? 0.34 : 0.92;
         const tspans = usar.map((l, i) => `<tspan x="${area[0]}" y="${(y0 + i * lh).toFixed(2)}">${esc(l)}</tspan>`).join('');
         let gravura = '';
-        if (!naCouro) {
-            gravura += `<text text-anchor="middle" font-family="${familia}" font-weight="${peso}" font-size="${fs.toFixed(2)}" fill="${me.luz}" opacity="${vazio ? 0.2 : 0.5}" transform="translate(.35 .45)">${tspans}</text>`;
+        if (!temCouro) {
+            gravura += `<text text-anchor="middle" font-family="${FONTE_GRAVACAO}" font-weight="500" font-size="${fs.toFixed(2)}" fill="${me.luz}" opacity="${vazio ? 0.2 : 0.5}" transform="translate(.35 .45)">${tspans}</text>`;
         }
-        gravura += `<text text-anchor="middle" font-family="${familia}" font-weight="${peso}" font-size="${fs.toFixed(2)}" fill="${corTexto}" opacity="${opac}">${tspans}</text>`;
+        gravura += `<text text-anchor="middle" font-family="${FONTE_GRAVACAO}" font-weight="500" font-size="${fs.toFixed(2)}" fill="${corTexto}" opacity="${opac}">${tspans}</text>`;
 
         const brilho = `<rect x="-10" y="-10" width="120" height="120" fill="url(#${id}b)" clip-path="url(#${id}c)" style="mix-blend-mode:screen"/>`;
 
@@ -652,14 +672,14 @@
 
     // ── Pingente pendurado na argola (resumo) ──
     function desenharPendurado() {
-        const ativo = S.pTipo && S.pTipo !== 'nenhum' && S.pFormato && S.passo === 5;
+        const ativo = S.pTipo && S.pTipo !== 'nenhum' && S.pFormato && S.passo === E.resumo;
         palco.classList.toggle('tem-pingente', !!ativo);
         if (!ativo) { pendurado.innerHTML = ''; return; }
         const f = formaDe(S.pFormato);
-        pendurado.innerHTML = `<div class="atl-pendurado__balanco" style="--furo-x:${(f.furo[0] + 8) / 1.16}%;--furo-y:${(f.furo[1] + 8) / 1.16}%;--ang:${f.pendura}deg">${svgPingente(opcoesPingente('frente', { argola: true }))}</div>`;
+        pendurado.innerHTML = `<div class="atl-pendurado__balanco" style="--furo-x:${(f.furo[0] + 8) / 1.16}%;--furo-y:${(f.furo[1] + 8) / 1.16}%;--ang:0deg">${svgPingente(opcoesPingente('frente', { argola: true }))}</div>`;
     }
 
-    // ── Pingente em 3D (etapas Nome e Pingente) ──
+    // ── Pingente em 3D (etapa Pingente) ──
     const giro = { ry: -18, rx: 6, alvoRy: -18, alvoRx: 6, arrastando: false, lado: 'frente', ultimoToque: 0, raf: 0 };
 
     function opcoesPingente(lado, extra) {
@@ -670,7 +690,7 @@
         return Object.assign({
             tipo, formato, metal, lado,
             couroHex: hexDe(corCouro),
-            nome: S.passo === 0 ? S.pet : S.pFrente,
+            nome: S.pFrente,
             tutor: S.pTutor,
             tel: S.pTel,
         }, extra || {});
@@ -777,17 +797,18 @@
     function atualizarPalco(opcoes) {
         const o = opcoes || {};
         const passo = S.passo;
-        const modo = passo === 0 || passo === 4 ? 'p3d' : 'colar';
+        // O pingente em 3D só aparece na etapa Pingente, e sai da frente
+        // quando a cliente escolhe "Sem pingente".
+        const modo = passo === E.pingente && S.pTipo !== 'nenhum' ? 'p3d' : 'colar';
         palco.dataset.modo = modo;
         btnVirar.hidden = modo !== 'p3d';
 
         if (modo === 'p3d') {
-            enquadrar(passo === 4 ? 'argola' : 'inteira');
-            if (passo === 0 && !S.pTipo) virarPara('frente');
+            enquadrar('argola');
             desenhar3D();
             ligarGiro();
         } else {
-            const ponto = o.ponto || (passo === 2 ? 'fivela' : passo === 5 ? 'resumo' : 'inteira');
+            const ponto = o.ponto || (passo === E.metal ? 'fivela' : passo === E.resumo ? 'resumo' : 'inteira');
             enquadrar(ponto);
         }
         desenharPendurado();
@@ -798,7 +819,7 @@
         if (M && cor && metal) trocarFoto(M.foto(cor, metal), o.efeito);
 
         // Selo: tamanho no palco da etapa Tamanho.
-        if (passo === 3 && S.tamanho) {
+        if (passo === E.tamanho && S.tamanho) {
             const md = medidaDe(S.tamanho);
             selo.innerHTML = `<strong>${esc(S.tamanho)}</strong>${md ? ` · pescoço ${esc(md)}` : ''}`;
             selo.hidden = false;
@@ -810,9 +831,9 @@
 
     function atualizarLegenda() {
         const partes = [];
-        if (S.passo === 0) {
-            partes.push(S.pet ? `O nome de ${S.pet}, gravado à mão` : 'Escreva o nome e veja gravado');
-        } else if (S.passo === 4 && S.pTipo && S.pTipo !== 'nenhum') {
+        if (S.passo === E.pingente && !S.pTipo) {
+            partes.push('Escolha um pingente e veja o nome gravado');
+        } else if (S.passo === E.pingente && S.pTipo && S.pTipo !== 'nenhum') {
             partes.push(rotuloTipo(S.pTipo) + (S.pFormato ? ' · ' + S.pFormato : ''));
             partes.push('arraste para girar');
         } else {
@@ -860,31 +881,20 @@
         el.classList.add('atl-tremer');
     }
 
-    function nomeParaTitulo() { return S.pet ? S.pet : 'seu pet'; }
-
-    function atualizarNomes() {
-        $$('[data-atl-pet-titulo]').forEach((el) => (el.textContent = nomeParaTitulo()));
-        const tp = $('[data-atl-titulo-pingente]');
-        if (tp) tp.textContent = S.pet ? `O nome de ${S.pet}, gravado` : 'Um pingente com o nome do seu pet';
-        const tr = $('[data-atl-titulo-resumo]');
-        if (tr) tr.textContent = S.pet ? `A ${CFG.nomeCurto} de ${S.pet}` : `A sua ${CFG.nomeCurto}`;
+    // O nome do pet é o da frente do pingente, e só aparece nos títulos
+    // quando há um pingente escolhido (sem pingente, não há nome no pedido).
+    function nomeDoPet() {
+        return S.pTipo && S.pTipo !== 'nenhum' ? limpo(S.pFrente || '') : '';
     }
 
-    // ── Etapa 0: nome ──
-    const inpPet = $('[data-atl-pet]');
-    inpPet.addEventListener('input', () => {
-        const v = semEmoji(inpPet.value);
-        if (v !== inpPet.value) inpPet.value = v;
-        S.pet = limpo(v);
-        // O nome do pingente acompanha até a cliente mexer nele.
-        if (!S.pFrenteTocada) S.pFrente = S.pet;
-        contar(inpPet);
-        atualizarNomes();
-        if (palcoEm3D()) { desenhar3D(); virarPara('frente'); }
-        atualizarLegenda();
-        salvar();
-    });
-    inpPet.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inpPet.blur(); avancar(); } });
+    function atualizarNomes() {
+        const pet = nomeDoPet();
+        $$('[data-atl-pet-titulo]').forEach((el) => (el.textContent = pet || 'seu pet'));
+        const tp = $('[data-atl-titulo-pingente]');
+        if (tp) tp.textContent = pet ? `O nome de ${pet}, gravado` : 'Um pingente com o nome do seu pet';
+        const tr = $('[data-atl-titulo-resumo]');
+        if (tr) tr.textContent = pet ? `A ${CFG.nomeCurto} de ${pet}` : `A sua ${CFG.nomeCurto}`;
+    }
 
     function contar(inp) {
         const c = $(`[data-atl-contador="${inp.id}"]`);
@@ -956,7 +966,7 @@
         atualizarPalco({ ponto: 'passador', efeito: PONTOS.passador });
         marcarFoco('passador');
         clearTimeout(renderPassadores._t);
-        renderPassadores._t = setTimeout(() => { if (S.passo === 1) enquadrar('inteira'); }, 1900);
+        renderPassadores._t = setTimeout(() => { if (S.passo === E.cores) enquadrar('inteira'); }, 1900);
         atualizarTudo();
     });
 
@@ -1362,7 +1372,7 @@
 
     function atualizarPingente() {
         renderTipos();
-        if (S.passo === 4) { desenhar3D(); atualizarLegenda(); }
+        if (S.passo === E.pingente) { desenhar3D(); atualizarLegenda(); }
         atualizarTudo();
     }
 
@@ -1370,8 +1380,8 @@
         const t = e.target.closest('[data-ptipo]');
         if (t) {
             S.pTipo = t.dataset.ptipo;
-            if (S.pTipo !== 'nenhum' && !S.pFrente && S.pet) S.pFrente = S.pet;
             atualizarPingente();
+            atualizarNomes();
             preencherGravacao();
             if (S.pTipo !== 'nenhum') virarPara('frente');
             atualizarPalco();
@@ -1382,7 +1392,9 @@
         const f = e.target.closest('[data-pformato]');
         if (f && !f.disabled) {
             S.pFormato = f.dataset.pformato;
-            renderFormatos();
+            // renderTipos redesenha também os formatos: as miniaturas dos
+            // tipos acompanham o formato escolhido.
+            renderTipos();
             desenhar3D();
             atualizarLegenda();
             atualizarTudo();
@@ -1418,7 +1430,7 @@
                 if (v !== inp.value) inp.value = v;
                 contar(inp);
             }
-            if (inp === inpFrente) { S.pFrente = limpo(inp.value); S.pFrenteTocada = true; }
+            if (inp === inpFrente) { S.pFrente = limpo(inp.value); atualizarNomes(); }
             if (inp === inpTutor) S.pTutor = limpo(inp.value);
             if (inp === inpTel) S.pTel = inp.value.trim();
             inp.closest('.atl-campo').classList.remove('is-invalido');
@@ -1428,7 +1440,7 @@
         });
     });
 
-    // ── Etapa 5: resumo ──
+    // ── Etapa Resumo ──
     function linhaFicha(rotulo, valor, passo) {
         return `<div class="atl-ficha__linha">
             <dt>${esc(rotulo)}</dt>
@@ -1441,22 +1453,22 @@
         const ficha = $('[data-atl-ficha]');
         const md = S.tamanho ? medidaDe(S.tamanho) : '';
         const linhas = [];
-        linhas.push(linhaFicha('Couro', esc(S.cor ? descreverCor(S.cor) : '—'), 1));
-        linhas.push(linhaFicha('Metal', esc(S.metal || '—'), 2));
-        linhas.push(linhaFicha('Tamanho', `${esc(S.tamanho || '—')}${md ? ` <small>pescoço de ${esc(md)}</small>` : ''}`, 3));
-        if (campoRaca()) linhas.push(linhaFicha('Seu pet', esc(textoPet() || '—'), 3));
+        linhas.push(linhaFicha('Couro', esc(S.cor ? descreverCor(S.cor) : '—'), E.cores));
+        linhas.push(linhaFicha('Metal', esc(S.metal || '—'), E.metal));
+        linhas.push(linhaFicha('Tamanho', `${esc(S.tamanho || '—')}${md ? ` <small>pescoço de ${esc(md)}</small>` : ''}`, E.tamanho));
+        if (campoRaca()) linhas.push(linhaFicha('Seu pet', esc(textoPet() || '—'), E.tamanho));
         if (PG.ativo) {
             if (S.pTipo && S.pTipo !== 'nenhum') {
                 const verso = [S.pTutor, S.pTel].filter(Boolean).join(' · ');
-                linhas.push(linhaFicha('Pingente', `${esc(rotuloTipo(S.pTipo))} · ${esc(S.pFormato || '')}<small>Frente: “${esc(S.pFrente)}”${verso ? `<br>Verso: ${esc(verso)}` : ''}</small>`, 4));
+                linhas.push(linhaFicha('Pingente', `${esc(rotuloTipo(S.pTipo))} · ${esc(S.pFormato || '')}<small>Frente: “${esc(S.pFrente)}”${verso ? `<br>Verso: ${esc(verso)}` : ''}</small>`, E.pingente));
             } else {
-                linhas.push(linhaFicha('Pingente', 'Sem pingente', 4));
+                linhas.push(linhaFicha('Pingente', 'Sem pingente', E.pingente));
             }
         }
         ficha.innerHTML = `
           <div class="atl-ficha__topo">
             <span class="atl-eyebrow atl-eyebrow--claro">Ficha da peça</span>
-            <span class="atl-ficha__assinatura">${esc(CFG.nomeCurto)}${S.pet ? ` · ${esc(S.pet)}` : ''}</span>
+            <span class="atl-ficha__assinatura">${esc(CFG.nomeCurto)}${nomeDoPet() ? ` · ${esc(nomeDoPet())}` : ''}</span>
           </div>
           <dl>${linhas.join('')}</dl>`;
 
@@ -1510,7 +1522,7 @@
         const fTexto = $('[data-atl-flutuante-texto]');
         const fValor = $('[data-atl-flutuante-valor]');
         if (fTexto && S.maxPasso > 0) {
-            fTexto.textContent = S.pet ? `Continuar a coleira de ${S.pet}` : 'Continuar a minha coleira';
+            fTexto.textContent = nomeDoPet() ? `Continuar a coleira de ${nomeDoPet()}` : 'Continuar a minha coleira';
             if (t.temColeira) fValor.textContent = dinheiro(t.total);
         }
         if (!t.temColeira) {
@@ -1540,15 +1552,14 @@
     /** Devolve null se a etapa está completa, ou { msg, el } do que falta. */
     function problemaDoPasso(n) {
         switch (n) {
-            case 0: return null;
-            case 1:
+            case E.cores:
                 if (!S.couro) return { msg: 'Escolha a cor do couro.', el: $('[data-atl-couros]') };
                 if (!S.cor) return { msg: 'Escolha o passador.', el: $('[data-atl-passadores]') };
                 return null;
-            case 2:
+            case E.metal:
                 if (!S.metal) return { msg: 'Escolha o banho do metal.', el: $('[data-atl-metais]') };
                 return null;
-            case 3: {
+            case E.tamanho: {
                 const cr = campoRaca();
                 if (cr && cr.obrigatorio) {
                     if (!S.raca) return { msg: 'Conte a raça do seu pet (ou escreva "SRD").', el: $('[data-atl-raca]') };
@@ -1562,7 +1573,7 @@
                 if (M && !varianteColeira()) return { msg: 'Essa combinação não está disponível agora. Tente outro metal ou cor.', el: $('[data-atl-tamanhos]') };
                 return null;
             }
-            case 4: {
+            case E.pingente: {
                 if (!PG.ativo) return null;
                 if (!S.pTipo) return { msg: 'Quer o pingente com o nome? Escolha uma opção.', el: $('[data-atl-tipos]') };
                 if (S.pTipo === 'nenhum') return null;
@@ -1640,17 +1651,16 @@
 
     function renderPasso(n) {
         if (!M) return;
-        if (n === 0) { inpPet.value = S.pet; contar(inpPet); }
-        if (n === 1) { renderCouros(); renderPassadores(); }
-        if (n === 2) renderMetais();
-        if (n === 3) {
+        if (n === E.cores) { renderCouros(); renderPassadores(); }
+        if (n === E.metal) renderMetais();
+        if (n === E.tamanho) {
             renderPetInfo();
             renderTamanhos();
-            if (!TM) carregarTM().then(() => { if (S.passo === 3) { renderTamanhos(); } });
+            if (!TM) carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); } });
         }
-        if (n === 4) {
+        if (n === E.pingente) {
             const pronto = carregarPingentes().then(() => {
-                if (S.passo !== 4) return;
+                if (S.passo !== E.pingente) return;
                 renderTipos();
                 preencherGravacao();
                 desenhar3D();
@@ -1659,8 +1669,8 @@
             preencherGravacao();
             return pronto;
         }
-        if (n === 5) {
-            carregarPingentes().then(() => { if (S.passo === 5) { renderResumo(); desenharPendurado(); atualizarTudo(); } });
+        if (n === E.resumo) {
+            carregarPingentes().then(() => { if (S.passo === E.resumo) { renderResumo(); desenharPendurado(); atualizarTudo(); } });
             renderResumo();
         }
     }
@@ -1696,12 +1706,12 @@
         if (rotulo && !finalizando) {
             rotulo.textContent = S.passo === PASSOS.length - 1
                 ? 'Finalizar pedido'
-                : S.passo === 0 && !S.pet ? 'Pular' : (S.passo === 4 ? 'Ver resumo' : 'Continuar');
+                : S.passo === E.pingente ? 'Ver resumo' : 'Continuar';
         }
         btnContinuar.setAttribute('aria-label', S.passo < PASSOS.length - 1 ? `Continuar para ${PASSOS[S.passo + 1]}` : 'Finalizar pedido');
         btnContinuar.classList.toggle('is-pronto', !problemaDoPasso(S.passo));
         atualizarBarra();
-        if (S.passo === 5) renderResumo();
+        if (S.passo === E.resumo) renderResumo();
         // Toda escolha passa por aqui: guardar aqui cobre cor, metal e tamanho
         // escolhidos sem avançar de etapa (a cliente sai e volta).
         salvar();
@@ -1877,7 +1887,9 @@
         const pontos = $('[data-atl-hero-dots]');
         const palcoHero = $('[data-atl-hero-stage]');
         const palavra = $('[data-atl-hero-word]');
-        if (pontos) pontos.innerHTML = lista.map((h, i) => `<span class="${i === 0 ? 'is-ativo' : ''}" style="--cor:${hexDe(String(h.cor).split(/\s+com\s+/i)[0])}"></span>`).join('');
+        // Cada bolinha é um botão com área de toque de 36 px: escolher uma
+        // mostra a cor e segura o carrossel por alguns segundos.
+        if (pontos) pontos.innerHTML = lista.map((h, i) => `<button type="button" class="atl-hero__dot${i === 0 ? ' is-ativo' : ''}" data-i="${i}" aria-pressed="${i === 0}" aria-label="${esc(h.cor)}, metal ${esc(h.metal)}" style="--cor:${hexDe(String(h.cor).split(/\s+com\s+/i)[0])}"><span></span></button>`).join('');
 
         // Paralaxe: a palavra anda mais devagar que a coleira, e a coleira
         // inclina de leve conforme a página rola.
@@ -1902,44 +1914,56 @@
         }
         if (palavra) requestAnimationFrame(() => palavra.classList.add('is-visivel'));
 
-        if (lista.length < 2 || imgs.length < 2 || semMovimento) return;
-        let i = 0, frente = 0, visivel = true, timer = 0, ocupado = false;
+        if (lista.length < 2 || imgs.length < 2) return;
+        let i = 0, frente = 0, visivel = true, timer = 0, ocupado = false, pedido = null;
         const w = window.innerWidth < 990 ? 900 : 1400;
         new IntersectionObserver((ents) => { visivel = ents[0].isIntersecting; agendar(); }).observe(palcoHero);
-        document.addEventListener('visibilitychange', agendar);
-        function agendar() {
+        document.addEventListener('visibilitychange', () => agendar());
+        function agendar(ms) {
             clearTimeout(timer);
-            if (visivel && !document.hidden) timer = setTimeout(proxima, 3200);
+            if (semMovimento || !visivel || document.hidden) return;
+            timer = setTimeout(() => mostrar((i + 1) % lista.length), ms || 3200);
         }
-        async function proxima() {
-            if (ocupado) return agendar();
+        async function mostrar(alvo, manual) {
+            if (alvo === i) { if (manual) agendar(9000); return; }
+            if (ocupado) { pedido = { alvo, manual }; return; }
             ocupado = true;
-            i = (i + 1) % lista.length;
+            clearTimeout(timer);
+            i = alvo;
             const atual = imgs[frente], prox = imgs[1 - frente];
             prox.removeAttribute('srcset');
             prox.src = urlFoto(lista[i].img, w);
             try { await Promise.race([prox.decode(), espera(3000)]); } catch (e) { /* segue */ }
             prox.classList.add('is-entrando');
-            const a = prox.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: 1100, easing: 'cubic-bezier(.22,1,.36,1)' });
+            const dur = semMovimento ? 1 : (manual ? 800 : 1100);
+            const a = prox.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], { duration: dur, easing: 'cubic-bezier(.22,1,.36,1)' });
             const brilho = $('.atl-hero__sheen');
-            if (brilho) brilho.animate([{ transform: 'translateX(-60%)', opacity: 0 }, { opacity: 0.9, offset: 0.4 }, { transform: 'translateX(60%)', opacity: 0 }], { duration: 1100, easing: 'ease-out' });
+            if (brilho && !semMovimento) brilho.animate([{ transform: 'translateX(-60%)', opacity: 0 }, { opacity: 0.9, offset: 0.4 }, { transform: 'translateX(60%)', opacity: 0 }], { duration: dur, easing: 'ease-out' });
             nome.classList.add('is-trocando');
             setTimeout(() => {
                 nome.textContent = `${lista[i].cor} · ${lista[i].metal}`;
                 nome.classList.remove('is-trocando');
-            }, 380);
-            $$('span', pontos).forEach((s, k) => s.classList.toggle('is-ativo', k === i));
+            }, semMovimento ? 0 : 320);
+            $$('[data-i]', pontos).forEach((b, k) => {
+                b.classList.toggle('is-ativo', k === i);
+                b.setAttribute('aria-pressed', k === i);
+            });
             try { await a.finished; } catch (e) { /* no-op */ }
             prox.classList.remove('is-entrando');
             prox.classList.add('is-front');
             atual.classList.remove('is-front');
             frente = 1 - frente;
             ocupado = false;
-            agendar();
+            if (pedido) { const p = pedido; pedido = null; mostrar(p.alvo, p.manual); return; }
+            agendar(manual ? 9000 : 3200);
         }
+        if (pontos) pontos.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-i]');
+            if (b) mostrar(parseInt(b.dataset.i, 10), true);
+        });
         // Começa a girar só depois que a página assentou.
-        window.addEventListener('load', () => setTimeout(agendar, 1200), { once: true });
-        if (document.readyState === 'complete') setTimeout(agendar, 1200);
+        window.addEventListener('load', () => setTimeout(() => agendar(), 1200), { once: true });
+        if (document.readyState === 'complete') setTimeout(() => agendar(), 1200);
     })();
 
     // ═══════════════════════════ história ═══════════════════════════
@@ -2047,7 +2071,7 @@
             return;
         }
         esqueleto.hidden = true;
-        carregarTM().then(() => { if (S.passo === 3) renderTamanhos(); atualizarTudo(); });
+        carregarTM().then(() => { if (S.passo === E.tamanho) renderTamanhos(); atualizarTudo(); });
 
         restaurar();
         atualizarNomes();
@@ -2072,7 +2096,7 @@
         if (S.metal && !M.metais.includes(S.metal)) S.metal = null;
         if (S.tamanho && !M.tamanhos.includes(S.tamanho)) S.tamanho = null;
         if (!S.extras || typeof S.extras !== 'object') S.extras = {};
-        const teveAlgo = S.pet || S.couro || S.metal || S.tamanho;
+        const teveAlgo = S.couro || S.metal || S.tamanho;
         if (!teveAlgo) return;
         // Volta para a primeira etapa incompleta, nunca além do que ela viu.
         const prob = primeiroProblemaAte(PASSOS.length - 1);
@@ -2083,9 +2107,9 @@
     $('[data-atl-recomecar]').addEventListener('click', () => {
         guarda.apagar();
         Object.assign(S, {
-            passo: 0, maxPasso: 0, pet: '', couro: null, cor: null, metal: null, tamanho: null, tamanhoManual: false,
+            passo: 0, maxPasso: 0, couro: null, cor: null, metal: null, tamanho: null, tamanhoManual: false,
             raca: '', idade: '', idadeUn: 'anos', peso: '', extras: {}, pTipo: null, pFormato: null,
-            pFrente: '', pFrenteTocada: false, pTutor: '', pTel: '',
+            pFrente: '', pTutor: '', pTel: '',
         });
         $('[data-atl-restaurado]').hidden = true;
         atualizarNomes();
@@ -2095,11 +2119,9 @@
 
     $('[data-atl-tentar]').addEventListener('click', carregar);
 
-    // Primeira pintura do pingente (etapa Nome) antes mesmo do catálogo chegar.
-    palco.dataset.modo = 'p3d';
-    btnVirar.hidden = false;
-    desenhar3D();
-    ligarGiro();
+    // A foto inicial da coleira já veio no HTML; o resto chega com o catálogo.
+    palco.dataset.modo = 'colar';
+    btnVirar.hidden = true;
     atualizarLegenda();
     carregar();
 })();

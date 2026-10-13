@@ -6,8 +6,9 @@
   (Produto → Modelo do tema → "atelier").
 
   O QUE ESTA SEÇÃO FAZ
-    Topo com a coleira trocando de cor, o ateliê em seis etapas (Nome → Cores
-    → Metal → Tamanho → Pingente → Resumo) e a história da peça logo abaixo.
+    Topo com a coleira trocando de cor, o ateliê em cinco etapas (Cores →
+    Metal → Tamanho → Pingente → Resumo) e a história da peça logo abaixo. O
+    nome do pet só é pedido no Pingente, depois de escolher um tipo.
     O FAQ e as avaliações vêm das seções que a página normal já usa
     (product-accordions e product-reviews), declaradas no template.
 
@@ -244,7 +245,7 @@
         <p class="atl-hero__swatch-nome" aria-live="polite" data-atl-hero-nome>
           {%- if hero_primeira_cor != '' -%}{{ hero_primeira_cor }} · {{ hero_primeiro_metal }}{%- endif -%}
         </p>
-        <div class="atl-hero__dots" data-atl-hero-dots aria-hidden="true"></div>
+        <div class="atl-hero__dots" data-atl-hero-dots role="group" aria-label="Cores em destaque"></div>
       </div>
 
       <div class="atl-hero__copy">
@@ -302,7 +303,7 @@
 
     <nav class="atl-passos" aria-label="Etapas" data-atl-passos>
       <ol role="list">
-        {%- assign rotulos = 'Nome,Cores,Metal,Tamanho,Pingente,Resumo' | split: ',' -%}
+        {%- assign rotulos = 'Cores,Metal,Tamanho,Pingente,Resumo' | split: ',' -%}
         {%- for r in rotulos -%}
           <li>
             <button type="button" class="atl-passos__item" data-atl-ir="{{ forloop.index0 }}" disabled>
@@ -364,27 +365,7 @@
           <button type="button" class="atl-btn atl-btn--secundario" data-atl-tentar>Tentar de novo</button>
         </div>
 
-        <section class="atl-painel" data-atl-painel="0" hidden aria-labelledby="atl-p0-t">
-          <h3 class="atl-painel__titulo" id="atl-p0-t" tabindex="-1">Como se chama o seu pet?</h3>
-          <p class="atl-painel__sub">É o nome que a gente grava no pingente, se você quiser um. Pode pular, se preferir.</p>
-          <div class="atl-campo atl-campo--grande">
-            <input
-              type="text"
-              id="atl-pet"
-              class="atl-campo__input"
-              maxlength="13"
-              autocomplete="off"
-              autocapitalize="words"
-              enterkeyhint="next"
-              placeholder="Ex.: Bebel"
-              data-atl-pet
-            >
-            <label for="atl-pet" class="atl-campo__rotulo">Nome do pet</label>
-            <span class="atl-campo__contador" data-atl-contador="atl-pet" aria-live="polite">0/13</span>
-          </div>
-        </section>
-
-        <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p1-t">
+        <section class="atl-painel" data-atl-painel="0" hidden aria-labelledby="atl-p1-t">
           <h3 class="atl-painel__titulo" id="atl-p1-t" tabindex="-1">Escolha o couro</h3>
           <p class="atl-painel__sub" data-atl-sub-cores>Couro bovino legítimo. Toque numa cor para ver na peça.</p>
           <div class="atl-cores" role="group" aria-label="Cor do couro" data-atl-couros></div>
@@ -395,13 +376,13 @@
           </div>
         </section>
 
-        <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p2-t">
+        <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p2-t">
           <h3 class="atl-painel__titulo" id="atl-p2-t" tabindex="-1">Escolha o banho do metal</h3>
           <p class="atl-painel__sub">Fivela e argola no mesmo acabamento. O pingente acompanha.</p>
           <div class="atl-metais" role="group" aria-label="Cor do metal" data-atl-metais></div>
         </section>
 
-        <section class="atl-painel" data-atl-painel="3" hidden aria-labelledby="atl-p3-t">
+        <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p3-t">
           <h3 class="atl-painel__titulo" id="atl-p3-t" tabindex="-1">O tamanho certo</h3>
           <p class="atl-painel__sub">Conte sobre o seu pet. A gente sugere o tamanho e confere tudo antes de produzir.</p>
           <div class="atl-pet-info" data-atl-pet-info></div>
@@ -416,7 +397,7 @@
           <div class="atl-campos-extra" data-atl-campos-extra></div>
         </section>
 
-        <section class="atl-painel" data-atl-painel="4" hidden aria-labelledby="atl-p4-t">
+        <section class="atl-painel" data-atl-painel="3" hidden aria-labelledby="atl-p4-t">
           <h3 class="atl-painel__titulo" id="atl-p4-t" tabindex="-1" data-atl-titulo-pingente>Um pingente com o nome do seu pet</h3>
           <p class="atl-painel__sub" data-atl-sub-pingente>Gravado frente e verso, no mesmo metal da coleira.</p>
           <div class="atl-tipos" role="group" aria-label="Tipo de pingente" data-atl-tipos></div>
@@ -442,7 +423,7 @@
           </div>
         </section>
 
-        <section class="atl-painel" data-atl-painel="5" hidden aria-labelledby="atl-p5-t">
+        <section class="atl-painel" data-atl-painel="4" hidden aria-labelledby="atl-p5-t">
           <h3 class="atl-painel__titulo" id="atl-p5-t" tabindex="-1" data-atl-titulo-resumo>Pronta para ser feita</h3>
           <div class="atl-ficha" data-atl-ficha></div>
           <div class="atl-total" data-atl-total-resumo></div>

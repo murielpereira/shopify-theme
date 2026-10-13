@@ -10,6 +10,26 @@
    contínua conforme as etapas ficam prontas — a peça sendo costurada.
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Exo Medium: a fonte da gravação dos pingentes. Hospedada no tema, como a
+   Lexend, e carregada só nesta página. */
+@font-face {
+  font-family: 'Exo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('exo-500-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Exo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('exo-500-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+A720-A7FF;
+}
+
 .atl {
   --atl-papel: var(--color-background, #f7f5f2);
   --atl-estudio: #efe8e1;
@@ -401,23 +421,48 @@
   transform: translateY(4px);
 }
 
+/* Bolinhas do topo: botões de 36 px (área de toque) com a cor no meio.
+   O anel da escolhida cabe dentro do próprio botão e não encosta no vizinho. */
 .atl-hero__dots {
   display: flex;
-  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
 }
 
-.atl-hero__dots span {
-  width: 9px;
-  height: 9px;
+.atl-hero__dot {
+  -webkit-appearance: none;
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.atl-hero__dot span {
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--cor);
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.12);
-  transition: transform 0.5s var(--atl-ease), box-shadow 0.5s ease;
+  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.14);
+  transition: box-shadow 0.4s ease, transform 0.4s var(--atl-ease);
 }
 
-.atl-hero__dots span.is-ativo {
-  transform: scale(1.45);
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.12), 0 0 0 3px var(--atl-papel), 0 0 0 4px var(--atl-latao-2);
+.atl-hero__dot.is-ativo span {
+  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.14), 0 0 0 3px var(--atl-papel), 0 0 0 4.5px var(--atl-latao-2);
+}
+
+@media (hover: hover) {
+  .atl-hero__dot:hover span {
+    transform: scale(1.15);
+  }
 }
 
 .atl-hero__copy {
@@ -552,7 +597,7 @@
 
 .atl-passos ol {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin: 0;
   padding: 0;
   list-style: none;
@@ -620,8 +665,8 @@
 
 .atl-passos__linha {
   position: absolute;
-  left: calc(100% / 12);
-  right: calc(100% / 12);
+  left: calc(100% / 10);
+  right: calc(100% / 10);
   top: 13px;
   height: 0;
   border-top: 1.5px dashed rgba(90, 71, 66, 0.28);
@@ -1092,13 +1137,6 @@ textarea.atl-campo__input {
   font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
   color: rgba(79, 68, 66, 0.6);
-}
-
-.atl-campo--grande .atl-campo__input {
-  padding-top: 1.6rem;
-  font-size: 1.75rem;
-  font-weight: 250;
-  letter-spacing: -0.02em;
 }
 
 .atl-campo.is-invalido .atl-campo__input {
