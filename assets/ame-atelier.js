@@ -1026,12 +1026,18 @@
         }).join('');
     }
 
-    function renderPassadores() {
+    // O passador mora embaixo da foto fixa: só na etapa Cores, e só quando o
+    // couro tem mais de uma opção (com uma só, a legenda já diz qual é).
+    let passadorTemOpcoes = false;
+    function mostrarPassadores() {
         const bloco = $('[data-atl-passador-bloco]');
-        const nota = $('[data-atl-passador-nota]');
-        if (!S.couro) { bloco.hidden = true; return; }
+        if (bloco) bloco.hidden = !(passadorTemOpcoes && S.passo === E.cores);
+    }
+
+    function renderPassadores() {
+        if (!S.couro) { passadorTemOpcoes = false; mostrarPassadores(); return; }
         const ops = M.porCouro.get(S.couro) || [];
-        bloco.hidden = false;
+        passadorTemOpcoes = ops.length > 1;
         $('[data-atl-passadores]').innerHTML = ops.map((o) => {
             const nome = o.passador || 'Mesmo tom';
             const hexP = hexDe(o.passador || S.couro);
@@ -1040,14 +1046,7 @@
                 <span>${esc(nome)}</span>
             </button>`;
         }).join('');
-        if (ops.length === 1) {
-            nota.hidden = false;
-            nota.textContent = ops[0].passador
-                ? `O ${S.couro} vem com passador ${ops[0].passador}.`
-                : `O ${S.couro} vem com o passador no mesmo tom.`;
-        } else {
-            nota.hidden = true;
-        }
+        mostrarPassadores();
     }
 
     root.addEventListener('click', (e) => {
@@ -1829,6 +1828,7 @@
         // escolhidos sem avançar de etapa (a cliente sai e volta).
         salvar();
         avisarSelecao();
+        mostrarPassadores();
     }
 
     // ═══════════════════════════ Compre Junto ═══════════════════════════

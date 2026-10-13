@@ -378,6 +378,15 @@
           <span class="atl-palco__carregando" data-atl-carregando hidden aria-hidden="true"></span>
         </div>
         <p class="atl-palco__legenda" aria-live="polite" data-atl-legenda>&nbsp;</p>
+        {%- comment -%}
+          Passador: fica AQUI, colado na foto fixa, e não embaixo da grade de
+          cores (onde a cliente precisava rolar para achar). Só aparece na
+          etapa Cores, quando o couro escolhido tem mais de uma opção.
+        {%- endcomment -%}
+        <div class="atl-passador" data-atl-passador-bloco hidden>
+          <span class="atl-passador__rotulo" id="atl-passador-r">Passador</span>
+          <div class="atl-passador__opcoes" role="group" aria-labelledby="atl-passador-r" data-atl-passadores></div>
+        </div>
       </div>
 
       {%- comment -%} Painéis das etapas — o conteúdo de cada um é montado pelo JS {%- endcomment -%}
@@ -392,11 +401,6 @@
           <h3 class="atl-painel__titulo" id="atl-p1-t" tabindex="-1">Escolha o couro</h3>
           <p class="atl-painel__sub" data-atl-sub-cores>Couro bovino legítimo. Toque numa cor para ver na peça.</p>
           <div class="atl-cores" role="group" aria-label="Cor do couro" data-atl-couros></div>
-          <div class="atl-passador" data-atl-passador-bloco hidden>
-            <h4 class="atl-painel__subtitulo">Detalhe do passador</h4>
-            <div class="atl-passador__opcoes" role="group" aria-label="Cor do passador" data-atl-passadores></div>
-            <p class="atl-nota" data-atl-passador-nota hidden></p>
-          </div>
         </section>
 
         <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p2-t">
