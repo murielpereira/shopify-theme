@@ -766,7 +766,7 @@
     // é exibida. O pingente usa 2,25 unidades por mm. 40 = escala real; 60 = grão
     // 50 % maior (pedido do Muriel, 14/10/2026: em 40 o grão ficou pequeno). Acima
     // de ~38 a imagem passa do pingente, então não repete.
-    const MM_DA_IMAGEM = 75;
+    const MM_DA_IMAGEM = 98;
     const LADO_IMAGEM_COURO = MM_DA_IMAGEM * 2.25;
     function imagemDoCouro() {
         const chave = ARQUIVO_COURO[compacto(ultimaCor(S.cor || CFG.inicio.cor || ''))];
