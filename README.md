@@ -67,7 +67,7 @@ shopify theme check     # ✅ linter (mesmo que roda no CI)
 ### 🛍️ Carrinho
 
 - **AJAX com `items: []`** — suporta múltiplos itens atômicos (coleira + pingente em uma só chamada).
-- **Drawer híbrido** — Liquid server-rendered em [`snippets/cart-drawer.liquid`](snippets/cart-drawer.liquid) + JS template literal em `itemHTML()` no [`layout/theme.liquid`](layout/theme.liquid) (após AJAX add).
+- **Drawer híbrido** — Liquid server-rendered em [`snippets/cart-drawer.liquid`](snippets/cart-drawer.liquid) + JS template literal em `itemHTML()` no [`assets/ame-theme.js`](assets/ame-theme.js) (após AJAX add).
 - ⚠️ **As duas versões do drawer precisam ficar em sincronia** — qualquer mudança numa estrutura de linha tem que ser replicada na outra.
 
 ### 🏠 Home

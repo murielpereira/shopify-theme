@@ -2487,6 +2487,16 @@ body::after {
 }
 
 /* ── Logo ── */
+/* Na home o logo vem dentro de um h1 (SEO) e o h1 vira o item flex do
+   header no lugar do <a>: não pode encolher nem trazer margem/fonte de título. */
+.ame-header__heading {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
 .ame-header__logo {
   display: flex;
   align-items: center;

@@ -39,10 +39,10 @@ Everything that's *not* scoped to a single section/snippet lives there. New sect
 After a successful refresh, the section dispatches `document.dispatchEvent(new CustomEvent('pdp:variant-changed'))`. Other on-page modules (the pingente snippet) listen to this event to re-validate. **Preserve these IDs** when refactoring; the JS depends on them.
 
 ### Cart: AJAX with `items: []` JSON, plus client-rendered drawer
-The PDP submit handler in [sections/product.liquid](sections/product.liquid) builds a JSON payload (`{ items: [coleira, pingente?] }`) — *not* `FormData` — so it can post multiple items in one atomic call. After success, it calls `window.AmeCart.refresh(cartData)` and `window.AmeCart.open()`, both defined in [layout/theme.liquid](layout/theme.liquid). The drawer template exists in two places that must stay in sync:
+The PDP submit handler in [sections/product.liquid](sections/product.liquid) builds a JSON payload (`{ items: [coleira, pingente?] }`) — *not* `FormData` — so it can post multiple items in one atomic call. After success, it calls `window.AmeCart.refresh(cartData)` and `window.AmeCart.open()`, both defined in [assets/ame-theme.js](assets/ame-theme.js) (the theme's global JS, loaded with `defer` from [layout/theme.liquid](layout/theme.liquid); its only Liquid-derived values come in through `window.AmeThemeConfig`, printed inline right before it — add new ones there, never Liquid inside the `.js`). The drawer template exists in two places that must stay in sync:
 
 - [snippets/cart-drawer.liquid](snippets/cart-drawer.liquid) — initial server-rendered Liquid
-- `itemHTML()` in [layout/theme.liquid](layout/theme.liquid) — JS template-literal version used after AJAX add/update
+- `itemHTML()` in [assets/ame-theme.js](assets/ame-theme.js) — JS template-literal version used after AJAX add/update
 
 Any change to a cart line's structure (e.g. adding line item properties, badges) must be applied in **both** places.
 

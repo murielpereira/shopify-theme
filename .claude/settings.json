@@ -1,9 +1,19 @@
 {
+  "model": "opusplan",
   "permissions": {
+    "defaultMode": "plan",
     "allow": [
+      "Bash(ls scripts *)",
       "Bash(node -e ' *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\pedid\\OneDrive\\Área de Trabalho\\Arquivos Âme\\Muriel\\Projetos\\Waltz"
     ]
+  },
+  "env": {
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-5-5",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-5-5"
   }
 }

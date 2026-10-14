@@ -179,6 +179,7 @@
       "handle": {{ product.handle | json }},
       "produtoId": {{ product.id | json }},
       "titulo": {{ product.title | json }},
+      "texturaCouro": {{ 'atelier-couro.jpg' | asset_url | json }},
       "nomeCurto": {{ palavra | json }},
       "waltz": {{ section.settings.waltz_base | default: 'https://waltz.up.railway.app' | json }},
       "pixPct": {{ pix_pct | json }},
@@ -384,7 +385,7 @@
           etapa Cores, quando o couro escolhido tem mais de uma opção.
         {%- endcomment -%}
         <div class="atl-passador" data-atl-passador-bloco hidden>
-          <span class="atl-passador__rotulo" id="atl-passador-r">Passador</span>
+          <span class="atl-passador__rotulo" id="atl-passador-r">Cor do Detalhe</span>
           <div class="atl-passador__opcoes" role="group" aria-labelledby="atl-passador-r" data-atl-passadores></div>
         </div>
       </div>

@@ -18,24 +18,38 @@
     data-header
   >
     <!-- Logo -->
-    <a href="{{ routes.root_url }}" class="ame-header__logo" aria-label="{{ shop.name }}">
-      {%- if section.settings.logo != blank -%}
-        {{
-          section.settings.logo
-          | image_url: width: 560
-          | image_tag:
-            widths: '200, 400, 560',
-            loading: 'eager',
-            fetchpriority: 'high',
-            class: 'ame-header__logo-img',
-            alt: logo_img_alt,
-            width: logo_w,
-            height: logo_h
-        }}
-      {%- else -%}
-        <span class="ame-header__logo-text">{{ shop.name }}</span>
-      {%- endif -%}
-    </a>
+    {%- capture logo_link -%}
+      <a href="{{ routes.root_url }}" class="ame-header__logo" aria-label="{{ shop.name }}">
+        {%- if section.settings.logo != blank -%}
+          {{
+            section.settings.logo
+            | image_url: width: 560
+            | image_tag:
+              widths: '200, 400, 560',
+              loading: 'eager',
+              fetchpriority: 'high',
+              class: 'ame-header__logo-img',
+              alt: logo_img_alt,
+              width: logo_w,
+              height: logo_h
+          }}
+        {%- else -%}
+          <span class="ame-header__logo-text">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    {%- endcapture -%}
+
+    {%- comment -%}
+      Na home o logo é o título principal (H1) da página — a home não tem outro.
+      Nas demais páginas o H1 é do conteúdo (produto, coleção…), então o logo
+      fica só como link. O .ame-header__heading (critical.css) zera margem e
+      fonte do h1 pra não mexer no flex do header.
+    {%- endcomment -%}
+    {%- if request.page_type == 'index' -%}
+      <h1 class="ame-header__heading">{{ logo_link }}</h1>
+    {%- else -%}
+      {{ logo_link }}
+    {%- endif -%}
 
     <!-- Ações -->
     <div class="ame-header__actions" data-header-actions>
@@ -297,6 +311,51 @@
     {%- endif -%}
   {%- endfor -%}
 </nav>
+
+{%- comment -%}
+  Dados estruturados da loja, só na home: OnlineStore + WebSite.
+  Ficam aqui, e não em snippets/meta-tags.liquid, porque o logo é setting
+  desta seção — o do rodapé é a versão branca, que some no fundo claro dos
+  resultados do Google.
+  Os links sociais do rodapé são settings da seção footer, fora de alcance
+  daqui; os globais do tema (Redes sociais) têm prioridade se preenchidos.
+  WebSite é o que faz o Google exibir "Âme Acessórios Pet" como nome do site
+  em vez do domínio. Sem SearchAction: o Google aposentou a caixa de busca
+  de sitelinks em 2024.
+{%- endcomment -%}
+{%- if request.page_type == 'index' -%}
+  {%- liquid
+    assign ld_home = shop.url | append: routes.root_url
+    assign ld_org_id = ld_home | append: '#organization'
+    assign ld_instagram = settings.social_instagram | default: 'https://www.instagram.com/ameacessoriospet'
+    assign ld_facebook = settings.social_facebook | default: 'https://www.facebook.com/ameacessoriospet/'
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "@id": {{ ld_org_id | json }},
+      "name": {{ shop.name | json }},
+      "url": {{ ld_home | json }}
+      {%- if section.settings.logo != blank %},
+        "logo": {{ section.settings.logo | image_url: width: 600 | prepend: 'https:' | json }}
+      {%- endif %}
+      {%- if shop.description != blank %},
+        "description": {{ shop.description | json }}
+      {%- endif %},
+      "sameAs": [{{ ld_instagram | json }}, {{ ld_facebook | json }}]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ ld_home | json }},
+      "publisher": { "@id": {{ ld_org_id | json }} }
+    }
+  </script>
+{%- endif %}
 
 {% style %}
   :root {

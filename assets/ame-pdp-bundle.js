@@ -61,7 +61,7 @@
     // 384 (3 larguras × 32 cores × 4 metais) e a loja não entrega NENHUMA de
     // 20mm: coleira M e G nunca achava a guia certa. O Waltz pagina pelo
     // Admin e devolve todas, e é a mesma fonte do cross-sell da gaveta
-    // (layout/theme.liquid). As variações da loja continuam valendo onde
+    // (assets/ame-theme.js). As variações da loja continuam valendo onde
     // existem (o Admin pode divergir da vitrine); do Waltz entram só as que
     // faltam. Waltz fora do ar: segue com as 250 da loja.
     const WALTZ_BASE = 'https://waltz.up.railway.app';
@@ -124,7 +124,7 @@
                     // PDP (16/09/2026). O prefixo `_` esconde do carrinho que a
                     // cliente vê, mas aparece no admin da Shopify e no Tiny —
                     // mesma convenção do cross-sell do drawer
-                    // (`compre-junto-cart`, em layout/theme.liquid) e do
+                    // (`compre-junto-cart`, em assets/ame-theme.js) e do
                     // montador de kit (`_from_kit`, em ame-kit.js).
                     //
                     // Sem isto o widget era o ÚNICO dos três que não dava para
