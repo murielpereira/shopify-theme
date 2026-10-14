@@ -430,7 +430,7 @@
             </linearGradient>
             <linearGradient id="${id}b" gradientUnits="userSpaceOnUse" x1="-40" y1="0" x2="60" y2="100" gradientTransform="translate(${op.brilhoX || 0} 0)" data-atl-brilho-grad>
               <stop offset=".35" stop-color="#fff" stop-opacity="0"/>
-              <stop offset=".5" stop-color="${me.luz}" stop-opacity="${tudoCouro ? 0.16 : 0.55}"/>
+              <stop offset=".5" stop-color="${me.luz}" stop-opacity="${tudoCouro ? 0.08 : 0.26}"/>
               <stop offset=".65" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
             ${tex ? `<pattern id="${id}t" patternUnits="userSpaceOnUse" x="7" y="7" width="86" height="86"><image href="${tex}" width="86" height="86" preserveAspectRatio="none"/></pattern>` : ''}
@@ -463,7 +463,7 @@
         }
         // Bisel: luz em cima, sombra embaixo, sempre dentro da forma.
         corpo += `<g clip-path="url(#${id}c)">
-            <path d="${f.dh}" fill="none" stroke="rgba(255,255,255,${tudoCouro ? 0.18 : 0.55})" stroke-width="2.2" transform="translate(.6 .9)"/>
+            <path d="${f.dh}" fill="none" stroke="rgba(255,255,255,${tudoCouro ? 0.1 : 0.3})" stroke-width="2.2" transform="translate(.6 .9)"/>
             <path d="${f.dh}" fill="none" stroke="rgba(0,0,0,${tudoCouro ? 0.2 : 0.28})" stroke-width="2.2" transform="translate(-.6 -.9)"/>
           </g>`;
 
