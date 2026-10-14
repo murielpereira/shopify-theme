@@ -905,7 +905,7 @@
   z-index: 4;
   left: 68%;
   top: 61.2%;
-  width: 24%;
+  width: 29%;
   pointer-events: none;
 }
 
@@ -1002,6 +1002,12 @@
 .atl-p3d__argola {
   position: absolute;
   transform: rotateY(90deg);
+  opacity: var(--ring-o, 0);
+}
+
+/* O "I" da argola nas faces some quando o aro 3D toma o lugar (aplicarGiro). */
+.atl-p3d__obj .atl-argola-i {
+  opacity: var(--ring-i, 1);
 }
 
 .atl-p3d__argola svg {

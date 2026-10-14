@@ -418,8 +418,8 @@
         const tex = CFG.texturaCouro || '';
         const hexL = String(couroHex).replace('#', '');
         const lum = hexL.length >= 6 ? (parseInt(hexL.slice(0, 2), 16) * 0.3 + parseInt(hexL.slice(2, 4), 16) * 0.59 + parseInt(hexL.slice(4, 6), 16) * 0.11) / 255 : 0.6;
-        const forcaTex = lum > 0.6 ? 0.75 : lum > 0.35 ? 0.55 : 0.38;
-        const camadaTex = (d, evenodd) => (tex ? `<path d="${d}"${evenodd ? ' fill-rule="evenodd"' : ''} fill="url(#${id}t)" style="mix-blend-mode:overlay;opacity:${forcaTex}"/>` : '');
+        const forcaTex = lum > 0.6 ? 1 : lum > 0.35 ? 0.85 : 0.6;
+        const camadaTex = (d, evenodd) => (tex ? `<path d="${d}"${evenodd ? ' fill-rule="evenodd"' : ''} fill="url(#${id}t)" style="mix-blend-mode:soft-light;opacity:${forcaTex}"/>` : '');
         const filtroCouro = tex ? '' : ` filter="url(#${id}g)"`;
         const g = me.g;
         const defs = `
@@ -476,7 +476,7 @@
         let argola = '';
         if (op.argola !== false) {
             const ay = fy - ARGOLA_RY + 1.6;
-            argola = `<g fill="none">
+            argola = `<g fill="none" class="atl-argola-i">
                 <ellipse cx="${fx}" cy="${ay}" rx="2.5" ry="${ARGOLA_RY}" stroke="${me.aresta}" stroke-width="2.6"/>
                 <ellipse cx="${fx}" cy="${ay}" rx="2.5" ry="${ARGOLA_RY}" stroke="url(#${id}m)" stroke-width="1.5"/>
                 <path d="M${fx - 1.2},${ay - ARGOLA_RY + 1.4} L${fx - 1.2},${ay + ARGOLA_RY - 1.4}" stroke="rgba(255,255,255,.55)" stroke-width=".5" stroke-linecap="round"/>
@@ -741,6 +741,51 @@
         fotoAtual = url;
     }
 
+    // ── Cor do couro do pingente, medida na FOTO ──
+    // O pingente é sempre na cor do detalhe da coleira, e o detalhe é o passador.
+    // A cor cadastrada no tema (swatch) é uma cor "de catálogo" e não bate com o
+    // tom que a foto mostra (Allure saía mais azul e escuro que a coleira). Então
+    // a cor sai da própria foto: mediana de um retângulo no miolo do passador.
+    // As 104 fotos têm o mesmo enquadramento (passador em x 45-52 %, y 42-54 %).
+    // O CDN da Shopify libera CORS para imagem; sem CORS cai na cor cadastrada.
+    const coresDaFoto = new Map();       // arquivo da foto → '#rrggbb' | null
+    function corDoPassador(src) {
+        const chave = arquivoDa(src);
+        if (!chave) return Promise.resolve(null);
+        if (coresDaFoto.has(chave)) return Promise.resolve(coresDaFoto.get(chave));
+        return new Promise((ok) => {
+            const fim = (hex) => { coresDaFoto.set(chave, hex); ok(hex); };
+            const i = new Image();
+            i.crossOrigin = 'anonymous';
+            i.onload = () => {
+                try {
+                    const w = 400, k = w / 2000;
+                    const c = document.createElement('canvas'); c.width = c.height = w;
+                    const g = c.getContext('2d', { willReadFrequently: true });
+                    g.drawImage(i, 0, 0, w, w);
+                    const d = g.getImageData(Math.round(905 * k), Math.round(855 * k), Math.round(130 * k), Math.round(190 * k)).data;
+                    const canal = (o) => { const v = []; for (let p = o; p < d.length; p += 4) v.push(d[p]); v.sort((a, b) => a - b); return v[v.length >> 1]; };
+                    fim('#' + [canal(0), canal(1), canal(2)].map((n) => n.toString(16).padStart(2, '0')).join(''));
+                } catch (e) { fim(null); }
+            };
+            i.onerror = () => fim(null);
+            i.src = urlFoto(src, 800);
+        });
+    }
+    function corMedidaAtual() {
+        if (!M || !S.cor || !S.metal) return null;
+        return coresDaFoto.get(arquivoDa(M.foto(S.cor, S.metal))) || null;
+    }
+    function medirCorDoPingente() {
+        if (!M || !S.cor || !S.metal) return;
+        corDoPassador(M.foto(S.cor, S.metal)).then((hex) => {
+            if (!hex || hex !== corMedidaAtual()) return;
+            if (palcoEm3D()) desenhar3D();
+            desenharPendurado();
+            if (S.passo === E.pingente) renderTipos();
+        });
+    }
+
     function preCarregar(srcs) {
         srcs.filter(Boolean).forEach((s) => { const i = new Image(); i.decoding = 'async'; i.src = urlFoto(s); });
     }
@@ -764,7 +809,7 @@
         const corCouro = ultimaCor(S.cor || CFG.inicio.cor || '');
         return Object.assign({
             tipo, formato, metal, lado,
-            couroHex: hexDe(corCouro),
+            couroHex: corMedidaAtual() || hexDe(corCouro),
             nome: S.pFrente,
             tutor: S.pTutor,
             tel: S.pTel,
@@ -778,17 +823,29 @@
             const z = -3 + (6 * i) / (camadas - 1);
             html += `<div class="atl-p3d__camada" style="transform: translateZ(${z.toFixed(2)}px)">${svgPingente(opcoesPingente('aresta'))}</div>`;
         }
+        // A argola é UMA só, mas tem duas representações: o "I" desenhado nas
+        // faces (de frente, o aro visto de borda) e o aro perpendicular em 3D
+        // (de lado, vira "O"). Antes as duas ficavam sempre ligadas e, girando,
+        // aparecia uma argola em cada orientação. Agora aplicarGiro troca uma
+        // pela outra conforme o ângulo, no ponto em que as larguras coincidem.
         html += `<div class="atl-p3d__face atl-p3d__face--frente">${svgPingente(opcoesPingente('frente'))}</div>`;
         html += `<div class="atl-p3d__face atl-p3d__face--verso">${svgPingente(opcoesPingente('verso'))}</div>`;
-        // A argola de verdade fica perpendicular à peça: de frente ela some
-        // (o "I" desenhado nas faces faz esse papel) e, girando, vira "O".
+        // O aro 3D tem espessura: camadas do mesmo aro empilhadas de lado a
+        // lado, a mesma ideia das camadas da aresta do pingente.
         const op = opcoesPingente('frente');
         const f = formaDe(op.formato, op.tipo);
         const me = METAL_ESTILO[chaveMetal(op.metal)];
         const lado = ((2 * ARGOLA_RY + 2.6) / 116) * 100;
         const cxA = ((f.furo[0] + 8) / 116) * 100 - lado / 2;
         const cyA = ((f.furo[1] - ARGOLA_RY + 1.6 + 8) / 116) * 100 - lado / 2;
-        html += `<div class="atl-p3d__argola" style="left:${cxA.toFixed(2)}%;top:${cyA.toFixed(2)}%;width:${lado.toFixed(2)}%;height:${lado.toFixed(2)}%"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.7" fill="none" stroke="${me.aresta}" stroke-width="2.4"/><circle cx="10" cy="10" r="8.7" fill="none" stroke="${me.g[1]}" stroke-width="1.3"/></svg></div>`;
+        const FIOS = 7;
+        for (let i = 0; i < FIOS; i++) {
+            const t = (i / (FIOS - 1)) * 2 - 1;                  // -1 .. 1 ao longo da espessura
+            const z = (t * 3.4).toFixed(2);
+            const miolo = Math.abs(t) < 0.45;                    // o centro pega a luz, as bordas escurecem
+            const cor = miolo ? me.g[1] : (Math.abs(t) < 0.8 ? me.g[2] : me.aresta);
+            html += `<div class="atl-p3d__argola" style="left:${cxA.toFixed(2)}%;top:${cyA.toFixed(2)}%;width:${lado.toFixed(2)}%;height:${lado.toFixed(2)}%;transform:rotateY(90deg) translateZ(${z}px)"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.7" fill="none" stroke="${cor}" stroke-width="1.5"/></svg></div>`;
+        }
         p3dObj.innerHTML = html;
         aplicarGiro();
     }
@@ -800,6 +857,10 @@
         const rel = Math.abs(r) > 90 ? (r > 0 ? r - 180 : r + 180) : r;
         const x = (rel / 70) * 60;
         $$('[data-atl-brilho-grad]', p3dObj).forEach((g) => g.setAttribute('gradientTransform', `translate(${x.toFixed(1)} 0)`));
+        // "I" das faces de frente; aro 3D de lado. Mesma largura em ~17°.
+        const t = Math.max(0, Math.min(1, (Math.abs(rel) - 13) / 8));
+        p3dObj.style.setProperty('--ring-i', (1 - t).toFixed(3));
+        p3dObj.style.setProperty('--ring-o', t.toFixed(3));
         const mostrandoVerso = Math.abs(r) > 90;
         if ((mostrandoVerso ? 'verso' : 'frente') !== giro.lado) {
             giro.lado = mostrandoVerso ? 'verso' : 'frente';
@@ -901,6 +962,7 @@
         const cor = S.cor || CFG.inicio.cor;
         const metal = S.metal || CFG.inicio.metal;
         if (M && cor && metal) trocarFoto(M.foto(cor, metal), o.efeito);
+        medirCorDoPingente();
 
         // Selo: tamanho no palco da etapa Tamanho.
         if (passo === E.tamanho && S.tamanho) {
