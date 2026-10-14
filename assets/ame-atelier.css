@@ -903,9 +903,9 @@
 .atl-palco__pendurado {
   position: absolute;
   z-index: 4;
-  left: 68%;
+  left: 66.8%;
   top: 62.4%;
-  width: 29%;
+  width: 33%;
   pointer-events: none;
 }
 
