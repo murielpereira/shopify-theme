@@ -498,7 +498,8 @@
         const usar = vazio ? marcador : linhas;
         const maior = usar.reduce((m, l) => Math.max(m, larguraPorCorpo(l)), 0.01);
         const lhFator = 1.12;
-        const fs = Math.max(3.6, Math.min(area.max, area.w / maior, area.h / (usar.length * lhFator)));
+        // A frente leva 88 % do corpo que cabe: o nome ocupava a peça quase de ponta a ponta (pedido do Muriel, 14/10/2026). O verso não muda.
+        const fs = Math.max(3.6, Math.min(area.max, area.w / maior, area.h / (usar.length * lhFator)) * (verso ? 1 : 0.88));
         const lh = fs * lhFator;
         const y0 = area.y - ((usar.length - 1) * lh) / 2 + fs * 0.36;
         const tspans = usar.map((l, i) => `<tspan x="${area.x}" y="${(y0 + i * lh).toFixed(2)}">${esc(l)}</tspan>`).join('');
