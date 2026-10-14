@@ -233,7 +233,7 @@
     // bem diferente da coleira (14/10/2026). Prata e grafite ficam como estão.
     const METAL_PINGENTE = {
         ouro: { g: ['#fffbe6', '#f7e6ad', '#e6c978', '#cfab5a', '#a98838'], aresta: '#b8934a' },
-        rose: { g: ['#fff5f0', '#f9dccf', '#ecbfb0', '#d79f90', '#b47f72'], aresta: '#b98877' },
+        rose: { g: ['#fff6ec', '#f7e0c8', '#e8c1a3', '#d09f86', '#a97f68'], aresta: '#b58a70' },
     };
     const estiloPingente = (metal) => {
         const k = chaveMetal(metal);
@@ -766,7 +766,7 @@
     // é exibida. O pingente usa 2,25 unidades por mm. 40 = escala real; 60 = grão
     // 50 % maior (pedido do Muriel, 14/10/2026: em 40 o grão ficou pequeno). Acima
     // de ~38 a imagem passa do pingente, então não repete.
-    const MM_DA_IMAGEM = 98;
+    const MM_DA_IMAGEM = 120;
     const LADO_IMAGEM_COURO = MM_DA_IMAGEM * 2.25;
     function imagemDoCouro() {
         const chave = ARQUIVO_COURO[compacto(ultimaCor(S.cor || CFG.inicio.cor || ''))];
