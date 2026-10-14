@@ -443,7 +443,7 @@
               <stop offset=".5" stop-color="${me.luz}" stop-opacity="${tudoCouro ? 0.08 : 0.26}"/>
               <stop offset=".65" stop-color="#fff" stop-opacity="0"/>
             </linearGradient>
-            ${tex ? `<pattern id="${id}t" patternUnits="userSpaceOnUse" x="7" y="7" width="86" height="86"><image href="${tex}" width="86" height="86" preserveAspectRatio="none"/></pattern>` : ''}
+            ${tex ? `<pattern id="${id}t" patternUnits="userSpaceOnUse" x="0" y="0" width="${ESCALA_GRAO}" height="${ESCALA_GRAO}"><image href="${tex}" width="${ESCALA_GRAO}" height="${ESCALA_GRAO}" preserveAspectRatio="none"/></pattern>` : ''}
             <clipPath id="${id}c"><path d="${f.dh}" clip-rule="evenodd"/></clipPath>
             ${mc ? `<clipPath id="${id}i"><path d="${f.di}"/></clipPath>` : ''}
             <filter id="${id}g" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
@@ -766,6 +766,9 @@
     // Recortes limpos do couro na foto de 2000 px (x, y, largura, altura): duas
     // áreas da tira entre as costuras (coleira de um tom só) ou o miolo do passador
     // entre as duas costuras (detalhe de outra cor). A foto tem ~15 px por mm.
+    // Tamanho, em unidades do pingente, de um ladrilho de 576 px. Menor = grão
+    // menor (86 era o tamanho real; o Muriel achou o grão grande: 14/10/2026).
+    const ESCALA_GRAO = 56;
     const RECORTES_TIRA = [[350, 920, 288, 150], [1060, 915, 280, 155]];
     const RECORTES_PASSADOR = [[925, 850, 70, 240]];
 
@@ -788,16 +791,18 @@
         const F = Math.max(16, Math.min(60, Math.round(Math.min(colW, rowH) * 0.4)));   // mistura maior em recorte pequeno: some o aspecto de blocos
         const acc = new Float32Array(T * T * 3), pes = new Float32Array(T * T);
         let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-        for (let oy = -F; oy < T; oy += rowH - F) {
-            for (let ox = -F; ox < T; ox += colW - F) {
+        // O ladrilho repete (o padrão é menor que a peça), então as janelas que
+        // passam da borda voltam pelo lado oposto e a emenda some.
+        for (let oy = 0; oy < T; oy += rowH - F) {
+            for (let ox = 0; ox < T; ox += colW - F) {
                 const p = P[Math.floor(rnd() * P.length)];
                 const sx0 = Math.floor(rnd() * (p.w - colW + 1)), sy0 = Math.floor(rnd() * (p.h - rowH + 1));
                 const fx = rnd() < 0.5, fy = rnd() < 0.5;
                 for (let y = 0; y < rowH; y++) {
-                    const ty = oy + y; if (ty < 0 || ty >= T) continue;
+                    const ty = (oy + y) % T;
                     const wy = Math.min(1, Math.min(y, rowH - 1 - y) / F);
                     for (let x = 0; x < colW; x++) {
-                        const tx = ox + x; if (tx < 0 || tx >= T) continue;
+                        const tx = (ox + x) % T;
                         const wx = Math.min(1, Math.min(x, colW - 1 - x) / F);
                         const m = Math.min(wx, wy), mm = m * m * (3 - 2 * m);
                         const s = ((sy0 + (fy ? rowH - 1 - y : y)) * p.w + sx0 + (fx ? colW - 1 - x : x)) * 4;
