@@ -227,6 +227,18 @@
         rose: { g: ['#fff1eb', '#f3c9b9', '#dc9e8e', '#ba7a6b', '#8c5749'], aresta: '#925e51', gravura: '#55291f', luz: '#fff0ea' },
         grafite: { g: ['#a3a3a6', '#707074', '#4a4a4e', '#2f2f32', '#1a1a1c'], aresta: '#202022', gravura: '#e6e6e8', luz: '#d9d9dc' },
     };
+    // O pingente usa um metal MAIS CLARO que o dos botões de escolha: o ouro e o
+    // rosé das fotos das coleiras são pálidos (a fivela chega a #fff6cc nas luzes e
+    // tem o meio-tom em #d2be8c), e o degradê escuro dos botões deixava o pingente
+    // bem diferente da coleira (14/10/2026). Prata e grafite ficam como estão.
+    const METAL_PINGENTE = {
+        ouro: { g: ['#fffbe6', '#f7e6ad', '#e6c978', '#cfab5a', '#a98838'], aresta: '#b8934a' },
+        rose: { g: ['#fff5f0', '#f9dccf', '#ecbfb0', '#d79f90', '#b47f72'], aresta: '#b98877' },
+    };
+    const estiloPingente = (metal) => {
+        const k = chaveMetal(metal);
+        return Object.assign({}, METAL_ESTILO[k], METAL_PINGENTE[k] || {});
+    };
     const chaveMetal = (m) => {
         const n = compacto(m);
         if (n.startsWith('ouro') || n.startsWith('dourad')) return 'ouro';
@@ -400,7 +412,7 @@
         const id = 'atlp' + (++svgSeq);
         const tipo = op.tipo === 'couro' || op.tipo === 'metal-couro' ? op.tipo : 'metal';
         const f = formaDe(op.formato, tipo);
-        const me = METAL_ESTILO[chaveMetal(op.metal)];
+        const me = estiloPingente(op.metal);
         const couroHex = op.couroHex || '#d3cec3';
         const verso = op.lado === 'verso';
         const mc = tipo === 'metal-couro';
@@ -412,15 +424,13 @@
             return `<svg viewBox="-8 -8 116 116" aria-hidden="true"><path d="${f.dh}" fill="${cor}" fill-rule="evenodd"/></svg>`;
         }
 
-        // Couro: a textura vem da foto da própria coleira (atelier-couro.jpg: só a
-        // luz e a sombra do grão, sem cor), sobreposta à cor do couro do pingente.
-        // Em cor escura o "overlay" estoura, então a força cai com a luminosidade.
-        const tex = CFG.texturaCouro || '';
-        const hexL = String(couroHex).replace('#', '');
-        const lum = hexL.length >= 6 ? (parseInt(hexL.slice(0, 2), 16) * 0.3 + parseInt(hexL.slice(2, 4), 16) * 0.59 + parseInt(hexL.slice(4, 6), 16) * 0.11) / 255 : 0.6;
-        const forcaTex = lum > 0.6 ? 1 : lum > 0.35 ? 0.85 : 0.6;
-        const camadaTex = (d, evenodd) => (tex ? `<path d="${d}"${evenodd ? ' fill-rule="evenodd"' : ''} fill="url(#${id}t)" style="mix-blend-mode:soft-light;opacity:${forcaTex}"/>` : '');
-        const filtroCouro = tex ? '' : ` filter="url(#${id}g)"`;
+        // Couro do pingente = recorte da FOTO da própria coleira, com a cor e o grão
+        // originais: nada de filtro, mistura ou tingimento por cima (14/10/2026).
+        // O recorte é montado em montarLadrilho(); até ele chegar (ou sem CORS) o
+        // couro é a cor lisa medida na foto.
+        const tex = texturaFotoAtual();
+        const camadaTex = (d, evenodd) => (tex ? `<path d="${d}"${evenodd ? ' fill-rule="evenodd"' : ''} fill="url(#${id}t)"/>` : '');
+        const filtroCouro = '';
         const g = me.g;
         const defs = `
           <defs>
@@ -749,38 +759,109 @@
     // a cor sai da própria foto: mediana de um retângulo no miolo do passador.
     // As 104 fotos têm o mesmo enquadramento (passador em x 45-52 %, y 42-54 %).
     // O CDN da Shopify libera CORS para imagem; sem CORS cai na cor cadastrada.
-    const coresDaFoto = new Map();       // arquivo da foto → '#rrggbb' | null
-    function corDoPassador(src) {
-        const chave = arquivoDa(src);
-        if (!chave) return Promise.resolve(null);
-        if (coresDaFoto.has(chave)) return Promise.resolve(coresDaFoto.get(chave));
-        return new Promise((ok) => {
-            const fim = (hex) => { coresDaFoto.set(chave, hex); ok(hex); };
+    const coresDaFoto = new Map();       // arquivo da foto -> '#rrggbb' | null
+    const texturasDaFoto = new Map();    // arquivo|t (tira) ou arquivo|p (passador) -> url do recorte | null
+    const fotosEmPreparo = new Map();
+    const fotosRedesenhadas = new Set();
+    // Recortes limpos do couro na foto de 2000 px (x, y, largura, altura): duas
+    // áreas da tira entre as costuras (coleira de um tom só) ou o miolo do passador
+    // entre as duas costuras (detalhe de outra cor). A foto tem ~15 px por mm.
+    const RECORTES_TIRA = [[350, 920, 288, 150], [1060, 915, 280, 155]];
+    const RECORTES_PASSADOR = [[925, 850, 70, 240]];
+
+    // Detalhe de outra cor ("Camel com Azul Bebê"): o pingente é da cor do passador,
+    // que não é a da tira.
+    function detalheDiferente() {
+        const partes = String(S.cor || '').split(/\s+com\s+/i);
+        return partes.length > 1 && ultimaCor(S.cor) !== partes[0].trim();
+    }
+
+    // Ladrilho de 576 px (≈ 38 mm) feito de janelas sorteadas dos recortes,
+    // coladas lado a lado com mistura nas bordas. Sem alterar a cor dos pixels.
+    function montarLadrilho(g, k, recortes) {
+        const T = 576;
+        const P = recortes.map(([x, y, w, h]) => {
+            const W = Math.round(w * k), H = Math.round(h * k);
+            return { w: W, h: H, d: g.getImageData(Math.round(x * k), Math.round(y * k), W, H).data };
+        });
+        const colW = Math.min(230, ...P.map((p) => p.w)), rowH = Math.min(230, ...P.map((p) => p.h));
+        const F = Math.max(16, Math.min(60, Math.round(Math.min(colW, rowH) * 0.4)));   // mistura maior em recorte pequeno: some o aspecto de blocos
+        const acc = new Float32Array(T * T * 3), pes = new Float32Array(T * T);
+        let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        for (let oy = -F; oy < T; oy += rowH - F) {
+            for (let ox = -F; ox < T; ox += colW - F) {
+                const p = P[Math.floor(rnd() * P.length)];
+                const sx0 = Math.floor(rnd() * (p.w - colW + 1)), sy0 = Math.floor(rnd() * (p.h - rowH + 1));
+                const fx = rnd() < 0.5, fy = rnd() < 0.5;
+                for (let y = 0; y < rowH; y++) {
+                    const ty = oy + y; if (ty < 0 || ty >= T) continue;
+                    const wy = Math.min(1, Math.min(y, rowH - 1 - y) / F);
+                    for (let x = 0; x < colW; x++) {
+                        const tx = ox + x; if (tx < 0 || tx >= T) continue;
+                        const wx = Math.min(1, Math.min(x, colW - 1 - x) / F);
+                        const m = Math.min(wx, wy), mm = m * m * (3 - 2 * m);
+                        const s = ((sy0 + (fy ? rowH - 1 - y : y)) * p.w + sx0 + (fx ? colW - 1 - x : x)) * 4;
+                        const i = ty * T + tx;
+                        acc[i * 3] += p.d[s] * mm; acc[i * 3 + 1] += p.d[s + 1] * mm; acc[i * 3 + 2] += p.d[s + 2] * mm; pes[i] += mm;
+                    }
+                }
+            }
+        }
+        const cv = document.createElement('canvas'); cv.width = cv.height = T;
+        const cg = cv.getContext('2d'); const im = cg.createImageData(T, T);
+        for (let i = 0; i < T * T; i++) {
+            const w = pes[i] || 1;
+            im.data[i * 4] = acc[i * 3] / w; im.data[i * 4 + 1] = acc[i * 3 + 1] / w; im.data[i * 4 + 2] = acc[i * 3 + 2] / w; im.data[i * 4 + 3] = 255;
+        }
+        cg.putImageData(im, 0, 0);
+        return new Promise((ok) => cv.toBlob((blob) => ok(blob ? URL.createObjectURL(blob) : null), 'image/png'));
+    }
+
+    // Lê a foto UMA vez (2000 px, CORS do CDN da Shopify) e tira dela a cor do
+    // passador e os dois recortes de couro. Sem CORS: tudo null (cor cadastrada).
+    function prepararFoto(src) {
+        const arq = arquivoDa(src);
+        if (!arq) return Promise.resolve();
+        if (fotosEmPreparo.has(arq)) return fotosEmPreparo.get(arq);
+        const p = new Promise((ok) => {
             const i = new Image();
             i.crossOrigin = 'anonymous';
-            i.onload = () => {
+            i.onload = async () => {
                 try {
-                    const w = 400, k = w / 2000;
-                    const c = document.createElement('canvas'); c.width = c.height = w;
+                    const k = i.naturalWidth / 2000;
+                    const c = document.createElement('canvas'); c.width = i.naturalWidth; c.height = i.naturalHeight;
                     const g = c.getContext('2d', { willReadFrequently: true });
-                    g.drawImage(i, 0, 0, w, w);
+                    g.drawImage(i, 0, 0);
                     const d = g.getImageData(Math.round(905 * k), Math.round(855 * k), Math.round(130 * k), Math.round(190 * k)).data;
-                    const canal = (o) => { const v = []; for (let p = o; p < d.length; p += 4) v.push(d[p]); v.sort((a, b) => a - b); return v[v.length >> 1]; };
-                    fim('#' + [canal(0), canal(1), canal(2)].map((n) => n.toString(16).padStart(2, '0')).join(''));
-                } catch (e) { fim(null); }
+                    const canal = (o) => { const v = []; for (let q = o; q < d.length; q += 4) v.push(d[q]); v.sort((a, b) => a - b); return v[v.length >> 1]; };
+                    coresDaFoto.set(arq, '#' + [canal(0), canal(1), canal(2)].map((n) => n.toString(16).padStart(2, '0')).join(''));
+                    texturasDaFoto.set(arq + '|t', await montarLadrilho(g, k, RECORTES_TIRA));
+                    texturasDaFoto.set(arq + '|p', await montarLadrilho(g, k, RECORTES_PASSADOR));
+                } catch (e) {
+                    if (!coresDaFoto.has(arq)) coresDaFoto.set(arq, null);
+                }
+                ok();
             };
-            i.onerror = () => fim(null);
-            i.src = urlFoto(src, 800);
+            i.onerror = () => { coresDaFoto.set(arq, null); ok(); };
+            i.src = urlFoto(src, 2000);
         });
+        fotosEmPreparo.set(arq, p);
+        return p;
     }
     function corMedidaAtual() {
         if (!M || !S.cor || !S.metal) return null;
         return coresDaFoto.get(arquivoDa(M.foto(S.cor, S.metal))) || null;
     }
+    function texturaFotoAtual() {
+        if (!M || !S.cor || !S.metal) return '';
+        return texturasDaFoto.get(arquivoDa(M.foto(S.cor, S.metal)) + (detalheDiferente() ? '|p' : '|t')) || '';
+    }
     function medirCorDoPingente() {
         if (!M || !S.cor || !S.metal) return;
-        corDoPassador(M.foto(S.cor, S.metal)).then((hex) => {
-            if (!hex || hex !== corMedidaAtual()) return;
+        const src = M.foto(S.cor, S.metal), arq = arquivoDa(src);
+        prepararFoto(src).then(() => {
+            if (arquivoDa(M.foto(S.cor, S.metal)) !== arq || fotosRedesenhadas.has(arq)) return;
+            fotosRedesenhadas.add(arq);
             if (palcoEm3D()) desenhar3D();
             desenharPendurado();
             if (S.passo === E.pingente) renderTipos();
@@ -835,7 +916,7 @@
         // lado, a mesma ideia das camadas da aresta do pingente.
         const op = opcoesPingente('frente');
         const f = formaDe(op.formato, op.tipo);
-        const me = METAL_ESTILO[chaveMetal(op.metal)];
+        const me = estiloPingente(op.metal);
         const lado = ((2 * ARGOLA_RY + 2.6) / 116) * 100;
         const cxA = ((f.furo[0] + 8) / 116) * 100 - lado / 2;
         const cyA = ((f.furo[1] - ARGOLA_RY + 1.6 + 8) / 116) * 100 - lado / 2;
