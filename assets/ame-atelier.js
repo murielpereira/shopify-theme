@@ -762,9 +762,11 @@
         militar: 'militar', nude: 'nude', offwhite: 'off', preto: 'preto', rosabebe: 'rosabb',
         rosaseco: 'rosaseco', sepia: 'sepia',
     };
-    // Quantos mm de couro a imagem mostra (40 × 40). O pingente usa 2,25 unidades
-    // por mm. Se as imagens forem feitas com outro recorte, é só mudar aqui.
-    const MM_DA_IMAGEM = 40;
+    // Tamanho, em mm do pingente, em que a imagem de couro (40 × 40 mm no arquivo)
+    // é exibida. O pingente usa 2,25 unidades por mm. 40 = escala real; 60 = grão
+    // 50 % maior (pedido do Muriel, 14/10/2026: em 40 o grão ficou pequeno). Acima
+    // de ~38 a imagem passa do pingente, então não repete.
+    const MM_DA_IMAGEM = 60;
     const LADO_IMAGEM_COURO = MM_DA_IMAGEM * 2.25;
     function imagemDoCouro() {
         const chave = ARQUIVO_COURO[compacto(ultimaCor(S.cor || CFG.inicio.cor || ''))];
