@@ -1365,21 +1365,15 @@ textarea.atl-campo__input {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.42), transparent 46%),
-    var(--atl-grao),
-    var(--img, none),
-    var(--cor);
-  background-size: auto, 90px 90px, cover, auto;
-  background-position: center;
-  background-blend-mode: normal, multiply, normal, normal;
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.1), 0 6px 12px -8px rgba(32, 27, 20, 0.5);
+  /* Só a imagem do couro, redonda: sem brilho, sem grão por cima e sem sombra
+     (15/10/2026, a pedido). Sem imagem, a cor lisa. */
+  background: var(--img, none) center / cover, var(--cor);
   transition: transform 0.4s var(--atl-ease), box-shadow 0.4s ease;
 }
 
 .atl-cor.is-ativo .atl-cor__disco {
   transform: scale(1.06);
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.1), 0 0 0 3px var(--atl-papel), 0 0 0 4.5px var(--atl-latao-2);
+  box-shadow: 0 0 0 3px var(--atl-papel), 0 0 0 4.5px var(--atl-latao-2);
 }
 
 .atl-cor__nome {
