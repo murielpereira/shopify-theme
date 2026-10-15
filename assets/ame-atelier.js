@@ -212,7 +212,28 @@
     // ── Cores e metais ──
     const SWATCH = {};
     Object.keys(CFG.swatches || {}).forEach((k) => (SWATCH[norm(k)] = CFG.swatches[k]));
-    const hexDe = (nome) => SWATCH[norm(nome)] || '#cdbfb2';
+    // As bolinhas (couro, passador, topo da página e pingente liso) usam a cor das
+    // imagens de couro dos pingentes (assets/couro-<cor>.jpg), medida na região
+    // central de cada uma em 15/10/2026, e não o swatch cadastrado no tema. Cor
+    // sem imagem cai no swatch. Se uma imagem de couro mudar, refazer a medição.
+    const HEX_COURO = {
+        allure: '#98aec0', azulbebe: '#b5c8c3', borgonha: '#782932', branco: '#cbc8c5', cafe: '#524033',
+        camel: '#9d5a35', chiclete: '#fb88a3', lilascandy: '#bfb7bc', marinho: '#2f3d4f', militar: '#55574c',
+        nude: '#c2a28c', offwhite: '#c6c7bd', preto: '#242424', rosabebe: '#e2b5a6', rosaseco: '#db9396', sepia: '#a6b3a5',
+    };
+    const hexDe = (nome) => HEX_COURO[compacto(nome)] || SWATCH[norm(nome)] || '#cdbfb2';
+    // Miniatura (96 px, recorte do centro) da imagem de couro da cor, para as
+    // bolinhas: elas mostram o couro de verdade, não só o tom. Vazia sem imagem.
+    // (ARQUIVO_COURO, mais abaixo, traduz o nome da cor para a chave do arquivo.)
+    const miniDe = (nome) => {
+        const k = ARQUIVO_COURO[compacto(nome)];
+        return (k && CFG.couros_mini && CFG.couros_mini[k]) || '';
+    };
+    const luzDe = (hex) => {
+        const h = String(hex || '').replace('#', '');
+        if (h.length < 6) return 0.5;
+        return (parseInt(h.slice(0, 2), 16) * 0.299 + parseInt(h.slice(2, 4), 16) * 0.587 + parseInt(h.slice(4, 6), 16) * 0.114) / 255;
+    };
 
     function claroOuEscuro(hex) {
         const h = String(hex || '').replace('#', '');
@@ -461,11 +482,9 @@
             // e o couro por dentro, um pouco rebaixado.
             corpo += `<path d="${f.dh}" fill-rule="evenodd" fill="url(#${id}m)"/>`;
             corpo += `<path d="${f.di}" fill="${couroHex}"${filtroCouro}/>` + camadaTex(f.di, false);
-            corpo += `<g clip-path="url(#${id}i)">
-                <path d="${f.di}" fill="none" stroke="rgba(0,0,0,.34)" stroke-width="2" transform="translate(.5 .8)"/>
-                <path d="${f.di}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.6" transform="translate(-.4 -.6)"/>
-              </g>`;
-            corpo += `<path d="${f.di}" fill="none" stroke="rgba(60,40,10,.45)" stroke-width=".5"/>`;
+            // Sem a sombra do degrau entre o aro e o couro (retirada em 15/10/2026,
+            // a pedido, para ver como fica). Eram duas faixas (sombra e luz)
+            // recortadas pelo couro e um fio escuro no contorno dele.
         } else {
             corpo += `<path d="${f.dh}" fill-rule="evenodd" fill="url(#${id}m)"/>`;
         }
@@ -1039,7 +1058,7 @@
         box.innerHTML = M.couros.map((c) => {
             const hex = hexDe(c);
             const n = M.porCouro.get(c).length;
-            return `<button type="button" class="atl-cor${S.couro === c ? ' is-ativo' : ''}" aria-pressed="${S.couro === c}" data-couro="${esc(c)}" style="--cor:${hex}" data-tom="${claroOuEscuro(hex)}">
+            return `<button type="button" class="atl-cor${S.couro === c ? ' is-ativo' : ''}" aria-pressed="${S.couro === c}" data-couro="${esc(c)}" style="--cor:${hex}${miniDe(c) ? `;--img:url('${miniDe(c)}');--atl-grao:none` : ''}" data-tom="${claroOuEscuro(hex)}">
                 <span class="atl-cor__disco" aria-hidden="true"></span>
                 <span class="atl-cor__nome">${esc(c)}</span>
                 ${n > 1 ? `<span class="atl-cor__mais" aria-label="${n} opções de passador">${n}</span>` : ''}
@@ -1063,7 +1082,7 @@
             const nome = o.passador || 'Mesmo tom';
             const hexP = hexDe(o.passador || S.couro);
             return `<button type="button" class="atl-passador__op${S.cor === o.cor ? ' is-ativo' : ''}" aria-pressed="${S.cor === o.cor}" data-cor="${esc(o.cor)}">
-                <span class="atl-passador__amostra" aria-hidden="true" style="--a:${hexDe(S.couro)};--b:${hexP}"></span>
+                <span class="atl-passador__amostra${miniDe(S.couro) && miniDe(o.passador || S.couro) ? ' atl-passador__amostra--img' : ''}" aria-hidden="true" style="--a:${hexDe(S.couro)};--b:${hexP}${miniDe(S.couro) && miniDe(o.passador || S.couro) ? `;--ai:url('${miniDe(S.couro)}');--bi:url('${miniDe(o.passador || S.couro)}')` : ''}"></span>
                 <span>${esc(nome)}</span>
             </button>`;
         }).join('');
@@ -2060,6 +2079,13 @@
 
     (function topo() {
         const lista = (CFG.hero || []).filter((h) => h && h.img);
+        // A foto que o Liquid já pôs na tela é a primeira da lista original; as
+        // bolinhas vão do tom mais claro ao mais escuro (luminosidade da cor-base)
+        // e o carrossel começa nessa foto, onde ela cair na ordem nova.
+        const fotoInicial = lista[0];
+        const baseDe = (h) => String(h.cor).split(/\s+com\s+/i)[0];
+        lista.sort((a, b) => luzDe(hexDe(baseDe(b))) - luzDe(hexDe(baseDe(a))));
+        const iniDot = Math.max(0, lista.indexOf(fotoInicial));
         const imgs = [$('[data-atl-hero-img]'), $('[data-atl-hero-img-b]')].filter(Boolean);
         const nome = $('[data-atl-hero-nome]');
         const pontos = $('[data-atl-hero-dots]');
@@ -2067,7 +2093,7 @@
         const palavra = $('[data-atl-hero-word]');
         // Cada bolinha é um botão com área de toque de 36 px: escolher uma
         // mostra a cor e segura o carrossel por alguns segundos.
-        if (pontos) pontos.innerHTML = lista.map((h, i) => `<button type="button" class="atl-hero__dot${i === 0 ? ' is-ativo' : ''}" data-i="${i}" aria-pressed="${i === 0}" aria-label="${esc(h.cor)}, metal ${esc(h.metal)}" style="--cor:${hexDe(String(h.cor).split(/\s+com\s+/i)[0])}"><span></span></button>`).join('');
+        if (pontos) pontos.innerHTML = lista.map((h, i) => `<button type="button" class="atl-hero__dot${i === iniDot ? ' is-ativo' : ''}" data-i="${i}" aria-pressed="${i === iniDot}" aria-label="${esc(h.cor)}, metal ${esc(h.metal)}" style="--cor:${hexDe(baseDe(h))}${miniDe(baseDe(h)) ? `;--img:url('${miniDe(baseDe(h))}')` : ''}"><span></span></button>`).join('');
 
         // Paralaxe: a palavra anda mais devagar que a coleira, e a coleira
         // inclina de leve conforme a página rola.
@@ -2093,7 +2119,7 @@
         if (palavra) requestAnimationFrame(() => palavra.classList.add('is-visivel'));
 
         if (lista.length < 2 || imgs.length < 2) return;
-        let i = 0, frente = 0, visivel = true, timer = 0, ocupado = false, pedido = null;
+        let i = iniDot, frente = 0, visivel = true, timer = 0, ocupado = false, pedido = null;
         const w = window.innerWidth < 990 ? 900 : 1400;
         new IntersectionObserver((ents) => { visivel = ents[0].isIntersecting; agendar(); }).observe(palcoHero);
         document.addEventListener('visibilitychange', () => agendar());
