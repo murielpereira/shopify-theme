@@ -2412,7 +2412,10 @@ html.atl-travado body {
 }
 
 .atl-final {
-  max-width: 34rem;
+  /* O recuo lateral entra na conta (border-box): no computador --atl-margem chega
+     a ~200 px e, com 34rem no total, sobrava uma coluna de ~130 px e o título
+     quebrava letra por letra (15/10/2026). */
+  max-width: calc(34rem + 2 * var(--atl-margem));
   margin: 0 auto;
   padding: 3.5rem var(--atl-margem) 4.5rem;
   text-align: center;
@@ -2424,6 +2427,11 @@ html.atl-travado body {
   font-weight: 250;
   line-height: 1.05;
   letter-spacing: -0.03em;
+}
+
+/* No computador o botão não precisa ocupar a coluna inteira. */
+.atl-final .atl-btn--grande {
+  width: min(100%, 24rem);
 }
 
 .atl-final__texto {
