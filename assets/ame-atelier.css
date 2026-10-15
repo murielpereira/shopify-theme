@@ -311,7 +311,7 @@
 .atl-hero__word {
   position: absolute;
   left: 50%;
-  top: 8%;
+  top: 2%;
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 74%, transparent 90%);
   mask-image: linear-gradient(180deg, #000 0%, #000 74%, transparent 90%);
   font-size: clamp(5.5rem, 33vw, 17rem);
@@ -903,8 +903,8 @@
 .atl-palco__pendurado {
   position: absolute;
   z-index: 4;
-  left: 66.8%;
-  top: 62.4%;
+  left: 68%;
+  top: 61.7%;
   width: 33%;
   pointer-events: none;
 }
@@ -2516,7 +2516,7 @@ html.atl-travado body {
   }
 
   .atl-hero__word {
-    top: 6%;
+    top: 0%;
     font-size: 15rem;
   }
 
