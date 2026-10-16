@@ -5,8 +5,8 @@
  * O nome do pet só é pedido dentro do Pingente, depois de escolher um tipo.
  *
  * O palco mostra a FOTO REAL da combinação escolhida. As 104 fotos (26 cores ×
- * 4 metais) têm o mesmo enquadramento (medido em 13/10/2026: a coleira ocupa
- * x 7,5–94 %, y 35,8–58,8 % em todas), então trocar a foto parece a cor sendo
+ * 4 metais) têm o mesmo enquadramento (refeitas em 16/10/2026 e medidas de
+ * novo: a coleira ocupa x 5–95 %, y 35,2–63 % em todas), então trocar a foto parece a cor sendo
  * aplicada na mesma peça, e dá para mirar fivela, passador e argola por
  * coordenada fixa (PONTOS, abaixo). Se um dia entrarem fotos com outro
  * enquadramento, o zoom e o pingente pendurado erram de lugar — conferir.
@@ -579,7 +579,9 @@
         inteira: { x: 0.5, y: 0.5, s: 1 },
         resumo: { x: 0.5, y: 0.575, s: 1 },
         passador: { x: 0.47, y: 0.47, s: 2.1 },
-        fivela: { x: 0.165, y: 0.47, s: 2.3 },
+        // Centro da fivela medido nas fotos de 16/10/2026: x 0,177 y 0,50 (a
+        // coleira ficou um pouco mais baixa e mais larga). Zoom 2,0 (era 2,3).
+        fivela: { x: 0.177, y: 0.5, s: 2.0 },
         argola: { x: 0.68, y: 0.5, s: 2.1 },
     };
 
