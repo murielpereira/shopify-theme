@@ -1118,7 +1118,9 @@
 /* ── Painéis ── */
 .atl-paineis {
   position: relative;
-  padding: 1.25rem 0 calc(6.5rem + env(safe-area-inset-bottom, 0px));
+  /* Sem reserva para a barra fixa: ela só aparece com o ateliê na tela e o
+     fim dos painéis nunca fica sob ela (eram 6,5rem de vazio; 16/10/2026). */
+  padding: 1.25rem 0 1.5rem;
   min-height: 15rem;
 }
 
@@ -2185,7 +2187,7 @@ html.atl-travado body {
 .atl-beneficios {
   max-width: var(--atl-largura);
   margin: 0 auto;
-  padding: 4.5rem var(--atl-margem) 4rem;
+  padding: 3rem var(--atl-margem) 4rem;
 }
 
 .atl-beneficios__grade {
