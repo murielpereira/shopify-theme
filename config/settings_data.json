@@ -33,7 +33,7 @@
     "cart_type": "drawer",
     "checkout_yampi_ativo": false,
     "aviso_correios_ativo": false,
-    "pix_discount": 10,
+    "pix_discount": 5,
     "cashback_percent": 10,
     "social_instagram": "",
     "social_facebook": "",
