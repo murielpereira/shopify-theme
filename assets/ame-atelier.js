@@ -585,7 +585,9 @@
     const PONTOS = {
         inteira: { x: 0.5, y: 0.5, s: 1 },
         resumo: { x: 0.5, y: 0.575, s: 1 },
-        passador: { x: 0.47, y: 0.47, s: 2.1 },
+        // Centro do passador nas fotos de 16/10/2026: x 0,469 y 0,518 (a faixa
+        // clara vai de y 0,41 a 0,63).
+        passador: { x: 0.469, y: 0.518, s: 2.1 },
         // Centro da fivela medido nas fotos de 16/10/2026: x 0,177 y 0,50 (a
         // coleira ficou um pouco mais baixa e mais larga). Zoom 2,0 (era 2,3).
         fivela: { x: 0.177, y: 0.5, s: 2.0 },
