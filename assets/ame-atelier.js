@@ -1079,6 +1079,21 @@
 
     // O passador mora embaixo da foto fixa: só na etapa Cores, e só quando o
     // couro tem mais de uma opção (com uma só, a legenda já diz qual é).
+    // No computador (≥ 990 px) o seletor vai para baixo da grade de cores, na
+    // coluna das opções; no celular continua colado na foto. É o mesmo nó
+    // movido de lugar (os cliques são delegados na raiz), então nada é refeito.
+    const mqDesktop = window.matchMedia('(min-width: 990px)');
+    function posicionarPassador() {
+        const bloco = $('[data-atl-passador-bloco]');
+        const alvo = $('[data-atl-couros]');
+        const foto = $('[data-atl-legenda]');
+        if (!bloco || !alvo || !foto) return;
+        if (mqDesktop.matches) alvo.insertAdjacentElement('afterend', bloco);
+        else foto.insertAdjacentElement('afterend', bloco);
+    }
+    posicionarPassador();
+    if (mqDesktop.addEventListener) mqDesktop.addEventListener('change', posicionarPassador);
+
     let passadorTemOpcoes = false;
     function mostrarPassadores() {
         const bloco = $('[data-atl-passador-bloco]');

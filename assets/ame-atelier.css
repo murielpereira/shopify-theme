@@ -2508,6 +2508,16 @@ html.atl-travado body {
     --atl-margem: var(--page-margin, 48px);
   }
 
+  /* O seletor da cor do detalhe mora embaixo da grade de cores (o JS move). */
+  .atl-painel .atl-passador {
+    justify-content: flex-start;
+    margin-top: 1.25rem;
+  }
+
+  .atl-painel .atl-passador__opcoes {
+    justify-content: flex-start;
+  }
+
   .atl-hero {
     padding-top: 2.5rem;
     padding-bottom: 3.5rem;
