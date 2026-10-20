@@ -106,12 +106,25 @@
 {% endstyle %}
 
 {%- comment -%}
-  Cada card tem janela própria de exibição (início/fim). Fora da janela ele
-  sai do HTML e as colunas se ajustam; sem nenhum card ativo, o bloco some.
+  São 8 posições, cada uma com janela própria de exibição (início/fim). Fora da
+  janela o card sai do HTML. Aparecem no MÁXIMO 4 por vez, os primeiros ativos
+  na ordem das posições: dá para deixar as 4 próximas programadas e elas entram
+  quando as atuais saem. Com menos de 4 ativos as colunas se ajustam; sem
+  nenhum ativo, o bloco some.
 {%- endcomment -%}
 {%- liquid
   assign cards_ativos = ''
-  for i in (1..4)
+  assign cards_ativos_n = 0
+  assign max_cards = 4
+  for i in (1..8)
+    if cards_ativos_n >= max_cards
+      break
+    endif
+    assign col_key = 'category_' | append: i
+    # Posição sem coleção não vira card vazio na loja; só aparece no editor do tema.
+    if block.settings[col_key] == blank and request.design_mode != true
+      continue
+    endif
     assign ini_key = 'category_' | append: i | append: '_inicio'
     assign fim_key = 'category_' | append: i | append: '_fim'
     capture ativo
@@ -119,6 +132,7 @@
     endcapture
     if ativo == '1'
       assign cards_ativos = cards_ativos | append: i | append: ','
+      assign cards_ativos_n = cards_ativos_n | plus: 1
     endif
   endfor
   assign cards_ativos = cards_ativos | split: ',' | compact
@@ -219,6 +233,10 @@
       "default": "Categorias em destaque"
     },
     {
+      "type": "paragraph",
+      "content": "São 8 posições, mas só 4 aparecem por vez: as primeiras que estiverem dentro das datas. Preencha as posições 5 a 8 com as próximas e dê a elas uma data de início — quando as atuais saírem (data de fim), elas entram. Posição sem data aparece sempre."
+    },
+    {
       "type": "collection",
       "id": "category_1",
       "label": "Categoria 1"
@@ -284,6 +302,74 @@
       "type": "text",
       "id": "category_4_fim",
       "label": "Categoria 4: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
+      "type": "collection",
+      "id": "category_5",
+      "label": "Categoria 5"
+    },
+    {
+      "type": "text",
+      "id": "category_5_inicio",
+      "label": "Categoria 5: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_5_fim",
+      "label": "Categoria 5: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
+      "type": "collection",
+      "id": "category_6",
+      "label": "Categoria 6"
+    },
+    {
+      "type": "text",
+      "id": "category_6_inicio",
+      "label": "Categoria 6: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_6_fim",
+      "label": "Categoria 6: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
+      "type": "collection",
+      "id": "category_7",
+      "label": "Categoria 7"
+    },
+    {
+      "type": "text",
+      "id": "category_7_inicio",
+      "label": "Categoria 7: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_7_fim",
+      "label": "Categoria 7: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
+      "type": "collection",
+      "id": "category_8",
+      "label": "Categoria 8"
+    },
+    {
+      "type": "text",
+      "id": "category_8_inicio",
+      "label": "Categoria 8: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_8_fim",
+      "label": "Categoria 8: some depois de",
       "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
     },
     {
