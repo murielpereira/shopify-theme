@@ -26,10 +26,18 @@
   logado, de país e do editor.
 {% endcomment %}
 
+{%- comment -%}
+  `preco` e `pesoKg` só existem na página de produto: são o que a cotação de
+  frete do final da pesquisa usa para dizer quanto ESTE produto sairia para o
+  CEP da pessoa. Sem eles, a cotação usa o peso padrão do Waltz e preço zero.
+{%- endcomment -%}
+{%- assign pesq_variante = product.selected_or_first_available_variant -%}
 <script>
   window.WALTZ_PESQUISA = {
     pedidos: {% if customer %}{{ customer.orders_count | default: 0 | json }}{% else %}null{% endif %},
     pais: {{ localization.country.iso_code | json }},
-    designMode: {{ request.design_mode | json }}
+    designMode: {{ request.design_mode | json }},
+    preco: {% if pesq_variante %}{{ pesq_variante.price | divided_by: 100.0 | json }}{% else %}null{% endif %},
+    pesoKg: {% if pesq_variante and pesq_variante.weight > 0 %}{{ pesq_variante.weight | divided_by: 1000.0 | json }}{% else %}null{% endif %}
   };
 </script>
