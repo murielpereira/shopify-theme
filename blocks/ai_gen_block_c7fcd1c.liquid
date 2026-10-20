@@ -21,7 +21,7 @@
 
   .ai-category-grid__container-{{ ai_gen_id }} {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--ame-cols, 4), 1fr);
     gap: {{ block.settings.grid_gap }}px;
   }
 
@@ -105,14 +105,35 @@
   }
 {% endstyle %}
 
+{%- comment -%}
+  Cada card tem janela própria de exibição (início/fim). Fora da janela ele
+  sai do HTML e as colunas se ajustam; sem nenhum card ativo, o bloco some.
+{%- endcomment -%}
+{%- liquid
+  assign cards_ativos = ''
+  for i in (1..4)
+    assign ini_key = 'category_' | append: i | append: '_inicio'
+    assign fim_key = 'category_' | append: i | append: '_fim'
+    capture ativo
+      render 'ame-janela-agendada', inicio: block.settings[ini_key], fim: block.settings[fim_key]
+    endcapture
+    if ativo == '1'
+      assign cards_ativos = cards_ativos | append: i | append: ','
+    endif
+  endfor
+  assign cards_ativos = cards_ativos | split: ',' | compact
+-%}
+
+{%- if cards_ativos.size > 0 -%}
 <category-grid-{{ ai_gen_id }} class="ai-category-grid-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
   {% if block.settings.section_title != blank %}
     <h2 class="ai-category-grid__title-{{ ai_gen_id }}">{{ block.settings.section_title }}</h2>
   {% endif %}
 
-  <div class="ai-category-grid__container-{{ ai_gen_id }}">
-    {% for i in (1..4) %}
+  <div class="ai-category-grid__container-{{ ai_gen_id }}" style="--ame-cols: {{ cards_ativos.size }};">
+    {% for i_raw in cards_ativos %}
       {% liquid
+        assign i = i_raw | times: 1
         assign collection_key = 'category_' | append: i
         assign collection = block.settings[collection_key]
       %}
@@ -165,6 +186,7 @@
     {% endfor %}
   </div>
 </category-grid-{{ ai_gen_id }}>
+{%- endif -%}
 
 <script>
   (function() {
@@ -202,9 +224,33 @@
       "label": "Categoria 1"
     },
     {
+      "type": "text",
+      "id": "category_1_inicio",
+      "label": "Categoria 1: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_1_fim",
+      "label": "Categoria 1: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
       "type": "collection",
       "id": "category_2",
       "label": "Categoria 2"
+    },
+    {
+      "type": "text",
+      "id": "category_2_inicio",
+      "label": "Categoria 2: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_2_fim",
+      "label": "Categoria 2: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
     },
     {
       "type": "collection",
@@ -212,9 +258,33 @@
       "label": "Categoria 3"
     },
     {
+      "type": "text",
+      "id": "category_3_inicio",
+      "label": "Categoria 3: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_3_fim",
+      "label": "Categoria 3: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
+    },
+    {
       "type": "collection",
       "id": "category_4",
       "label": "Categoria 4"
+    },
+    {
+      "type": "text",
+      "id": "category_4_inicio",
+      "label": "Categoria 4: aparece a partir de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de início."
+    },
+    {
+      "type": "text",
+      "id": "category_4_fim",
+      "label": "Categoria 4: some depois de",
+      "info": "Formato: AAAA-MM-DD HH:MM. Vazio = sem data de fim."
     },
     {
       "type": "header",

@@ -59,7 +59,7 @@
     endif
   endfor
 
-  assign pix_pct = settings.pix_discount | default: 5
+  assign pix_pct = shop.metafields.waltz.vitrine.value.pix_pct | default: settings.pix_discount | default: 5
 -%}
 
 {%- comment -%}

@@ -1,0 +1,32 @@
+{%- comment -%}
+  Âme — janela de exibição por data (mesma regra do ame_hero_carousel).
+
+  Uso:
+    {%- capture ativo -%}{%- render 'ame-janela-agendada', inicio: s.inicio, fim: s.fim -%}{%- endcapture -%}
+    {%- if ativo == '1' -%} ...mostra... {%- endif -%}
+
+  Emite "1" quando agora está dentro da janela e nada quando está fora.
+  Campo vazio = sem limite daquele lado (os dois vazios = sempre visível).
+  Formato do campo: "AAAA-MM-DD HH:MM", lido do mesmo jeito que o carrossel
+  do topo, para os dois agendamentos nunca discordarem.
+  A página fica em cache na Shopify: a virada pode atrasar alguns minutos.
+{%- endcomment -%}
+{%- liquid
+  assign now_ts = 'now' | date: '%s' | times: 1
+  assign dentro = true
+  if inicio != blank
+    assign inicio_ts = inicio | date: '%s' | times: 1
+    if now_ts < inicio_ts
+      assign dentro = false
+    endif
+  endif
+  if dentro and fim != blank
+    assign fim_ts = fim | date: '%s' | times: 1
+    if now_ts > fim_ts
+      assign dentro = false
+    endif
+  endif
+  if dentro
+    echo '1'
+  endif
+-%}

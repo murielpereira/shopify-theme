@@ -27,7 +27,7 @@
     endif
 
     # Pix com desconto (pra exibir no topo do modal)
-    assign pix_pct = settings.pix_discount | default: 5
+    assign pix_pct = shop.metafields.waltz.vitrine.value.pix_pct | default: settings.pix_discount | default: 5
     assign pix_disc_cents = price_int | times: pix_pct | divided_by: 100
     assign pix_price_cents = price_int | minus: pix_disc_cents
     assign show_pix = settings.show_pix
