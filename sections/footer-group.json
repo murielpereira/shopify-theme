@@ -22,7 +22,7 @@
         "menu_2": "",
         "show_pages": true,
         "pages_title": "Páginas",
-        "pages_exclude": "",
+        "pages_exclude": "data-sharing-opt-out, pesquisa, pesquisa-pos-compra, pesquisa-pos-entrega, pesquisa-pos-uso",
         "social_title": "Siga a gente",
         "social_instagram": "https://www.instagram.com/ameacessoriospet",
         "social_facebook": "https://www.facebook.com/ameacessoriospet/",
