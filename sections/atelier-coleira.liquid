@@ -340,6 +340,42 @@
             Tamanho conferido
           </li>
         </ul>
+        {%- comment -%}
+          Stories: os vídeos do produto em círculos, logo abaixo dos selos.
+          Tocam num visualizador de tela cheia (JS). O vídeo "Como medir" vem
+          do Waltz e o JS o acrescenta no fim; sem vídeo do produto a faixa
+          nasce escondida e só aparece se o "Como medir" existir.
+        {%- endcomment -%}
+        {%- assign stories_videos = product.media | where: 'media_type', 'video' -%}
+        <div class="atl-stories atl-in" style="--d: 7" role="list" aria-label="Vídeos" data-atl-stories{% if stories_videos.size == 0 or section.settings.mostrar_stories == false %} hidden{% endif %}>
+          {%- if section.settings.mostrar_stories -%}
+            {%- for m in stories_videos limit: 4 -%}
+              {%- liquid
+                assign fonte = ''
+                assign fonte_altura = 0
+                for s in m.sources
+                  if s.format == 'mp4' and s.height <= 720
+                    if s.height > fonte_altura
+                      assign fonte = s.url
+                      assign fonte_altura = s.height
+                    endif
+                  endif
+                endfor
+                if fonte == ''
+                  assign fonte = m.sources.first.url
+                endif
+                assign rotulo = m.alt | strip
+                if rotulo == blank
+                  assign rotulo = 'Vídeo ' | append: forloop.index
+                endif
+              -%}
+              <button type="button" class="atl-story" role="listitem" data-atl-story data-src="{{ fonte }}" data-rotulo="{{ rotulo | escape }}" aria-label="Ver vídeo: {{ rotulo | escape }}">
+                <span class="atl-story__anel"><img src="{{ m.preview_image | image_url: width: 176 }}" alt="" width="88" height="88" loading="lazy"></span>
+                <span class="atl-story__nome">{{ rotulo }}</span>
+              </button>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
       </div>
     </div>
     <a href="#atelie" class="atl-hero__descer" aria-label="Ir para o ateliê" data-atl-comecar>
@@ -721,6 +757,28 @@
     </div>
   </div>
 
+  {%- comment -%} Visualizador dos stories (conteúdo montado pelo JS) {%- endcomment -%}
+  <div class="atl-hist" data-atl-hist hidden role="dialog" aria-modal="true" aria-label="Vídeos">
+    <div class="atl-hist__fundo" data-atl-hist-fechar></div>
+    <div class="atl-hist__quadro">
+      <div class="atl-hist__barras" data-atl-hist-barras></div>
+      <p class="atl-hist__titulo" data-atl-hist-titulo></p>
+      <button type="button" class="atl-hist__fechar" data-atl-hist-fechar aria-label="Fechar">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <video class="atl-hist__video" data-atl-hist-video playsinline></video>
+      <button type="button" class="atl-hist__nav atl-hist__nav--ant" data-atl-hist-ant aria-label="Vídeo anterior"></button>
+      <button type="button" class="atl-hist__nav atl-hist__nav--prox" data-atl-hist-prox aria-label="Próximo vídeo"></button>
+      <button type="button" class="atl-hist__som" data-atl-hist-som aria-label="Desativar som">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+          <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path data-atl-hist-mudo d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:none"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <div class="atl-aviso" data-atl-aviso role="status" aria-live="polite" hidden></div>
 </div>
 
@@ -786,6 +844,7 @@
     },
     { "type": "text", "id": "processo_assinatura", "label": "Fecho", "default": "Cada peça que sai daqui é única." },
     { "type": "header", "content": "Vídeos" },
+    { "type": "checkbox", "id": "mostrar_stories", "label": "Mostrar os vídeos em círculos (stories) no topo", "info": "O nome embaixo de cada círculo é o texto alternativo do vídeo no produto.", "default": true },
     { "type": "checkbox", "id": "mostrar_videos", "label": "Mostrar os vídeos do produto", "default": true },
     { "type": "text", "id": "videos_eyebrow", "label": "Sobretítulo", "default": "Veja de perto" },
     { "type": "text", "id": "videos_titulo", "label": "Título", "default": "Do ateliê para o pescoço deles" },

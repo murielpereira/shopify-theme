@@ -2705,3 +2705,222 @@ html.atl-travado body {
     height: 110vw;
   }
 }
+/* ── Stories: vídeos em círculos no topo (16/10/2026) ── */
+.atl-stories {
+  display: flex;
+  justify-content: center;
+  gap: 0.9rem 1rem;
+  margin: 1.5rem 0 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.atl-stories::-webkit-scrollbar {
+  display: none;
+}
+
+.atl-stories[hidden] {
+  display: none;
+}
+
+.atl-story {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 4.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--atl-tinta-2);
+  cursor: pointer;
+}
+
+/* Anel de latão como o dos stories; o papel separa o anel da imagem. */
+.atl-story__anel {
+  display: block;
+  width: 4.1rem;
+  height: 4.1rem;
+  padding: 2.5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--atl-latao-1), var(--atl-latao-2) 55%, var(--atl-latao-3));
+}
+
+.atl-story__anel img,
+.atl-story__anel video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--atl-papel);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--atl-areia-2);
+}
+
+.atl-story__nome {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.atl-story:focus-visible .atl-story__anel {
+  outline: 2px solid var(--atl-couro);
+  outline-offset: 2px;
+}
+
+@media (min-width: 990px) {
+  .atl-stories {
+    justify-content: flex-start;
+  }
+}
+
+/* Visualizador em tela cheia */
+.atl-hist {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.atl-hist[hidden] {
+  display: none;
+}
+
+.atl-hist.is-aberta {
+  opacity: 1;
+}
+
+.atl-hist__fundo {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 16, 12, 0.92);
+}
+
+.atl-hist__quadro {
+  position: relative;
+  width: min(100vw, calc(100svh * 9 / 16));
+  height: min(100svh, calc(100vw * 16 / 9));
+  overflow: hidden;
+  background: #000;
+  border-radius: 0;
+}
+
+@media (min-width: 600px) {
+  .atl-hist__quadro {
+    height: min(92svh, 56rem);
+    width: calc(min(92svh, 56rem) * 9 / 16);
+    border-radius: 14px;
+  }
+}
+
+.atl-hist__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.atl-hist__barras {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  gap: 4px;
+}
+
+.atl-hist__barras span {
+  flex: 1;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.atl-hist__barras i {
+  display: block;
+  height: 100%;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.atl-hist__barras .is-feita i {
+  transform: scaleX(1);
+}
+
+.atl-hist__titulo {
+  position: absolute;
+  top: 24px;
+  left: 14px;
+  z-index: 3;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.atl-hist__fechar,
+.atl-hist__som {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+}
+
+.atl-hist__fechar {
+  top: 18px;
+  right: 10px;
+}
+
+.atl-hist__som {
+  right: 10px;
+  bottom: 14px;
+}
+
+/* Toque na metade esquerda volta, na direita avança. */
+.atl-hist__nav {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  top: 64px;
+  bottom: 64px;
+  z-index: 2;
+  width: 38%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.atl-hist__nav--ant {
+  left: 0;
+}
+
+.atl-hist__nav--prox {
+  right: 0;
+}

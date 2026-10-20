@@ -1423,13 +1423,94 @@
         if (e.target.matches('[data-atl-raca]')) setTimeout(() => { const ul = $('[data-atl-racas]'); if (ul) ul.hidden = true; }, 150);
     });
 
+    // ── Stories: vídeos em círculos no topo, tocados em tela cheia ──
+    // Os vídeos do produto já vêm no HTML (data-atl-story); o "Como medir" vem
+    // do Waltz (TM.video) e é acrescentado no fim da fileira por storyMedir().
+    const faixaStories = $('[data-atl-stories]');
+    const hist = $('[data-atl-hist]');
+    const histVideo = $('[data-atl-hist-video]');
+    const hs = { i: 0, som: true };
+    function storyMedir() {
+        if (!faixaStories || !TM || !TM.video || faixaStories.querySelector('[data-atl-story-medir]')) return;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'atl-story atl-story--medir';
+        b.setAttribute('data-atl-story', '');
+        b.setAttribute('data-atl-story-medir', '');
+        b.setAttribute('role', 'listitem');
+        b.dataset.src = TM.video;
+        b.dataset.rotulo = 'Como medir';
+        b.setAttribute('aria-label', 'Ver vídeo: como medir o pescoço');
+        // O círculo mostra o primeiro quadro do próprio vídeo (não há imagem de capa).
+        b.innerHTML = `<span class="atl-story__anel"><video src="${esc(TM.video)}#t=0.6" muted playsinline preload="metadata" tabindex="-1" aria-hidden="true"></video></span><span class="atl-story__nome">Como medir</span>`;
+        faixaStories.appendChild(b);
+        faixaStories.hidden = false;
+    }
+    const listaStories = () => $$('[data-atl-story]', faixaStories || root);
+    function tocarStory(i) {
+        const itens = listaStories();
+        if (!itens.length) return;
+        hs.i = (i + itens.length) % itens.length;
+        const it = itens[hs.i];
+        $('[data-atl-hist-titulo]').textContent = it.dataset.rotulo || '';
+        $('[data-atl-hist-barras]').innerHTML = itens.map((_, k) => `<span class="${k < hs.i ? 'is-feita' : ''}${k === hs.i ? ' is-atual' : ''}"><i></i></span>`).join('');
+        histVideo.muted = !hs.som;
+        histVideo.src = it.dataset.src;
+        const p = histVideo.play();
+        if (p && p.catch) p.catch(() => { histVideo.muted = true; histVideo.play().catch(() => {}); });
+        mostrarSomHist();
+    }
+    function mostrarSomHist() {
+        const m = $('[data-atl-hist-mudo]');
+        if (m) m.style.display = histVideo.muted ? '' : 'none';
+        $('[data-atl-hist-som]').setAttribute('aria-label', histVideo.muted ? 'Ativar som' : 'Desativar som');
+    }
+    function abrirStories(i) {
+        hist.hidden = false;
+        document.documentElement.classList.add('atl-travado');
+        requestAnimationFrame(() => hist.classList.add('is-aberta'));
+        tocarStory(i);
+        const aberto = listaStories()[i];
+        publicar('story', { story: aberto ? aberto.dataset.rotulo : '' });
+    }
+    function fecharStories() {
+        if (hist.hidden) return;
+        hist.classList.remove('is-aberta');
+        document.documentElement.classList.remove('atl-travado');
+        histVideo.pause();
+        setTimeout(() => { hist.hidden = true; histVideo.removeAttribute('src'); histVideo.load(); }, 250);
+    }
+    if (faixaStories && hist) {
+        faixaStories.addEventListener('click', (e) => {
+            const b = e.target.closest('[data-atl-story]');
+            if (b) abrirStories(listaStories().indexOf(b));
+        });
+        $$('[data-atl-hist-fechar]').forEach((b) => b.addEventListener('click', fecharStories));
+        $('[data-atl-hist-ant]').addEventListener('click', () => tocarStory(hs.i - 1));
+        $('[data-atl-hist-prox]').addEventListener('click', () => tocarStory(hs.i + 1));
+        $('[data-atl-hist-som]').addEventListener('click', () => { hs.som = histVideo.muted; histVideo.muted = !hs.som; mostrarSomHist(); });
+        histVideo.addEventListener('ended', () => {
+            if (hs.i < listaStories().length - 1) tocarStory(hs.i + 1); else fecharStories();
+        });
+        histVideo.addEventListener('timeupdate', () => {
+            const atual = $('[data-atl-hist-barras] .is-atual i');
+            if (atual && histVideo.duration) atual.style.transform = `scaleX(${(histVideo.currentTime / histVideo.duration).toFixed(3)})`;
+        });
+        document.addEventListener('keydown', (e) => {
+            if (hist.hidden) return;
+            if (e.key === 'Escape') fecharStories();
+            else if (e.key === 'ArrowRight') tocarStory(hs.i + 1);
+            else if (e.key === 'ArrowLeft') tocarStory(hs.i - 1);
+        });
+        storyMedir();
+    }
+
     // ── Folha "Como medir" ──
     const folha = $('[data-atl-folha]');
     function abrirFolha() {
         const box = $('[data-atl-folha-conteudo]');
-        const video = TM && TM.video ? TM.video : '';
+        // O vídeo de como medir agora é um dos stories do topo (storyMedir).
         box.innerHTML = `
-          ${video ? `<video class="atl-folha__video" src="${esc(video)}" muted playsinline loop autoplay controls></video>` : ''}
           <p>${esc((TM && TM.observacao) || 'Passe a fita métrica ao redor do pescoço, bem justa e nivelada.')}</p>
           <p class="atl-folha__dica">Sem fita métrica? Use um barbante e meça na régua.</p>
           <div class="atl-campo atl-campo--medida">
@@ -2276,6 +2357,7 @@
                         observacao: t.observacao || '',
                         video: (r.config && (r.config.video_url_coleira || r.config.video_url)) || '',
                     };
+                    storyMedir();
                     return TM;
                 })
                 .catch((e) => { console.warn('[ateliê] tabela de medidas', e.message); tmPromessa = null; return null; });
