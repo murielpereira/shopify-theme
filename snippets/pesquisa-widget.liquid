@@ -1,0 +1,35 @@
+{% comment %}
+  IDENTIDADE do visitante para a Pesquisa com visitantes (Aplicativos › Pesquisas).
+
+  Este snippet NÃO carrega o widget. Quem carrega é o `waltz-core.js` (incluído
+  no topo do layout), que pergunta ao Waltz quais módulos estão ligados e injeta
+  `widget-pesquisa.js` quando a pesquisa estiver LIGADA na aba. O que só o tema
+  consegue dizer é QUEM está na página — o Waltz não enxerga a sessão da loja.
+
+  Mesmo desenho do `cashback-widget.liquid`: bloco inline que roda enquanto a
+  página é lida, antes do waltz-core (que é `defer`). Então `WALTZ_PESQUISA`
+  sempre existe antes de o widget carregar.
+
+  O que o widget faz com isto:
+    · pedidos   — cliente LOGADO com pedido nunca vê o convite: a pesquisa é de
+                  quem visitou e não comprou. Visitante deslogado = null (o
+                  widget não tem como saber; quem é cliente e quer sumir com o
+                  convite usa o botão "Já sou cliente").
+    · pais      — fora do Brasil não convida (o cupom e o frete são do Brasil).
+    · designMode — editor do tema e pré-visualização nunca mostram o convite.
+
+  ⚠️ `customer.orders_count` conta pedidos do cliente na Shopify, não o histórico
+  migrado de outras plataformas. Quem comprou só antes da migração e nunca fez
+  login ainda pode ver o convite uma vez — e some com ele em "Já sou cliente".
+
+  Sem este snippet o widget continua funcionando; só perde a exclusão de cliente
+  logado, de país e do editor.
+{% endcomment %}
+
+<script>
+  window.WALTZ_PESQUISA = {
+    pedidos: {% if customer %}{{ customer.orders_count | default: 0 | json }}{% else %}null{% endif %},
+    pais: {{ localization.country.iso_code | json }},
+    designMode: {{ request.design_mode | json }}
+  };
+</script>

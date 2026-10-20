@@ -264,6 +264,13 @@
     {%- render 'cashback-widget' -%}
 
     {%- comment -%}
+      Pesquisa com visitantes — diz ao widget QUEM está na página (cliente com
+      pedido, país, editor do tema). O widget em si é injetado pelo waltz-core
+      quando a pesquisa está ligada. Vide snippets/pesquisa-widget.liquid.
+    {%- endcomment -%}
+    {%- render 'pesquisa-widget' -%}
+
+    {%- comment -%}
       Google Avaliações do Consumidor (Google Customer Reviews) — o módulo
       de opt-in (apis.google.com/js/platform.js + gapi.surveyoptin.render)
       NÃO vai aqui.
