@@ -1425,7 +1425,7 @@
 
     // ── Stories: vídeos em círculos no topo, tocados em tela cheia ──
     // Os vídeos do produto já vêm no HTML (data-atl-story); o "Como medir" vem
-    // do Waltz (TM.video) e é acrescentado no fim da fileira por storyMedir().
+    // do Waltz (TM.video) e entra no INÍCIO da fileira por storyMedir().
     const faixaStories = $('[data-atl-stories]');
     const hist = $('[data-atl-hist]');
     const histVideo = $('[data-atl-hist-video]');
@@ -1443,7 +1443,7 @@
         b.setAttribute('aria-label', 'Ver vídeo: como medir o pescoço');
         // O círculo mostra o primeiro quadro do próprio vídeo (não há imagem de capa).
         b.innerHTML = `<span class="atl-story__anel"><video src="${esc(TM.video)}#t=0.6" muted playsinline preload="metadata" tabindex="-1" aria-hidden="true"></video></span><span class="atl-story__nome">Como medir</span>`;
-        faixaStories.appendChild(b);
+        faixaStories.prepend(b);
         faixaStories.hidden = false;
     }
     const listaStories = () => $$('[data-atl-story]', faixaStories || root);
