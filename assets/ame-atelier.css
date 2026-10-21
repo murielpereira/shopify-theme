@@ -2924,3 +2924,34 @@ html.atl-travado body {
 .atl-hist__nav--prox {
   right: 0;
 }
+
+/* Garantia e troca: dois selos em destaque acima do botão do topo. */
+.atl-hero__garantias {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.5rem;
+  margin: 1.4rem 0 1rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--atl-tinta);
+}
+
+.atl-hero__garantias li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.atl-hero__garantias svg {
+  flex: none;
+  color: var(--atl-latao-3);
+}
+
+@media (min-width: 990px) {
+  .atl-hero__garantias {
+    justify-content: flex-start;
+  }
+}
