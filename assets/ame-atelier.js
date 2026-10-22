@@ -1437,7 +1437,6 @@
         b.className = 'atl-story atl-story--medir';
         b.setAttribute('data-atl-story', '');
         b.setAttribute('data-atl-story-medir', '');
-        b.setAttribute('role', 'listitem');
         b.dataset.src = TM.video;
         b.dataset.rotulo = 'Como medir';
         b.setAttribute('aria-label', 'Ver vídeo: como medir o pescoço');

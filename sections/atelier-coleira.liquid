@@ -361,7 +361,7 @@
           nasce escondida e só aparece se o "Como medir" existir.
         {%- endcomment -%}
         {%- assign stories_videos = product.media | where: 'media_type', 'video' -%}
-        <div class="atl-stories atl-in" style="--d: 7" role="list" aria-label="Vídeos" data-atl-stories{% if stories_videos.size == 0 or section.settings.mostrar_stories == false %} hidden{% endif %}>
+        <div class="atl-stories atl-in" style="--d: 7" role="group" aria-label="Vídeos" data-atl-stories{% if stories_videos.size == 0 or section.settings.mostrar_stories == false %} hidden{% endif %}>
           {%- if section.settings.mostrar_stories -%}
             {%- for m in stories_videos limit: 4 -%}
               {%- liquid
@@ -383,7 +383,7 @@
                   assign rotulo = 'Vídeo ' | append: forloop.index
                 endif
               -%}
-              <button type="button" class="atl-story" role="listitem" data-atl-story data-src="{{ fonte }}" data-rotulo="{{ rotulo | escape }}" aria-label="Ver vídeo: {{ rotulo | escape }}">
+              <button type="button" class="atl-story" data-atl-story data-src="{{ fonte }}" data-rotulo="{{ rotulo | escape }}" aria-label="Ver vídeo: {{ rotulo | escape }}">
                 <span class="atl-story__anel"><img src="{{ m.preview_image | image_url: width: 176 }}" alt="" width="88" height="88" loading="lazy"></span>
                 <span class="atl-story__nome">{{ rotulo }}</span>
               </button>
