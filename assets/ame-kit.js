@@ -1067,6 +1067,10 @@
                     quantity: 1,
                     properties: Object.assign({}, ...propsByComp, {
                         _from_kit: '1',
+                        // Preço cheio (soma das peças, centavos, por unidade): o
+                        // carrinho usa pra riscar e mostrar o desconto do kit —
+                        // o /cart.js não traz compare_at. Só exibição.
+                        ...(bv.cheio > bv.preco ? { _preco_cheio: String(bv.cheio) } : {}),
                         ...(willAddPingente ? { _kit: coleiraKey } : {}),
                         ...(Object.keys(camposPorPeca).length ? { _campos_kit: JSON.stringify(camposPorPeca) } : {}),
                     }),

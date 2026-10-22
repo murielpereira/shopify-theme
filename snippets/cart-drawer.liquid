@@ -343,8 +343,20 @@
 
                 <!-- Price -->
                 <div class="ame-cart-item__prices">
+                  {%- comment -%}
+                    Kit vendido como bundle: o desconto do kit é PREÇO da variação, então
+                    original_line_price == final_line_price e a Shopify não risca nada.
+                    O ame-kit.js manda o preço cheio por unidade em `_preco_cheio` (centavos).
+                    Manter igual ao itemHTML() de assets/ame-theme.js.
+                  {%- endcomment -%}
+                  {%- assign kit_cheio_unit = item.properties._preco_cheio | plus: 0 -%}
+                  {%- assign kit_cheio_total = kit_cheio_unit | times: item.quantity -%}
                   {%- if item.original_line_price != item.final_line_price -%}
                     <span class="ame-cart-item__price-original">{{ item.original_line_price | money }}</span>
+                  {%- elsif kit_cheio_total > item.final_line_price -%}
+                    {%- assign kit_pct = kit_cheio_total | minus: item.final_line_price | times: 100 | divided_by: kit_cheio_total | round -%}
+                    <span class="ame-cart-item__kit-tag">−{{ kit_pct }}% no kit</span>
+                    <span class="ame-cart-item__price-original">{{ kit_cheio_total | money }}</span>
                   {%- endif -%}
                   <span class="ame-cart-item__price" data-line-price="{{ item.key }}">{{ item.final_line_price | money }}</span>
                 </div>

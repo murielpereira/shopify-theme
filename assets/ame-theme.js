@@ -354,11 +354,20 @@ document.addEventListener('DOMContentLoaded', () => {
       ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2')
       : '';
     const v = item.variant_title && item.variant_title !== 'Default Title';
-    const disc =
-      item.original_line_price !== item.final_line_price
-        ? `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>`
-        : '';
     const props = item.properties || {};
+    // Kit vendido como bundle: desconto é PREÇO da variação, a Shopify não risca
+    // nada. O ame-kit.js manda o preço cheio por unidade em `_preco_cheio`
+    // (centavos). Manter igual ao bloco de preço de snippets/cart-drawer.liquid.
+    const kitCheio = (parseInt(props._preco_cheio, 10) || 0) * (item.quantity || 1);
+    let disc = '';
+    if (item.original_line_price !== item.final_line_price) {
+      disc = `<span class="ame-cart-item__price-original">${fmt(item.original_line_price)}</span>`;
+    } else if (kitCheio > item.final_line_price) {
+      const pct = Math.round(((kitCheio - item.final_line_price) * 100) / kitCheio);
+      disc =
+        `<span class="ame-cart-item__kit-tag">−${pct}% no kit</span>` +
+        `<span class="ame-cart-item__price-original">${fmt(kitCheio)}</span>`;
+    }
     // Lê _kit (novo) ou _coleira_key (legado — retrocompat pra carts abertos
     // com pedido gerado antes da renomeação).
     const coleiraKey = props._kit || props._coleira_key || '';

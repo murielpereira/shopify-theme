@@ -1884,6 +1884,20 @@ body::after {
   text-decoration: line-through;
 }
 
+/* Etiqueta do desconto do kit (preço da variação do bundle, não desconto da
+   Shopify) — acima do preço cheio riscado. */
+.ame-cart-item__kit-tag {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--pdp-btn-bg, var(--color-primary, #5a4742));
+  color: var(--pdp-btn-fg, var(--color-on-primary, #ffffff));
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .ame-cart-item__price {
   font-size: 0.9375rem;
   font-weight: 600;
