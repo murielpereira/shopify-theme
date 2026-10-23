@@ -225,15 +225,36 @@
           >
             {%- if is_pingente_addon -%}<span class="ame-cart-item__img-link">{%- else -%}<a href="{{ item.url }}" class="ame-cart-item__img-link">{%- endif -%}
               <div class="ame-cart-item__img-wrap">
-                {{
-                  item.image
-                  | image_url: width: 200
-                  | image_tag:
-                    widths: '100, 200',
-                    loading: 'lazy',
-                    class: 'ame-cart-item__img',
-                    alt: item.product.title
-                }}
+                {%- comment -%}
+                  Kit em bundle: a linha só tem a foto da CAPA; o ame-kit.js manda a foto da
+                  peça na cor escolhida em `_foto_kit`. Manter igual ao itemHTML() de assets/ame-theme.js.
+                {%- endcomment -%}
+                {%- assign foto_kit = item.properties._foto_kit | default: '' -%}
+                {%- if foto_kit contains 'https://' -%}
+                  {%- if foto_kit contains '?' -%}
+                    {%- assign foto_kit_src = foto_kit | append: '&width=200' -%}
+                  {%- else -%}
+                    {%- assign foto_kit_src = foto_kit | append: '?width=200' -%}
+                  {%- endif -%}
+                  <img
+                    src="{{ foto_kit_src | escape }}"
+                    alt="{{ item.product.title | escape }}"
+                    class="ame-cart-item__img"
+                    loading="lazy"
+                    width="200"
+                    height="200"
+                  >
+                {%- else -%}
+                  {{
+                    item.image
+                    | image_url: width: 200
+                    | image_tag:
+                      widths: '100, 200',
+                      loading: 'lazy',
+                      class: 'ame-cart-item__img',
+                      alt: item.product.title
+                  }}
+                {%- endif -%}
               </div>
             {%- if is_pingente_addon -%}</span>{%- else -%}</a>{%- endif -%}
 
@@ -253,7 +274,7 @@
                 </span>
               {%- endif -%}
               {%- unless item.product.has_only_default_variant -%}
-                <p class="ame-cart-item__variant">{{ item.variant.title }}</p>
+                <p class="ame-cart-item__variant{% if item.properties._from_kit %} ame-cart-item__variant--kit{% endif %}">{{ item.variant.title }}</p>
               {%- endunless -%}
 
               {%- if item.properties != blank -%}

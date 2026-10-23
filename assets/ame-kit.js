@@ -1049,6 +1049,7 @@
             }
 
             const bv = varianteDoKit();
+            const fotoDoKit = (variants[0] && variants[0].featured_image) || components[0].featured_image || '';
             // De qual peça é cada campo (a mesma regra por tag do kit em peças):
             // { "Observações": ["<id do peitoral>"] }. Vai oculto (`_`) na
             // linha do kit, e a folha de impressão do Waltz usa pra pôr cada
@@ -1071,6 +1072,10 @@
                         // carrinho usa pra riscar e mostrar o desconto do kit —
                         // o /cart.js não traz compare_at. Só exibição.
                         ...(bv.cheio > bv.preco ? { _preco_cheio: String(bv.cheio) } : {}),
+                        // Foto da peça na cor escolhida (a 1ª do kit, a mesma do
+                        // showcase): a linha do bundle só tem a foto da capa, e a
+                        // cliente via uma cor diferente da que escolheu. Só exibição.
+                        ...(fotoDoKit ? { _foto_kit: fotoDoKit } : {}),
                         ...(willAddPingente ? { _kit: coleiraKey } : {}),
                         ...(Object.keys(camposPorPeca).length ? { _campos_kit: JSON.stringify(camposPorPeca) } : {}),
                     }),

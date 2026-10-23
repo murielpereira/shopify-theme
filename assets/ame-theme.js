@@ -350,11 +350,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function itemHTML(item, papel = 's', paiKey = '') {
     const kitFilho = papel === 'f' || papel === 'u';
-    const img = item.featured_image?.url
-      ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2')
-      : '';
-    const v = item.variant_title && item.variant_title !== 'Default Title';
     const props = item.properties || {};
+    // Kit vendido como bundle: a linha só tem a foto da CAPA, e a cliente via uma
+    // cor diferente da que escolheu. O ame-kit.js manda a foto da peça na cor
+    // escolhida em `_foto_kit`. Manter igual a snippets/cart-drawer.liquid.
+    const fotoKit = typeof props._foto_kit === 'string' && /^https?:\/\//.test(props._foto_kit) ? props._foto_kit : '';
+    const img = fotoKit
+      ? fotoKit + (fotoKit.includes('?') ? '&' : '?') + 'width=200'
+      : item.featured_image?.url
+        ? item.featured_image.url.replace(/(\.[^.?]+)(\?.*)?$/, '_200x200$1$2')
+        : '';
+    const v = item.variant_title && item.variant_title !== 'Default Title';
     // Kit vendido como bundle: desconto é PREÇO da variação, a Shopify não risca
     // nada. O ame-kit.js manda o preço cheio por unidade em `_preco_cheio`
     // (centavos). Manter igual ao bloco de preço de snippets/cart-drawer.liquid.
@@ -470,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ${kitFilho ? '<span class="ame-cart-item__kit-chip">Anexo à coleira</span>' : ''}
         ${nameHTML}
         ${brindeChip}
-        ${v ? `<p class="ame-cart-item__variant">${esc(item.variant_title)}</p>` : ''}
+        ${v ? `<p class="ame-cart-item__variant${props._from_kit ? ' ame-cart-item__variant--kit' : ''}">${esc(item.variant_title)}</p>` : ''}
         ${propsHTML}
         <div class="ame-cart-item__bottom">
           ${qtyHTML}

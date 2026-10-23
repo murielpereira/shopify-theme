@@ -1609,6 +1609,14 @@ body::after {
   margin-top: 0.25rem;
 }
 
+/* Linha de kit: a cor escolhida em destaque (a foto é da peça, mas a cliente
+   precisa ler a cor que pediu antes de pagar). */
+.ame-cart-item__variant--kit {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-on-background, #201b14);
+}
+
 .ame-cart-item__props {
   list-style: none;
   padding: 0;
