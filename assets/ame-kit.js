@@ -1076,6 +1076,15 @@
                         // showcase): a linha do bundle só tem a foto da capa, e a
                         // cliente via uma cor diferente da que escolheu. Só exibição.
                         ...(fotoDoKit ? { _foto_kit: fotoDoKit } : {}),
+                        // As peças do kit (título, variação, foto), pro carrinho listar
+                        // como o checkout. Sem "https://" e sem query pra economizar
+                        // caracteres; ver `_pecas_kit` em cart-drawer.liquid.
+                        _pecas_kit: components.map((comp, i) => {
+                            const f = ((variants[i] && variants[i].featured_image) || comp.featured_image || '')
+                                .replace(/^https?:\/\//, '').replace(/\?.*$/, '');
+                            const limpo = (t) => String(t || '').replace(/~~~|\^\^\^/g, ' ');
+                            return [limpo(comp.title), limpo(variants[i] && variants[i].title), f].join('~~~');
+                        }).join('^^^'),
                         ...(willAddPingente ? { _kit: coleiraKey } : {}),
                         ...(Object.keys(camposPorPeca).length ? { _campos_kit: JSON.stringify(camposPorPeca) } : {}),
                     }),

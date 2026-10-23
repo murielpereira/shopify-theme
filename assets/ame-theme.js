@@ -418,6 +418,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     const propsHTML = propsLis.length ? `<ul class="ame-cart-item__props">${propsLis.join('')}</ul>` : '';
+    // Kit em bundle: as peças, como o checkout mostra ("N itens"). O /cart.js não
+    // traz os componentes, então o ame-kit.js manda em `_pecas_kit`:
+    //   peça ^^^ peça, cada peça = título ~~~ variação ~~~ foto (sem https://).
+    // Manter igual a snippets/cart-drawer.liquid.
+    const pecasKit = typeof props._pecas_kit === 'string' && props._pecas_kit ? props._pecas_kit.split('^^^') : [];
+    const pecasHTML = pecasKit.length
+      ? `<details class="ame-cart-item__pecas" open><summary>${pecasKit.length} itens no kit</summary><ul>${pecasKit
+          .map((p) => {
+            const [titulo = '', variacao = '', foto = ''] = p.split('~~~');
+            return `<li>${
+              foto ? `<img src="https://${esc(foto)}?width=96" alt="" loading="lazy" width="48" height="48">` : ''
+            }<span><strong>1 por ${esc(titulo)}</strong><small>${esc(variacao)}</small></span></li>`;
+          })
+          .join('')}</ul></details>`
+      : '';
     const brindeChip = isBrinde
       ? `<span class="ame-cart-item__brinde-chip"><span class="material-symbols-outlined" aria-hidden="true">card_giftcard</span>Brinde</span>`
       : '';
@@ -478,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ${brindeChip}
         ${v ? `<p class="ame-cart-item__variant${props._from_kit ? ' ame-cart-item__variant--kit' : ''}">${esc(item.variant_title)}</p>` : ''}
         ${propsHTML}
+        ${pecasHTML}
         <div class="ame-cart-item__bottom">
           ${qtyHTML}
           <div class="ame-cart-item__prices">${disc}<span class="ame-cart-item__price" data-line-price="${esc(

@@ -1609,6 +1609,83 @@ body::after {
   margin-top: 0.25rem;
 }
 
+/* Peças do kit, como no checkout ("N itens"): miniatura + "1 por <peça>" + variação. */
+.ame-cart-item__pecas {
+  margin-top: 0.5rem;
+}
+
+.ame-cart-item__pecas > summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--color-on-surface-muted, #6f645d);
+  list-style: none;
+}
+
+.ame-cart-item__pecas > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ame-cart-item__pecas > summary::after {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: 0.5rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.ame-cart-item__pecas[open] > summary::after {
+  transform: rotate(-135deg);
+}
+
+.ame-cart-item__pecas ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ame-cart-item__pecas li {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.ame-cart-item__pecas img {
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--color-surface-container, #f8ece0);
+}
+
+.ame-cart-item__pecas li span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ame-cart-item__pecas strong {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-on-background, #201b14);
+  line-height: 1.3;
+}
+
+.ame-cart-item__pecas small {
+  font-size: 0.6875rem;
+  color: var(--color-on-surface-muted, #6f645d);
+  line-height: 1.3;
+}
+
 /* Linha de kit: a cor escolhida em destaque (a foto é da peça, mas a cliente
    precisa ler a cor que pediu antes de pagar). */
 .ame-cart-item__variant--kit {

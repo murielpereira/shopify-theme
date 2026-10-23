@@ -141,7 +141,18 @@
   assign pix_cents = card_effective_price | minus: pix_cents
 -%}
 
-<div class="ame-card{% if card_is_sold_out %} ame-card--sold-out{% endif %}" data-product-card>
+{%- comment -%}
+  Esgotado de produto AGRUPADO por cor: o card reflete só a cor que representa o
+  grupo. Os data-* abaixo deixam assets/ame-card-grupo.js reabrir o card se outra
+  cor do grupo ainda estiver à venda.
+{%- endcomment -%}
+<div class="ame-card{% if card_is_sold_out %} ame-card--sold-out{% endif %}" data-product-card
+  {%- if card_is_sold_out and card_product.tags contains 'agrupamento_produto' %}
+  data-grupo-handle="{{ card_product.handle }}"
+  data-grupo-cta="{{ card_cta_label | escape }}"
+  data-grupo-titulo="{{ card_title | escape }}"
+  {%- if card_has_discount %} data-grupo-desconto="{{ card_discount_pct }}"{% endif -%}
+  {%- endif %}>
   <div class="ame-card__image-wrap">
     <a href="{{ card_url }}" class="ame-card__link" tabindex="-1" aria-hidden="true"></a>
     {%- if card_img != blank -%}

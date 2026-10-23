@@ -328,6 +328,35 @@
                 {%- endif -%}
               {%- endif -%}
 
+              {%- comment -%}
+                Kit em bundle: as peças, como o checkout mostra ("N itens"). O /cart.js não traz
+                os componentes, então o ame-kit.js manda em `_pecas_kit`:
+                  peça ^^^ peça, cada peça = título ~~~ variação ~~~ foto (sem https://).
+                Manter igual ao itemHTML() de assets/ame-theme.js.
+              {%- endcomment -%}
+              {%- assign pecas_raw = item.properties._pecas_kit | default: '' -%}
+              {%- if pecas_raw != blank -%}
+                {%- assign pecas_kit = pecas_raw | split: '^^^' -%}
+                <details class="ame-cart-item__pecas" open>
+                  <summary>{{ pecas_kit.size }} itens no kit</summary>
+                  <ul>
+                    {%- for peca_raw in pecas_kit -%}
+                      {%- assign peca = peca_raw | split: '~~~' -%}
+                      <li>
+                        {%- if peca[2] != blank -%}
+                          {%- assign peca_src = 'https://' | append: peca[2] | append: '?width=96' -%}
+                          <img src="{{ peca_src | escape }}" alt="" loading="lazy" width="48" height="48">
+                        {%- endif -%}
+                        <span>
+                          <strong>1 por {{ peca[0] | escape }}</strong>
+                          <small>{{ peca[1] | escape }}</small>
+                        </span>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </details>
+              {%- endif -%}
+
               <div class="ame-cart-item__bottom">
                 {%- if is_brinde != '' -%}
                   <!-- Brinde: qty fixa, sem controles. JS do ame-gifts.js gerencia. -->

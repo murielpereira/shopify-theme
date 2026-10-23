@@ -253,6 +253,13 @@
     <script defer src="{{ 'ame-afiliado.js' | asset_url }}"></script>
 
     {%- comment -%}
+      Card de produto agrupado por cor: só fica "Esgotado" se todas as cores
+      esgotaram (o card olha a cor que representa o grupo). Vide
+      snippets/product-card.liquid (data-grupo-*) e assets/ame-card-grupo.js.
+    {%- endcomment -%}
+    <script defer src="{{ 'ame-card-grupo.js' | asset_url }}"></script>
+
+    {%- comment -%}
       Kit de produtos — substitui o variant picker padrão no PDP quando o
       produto tem `custom.kit_componentes`. Vide snippets/kit-picker.liquid.
     {%- endcomment -%}
