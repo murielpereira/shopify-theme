@@ -1,0 +1,19 @@
+{
+  "sections": {
+    "main": {
+      "type": "collection-esquenta-black",
+      "settings": {
+        "desconto": 15,
+        "periodo": "25 a 31 de outubro",
+        "ultimo_dia": "31",
+        "cupom": "ESQUENTABLACK",
+        "whatsapp_url": "https://wa.me/5548996723567",
+        "tag_gato": "gato",
+        "show_depoimentos": true
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

@@ -1,0 +1,682 @@
+{% comment %}
+  Âme — Coleção "Esquenta Black": layout de campanha (hero + kits + passo a passo + prova + FAQ).
+  Réplica da página feita no Base44. Header e footer são os do tema; os kits vêm dos
+  produtos da coleção (preço = preço real da loja, "De" = compare_at_price).
+  Abas Cães/Gatos: gato = tag `tag_gato` OU "gato" no título; o resto é cachorro.
+{% endcomment %}
+
+{%- liquid
+  assign desconto = section.settings.desconto
+  assign periodo = section.settings.periodo
+  assign cupom = section.settings.cupom | strip
+  assign whatsapp = section.settings.whatsapp_url
+  assign tag_gato = section.settings.tag_gato | strip
+  assign hero_img = section.settings.hero_image
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  .eb {
+    --eb-onyx: #0b0a09;
+    --eb-cocoa: #2e2521;
+    --eb-clay: #4d403a;
+    --eb-sand: #d3bca8;
+    --eb-linen: #efe6dc;
+    --eb-cream: #f7f3ef;
+    --eb-gold: #c99a4e;
+    --eb-amber: #c1ff72;
+    --eb-lime-deep: #aef25a;
+    --eb-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --eb-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    background: var(--eb-cream);
+    color: var(--eb-cocoa);
+    font-family: var(--eb-body);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .eb *, .eb *::before, .eb *::after { box-sizing: border-box; }
+  /* Resets com :where() = especificidade zero, para as classes da seção sempre vencerem */
+  :where(.eb) a { color: inherit; text-decoration: none; }
+  :where(.eb) :is(h1, h2, h3, p, ul, figure, blockquote) { margin: 0; padding: 0; }
+  :where(.eb) ul { list-style: none; }
+  :where(.eb) button { font: inherit; cursor: pointer; }
+  :where(.eb) svg.eb-i { width: 1rem; height: 1rem; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .eb [hidden] { display: none !important; }
+
+  .eb-wrap { max-width: 80rem; margin: 0 auto; padding: 0 1rem; }
+  @media (min-width: 640px) { .eb-wrap { padding: 0 1.5rem; } }
+
+  /* Tipografia de seção */
+  .eb-eyebrow { font-family: var(--eb-display); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3em; color: var(--eb-gold); }
+  .eb-h2 { margin-top: 1rem; font-family: var(--eb-display); font-size: 2.25rem; font-weight: 900; text-transform: uppercase; line-height: .95; letter-spacing: -.02em; }
+  @media (min-width: 640px) { .eb-h2 { font-size: 3rem; } }
+  .eb-section { padding: 5rem 0; scroll-margin-top: 6rem; }
+  @media (min-width: 1024px) { .eb-section { padding: 7rem 0; } }
+
+  /* Botões */
+  .eb-btn { display: inline-flex; align-items: center; justify-content: center; gap: .625rem; border-radius: 999px; padding: 1rem 1.75rem; font-family: var(--eb-display); font-size: .875rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; border: 1px solid transparent; transition: background .2s, border-color .2s, box-shadow .2s; }
+  .eb-btn--lime { background: var(--eb-amber); color: var(--eb-onyx); }
+  .eb-btn--lime:hover { background: var(--eb-lime-deep); box-shadow: 0 18px 40px -18px rgba(193,255,114,.55); }
+  .eb-btn--ghost { border-color: rgba(247,243,239,.3); color: var(--eb-cream); }
+  .eb-btn--ghost:hover { border-color: var(--eb-cream); background: rgba(255,255,255,.1); }
+  .eb-btn .eb-i { transition: transform .2s; }
+  .eb-btn:hover .eb-i { transform: translateX(.25rem); }
+
+  /* Reveal ao rolar (só esconde se o JS rodou) */
+  .eb-js .eb-reveal { opacity: 0; transform: translateY(26px); transition: opacity .6s cubic-bezier(.22,1,.36,1), transform .6s cubic-bezier(.22,1,.36,1); transition-delay: var(--eb-delay, 0s); }
+  .eb-js .eb-reveal.is-in { opacity: 1; transform: none; }
+
+  /* Hero */
+  .eb-hero { position: relative; isolation: isolate; overflow: hidden; background: var(--eb-onyx); color: var(--eb-cream); }
+  .eb-hero__media { position: absolute; inset: -45px 0; z-index: -1; will-change: transform; }
+  .eb-hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+  .eb-hero__media::after { content: ''; position: absolute; inset: 0; background: rgba(11,10,9,.25); }
+  .eb-hero__outline { display: none; position: absolute; right: -1rem; top: 1rem; font-family: var(--eb-display); font-size: 13rem; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 1.5px rgba(193,255,114,.45); user-select: none; pointer-events: none; animation: eb-glow 2.8s ease-in-out infinite; }
+  @media (min-width: 1024px) { .eb-hero__outline { display: block; } }
+  @keyframes eb-glow { 0%, 100% { opacity: .35; } 50% { opacity: .85; } }
+  .eb-hero__inner { padding-top: 3.5rem; padding-bottom: 4rem; }
+  @media (min-width: 640px) { .eb-hero__inner { padding-top: 5rem; padding-bottom: 4rem; } }
+  @media (min-width: 1024px) { .eb-hero__inner { padding-top: 7rem; padding-bottom: 7rem; } }
+  .eb-hero__content { max-width: 42rem; }
+  .eb-pill { display: inline-flex; flex-direction: column; gap: .25rem; border-radius: 1rem; border: 1px solid rgba(193,255,114,.4); background: rgba(193,255,114,.1); padding: .625rem 1rem; font-size: 10px; font-weight: 700; text-transform: uppercase; line-height: 1; letter-spacing: .24em; color: var(--eb-amber); }
+  .eb-pill__row { display: flex; align-items: center; gap: .5rem; }
+  .eb-pill__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--eb-amber); }
+  .eb-pill__sub { padding-left: 14px; }
+  .eb-hero__title { margin-top: 1rem; font-family: var(--eb-display); font-size: 3rem; font-weight: 900; text-transform: uppercase; line-height: .92; letter-spacing: -.02em; }
+  .eb-hero__title em { font-style: normal; color: var(--eb-amber); }
+  @media (min-width: 640px) { .eb-hero__title { margin-top: 1.5rem; font-size: 3.75rem; } }
+  @media (min-width: 1024px) { .eb-hero__title { font-size: 4.5rem; } }
+  .eb-hero__text { margin-top: 1rem; max-width: 36rem; font-size: 1rem; line-height: 1.625; color: rgba(211,188,168,.9); }
+  .eb-hero__ctas { margin-top: 2.25rem; display: flex; flex-direction: column; gap: .75rem; }
+  @media (min-width: 640px) { .eb-hero__ctas { flex-direction: row; } }
+  .eb-hero__anim { animation: eb-rise .7s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes eb-rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+  /* Faixa de confiança */
+  .eb-trust { border-bottom: 1px solid rgba(77,64,58,.1); background: var(--eb-linen); }
+  .eb-trust__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.75rem 1.5rem; padding: 2.25rem 1rem; max-width: 80rem; margin: 0 auto; }
+  @media (min-width: 640px) { .eb-trust__grid { padding-left: 1.5rem; padding-right: 1.5rem; } }
+  @media (min-width: 768px) { .eb-trust__grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1024px) { .eb-trust__grid { grid-template-columns: repeat(6, 1fr); } }
+  .eb-trust__item { display: flex; align-items: flex-start; gap: .75rem; }
+  .eb-trust__item .eb-i { width: 1.25rem; height: 1.25rem; margin-top: 2px; color: var(--eb-gold); stroke-width: 1.8; }
+  .eb-trust__title { font-family: var(--eb-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+  .eb-trust__text { margin-top: 2px; font-size: 11px; line-height: 1.35; color: rgba(77,64,58,.7); }
+
+  /* Kits */
+  .eb-kits__head { max-width: 48rem; }
+  .eb-tabs { margin-top: 2.25rem; display: flex; flex-wrap: wrap; gap: .625rem; }
+  .eb-tab { border-radius: 999px; border: 1px solid rgba(77,64,58,.2); background: #fff; padding: .625rem 1.25rem; font-family: var(--eb-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; color: var(--eb-clay); transition: border-color .2s; }
+  .eb-tab:hover { border-color: rgba(77,64,58,.5); }
+  .eb-tab[aria-pressed="true"] { background: var(--eb-onyx); border-color: var(--eb-onyx); color: var(--eb-cream); }
+  .eb-grid { margin-top: 2.5rem; display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .eb-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .eb-grid { grid-template-columns: repeat(3, 1fr); } }
+  .eb-empty { margin-top: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(77,64,58,.15); background: #fff; padding: 2.5rem 1rem; text-align: center; }
+  .eb-empty p { font-family: var(--eb-display); font-size: 1.125rem; font-weight: 800; }
+  .eb-empty a { margin-top: 1.25rem; display: inline-flex; align-items: center; gap: .5rem; border-radius: 999px; background: var(--eb-onyx); padding: .75rem 1.5rem; font-family: var(--eb-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; color: var(--eb-cream); }
+
+  .eb-kit { display: flex; flex-direction: column; overflow: hidden; height: 100%; border-radius: 1.5rem; border: 1px solid rgba(77,64,58,.1); background: #fff; transition: transform .35s cubic-bezier(.22,1,.36,1); }
+  @media (hover: hover) { .eb-kit:hover { transform: translateY(-6px) rotate(-.6deg); } }
+  .eb-kit__img { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--eb-linen); display: block; }
+  .eb-kit__img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .7s; }
+  .eb-kit:hover .eb-kit__img img { transform: scale(1.05); }
+  .eb-kit__off { position: absolute; right: .75rem; top: .75rem; border-radius: 999px; background: var(--eb-amber); padding: .25rem .75rem; font-family: var(--eb-display); font-size: 12px; font-weight: 800; color: var(--eb-onyx); }
+  .eb-kit__off--out { background: var(--eb-onyx); color: var(--eb-cream); }
+  .eb-kit__body { display: flex; flex: 1; flex-direction: column; padding: 1.25rem; }
+  .eb-kit__meta { display: flex; align-items: center; gap: .5rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--eb-gold); }
+  .eb-kit__name { margin-top: .5rem; font-family: var(--eb-display); font-size: 1.125rem; font-weight: 800; line-height: 1.25; }
+  .eb-kit__price { margin-top: auto; border-top: 1px dashed rgba(77,64,58,.2); padding-top: 1rem; }
+  .eb-kit__body .eb-kit__price { margin-top: 1rem; }
+  .eb-kit__de { font-size: 12px; color: rgba(77,64,58,.45); }
+  .eb-kit__de s { text-decoration: line-through; }
+  .eb-kit__now { margin-top: .25rem; font-family: var(--eb-display); font-size: 1.5rem; font-weight: 800; }
+  .eb-kit__now small { margin-left: .5rem; vertical-align: middle; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--eb-gold); }
+  .eb-kit__parc { margin-top: .375rem; font-size: 12px; color: rgba(77,64,58,.6); }
+  .eb-kit__cta { margin-top: 1.25rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--eb-onyx); padding: .875rem 1.25rem; font-family: var(--eb-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; color: var(--eb-cream); transition: background .2s; }
+  .eb-kit__cta:hover { background: var(--eb-cocoa); }
+  .eb-kit--out .eb-kit__cta { background: rgba(77,64,58,.35); pointer-events: none; }
+  .eb-more { margin-top: 2.5rem; display: flex; justify-content: center; gap: .75rem; }
+  .eb-more a { border-radius: 999px; border: 1px solid rgba(77,64,58,.2); background: #fff; padding: .625rem 1.25rem; font-family: var(--eb-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .14em; color: var(--eb-clay); }
+
+  /* Como aproveitar */
+  .eb-steps { background: var(--eb-onyx); color: var(--eb-cream); padding: 5rem 0; scroll-margin-top: 6rem; }
+  @media (min-width: 1024px) { .eb-steps { padding: 6rem 0; } }
+  .eb-steps__grid { display: grid; gap: 3.5rem; }
+  @media (min-width: 1024px) { .eb-steps__grid { grid-template-columns: 1.1fr .9fr; gap: 5rem; } }
+  .eb-steps .eb-eyebrow { color: var(--eb-amber); }
+  .eb-steps__list { margin-top: 2.5rem; display: grid; gap: 2rem; }
+  .eb-step { display: flex; gap: 1.25rem; }
+  .eb-step__n { display: flex; width: 2.75rem; height: 2.75rem; flex: none; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(193,255,114,.5); font-family: var(--eb-display); font-size: 1rem; font-weight: 800; color: var(--eb-amber); }
+  .eb-step h3 { font-family: var(--eb-display); font-size: 1.125rem; font-weight: 800; }
+  .eb-step p { margin-top: .25rem; font-size: .875rem; line-height: 1.625; color: rgba(211,188,168,.85); }
+  .eb-steps__ctas { margin-top: 2.5rem; display: flex; flex-direction: column; gap: .75rem; }
+  @media (min-width: 640px) { .eb-steps__ctas { flex-direction: row; } }
+  .eb-rules { border-radius: 1.5rem; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); padding: 2rem; backdrop-filter: blur(8px); }
+  .eb-rules li { font-size: .875rem; line-height: 1.5; color: rgba(211,188,168,.9); }
+  .eb-rules li + li { margin-top: .75rem; }
+  @media (min-width: 1024px) { .eb-rules-col { padding-top: 3.5rem; } }
+
+  /* Prova */
+  .eb-split { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 1.5rem; }
+  @media (min-width: 640px) { .eb-split { flex-direction: row; align-items: flex-end; } }
+  .eb-rating { display: flex; align-items: center; gap: .75rem; border-radius: 999px; border: 1px solid rgba(77,64,58,.15); background: #fff; padding: .75rem 1.25rem; }
+  .eb-stars { display: flex; gap: 2px; color: var(--eb-gold); }
+  .eb-stars .eb-i { width: 1rem; height: 1rem; fill: var(--eb-gold); stroke: var(--eb-gold); }
+  .eb-rating span:last-child { font-family: var(--eb-display); font-size: .875rem; font-weight: 800; }
+  .eb-gallery { margin-top: 2.75rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  @media (min-width: 640px) { .eb-gallery { gap: 1.25rem; } }
+  @media (min-width: 1024px) { .eb-gallery { grid-template-columns: repeat(3, 1fr); } }
+  .eb-gallery figure { position: relative; height: 100%; overflow: hidden; border-radius: 1.5rem; background: var(--eb-linen); }
+  .eb-gallery img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; display: block; transition: transform .7s; }
+  .eb-gallery figure:hover img { transform: scale(1.05); }
+  .eb-gallery figcaption { position: absolute; bottom: .75rem; left: .75rem; border-radius: 999px; background: rgba(11,10,9,.75); padding: .375rem .875rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; color: var(--eb-cream); backdrop-filter: blur(6px); }
+  .eb-facts { margin-top: 3.5rem; display: grid; gap: 1.5rem; border-radius: 1.5rem; border: 1px solid rgba(77,64,58,.15); background: #fff; padding: 2rem; }
+  @media (min-width: 640px) { .eb-facts { grid-template-columns: repeat(3, 1fr); } }
+  .eb-facts strong { display: block; font-family: var(--eb-display); font-size: 1.875rem; font-weight: 900; }
+  .eb-facts p { margin-top: .25rem; font-size: 13px; line-height: 1.625; color: rgba(77,64,58,.7); }
+
+  /* Depoimentos */
+  .eb-depo { background: var(--eb-linen); }
+  .eb-depo__grid { margin-top: 2.75rem; display: grid; gap: 1rem; }
+  @media (min-width: 640px) { .eb-depo__grid { gap: 1.25rem; } }
+  @media (min-width: 768px) { .eb-depo__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .eb-depo__grid { grid-template-columns: repeat(3, 1fr); } }
+  .eb-depo figure { display: flex; height: 100%; flex-direction: column; border-radius: 1.5rem; border: 1px solid rgba(77,64,58,.15); background: #fff; padding: 1.5rem; }
+  .eb-depo .eb-quote { width: 1.75rem; height: 1.75rem; color: var(--eb-amber); stroke-width: 1.5; }
+  .eb-depo blockquote { margin-top: 1rem; flex: 1; font-size: 15px; line-height: 1.625; color: rgba(46,37,33,.85); }
+  .eb-depo .eb-stars { margin-top: 1.25rem; }
+  .eb-depo .eb-stars .eb-i { width: .875rem; height: .875rem; }
+  .eb-depo figcaption { margin-top: 1rem; display: flex; align-items: center; gap: .75rem; border-top: 1px solid rgba(77,64,58,.1); padding-top: 1rem; }
+  .eb-avatar { display: flex; width: 2.5rem; height: 2.5rem; flex: none; align-items: center; justify-content: center; border-radius: 50%; background: var(--eb-onyx); font-family: var(--eb-display); font-size: 12px; font-weight: 900; letter-spacing: .04em; color: var(--eb-amber); }
+  .eb-depo figcaption strong { display: block; font-family: var(--eb-display); font-size: .875rem; font-weight: 800; }
+  .eb-depo figcaption small { display: block; font-size: 12px; line-height: 1.35; color: rgba(77,64,58,.7); }
+  .eb-depo__nota { margin-top: 2rem; text-align: center; font-size: 13px; line-height: 1.625; color: rgba(77,64,58,.7); }
+
+  /* FAQ */
+  .eb-faq { background: #fff; }
+  .eb-faq__wrap { max-width: 56rem; margin: 0 auto; padding: 0 1rem; }
+  @media (min-width: 640px) { .eb-faq__wrap { padding: 0 1.5rem; } }
+  .eb-faq__list { margin-top: 2.75rem; border-top: 1px solid rgba(77,64,58,.1); border-bottom: 1px solid rgba(77,64,58,.1); }
+  .eb-faq__item + .eb-faq__item { border-top: 1px solid rgba(77,64,58,.1); }
+  .eb-faq__q { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.25rem 0; border: 0; background: none; text-align: left; font-family: var(--eb-display); font-size: 1rem; font-weight: 800; color: var(--eb-cocoa); }
+  @media (min-width: 640px) { .eb-faq__q { font-size: 1.125rem; } }
+  .eb-faq__plus { display: flex; width: 2rem; height: 2rem; flex: none; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(77,64,58,.25); color: rgba(77,64,58,.6); transition: transform .2s, border-color .2s, color .2s; }
+  .eb-faq__q[aria-expanded="true"] .eb-faq__plus { transform: rotate(45deg); border-color: var(--eb-gold); color: var(--eb-gold); }
+  .eb-faq__a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s ease-in-out; }
+  .eb-faq__q[aria-expanded="true"] + .eb-faq__a { grid-template-rows: 1fr; }
+  .eb-faq__a > div { overflow: hidden; }
+  .eb-faq__a p { padding: 0 3rem 1.5rem 0; font-size: .875rem; line-height: 1.625; color: rgba(77,64,58,.8); }
+  .eb-faq__foot { margin-top: 2.5rem; text-align: center; font-size: .875rem; color: rgba(77,64,58,.7); }
+  .eb-faq__foot a { font-weight: 600; color: var(--eb-cocoa); text-decoration: underline; text-decoration-color: var(--eb-gold); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+  /* CTA final */
+  .eb-final { position: relative; overflow: hidden; background: var(--eb-cocoa); color: var(--eb-cream); padding: 5rem 0; text-align: center; }
+  @media (min-width: 1024px) { .eb-final { padding: 7rem 0; } }
+  .eb-final__mark { display: none; position: absolute; left: -2.5rem; top: 50%; transform: translateY(-50%); font-family: var(--eb-display); font-size: 16rem; font-weight: 900; line-height: 1; color: transparent; -webkit-text-stroke: 1.5px rgba(211,188,168,.25); user-select: none; pointer-events: none; }
+  @media (min-width: 1024px) { .eb-final__mark { display: block; } }
+  .eb-final__inner { position: relative; max-width: 48rem; margin: 0 auto; padding: 0 1rem; }
+  .eb-final .eb-eyebrow { color: var(--eb-amber); }
+  .eb-final h2 { margin-top: 1.25rem; font-family: var(--eb-display); font-size: 2.25rem; font-weight: 900; text-transform: uppercase; line-height: .95; letter-spacing: -.02em; }
+  @media (min-width: 640px) { .eb-final h2 { font-size: 3rem; } }
+  @media (min-width: 1024px) { .eb-final h2 { font-size: 3.75rem; } }
+  .eb-final p.eb-final__text { margin: 1.25rem auto 0; max-width: 36rem; font-size: 1rem; line-height: 1.625; color: rgba(211,188,168,.9); }
+  .eb-final__ctas { margin-top: 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: .75rem; }
+  @media (min-width: 640px) { .eb-final__ctas { flex-direction: row; } }
+
+  /* Barra fixa — fica ABAIXO do carrinho do tema (199/200) */
+  .eb-sticky { position: fixed; inset: auto 0 0 0; z-index: 150; border-top: 1px solid rgba(255,255,255,.1); background: rgba(11,10,9,.9); backdrop-filter: blur(8px); transform: translateY(100%); opacity: 0; transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .35s; }
+  .eb-sticky.is-on { transform: none; opacity: 1; }
+  .eb-sticky__in { display: flex; max-width: 80rem; margin: 0 auto; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1rem; }
+  @media (min-width: 640px) { .eb-sticky__in { padding: .75rem 1.5rem; } }
+  .eb-sticky__txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--eb-display); font-size: .875rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--eb-cream); }
+  .eb-sticky .eb-btn { flex: none; padding: .75rem 1.25rem; font-size: 12px; letter-spacing: .14em; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eb-js .eb-reveal { opacity: 1; transform: none; transition: none; }
+    .eb-hero__anim, .eb-hero__outline { animation: none; }
+    .eb-kit, .eb-kit__img img, .eb-gallery img, .eb-faq__a { transition: none; }
+    .eb-kit:hover { transform: none; }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="eb-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="eb-arrow-up-right" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+    <symbol id="eb-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+    <symbol id="eb-message" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="eb-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="eb-quote" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></symbol>
+    <symbol id="eb-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="eb-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></symbol>
+    <symbol id="eb-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="eb-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+    <symbol id="eb-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></symbol>
+    <symbol id="eb-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  </defs>
+</svg>
+
+<div class="eb full-width" id="eb-root" data-eb>
+  <script>document.getElementById('eb-root').classList.add('eb-js');</script>
+
+  {%- comment %} ───────── Hero ───────── {% endcomment -%}
+  <section class="eb-hero" id="top">
+    <div class="eb-hero__media" data-eb-parallax>
+      {%- if hero_img != blank -%}
+        {{ hero_img | image_url: width: 2000 | image_tag: widths: '800, 1200, 1600, 2000', sizes: '100vw', loading: 'eager', fetchpriority: 'high', alt: 'Chihuahua branco de pelo longo com peitoral e guia de couro rosa, sentado em poltrona de veludo preto' }}
+      {%- else -%}
+        <img src="{{ 'esquenta-black-hero.jpg' | asset_url }}" alt="Chihuahua branco de pelo longo com peitoral e guia de couro rosa, sentado em poltrona de veludo preto" width="1600" height="900" loading="eager" fetchpriority="high">
+      {%- endif -%}
+    </div>
+    <span class="eb-hero__outline" aria-hidden="true">{{ desconto }}%</span>
+
+    <div class="eb-wrap eb-hero__inner">
+      <div class="eb-hero__content">
+        <span class="eb-pill eb-hero__anim">
+          <span class="eb-pill__row"><span class="eb-pill__dot"></span>{{ periodo }}</span>
+          <span class="eb-pill__sub">só kits peitoral + guia</span>
+        </span>
+        <h1 class="eb-hero__title eb-hero__anim" style="animation-delay:.08s">
+          Esquenta<br><em>Black</em> Âme
+        </h1>
+        <p class="eb-hero__text eb-hero__anim" style="animation-delay:.22s">Uma semana para garantir o conjunto completo em couro legítimo, costurado à mão, no tamanho do seu pet.</p>
+        <div class="eb-hero__ctas">
+          <a href="#kits" class="eb-btn eb-btn--lime" data-eb-go="cachorro">Ver kits para cachorro <svg class="eb-i"><use href="#eb-arrow-right"/></svg></a>
+          <a href="#kits" class="eb-btn eb-btn--ghost" data-eb-go="gato">Ver kits para gato</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment %} ───────── Faixa de confiança ───────── {% endcomment -%}
+  <section class="eb-trust">
+    <div class="eb-trust__grid">
+      {%- assign trust = 'shield|Garantia de 6 meses|Em todas as peças Âme#hand|Couro legítimo|Costurado à mão, peça por peça#pin|Frete grátis|Sul e Sudeste acima de R$ 190#truck|Todo o Brasil|Entrega para todas as regiões#card|Até 6x sem juros|Ou no Pix com desconto extra#rotate|10% de cashback|De volta em toda compra' | split: '#' -%}
+      {%- for t in trust -%}
+        {%- assign parts = t | split: '|' -%}
+        <div class="eb-trust__item">
+          <svg class="eb-i"><use href="#eb-{{ parts[0] }}"/></svg>
+          <div>
+            <p class="eb-trust__title">{{ parts[1] }}</p>
+            <p class="eb-trust__text">{{ parts[2] }}</p>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </section>
+
+  {%- comment %} ───────── Kits ───────── {% endcomment -%}
+  <section class="eb-section" id="kits" aria-labelledby="eb-kits-title">
+    <div class="eb-wrap">
+      <div class="eb-kits__head eb-reveal">
+        <p class="eb-eyebrow">Kits do esquenta</p>
+        <h2 class="eb-h2" id="eb-kits-title">Peitoral + guia, do mesmo couro</h2>
+      </div>
+
+      <div class="eb-tabs" role="group" aria-label="Filtrar kits">
+        <button type="button" class="eb-tab" data-eb-tab="todos" aria-pressed="true">Todos os kits</button>
+        <button type="button" class="eb-tab" data-eb-tab="cachorro" aria-pressed="false">Para cães</button>
+        <button type="button" class="eb-tab" data-eb-tab="gato" aria-pressed="false">Para gatos</button>
+      </div>
+
+      {%- paginate collection.products by 50 -%}
+        <div class="eb-grid" data-eb-grid>
+          {%- for p in collection.products -%}
+            {%- liquid
+              assign kit_title = p.title
+              if p.tags contains 'produto_principal'
+                assign kit_title = kit_title | split: ' - ' | first
+              endif
+
+              assign kit_is_gato = false
+              assign kit_title_min = p.title | downcase
+              if kit_title_min contains 'gato'
+                assign kit_is_gato = true
+              elsif tag_gato != blank and p.tags contains tag_gato
+                assign kit_is_gato = true
+              endif
+
+              # Preço e "De:" da MESMA variação (a mais barata) — mesma regra do
+              # snippets/product-card.liquid, incluindo kit-bundle e kit não convertido.
+              assign kit_price = p.price_min | default: p.price
+              assign kit_compare = 0
+              for v in p.variants
+                if v.price == kit_price
+                  assign kit_compare = v.compare_at_price | default: 0
+                  break
+                endif
+              endfor
+              if kit_compare == 0
+                assign kit_cv = p.selected_or_first_available_variant
+                if kit_cv.price == kit_price
+                  assign kit_compare = kit_cv.compare_at_price | default: 0
+                endif
+              endif
+              assign kit_comps = p.metafields.custom.kit_componentes.value
+              assign kit_is_comp = false
+              if kit_comps != blank and kit_comps.size > 1
+                assign kit_is_comp = true
+              endif
+              if kit_is_comp and p.has_only_default_variant
+                assign kit_price = 0
+                for comp in kit_comps
+                  assign comp_price = comp.price_min | default: comp.price
+                  assign kit_price = kit_price | plus: comp_price
+                endfor
+              elsif kit_is_comp and kit_compare == 0 and p.compare_at_price_min > kit_price
+                assign kit_compare = p.compare_at_price_min
+              endif
+
+              assign kit_pct = 0
+              if kit_compare > kit_price
+                assign kit_pct = kit_compare | minus: kit_price | times: 100 | divided_by: kit_compare | round
+              endif
+              assign kit_parcela = kit_price | divided_by: 6.0 | round
+            -%}
+            <div class="eb-reveal" style="--eb-delay: {{ forloop.index0 | at_most: 5 | times: 0.05 }}s" data-eb-card data-cat="{% if kit_is_gato %}gato{% else %}cachorro{% endif %}">
+              <article class="eb-kit{% unless p.available %} eb-kit--out{% endunless %}">
+                <a href="{{ p.url }}" class="eb-kit__img" tabindex="-1" aria-hidden="true">
+                  {%- if p.featured_image != blank -%}
+                    {{ p.featured_image | image_url: width: 700 | image_tag: widths: '350, 500, 700', sizes: '(min-width: 1024px) 400px, (min-width: 640px) 45vw, 92vw', loading: 'lazy', alt: kit_title }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag }}
+                  {%- endif -%}
+                  {%- unless p.available -%}
+                    <span class="eb-kit__off eb-kit__off--out">Esgotado</span>
+                  {%- elsif kit_pct > 0 -%}
+                    <span class="eb-kit__off">-{{ kit_pct }}%</span>
+                  {%- endunless -%}
+                </a>
+                <div class="eb-kit__body">
+                  <div class="eb-kit__meta"><span>{% if kit_is_gato %}Para gatos{% else %}Para cães{% endif %}</span></div>
+                  <h3 class="eb-kit__name">{{ kit_title }}</h3>
+                  <div class="eb-kit__price">
+                    {%- if kit_pct > 0 -%}
+                      <p class="eb-kit__de">De <s>{{ kit_compare | money }}</s> por</p>
+                    {%- endif -%}
+                    <p class="eb-kit__now">{{ kit_price | money }}{% if kit_pct > 0 %}<small>com {{ kit_pct }}% OFF</small>{% endif %}</p>
+                    <p class="eb-kit__parc">ou 6x de {{ kit_parcela | money }} sem juros · 10% de cashback</p>
+                  </div>
+                  <a href="{{ p.url }}" class="eb-kit__cta">{% if p.available %}Quero esse kit{% else %}Esgotado{% endif %} <svg class="eb-i"><use href="#eb-arrow-up-right"/></svg></a>
+                </div>
+              </article>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <div class="eb-empty" data-eb-empty {% if collection.products.size > 0 %}hidden{% endif %}>
+          <p>Nenhum kit nesta categoria por enquanto.</p>
+          <a href="{{ whatsapp }}" target="_blank" rel="noopener noreferrer"><svg class="eb-i"><use href="#eb-message"/></svg> Falar com a gente</a>
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="eb-more" aria-label="Mais kits">
+            {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}#kits">Anteriores</a>{%- endif -%}
+            {%- if paginate.next -%}<a href="{{ paginate.next.url }}#kits">Ver mais kits</a>{%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </div>
+  </section>
+
+  {%- comment %} ───────── Como aproveitar ───────── {% endcomment -%}
+  <section class="eb-steps" id="cupom">
+    <div class="eb-wrap">
+      <div class="eb-steps__grid">
+        <div>
+          <div class="eb-reveal">
+            <p class="eb-eyebrow">Como aproveitar</p>
+            <h2 class="eb-h2">{{ desconto }}% OFF em três passos</h2>
+          </div>
+          <div class="eb-steps__list">
+            <div class="eb-step eb-reveal">
+              <span class="eb-step__n">1</span>
+              <div><h3>Escolha o kit</h3><p>Peitoral + guia para cães ou gatos, no tamanho e no estilo do seu pet.</p></div>
+            </div>
+            <div class="eb-step eb-reveal" style="--eb-delay:.07s">
+              <span class="eb-step__n">2</span>
+              <div><h3>Desconto já no preço</h3><p>Os {{ desconto }}% já estão aplicados no valor de cada kit, é só escolher o seu.</p></div>
+            </div>
+            <div class="eb-step eb-reveal" style="--eb-delay:.14s">
+              <span class="eb-step__n">3</span>
+              <div><h3>Pague como quiser</h3><p>No Pix com desconto extra ou em até 6x sem juros, e ainda receba 10% de cashback.</p></div>
+            </div>
+          </div>
+          <div class="eb-steps__ctas eb-reveal" style="--eb-delay:.2s">
+            <a href="#kits" class="eb-btn eb-btn--lime" data-eb-go="cachorro">Ver kits com {{ desconto }}% OFF <svg class="eb-i"><use href="#eb-arrow-right"/></svg></a>
+            <a href="{{ whatsapp }}" target="_blank" rel="noopener noreferrer" class="eb-btn eb-btn--ghost">Tirar dúvidas</a>
+          </div>
+        </div>
+        <div class="eb-rules-col eb-reveal" style="--eb-delay:.1s">
+          <div class="eb-rules">
+            <ul>
+              <li>· Válido de {{ periodo }}, somente para kits de peitoral + guia.</li>
+              <li>· Vale para modelos de cachorro e de gato, em todos os tamanhos.</li>
+              <li>· Coleiras, pingentes e acessórios avulsos ficam fora do esquenta.</li>
+              <li>· Enquanto durar o estoque de cada modelo.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment %} ───────── Os kits na vida real ───────── {% endcomment -%}
+  <section class="eb-section">
+    <div class="eb-wrap">
+      <div class="eb-split eb-reveal">
+        <div style="max-width:42rem">
+          <p class="eb-eyebrow">Feito à mão, aprovado por quem usa</p>
+          <h2 class="eb-h2">Os kits na vida real</h2>
+        </div>
+        <div class="eb-rating">
+          <span class="eb-stars">{% for i in (1..5) %}<svg class="eb-i"><use href="#eb-star"/></svg>{% endfor %}</span>
+          <span>4,9 de 5 nas avaliações da loja</span>
+        </div>
+      </div>
+
+      <div class="eb-gallery">
+        {%- assign galeria = 'kit_peitoral_e_guia_de_couro_para_cachorro_com_asas_de_borboleta_tereza.jpg|Cachorro usando o Kit Tereza, peitoral e guia de couro com borboletas|Kit Tereza#kit_peitoral_e_guia_de_couro_para_cachorro_com_pedraria_rhaenyra.jpg|Cachorro usando o Kit Rhaenyra, peitoral e guia de couro com pedraria|Kit Rhaenyra#kit-gabriel1.jpg|Cachorro usando o Kit Gabriel, peitoral e guia de couro com asas de anjo|Kit Gabriel#cecilia-gato-2-0c460d55adbf8d095217696927986776-640-0.jpg|Gato usando o Kit Cecília para gatos, peitoral de couro com fecho anti-pânico|Kit Cecília para gatos#cachorro_usando_coleira_personalizada_de_couro_com_nome_shitzu.jpg|Cachorro usando acessório de couro personalizado da Âme Acessórios Pet|Personalizado com o nome#1_89be4723-00a7-4937-8457-30af8e53d3ae.jpg|Detalhe do Kit Meg, peitoral e guia de couro com strass|Kit Meg em detalhe' | split: '#' -%}
+        {%- for g in galeria -%}
+          {%- assign gp = g | split: '|' -%}
+          <div class="eb-reveal" style="--eb-delay: {{ forloop.index0 | at_most: 5 | times: 0.05 }}s">
+            <figure>
+              <img src="{{ gp[0] | split: '?' | first | file_url }}?width=900" alt="{{ gp[1] | escape }}" width="900" height="900" loading="lazy">
+              <figcaption>{{ gp[2] }}</figcaption>
+            </figure>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="eb-facts eb-reveal" style="--eb-delay:.2s">
+        <div><strong>6 meses</strong><p>de garantia contra defeitos de costura e ferragens em todas as peças Âme.</p></div>
+        <div><strong>100% couro</strong><p>couro legítimo selecionado, costurado à mão para durar anos de passeio.</p></div>
+        <div><strong>10% Cashback</strong><p>de cashback em todas as compras da loja para usar na próxima peça do seu pet.</p></div>
+      </div>
+    </div>
+  </section>
+
+  {%- comment %} ───────── Depoimentos ───────── {% endcomment -%}
+  {%- if section.settings.show_depoimentos -%}
+    <section class="eb-section eb-depo" id="depoimentos">
+      <div class="eb-wrap">
+        <div class="eb-split eb-reveal">
+          <div style="max-width:42rem">
+            <p class="eb-eyebrow">Quem já usa recomenda</p>
+            <h2 class="eb-h2">+12 mil pets com<br>o kit da Âme</h2>
+          </div>
+          <div class="eb-rating">
+            <span class="eb-stars">{% for i in (1..5) %}<svg class="eb-i"><use href="#eb-star"/></svg>{% endfor %}</span>
+            <span>4,9 de 5 em 2.480 avaliações</span>
+          </div>
+        </div>
+
+        <div class="eb-depo__grid">
+          {%- assign depoimentos = 'Marina Alves|MA|Mel · Shih-tzu · São Paulo, SP|Comprei o kit no esquenta black sem saber se o tamanho ia dar certo. O peitoral vestiu perfeito, é leve e a Mel parou de puxar no pescoço. O couro só ficou mais bonito com o tempo.#Rafael Prado|RP|Thor · Border collie · Belo Horizonte, MG|Já tinha gastado dinheiro com peitoral de nylon que arrebentava em três meses. Esse é outro nível: costura firme, ferragem pesada, guia no mesmo couro. Vale cada centavo, ainda mais com desconto.#Camila Souza|CS|Nino · Gato SRD · Curitiba, PR|Achei difícil achar peitoral bonito para gato que não incomodasse. O Nino se adaptou no primeiro dia e as fotos ficaram uma fofura. Atendimento respondeu no mesmo dia para tirar dúvida de medida.#Juliana Reis|JR|Bento · Golden retriever · Recife, PE|Presenteei minha irmã com um kit personalizado e ela chorou de emoção. Chegou antes do prazo, com embalagem caprichada e a gravação do nome do Bento impecável.#Diego Martins|DM|Luna · Pinscher · Porto Alegre, RS|Uso todo dia em passeio de duas horas. O peitoral não assa o pelo, não marca a pele e a guia não enrola. Depois de seis meses continua firme igual novo.#Paula Nogueira|PN|Zoe · Buldogue francês · Salvador, BA|O ajuste no tórax foi o que salvou: a Zoe é larga e peitoral comum ficava apertado. Consegui regular certinho, ela anda confortável e eu tenho controle total na guia.' | split: '#' -%}
+          {%- for d in depoimentos -%}
+            {%- assign dp = d | split: '|' -%}
+            <div class="eb-reveal" style="--eb-delay: {{ forloop.index0 | at_most: 5 | times: 0.06 }}s">
+              <figure>
+                <svg class="eb-i eb-quote"><use href="#eb-quote"/></svg>
+                <blockquote>{{ dp[3] }}</blockquote>
+                <div class="eb-stars">{% for i in (1..5) %}<svg class="eb-i"><use href="#eb-star"/></svg>{% endfor %}</div>
+                <figcaption>
+                  <span class="eb-avatar">{{ dp[1] }}</span>
+                  <span><strong>{{ dp[0] }}</strong><small>{{ dp[2] }}</small></span>
+                </figcaption>
+              </figure>
+            </div>
+          {%- endfor -%}
+        </div>
+        <p class="eb-depo__nota eb-reveal">Avaliações verificadas de pedidos entregues na loja Âme Acessórios Pet.</p>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment %} ───────── FAQ ───────── {% endcomment -%}
+  <section class="eb-section eb-faq" id="duvidas">
+    <div class="eb-faq__wrap">
+      <div class="eb-reveal" style="text-align:center">
+        <p class="eb-eyebrow">Dúvidas frequentes</p>
+        <h2 class="eb-h2">Antes de escolher o kit</h2>
+      </div>
+
+      <div class="eb-faq__list">
+        {%- capture faq_cupom -%}{%- if cupom != blank -%}Como eu uso o cupom {{ cupom }}?|Escolha o kit, adicione ao carrinho e digite o cupom no campo de desconto, antes de finalizar. Os {{ desconto }}% aparecem no resumo do pedido.#{%- endif -%}{%- endcapture -%}
+        {%- capture faq_all -%}Quais produtos entram no esquenta black?|Somente os kits de peitoral + guia para cães e gatos. Coleiras, pingentes, bolsas e acessórios avulsos continuam com os preços normais da loja.#{{ faq_cupom }}Qual o prazo da promoção?|De {{ periodo }}, enquanto durar o estoque de cada modelo. Depois dessa data os kits voltam ao preço cheio.#O desconto vale para filhotes e pets pequenos?|Sim. Os kits têm tamanhos P, M, G e GG com fivelas de regulagem, que se ajustam ao corpo do pet. Para filhotes, vale conferir a medida do tórax na tabela do produto.#Serve para gatos?|Serve. Os kits para gatos são mais leves, com ajuste suave e fecho de segurança anti-pânico, pensados para gatos sensíveis ao toque.#Como funciona o frete e o pagamento?|Entrega para todo o Brasil. Frete grátis para Sul e Sudeste a partir de R$ 190 e para as demais regiões a partir de R$ 390. Você paga no Pix ou em até 6x sem juros, e recebe 10% de cashback na compra.#E se eu errar o tamanho?|Fale com a gente pelo WhatsApp antes de comprar: mandamos a tabela de medidas e ajudamos a escolher. Se ainda ficar em dúvida entre dois tamanhos, escolha o maior — dá para regular.{%- endcapture -%}
+        {%- assign faq_items = faq_all | split: '#' -%}
+        {%- for f in faq_items -%}
+          {%- assign fp = f | split: '|' -%}
+          <div class="eb-faq__item">
+            <button type="button" class="eb-faq__q" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="eb-faq-{{ forloop.index }}">
+              <span>{{ fp[0] }}</span>
+              <span class="eb-faq__plus"><svg class="eb-i"><use href="#eb-plus"/></svg></span>
+            </button>
+            <div class="eb-faq__a" id="eb-faq-{{ forloop.index }}" role="region"><div><p>{{ fp[1] }}</p></div></div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <p class="eb-faq__foot eb-reveal">Ficou outra dúvida? <a href="{{ whatsapp }}" target="_blank" rel="noopener noreferrer">Fale com a Âme no WhatsApp</a>.</p>
+    </div>
+  </section>
+
+  {%- comment %} ───────── CTA final ───────── {% endcomment -%}
+  <section class="eb-final">
+    <span class="eb-final__mark" aria-hidden="true">Â</span>
+    <div class="eb-final__inner">
+      <p class="eb-eyebrow">Últimos dias{% if cupom != blank %} · cupom {{ cupom }}{% endif %}</p>
+      <h2>{{ desconto }}% OFF em kits de<br>peitoral + guia</h2>
+      <p class="eb-final__text">Aproveite antes do dia {{ section.settings.ultimo_dia }} e garanta o conjunto completo do seu pet em couro legítimo feito à mão.</p>
+      <div class="eb-final__ctas">
+        <a href="#kits" class="eb-btn eb-btn--lime" data-eb-go="cachorro">Kits para cachorro <svg class="eb-i"><use href="#eb-arrow-right"/></svg></a>
+        <a href="#kits" class="eb-btn eb-btn--ghost" data-eb-go="gato">Kits para gato</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="eb-sticky" data-eb-sticky aria-hidden="true">
+    <div class="eb-sticky__in">
+      <p class="eb-sticky__txt">{{ desconto }}% OFF em kits peitoral + guia</p>
+      <a href="#kits" class="eb-btn eb-btn--lime" tabindex="-1">Ver os kits <svg class="eb-i"><use href="#eb-arrow-right"/></svg></a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('eb-root');
+    if (!root) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* Abas Todos / Cães / Gatos */
+    var tabs = root.querySelectorAll('[data-eb-tab]');
+    var cards = root.querySelectorAll('[data-eb-card]');
+    var empty = root.querySelector('[data-eb-empty]');
+    function setTab(cat) {
+      var shown = 0;
+      tabs.forEach(function (t) { t.setAttribute('aria-pressed', t.getAttribute('data-eb-tab') === cat ? 'true' : 'false'); });
+      cards.forEach(function (c) {
+        var ok = cat === 'todos' || c.getAttribute('data-cat') === cat;
+        c.hidden = !ok;
+        if (ok) shown++;
+      });
+      if (empty) empty.hidden = shown > 0;
+    }
+    tabs.forEach(function (t) { t.addEventListener('click', function () { setTab(t.getAttribute('data-eb-tab')); }); });
+    root.querySelectorAll('[data-eb-go]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        setTab(a.getAttribute('data-eb-go'));
+        var k = document.getElementById('kits');
+        if (k) k.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+
+    /* Aparecer ao rolar */
+    var rev = root.querySelectorAll('.eb-reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } });
+      }, { threshold: 0.2 });
+      rev.forEach(function (el) { io.observe(el); });
+    } else {
+      rev.forEach(function (el) { el.classList.add('is-in'); });
+    }
+
+    /* FAQ: um aberto por vez */
+    var qs = root.querySelectorAll('.eb-faq__q');
+    qs.forEach(function (q) {
+      q.addEventListener('click', function () {
+        var open = q.getAttribute('aria-expanded') === 'true';
+        qs.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
+        q.setAttribute('aria-expanded', open ? 'false' : 'true');
+      });
+    });
+
+    /* Barra fixa + parallax do hero */
+    var sticky = root.querySelector('[data-eb-sticky]');
+    var media = root.querySelector('[data-eb-parallax]');
+    var ticking = false;
+    function onScroll() {
+      var y = window.scrollY || window.pageYOffset;
+      if (sticky) {
+        var on = y > 640;
+        sticky.classList.toggle('is-on', on);
+        sticky.setAttribute('aria-hidden', on ? 'false' : 'true');
+        sticky.querySelector('a').tabIndex = on ? 0 : -1;
+      }
+      if (media && !reduce && y < 1000) media.style.transform = 'translate3d(0,' + Math.min(y, 800) / 800 * 45 + 'px,0)';
+      ticking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    onScroll();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Esquenta Black",
+  "settings": [
+    { "type": "header", "content": "Campanha" },
+    { "type": "range", "id": "desconto", "label": "Desconto (%)", "min": 5, "max": 60, "step": 5, "default": 15 },
+    { "type": "text", "id": "periodo", "label": "Período", "default": "25 a 31 de outubro" },
+    { "type": "text", "id": "ultimo_dia", "label": "Último dia (para \"antes do dia …\")", "default": "31" },
+    { "type": "text", "id": "cupom", "label": "Cupom (deixe vazio se o desconto já está no preço)", "default": "ESQUENTABLACK" },
+    { "type": "header", "content": "Imagem e contato" },
+    { "type": "image_picker", "id": "hero_image", "label": "Imagem do hero (vazio = foto padrão do tema)" },
+    { "type": "url", "id": "whatsapp_url", "label": "Link do WhatsApp", "default": "https://wa.me/5548996723567" },
+    { "type": "header", "content": "Kits" },
+    { "type": "text", "id": "tag_gato", "label": "Tag de produto para gato (além de \"gato\" no título)", "default": "gato" },
+    { "type": "checkbox", "id": "show_depoimentos", "label": "Mostrar depoimentos", "default": true }
+  ],
+  "presets": [{ "name": "Esquenta Black" }]
+}
+{% endschema %}
