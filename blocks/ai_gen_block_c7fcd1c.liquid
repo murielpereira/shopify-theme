@@ -150,13 +150,24 @@
         assign i = i_raw | times: 1
         assign collection_key = 'category_' | append: i
         assign collection = block.settings[collection_key]
+        assign imagem_key = 'category_' | append: i | append: '_imagem'
+        assign imagem_custom = block.settings[imagem_key]
       %}
 
       <div class="ai-category-grid__item-{{ ai_gen_id }}">
         {% if collection != blank %}
           <a href="{{ collection.url }}" class="ai-category-grid__link-{{ ai_gen_id }}">
             <div class="ai-category-grid__image-wrapper-{{ ai_gen_id }}">
-              {% if collection.image %}
+              {% if imagem_custom != blank %}
+                <img
+                  src="{{ imagem_custom | image_url: width: 400 }}"
+                  alt="{{ imagem_custom.alt | default: collection.title | escape }}"
+                  class="ai-category-grid__image-{{ ai_gen_id }}"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% elsif collection.image %}
                 <img
                   src="{{ collection.image | image_url: width: 400 }}"
                   alt="{{ collection.title | escape }}"
@@ -242,6 +253,12 @@
       "label": "Categoria 1"
     },
     {
+      "type": "image_picker",
+      "id": "category_1_imagem",
+      "label": "Categoria 1: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
+    },
+    {
       "type": "text",
       "id": "category_1_inicio",
       "label": "Categoria 1: aparece a partir de",
@@ -257,6 +274,12 @@
       "type": "collection",
       "id": "category_2",
       "label": "Categoria 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "category_2_imagem",
+      "label": "Categoria 2: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
     },
     {
       "type": "text",
@@ -276,6 +299,12 @@
       "label": "Categoria 3"
     },
     {
+      "type": "image_picker",
+      "id": "category_3_imagem",
+      "label": "Categoria 3: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
+    },
+    {
       "type": "text",
       "id": "category_3_inicio",
       "label": "Categoria 3: aparece a partir de",
@@ -291,6 +320,12 @@
       "type": "collection",
       "id": "category_4",
       "label": "Categoria 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "category_4_imagem",
+      "label": "Categoria 4: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
     },
     {
       "type": "text",
@@ -310,6 +345,12 @@
       "label": "Categoria 5"
     },
     {
+      "type": "image_picker",
+      "id": "category_5_imagem",
+      "label": "Categoria 5: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
+    },
+    {
       "type": "text",
       "id": "category_5_inicio",
       "label": "Categoria 5: aparece a partir de",
@@ -325,6 +366,12 @@
       "type": "collection",
       "id": "category_6",
       "label": "Categoria 6"
+    },
+    {
+      "type": "image_picker",
+      "id": "category_6_imagem",
+      "label": "Categoria 6: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
     },
     {
       "type": "text",
@@ -344,6 +391,12 @@
       "label": "Categoria 7"
     },
     {
+      "type": "image_picker",
+      "id": "category_7_imagem",
+      "label": "Categoria 7: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
+    },
+    {
       "type": "text",
       "id": "category_7_inicio",
       "label": "Categoria 7: aparece a partir de",
@@ -359,6 +412,12 @@
       "type": "collection",
       "id": "category_8",
       "label": "Categoria 8"
+    },
+    {
+      "type": "image_picker",
+      "id": "category_8_imagem",
+      "label": "Categoria 8: imagem da capa",
+      "info": "Opcional. Vazio = usa a imagem da coleção."
     },
     {
       "type": "text",
