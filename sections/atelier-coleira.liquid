@@ -162,11 +162,15 @@
   endif
 
   comment
-    Nome curto do produto (ex.: "Coleira de Couro Atena" → "Atena"): tira o
-    prefixo "Coleira de Couro"/"Coleira". É a palavra grande do topo, o título do
-    ateliê e os textos que citam a coleira; cada campo do editor, se preenchido, vence.
+    Nome curto do produto: o que vem depois do último "| " no título (ex.:
+    "Coleira de Couro para Cachorro | Atena" → "Atena"). Sem "| ", tira o prefixo
+    "Coleira de Couro"/"Coleira". É a palavra grande do topo, o título do ateliê e
+    os textos que citam a coleira; cada campo do editor, se preenchido, vence.
   endcomment
-  assign nome_curto = product.title | replace: 'Coleira de Couro ', '' | replace: 'Coleira de ', '' | replace: 'Coleira ', '' | strip
+  assign nome_curto = product.title | split: '|' | last | strip
+  unless product.title contains '|'
+    assign nome_curto = product.title | replace: 'Coleira de Couro ', '' | replace: 'Coleira de ', '' | replace: 'Coleira ', '' | strip
+  endunless
   if nome_curto == blank
     assign nome_curto = product.title
   endif
@@ -210,8 +214,6 @@
     --atl-latao-3:{{ settings.escuro_atl_latao_3 }};
     --atl-brilho: color-mix(in srgb, var(--atl-papel) 94%, #fff);
     --atl-papel-fim: color-mix(in srgb, var(--atl-papel) 85%, #000);
-    --atl-palavra: color-mix(in srgb, var(--atl-papel) 88%, #fff);
-    --atl-palavra-luz: rgba(255, 255, 255, 0.07);
     --atl-esqueleto-brilho: color-mix(in srgb, var(--atl-areia) 92%, #fff);
     --atl-on-latao: #0f0f0f;
     --atl-titulo: var(--atl-tinta);
@@ -225,7 +227,7 @@
   --atl-terracota:{{ settings.atl_terracota | default: '#b5473a' }};
 {%- endcapture -%}
 
-<div class="atl full-width" data-atl style="{{ atl_vars | strip_newlines | strip }}">
+<div class="atl full-width{% if atl_escuro %} atl--escuro{% endif %}" data-atl style="{{ atl_vars | strip_newlines | strip }}">
   <script type="application/json" data-atl-config>
     {
       "handle": {{ product.handle | json }},
@@ -861,7 +863,7 @@
       "type": "text",
       "id": "hero_palavra",
       "label": "Palavra grande no fundo",
-      "info": "Vazio = nome do produto sem o prefixo Coleira (ex.: Atena)"
+      "info": "Vazio = o que vem depois do | no título do produto (ex.: Atena)"
     },
     { "type": "text", "id": "hero_titulo", "label": "Título", "default": "Feita para um só pet." },
     { "type": "text", "id": "hero_titulo_destaque", "label": "Título — parte em destaque", "default": "O seu." },

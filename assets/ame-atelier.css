@@ -359,6 +359,23 @@
   overflow: hidden;
 }
 
+/* Modo escuro: a foto tem fundo BRANCO e só combina com fundo claro. Em vez de um
+   disco branco esfumado sobre o preto, o palco inteiro vira um cartão claro de cantos
+   arredondados (como a foto da página do produto): o multiply derrete o branco da
+   foto no cartão e a palavra gravada fica recortada por ele. */
+.atl--escuro .atl-hero__stage {
+  background: var(--atl-estudio);
+  border-radius: 1.75rem;
+  overflow: hidden;
+  margin-left: 0;
+  margin-right: 0;
+  box-shadow: 0 30px 80px color-mix(in srgb, var(--color-shade) 55%, transparent);
+}
+
+.atl--escuro .atl-hero__img {
+  mix-blend-mode: multiply;
+}
+
 /* A foto quadrada tem a coleira numa faixa no meio; o palco do topo mostra
    só essa faixa, com a coleira de ponta a ponta. */
 .atl-hero__img {
