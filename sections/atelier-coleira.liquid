@@ -161,7 +161,24 @@
     assign oferece_pingente = true
   endif
 
-  assign palavra = section.settings.hero_palavra | default: product.title
+  comment
+    Nome curto do produto (ex.: "Coleira de Couro Atena" → "Atena"): tira o
+    prefixo "Coleira de Couro"/"Coleira". É a palavra grande do topo, o título do
+    ateliê e os textos que citam a coleira; cada campo do editor, se preenchido, vence.
+  endcomment
+  assign nome_curto = product.title | replace: 'Coleira de Couro ', '' | replace: 'Coleira de ', '' | replace: 'Coleira ', '' | strip
+  if nome_curto == blank
+    assign nome_curto = product.title
+  endif
+  assign palavra = section.settings.hero_palavra | default: nome_curto
+  assign eyebrow_topo = section.settings.hero_eyebrow
+  if eyebrow_topo == blank
+    assign eyebrow_topo = 'Coleira ' | append: nome_curto | append: ' · couro legítimo'
+  endif
+  assign eyebrow_beneficios = section.settings.beneficios_eyebrow
+  if eyebrow_beneficios == blank
+    assign eyebrow_beneficios = 'Por que a ' | append: nome_curto
+  endif
 -%}
 
 <link rel="stylesheet" href="{{ 'ame-atelier.css' | asset_url }}">
@@ -292,7 +309,7 @@
   <section class="atl-hero" data-atl-hero aria-labelledby="atl-hero-titulo">
     <div class="atl-hero__grain" aria-hidden="true"></div>
     <div class="atl-hero__inner">
-      <p class="atl-eyebrow atl-hero__eyebrow atl-in" style="--d: 0">{{ section.settings.hero_eyebrow }}</p>
+      <p class="atl-eyebrow atl-hero__eyebrow atl-in" style="--d: 0">{{ eyebrow_topo }}</p>
 
       <div class="atl-hero__stage" data-atl-hero-stage>
         <span class="atl-hero__word" aria-hidden="true" data-atl-hero-word>{{ palavra }}</span>
@@ -655,7 +672,7 @@
   {%- assign beneficios = section.blocks | where: 'type', 'beneficio' -%}
   {%- if beneficios.size > 0 -%}
     <section class="atl-beneficios" aria-labelledby="atl-ben-t">
-      <p class="atl-eyebrow atl-revela">{{ section.settings.beneficios_eyebrow }}</p>
+      <p class="atl-eyebrow atl-revela">{{ eyebrow_beneficios }}</p>
       <h2 class="atl-secao__titulo atl-revela" id="atl-ben-t">{{ section.settings.beneficios_titulo }}</h2>
       <ul class="atl-beneficios__grade" role="list">
         {%- for b in beneficios -%}
@@ -839,13 +856,12 @@
   "class": "atl-section",
   "settings": [
     { "type": "header", "content": "Topo" },
-    { "type": "text", "id": "hero_eyebrow", "label": "Sobretítulo", "default": "Coleira Atena · couro legítimo" },
+    { "type": "text", "id": "hero_eyebrow", "label": "Sobretítulo", "info": "Vazio = Coleira + nome do produto + · couro legítimo" },
     {
       "type": "text",
       "id": "hero_palavra",
       "label": "Palavra grande no fundo",
-      "info": "Vazio = título do produto",
-      "default": "Atena"
+      "info": "Vazio = nome do produto sem o prefixo Coleira (ex.: Atena)"
     },
     { "type": "text", "id": "hero_titulo", "label": "Título", "default": "Feita para um só pet." },
     { "type": "text", "id": "hero_titulo_destaque", "label": "Título — parte em destaque", "default": "O seu." },
@@ -880,7 +896,7 @@
     },
     { "type": "text", "id": "flutuante_texto", "label": "Botão flutuante (celular)", "default": "Criar a minha" },
     { "type": "header", "content": "Benefícios" },
-    { "type": "text", "id": "beneficios_eyebrow", "label": "Sobretítulo", "default": "Por que a Atena" },
+    { "type": "text", "id": "beneficios_eyebrow", "label": "Sobretítulo", "info": "Vazio = Por que a + nome do produto" },
     { "type": "text", "id": "beneficios_titulo", "label": "Título", "default": "Os detalhes que você sente na mão" },
     { "type": "header", "content": "Processo" },
     { "type": "text", "id": "processo_eyebrow", "label": "Sobretítulo", "default": "Produção artesanal" },
