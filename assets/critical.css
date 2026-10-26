@@ -3482,10 +3482,10 @@ shopify-account {
 }
 
 /* ══════════════════════════════════════════
-   AVISO DOS CORREIOS (paralisação)
-   Snippet snippets/aviso-correios.liquid — usado na página de rastreamento
-   (versão completa) e nas calculadoras de frete da PDP e do carrinho
-   (--compact). Paleta âmbar sobre cream, a mesma do alerta de golpes do
+   AVISOS DE FRETE (greve dos Correios, atraso de transportadora…)
+   Snippet snippets/avisos-frete.liquid — cadastrados no Waltz. Usado na página
+   de rastreamento (versão completa) e nas calculadoras de frete da PDP e do
+   carrinho (--compact). O nome da classe é de quando era só dos Correios. Paleta âmbar sobre cream, a mesma do alerta de golpes do
    rastreamento: comunica "atenção" sem vermelho de erro.
    ══════════════════════════════════════════ */
 .ame-aviso-correios {
