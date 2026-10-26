@@ -239,13 +239,13 @@
     height: 2.75rem;
     border-radius: 50%;
     background: rgba(255, 248, 243, 0.95);
-    border: 1px solid rgba(210, 195, 192, 0.4);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
     cursor: pointer;
     display: none;
     align-items: center;
     justify-content: center;
     color: var(--color-on-background, #201b14);
-    box-shadow: 0 4px 14px rgba(32, 27, 20, 0.08);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-shade) 8%, transparent);
     transition: transform 0.2s ease, background 0.2s ease;
   }
   .ame-fp__nav:hover {
@@ -300,8 +300,8 @@
     padding: 2rem;
     text-align: center;
     color: var(--color-on-surface-variant, #4f4442);
-    background: rgba(248, 236, 224, 0.4);
-    border: 1px dashed rgba(210, 195, 192, 0.5);
+    background: color-mix(in srgb, var(--color-surface-container) 40%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
   }
 {% endstylesheet %}
 

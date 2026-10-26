@@ -163,7 +163,7 @@
     gap: 0.4rem;
     align-self: flex-end;
   }
-  /* rgba(90,71,66,.45) dava 2,10:1 sobre #f7f5f2 (1,43:1 com o dim antigo do
+  /* color-mix(in srgb, var(--color-primary) 45%, transparent) dava 2,10:1 sobre #f7f5f2 (1,43:1 com o dim antigo do
      item): o preço "De" ficava invisível. O token vale 5,3:1 e o line-through
      + o tamanho menor mantêm a distinção com o preço final, sem depender da
      cor. */
@@ -178,7 +178,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(90, 71, 66, 0.09);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
     color: var(--color-primary, #5a4742);
     padding: 0.15rem 0.45rem;
     border-radius: 999px;
@@ -236,7 +236,7 @@
   }
   .pdp-bundle__cf-label--required::after {
     content: ' *';
-    color: #b3261e;
+    color: var(--color-error);
   }
   .pdp-bundle__cf-input,
   .pdp-bundle__cf-select {
@@ -255,7 +255,7 @@
     border-color: var(--color-primary, #5a4742);
   }
   .pdp-bundle__cf-input--invalid {
-    border-color: #b3261e;
+    border-color: var(--color-error);
   }
   .pdp-bundle__cf-helper {
     font-size: 0.6875rem;
@@ -286,10 +286,10 @@
     border-color: var(--color-primary, #5a4742);
   }
   .pdp-bundle__cf--invalid .pdp-bundle__cf-label {
-    color: #b3261e;
+    color: var(--color-error);
   }
   .pdp-bundle__cf--invalid .pdp-bundle__cf-pill {
-    border-color: #b3261e;
+    border-color: var(--color-error);
   }
 </style>
 

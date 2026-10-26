@@ -166,7 +166,29 @@
 
 <link rel="stylesheet" href="{{ 'ame-atelier.css' | asset_url }}">
 
-<div class="atl full-width" data-atl>
+{%- comment -%}
+  Cores do Ateliê editáveis em Configurações do tema → Tema · Ateliê (Atena).
+  As que ficam em branco NÃO entram aqui: o CSS (assets/ame-atelier.css) já as
+  deriva do tema geral. As próprias do Ateliê sempre entram, com o valor atual
+  como padrão. Variável inline no próprio .atl vence a do arquivo CSS.
+{%- endcomment -%}
+{%- capture atl_vars -%}
+  {%- if settings.atl_papel != blank -%}--atl-papel:{{ settings.atl_papel }};{%- endif -%}
+  {%- if settings.atl_couro != blank -%}--atl-couro:{{ settings.atl_couro }};{%- endif -%}
+  {%- if settings.atl_couro_2 != blank -%}--atl-couro-2:{{ settings.atl_couro_2 }};{%- endif -%}
+  {%- if settings.atl_tinta != blank -%}--atl-tinta:{{ settings.atl_tinta }};{%- endif -%}
+  {%- if settings.atl_tinta_2 != blank -%}--atl-tinta-2:{{ settings.atl_tinta_2 }};{%- endif -%}
+  {%- if settings.atl_areia != blank -%}--atl-areia:{{ settings.atl_areia }};{%- endif -%}
+  {%- if settings.atl_areia_2 != blank -%}--atl-areia-2:{{ settings.atl_areia_2 }};{%- endif -%}
+  --atl-estudio:{{ settings.atl_estudio | default: '#efe8e1' }};
+  --atl-latao-1:{{ settings.atl_latao_1 | default: '#ecd593' }};
+  --atl-latao-2:{{ settings.atl_latao_2 | default: '#c29a52' }};
+  --atl-latao-3:{{ settings.atl_latao_3 | default: '#8a6322' }};
+  --atl-espresso:{{ settings.atl_espresso | default: '#231b16' }};
+  --atl-terracota:{{ settings.atl_terracota | default: '#b5473a' }};
+{%- endcapture -%}
+
+<div class="atl full-width" data-atl style="{{ atl_vars | strip_newlines | strip }}">
   <script type="application/json" data-atl-config>
     {
       "handle": {{ product.handle | json }},

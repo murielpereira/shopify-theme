@@ -44,7 +44,8 @@
   --atl-latao-2: #c29a52;
   --atl-latao-3: #8a6322;
   --atl-espresso: #231b16;
-  --atl-fio: rgba(90, 71, 66, 0.16);
+  --atl-fio: color-mix(in srgb, var(--atl-couro) 16%, transparent);
+  --atl-terracota: #b5473a;
   --atl-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --atl-margem: 16px;
   --atl-largura: 1180px;
@@ -92,7 +93,7 @@
 }
 
 .atl-eyebrow--claro {
-  color: rgba(236, 213, 147, 0.85);
+  color: color-mix(in srgb, var(--atl-latao-1) 85%, transparent);
 }
 
 /* O latão: nome do pet e partes "da cliente". */
@@ -169,7 +170,7 @@
 .atl-btn--primario {
   color: var(--pdp-btn-fg, #fff);
   background: linear-gradient(135deg, var(--atl-couro) 0%, var(--atl-couro-2) 100%);
-  box-shadow: 0 14px 28px -16px rgba(90, 71, 66, 0.75);
+  box-shadow: 0 14px 28px -16px color-mix(in srgb, var(--atl-couro) 75%, transparent);
 }
 
 .atl-btn--grande {
@@ -180,25 +181,25 @@
 
 .atl-btn--secundario {
   color: var(--atl-couro);
-  background: rgba(90, 71, 66, 0.06);
+  background: color-mix(in srgb, var(--atl-couro) 6%, transparent);
 }
 
 .atl-btn--icone {
   width: 48px;
   padding: 0;
   color: var(--atl-couro);
-  background: rgba(90, 71, 66, 0.07);
+  background: color-mix(in srgb, var(--atl-couro) 7%, transparent);
 }
 
 @media (hover: hover) {
   .atl-btn--primario:hover {
     transform: scale(1.02);
-    box-shadow: 0 18px 32px -16px rgba(90, 71, 66, 0.85);
+    box-shadow: 0 18px 32px -16px color-mix(in srgb, var(--atl-couro) 85%, transparent);
   }
 
   .atl-btn--secundario:hover,
   .atl-btn--icone:hover {
-    background: rgba(90, 71, 66, 0.11);
+    background: color-mix(in srgb, var(--atl-couro) 11%, transparent);
   }
 }
 
@@ -213,7 +214,7 @@
   font-weight: 500;
   color: var(--atl-couro);
   text-decoration: underline;
-  text-decoration-color: rgba(90, 71, 66, 0.3);
+  text-decoration-color: color-mix(in srgb, var(--atl-couro) 30%, transparent);
   text-underline-offset: 4px;
   cursor: pointer;
 }
@@ -240,15 +241,15 @@
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--atl-couro);
-  background: rgba(90, 71, 66, 0.08);
+  background: color-mix(in srgb, var(--atl-couro) 8%, transparent);
   cursor: pointer;
 }
 
 .atl-chip--vidro {
-  background: rgba(247, 245, 242, 0.72);
+  background: color-mix(in srgb, var(--atl-papel) 72%, transparent);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  box-shadow: 0 8px 24px -14px rgba(32, 27, 20, 0.4);
+  box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--color-shade) 40%, transparent);
 }
 
 /* Entrada da página */
@@ -322,7 +323,7 @@
   color: #e9dfd4;
   text-shadow:
     0 1.5px 0 rgba(255, 255, 255, 0.95),
-    0 -1px 0 rgba(90, 71, 66, 0.14);
+    0 -1px 0 color-mix(in srgb, var(--atl-couro) 14%, transparent);
   transform: translate(-50%, calc(var(--p) * 40px)) scale(0.96);
   transform-origin: 50% 100%;
   opacity: 0;
@@ -398,7 +399,7 @@
   width: 62%;
   height: 7%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(32, 27, 20, 0.16), transparent);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-shade) 16%, transparent), transparent);
   transform: translateX(-50%);
   animation: atl-sombra 7s ease-in-out infinite;
 }
@@ -482,12 +483,12 @@
   height: 14px;
   border-radius: 50%;
   background: var(--img, none) center / cover, var(--cor);
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.14);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-shade) 14%, transparent);
   transition: box-shadow 0.4s ease, transform 0.4s var(--atl-ease);
 }
 
 .atl-hero__dot.is-ativo span {
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.14), 0 0 0 3px var(--atl-papel), 0 0 0 4.5px var(--atl-latao-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-shade) 14%, transparent), 0 0 0 3px var(--atl-papel), 0 0 0 4.5px var(--atl-latao-2);
 }
 
 @media (hover: hover) {
@@ -571,7 +572,7 @@
   width: 22px;
   height: 36px;
   margin: 1.8rem auto 0;
-  border: 1px solid rgba(90, 71, 66, 0.3);
+  border: 1px solid color-mix(in srgb, var(--atl-couro) 30%, transparent);
   border-radius: 12px;
   position: relative;
 }
@@ -685,7 +686,7 @@
   font-size: 0.6875rem;
   font-weight: 500;
   background: var(--atl-papel);
-  box-shadow: inset 0 0 0 1px rgba(90, 71, 66, 0.28);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atl-couro) 28%, transparent);
   transition: background 0.4s ease, color 0.4s ease, box-shadow 0.4s ease, transform 0.4s var(--atl-ease);
 }
 
@@ -709,7 +710,7 @@
 .atl-passos__item.is-atual .atl-passos__n {
   color: var(--atl-tinta);
   background: #fff;
-  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 0 0 4px rgba(236, 213, 147, 0.35);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 0 0 4px color-mix(in srgb, var(--atl-latao-1) 35%, transparent);
   transform: scale(1.08);
 }
 
@@ -719,7 +720,7 @@
   right: calc(100% / 10);
   top: 13px;
   height: 0;
-  border-top: 1.5px dashed rgba(90, 71, 66, 0.28);
+  border-top: 1.5px dashed color-mix(in srgb, var(--atl-couro) 28%, transparent);
 }
 
 .atl-passos__linha span {
@@ -861,7 +862,7 @@
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid rgba(194, 154, 82, 0.9);
-  box-shadow: 0 0 0 5px rgba(236, 213, 147, 0.25);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--atl-latao-1) 25%, transparent);
   transform: translate(-50%, -50%) scale(0.5);
   opacity: 0;
   pointer-events: none;
@@ -893,7 +894,7 @@
   z-index: 5;
   background:
     radial-gradient(70% 55% at 28% 12%, rgba(255, 255, 255, 0.28), transparent 70%),
-    radial-gradient(130% 100% at 50% 50%, transparent 62%, rgba(90, 71, 66, 0.07) 100%);
+    radial-gradient(130% 100% at 50% 50%, transparent 62%, color-mix(in srgb, var(--atl-couro) 7%, transparent) 100%);
   pointer-events: none;
 }
 
@@ -917,7 +918,7 @@
   aspect-ratio: 1;
   transform-origin: var(--furo-x) var(--furo-y);
   transform: translate(calc(-1 * var(--furo-x)), calc(-1 * var(--furo-y))) rotate(var(--ang));
-  filter: drop-shadow(0 6px 5px rgba(32, 27, 20, 0.22));
+  filter: drop-shadow(0 6px 5px color-mix(in srgb, var(--color-shade) 22%, transparent));
   animation: atl-balanco 3.6s ease-in-out infinite, atl-aparece 0.7s var(--atl-ease) both;
 }
 
@@ -1035,7 +1036,7 @@
   width: 34%;
   height: 6%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(32, 27, 20, 0.26), transparent);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-shade) 26%, transparent), transparent);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -1057,7 +1058,7 @@
   border-radius: 999px;
   font-size: 0.75rem;
   color: var(--atl-tinta-2);
-  background: rgba(247, 245, 242, 0.75);
+  background: color-mix(in srgb, var(--atl-papel) 75%, transparent);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   animation: atl-aparece 0.5s ease both;
@@ -1212,7 +1213,7 @@
   width: 100%;
   padding: 1.35rem 3.5rem 0.55rem 0;
   border: 0;
-  border-bottom: 1px solid rgba(90, 71, 66, 0.28);
+  border-bottom: 1px solid color-mix(in srgb, var(--atl-couro) 28%, transparent);
   border-radius: 0;
   background: transparent;
   font: inherit;
@@ -1258,12 +1259,12 @@ textarea.atl-campo__input {
 }
 
 .atl-campo.is-invalido .atl-campo__input {
-  border-bottom-color: #b5473a;
-  box-shadow: 0 1px 0 0 #b5473a;
+  border-bottom-color: var(--atl-terracota, #b5473a);
+  box-shadow: 0 1px 0 0 var(--atl-terracota, #b5473a);
 }
 
 .atl-campo.is-invalido .atl-campo__rotulo {
-  color: #b5473a;
+  color: var(--atl-terracota, #b5473a);
 }
 
 .atl-linha {
@@ -1283,7 +1284,7 @@ textarea.atl-campo__input {
   display: flex;
   padding: 2px;
   border-radius: 999px;
-  background: rgba(90, 71, 66, 0.07);
+  background: color-mix(in srgb, var(--atl-couro) 7%, transparent);
 }
 
 .atl-alterna button {
@@ -1303,7 +1304,7 @@ textarea.atl-campo__input {
 .atl-alterna button.is-ativo {
   color: var(--atl-tinta);
   background: #fff;
-  box-shadow: 0 1px 4px rgba(32, 27, 20, 0.12);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--color-shade) 12%, transparent);
 }
 
 .atl-racas {
@@ -1317,7 +1318,7 @@ textarea.atl-campo__input {
   list-style: none;
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 16px 32px -12px rgba(32, 27, 20, 0.28);
+  box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--color-shade) 28%, transparent);
 }
 
 .atl-racas li {
@@ -1405,7 +1406,7 @@ textarea.atl-campo__input {
   font-weight: 600;
   color: var(--atl-couro);
   background: #fff;
-  box-shadow: 0 2px 6px rgba(32, 27, 20, 0.16);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-shade) 16%, transparent);
 }
 
 /* Passador colado na foto fixa: compacto (uma linha na maioria dos couros). */
@@ -1451,14 +1452,14 @@ textarea.atl-campo__input {
   font-size: 0.8125rem;
   font-weight: 400;
   color: var(--atl-tinta);
-  background: rgba(90, 71, 66, 0.06);
+  background: color-mix(in srgb, var(--atl-couro) 6%, transparent);
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .atl-passador__op.is-ativo {
   background: #fff;
-  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 8px 18px -12px rgba(32, 27, 20, 0.45);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 8px 18px -12px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
 .atl-passador__amostra {
@@ -1466,7 +1467,7 @@ textarea.atl-campo__input {
   height: 28px;
   border-radius: 50%;
   background: linear-gradient(90deg, var(--a) 0 36%, var(--b) 36% 64%, var(--a) 64% 100%);
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.12);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-shade) 12%, transparent);
 }
 
 /* Com as imagens de couro: a tira e o detalhe são o couro de verdade. */
@@ -1508,14 +1509,14 @@ textarea.atl-campo__input {
   font: inherit;
   text-align: left;
   color: var(--atl-tinta);
-  background: rgba(90, 71, 66, 0.05);
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s var(--atl-ease);
 }
 
 .atl-metal.is-ativo {
   background: #fff;
-  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px rgba(32, 27, 20, 0.45);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
 .atl-metal__disco {
@@ -1523,7 +1524,7 @@ textarea.atl-campo__input {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(32, 27, 20, 0.12), inset 0 -6px 10px rgba(0, 0, 0, 0.12), 0 6px 10px -6px rgba(32, 27, 20, 0.45);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-shade) 12%, transparent), inset 0 -6px 10px rgba(0, 0, 0, 0.12), 0 6px 10px -6px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
 .atl-metal__nome {
@@ -1555,7 +1556,7 @@ textarea.atl-campo__input {
   border-radius: 8px;
   font-size: 0.875rem;
   line-height: 1.5;
-  background: linear-gradient(135deg, rgba(236, 213, 147, 0.22), rgba(220, 193, 186, 0.2));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--atl-latao-1) 22%, transparent), rgba(220, 193, 186, 0.2));
 }
 
 .atl-recomendacao p {
@@ -1597,14 +1598,14 @@ textarea.atl-campo__input {
   border-radius: 8px;
   font: inherit;
   color: var(--atl-tinta);
-  background: rgba(90, 71, 66, 0.05);
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .atl-tam.is-ativo {
   background: #fff;
-  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px rgba(32, 27, 20, 0.45);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
 .atl-tam.is-indicado:not(.is-ativo) {
@@ -1665,14 +1666,14 @@ textarea.atl-campo__input {
   font: inherit;
   text-align: left;
   color: var(--atl-tinta);
-  background: rgba(90, 71, 66, 0.05);
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .atl-tipo.is-ativo {
   background: #fff;
-  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px rgba(32, 27, 20, 0.45);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
 .atl-tipo__mini {
@@ -1689,7 +1690,7 @@ textarea.atl-campo__input {
 
 .atl-tipo__mini--vazio {
   border-radius: 50%;
-  border: 1.5px dashed rgba(90, 71, 66, 0.35);
+  border: 1.5px dashed color-mix(in srgb, var(--atl-couro) 35%, transparent);
   transform: scale(0.8);
 }
 
@@ -1731,7 +1732,7 @@ textarea.atl-campo__input {
   font: inherit;
   font-size: 0.75rem;
   color: var(--atl-tinta);
-  background: rgba(90, 71, 66, 0.05);
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
@@ -1775,7 +1776,7 @@ textarea.atl-campo__input {
   content: '';
   position: absolute;
   inset: 7px;
-  border: 1px dashed rgba(236, 213, 147, 0.28);
+  border: 1px dashed color-mix(in srgb, var(--atl-latao-1) 28%, transparent);
   border-radius: 6px;
   pointer-events: none;
 }
@@ -1832,7 +1833,7 @@ textarea.atl-campo__input {
 .atl-ficha .atl-link {
   font-size: 0.75rem;
   color: var(--atl-latao-1);
-  text-decoration-color: rgba(236, 213, 147, 0.4);
+  text-decoration-color: color-mix(in srgb, var(--atl-latao-1) 40%, transparent);
 }
 
 .atl-total {
@@ -1927,7 +1928,7 @@ textarea.atl-campo__input {
 }
 
 .atl-btn--secundario .atl-giro {
-  border-color: rgba(90, 71, 66, 0.25);
+  border-color: color-mix(in srgb, var(--atl-couro) 25%, transparent);
   border-top-color: var(--atl-couro);
 }
 
@@ -1951,10 +1952,10 @@ textarea.atl-campo__input {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.65rem var(--atl-margem) calc(0.65rem + env(safe-area-inset-bottom, 0px));
-  background: rgba(247, 245, 242, 0.86);
+  background: color-mix(in srgb, var(--atl-papel) 86%, transparent);
   -webkit-backdrop-filter: blur(22px) saturate(1.3);
   backdrop-filter: blur(22px) saturate(1.3);
-  box-shadow: 0 -10px 30px -22px rgba(32, 27, 20, 0.45);
+  box-shadow: 0 -10px 30px -22px color-mix(in srgb, var(--color-shade) 45%, transparent);
   transform: translateY(110%);
   transition: transform 0.35s var(--atl-ease);
 }
@@ -2048,7 +2049,7 @@ body.atl-com-flutuante .ame-corw-btn {
   line-height: 1.4;
   color: #f6efe6;
   background: var(--atl-espresso);
-  box-shadow: 0 16px 32px -14px rgba(32, 27, 20, 0.6);
+  box-shadow: 0 16px 32px -14px color-mix(in srgb, var(--color-shade) 60%, transparent);
   transform: translate(-50%, 12px);
   opacity: 0;
   transition: opacity 0.3s ease, transform 0.3s var(--atl-ease);
@@ -2069,7 +2070,7 @@ body.atl-com-flutuante .ame-corw-btn {
 .atl-folha__fundo {
   position: absolute;
   inset: 0;
-  background: rgba(32, 27, 20, 0.45);
+  background: color-mix(in srgb, var(--color-shade) 45%, transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -2107,7 +2108,7 @@ body.atl-com-flutuante .ame-corw-btn {
   height: 44px;
   border: 0;
   border-radius: 50%;
-  background: rgba(90, 71, 66, 0.07);
+  background: color-mix(in srgb, var(--atl-couro) 7%, transparent);
   color: var(--atl-couro);
   cursor: pointer;
 }
@@ -2285,7 +2286,7 @@ html.atl-travado body {
   top: 8px;
   bottom: 8px;
   width: 0;
-  border-left: 1.5px dashed rgba(236, 213, 147, 0.25);
+  border-left: 1.5px dashed color-mix(in srgb, var(--atl-latao-1) 25%, transparent);
 }
 
 .atl-processo__trilho span {
@@ -2403,7 +2404,7 @@ html.atl-travado body {
   border: 0;
   border-radius: 50%;
   color: #fff;
-  background: rgba(32, 27, 20, 0.45);
+  background: color-mix(in srgb, var(--color-shade) 45%, transparent);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   cursor: pointer;
@@ -2461,7 +2462,7 @@ html.atl-travado body {
   text-decoration: none;
   color: #fff;
   background: linear-gradient(135deg, var(--atl-couro), var(--atl-couro-2));
-  box-shadow: 0 18px 36px -16px rgba(32, 27, 20, 0.7);
+  box-shadow: 0 18px 36px -16px color-mix(in srgb, var(--color-shade) 70%, transparent);
   transform: translateY(140%);
   transition: transform 0.45s var(--atl-ease);
   pointer-events: none;

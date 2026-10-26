@@ -115,7 +115,7 @@
         if (!el) {
             el = document.createElement('div');
             el.id = 'ame-gift-toast';
-            el.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:#5a7461;color:#fff;padding:0.625rem 1rem;border-radius:8px;font-size:0.875rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:10000;opacity:0;transition:opacity 0.25s ease;pointer-events:none';
+            el.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--color-accent-green);color:#fff;padding:0.625rem 1rem;border-radius:8px;font-size:0.875rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.18);z-index:10000;opacity:0;transition:opacity 0.25s ease;pointer-events:none';
             document.body.appendChild(el);
         }
         el.textContent = msg;
@@ -1432,7 +1432,7 @@
             '.ame-cart-gift-bar{margin-top:.5rem}',
             '.ame-cart-gift-bar:not([hidden]){display:block}',
             '.ame-cart-gift-bar .ame-cart-shipping-bar__track{position:relative;height:6px;border-radius:3px;overflow:visible}',
-            '.ame-gift-bar__fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#5a7461,#7b9a84);transition:width .6s cubic-bezier(.22,1,.36,1)}',
+            '.ame-gift-bar__fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--color-accent-green),#7b9a84);transition:width .6s cubic-bezier(.22,1,.36,1)}',
             // Rótulos das faixas: o __marks do tema não tem respiro em relação à
             // trilha, e o verde do brinde é outro (o tema usa o marrom da marca).
             // Fileira de rótulos POSICIONADA, não distribuída: cada um é ancorado
@@ -1440,34 +1440,34 @@
             // com space-between do tema mentia sobre onde a faixa começa.
             '.ame-cart-gift-bar .ame-cart-shipping-bar__marks{position:relative;display:block;height:18px;margin-top:8px}',
             '.ame-cart-gift-bar .ame-cart-shipping-bar__mark{position:absolute;top:0;max-width:none;white-space:nowrap}',
-            '.ame-cart-gift-bar .ame-cart-shipping-bar__mark.is-achieved{background:#5a7461;color:#fff}',
-            '.ame-cart-gift-bar .ame-cart-shipping-bar__dot.is-achieved{background:#5a7461;border-color:#5a7461}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__mark.is-achieved{background:var(--color-accent-green);color:#fff}',
+            '.ame-cart-gift-bar .ame-cart-shipping-bar__dot.is-achieved{background:var(--color-accent-green);border-color:var(--color-accent-green)}',
             // Vitrine: mesma linguagem visual do card de seleção que já existia
             // (.ame-gift-selector no critical.css) pra não parecer outro widget.
-            '.ame-gift-vitrine{list-style:none;margin:.75rem 0;padding:.875rem;background:linear-gradient(135deg,rgba(90,116,97,.08),rgba(90,116,97,.04));border:1px solid rgba(90,116,97,.25);border-radius:var(--radius-md,8px);display:flex;flex-direction:column;gap:.625rem}',
+            '.ame-gift-vitrine{list-style:none;margin:.75rem 0;padding:.875rem;background:linear-gradient(135deg,color-mix(in srgb, var(--color-accent-green) 8%, transparent),color-mix(in srgb, var(--color-accent-green) 4%, transparent));border:1px solid color-mix(in srgb, var(--color-accent-green) 25%, transparent);border-radius:var(--radius-md,8px);display:flex;flex-direction:column;gap:.625rem}',
             // flex-start, não center: com duas frases a linha vira 2-3 linhas de
             // texto e o botão centralizado descolava do começo da mensagem.
             // nowrap no botão pra "Ver opções" não quebrar no meio.
             '.ame-gift-vitrine--fechada{flex-direction:row;align-items:flex-start;gap:.5rem;padding:.625rem .75rem}',
             '.ame-gift-vitrine--fechada .ame-gift-vitrine__resumo{line-height:1.45}',
             '.ame-gift-vitrine--fechada .ame-gift-vitrine__link{white-space:nowrap}',
-            '.ame-gift-vitrine__icone{font-size:1.25rem;color:#5a7461;flex:0 0 auto}',
+            '.ame-gift-vitrine__icone{font-size:1.25rem;color:var(--color-accent-green);flex:0 0 auto}',
             '.ame-gift-vitrine__head{display:flex;align-items:flex-start;gap:.5rem}',
-            '.ame-gift-vitrine__eyebrow{margin:0;font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5a7461}',
+            '.ame-gift-vitrine__eyebrow{margin:0;font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent-green)}',
             '.ame-gift-vitrine__titulo{margin:.125rem 0 0;font-size:.9375rem;font-weight:600;color:var(--color-on-surface,#2b2320)}',
             '.ame-gift-vitrine__ajuda{margin:0;font-size:.75rem;line-height:1.4;color:var(--color-on-surface-variant,#4f4442)}',
             '.ame-gift-vitrine__resumo{flex:1 1 auto;font-size:.8125rem;color:var(--color-on-surface,#2b2320)}',
             '.ame-gift-vitrine__opts{display:flex;flex-direction:column;gap:.375rem}',
-            '.ame-gift-vitrine__opt{display:flex;align-items:center;flex-wrap:wrap;gap:.375rem;width:100%;text-align:left;padding:.5rem .625rem;border:1px solid rgba(90,116,97,.3);border-radius:var(--radius-sm,6px);background:#fff;cursor:pointer;font:inherit}',
-            '.ame-gift-vitrine__opt:hover{border-color:#5a7461}',
-            '.ame-gift-vitrine__opt.is-atual{border-color:#5a7461;background:rgba(90,116,97,.1)}',
+            '.ame-gift-vitrine__opt{display:flex;align-items:center;flex-wrap:wrap;gap:.375rem;width:100%;text-align:left;padding:.5rem .625rem;border:1px solid color-mix(in srgb, var(--color-accent-green) 30%, transparent);border-radius:var(--radius-sm,6px);background:var(--color-surface-container-lowest);cursor:pointer;font:inherit}',
+            '.ame-gift-vitrine__opt:hover{border-color:var(--color-accent-green)}',
+            '.ame-gift-vitrine__opt.is-atual{border-color:var(--color-accent-green);background:color-mix(in srgb, var(--color-accent-green) 10%, transparent)}',
             '.ame-gift-vitrine__opt-nome{flex:1 1 auto;font-size:.8125rem;font-weight:500;color:var(--color-on-surface,#2b2320)}',
             '.ame-gift-vitrine__opt-faixa{flex:1 1 100%;font-size:.6875rem;color:var(--color-on-surface-variant,#4f4442)}',
-            '.ame-gift-vitrine__tag{flex:0 0 auto;font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.125rem .375rem;border-radius:999px;background:#5a7461;color:#fff}',
-            '.ame-gift-vitrine__link{align-self:flex-start;padding:0;border:0;background:none;font:inherit;font-size:.75rem;text-decoration:underline;color:#5a7461;cursor:pointer}',
+            '.ame-gift-vitrine__tag{flex:0 0 auto;font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.125rem .375rem;border-radius:999px;background:var(--color-accent-green);color:#fff}',
+            '.ame-gift-vitrine__link{align-self:flex-start;padding:0;border:0;background:none;font:inherit;font-size:.75rem;text-decoration:underline;color:var(--color-accent-green);cursor:pointer}',
             '.ame-gift-vitrine--fechada .ame-gift-vitrine__link{align-self:auto;flex:0 0 auto;font-weight:600}',
-            '.ame-gift-vitrine__manter{width:100%;padding:.5rem;border:1px solid rgba(90,116,97,.35);border-radius:var(--radius-sm,6px);background:none;font:inherit;font-size:.8125rem;color:var(--color-on-surface,#2b2320);cursor:pointer}',
-            '.ame-gift-vitrine__manter:hover{background:rgba(90,116,97,.08)}',
+            '.ame-gift-vitrine__manter{width:100%;padding:.5rem;border:1px solid color-mix(in srgb, var(--color-accent-green) 35%, transparent);border-radius:var(--radius-sm,6px);background:none;font:inherit;font-size:.8125rem;color:var(--color-on-surface,#2b2320);cursor:pointer}',
+            '.ame-gift-vitrine__manter:hover{background:color-mix(in srgb, var(--color-accent-green) 8%, transparent)}',
             '.ame-gift-vitrine__troca-aviso{margin:.25rem 0 0;font-size:.6875rem;color:var(--color-on-surface-variant,#4f4442)}',
         ].join('');
         document.head.appendChild(st);

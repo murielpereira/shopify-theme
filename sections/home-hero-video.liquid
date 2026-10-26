@@ -137,14 +137,14 @@
   .ame-hero-simple__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(32, 27, 20, 0.35);
+    background: color-mix(in srgb, var(--color-shade) 35%, transparent);
     z-index: 1;
   }
   .ame-hero-simple[data-overlay="0"] .ame-hero-simple__overlay { background: transparent; }
-  .ame-hero-simple[data-overlay="20"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.20); }
-  .ame-hero-simple[data-overlay="40"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.40); }
-  .ame-hero-simple[data-overlay="60"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.60); }
-  .ame-hero-simple[data-overlay="80"] .ame-hero-simple__overlay { background: rgba(32, 27, 20, 0.80); }
+  .ame-hero-simple[data-overlay="20"] .ame-hero-simple__overlay { background: color-mix(in srgb, var(--color-shade) 20%, transparent); }
+  .ame-hero-simple[data-overlay="40"] .ame-hero-simple__overlay { background: color-mix(in srgb, var(--color-shade) 40%, transparent); }
+  .ame-hero-simple[data-overlay="60"] .ame-hero-simple__overlay { background: color-mix(in srgb, var(--color-shade) 60%, transparent); }
+  .ame-hero-simple[data-overlay="80"] .ame-hero-simple__overlay { background: color-mix(in srgb, var(--color-shade) 80%, transparent); }
 
   .ame-hero-simple__content {
     position: relative;

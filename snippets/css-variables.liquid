@@ -127,11 +127,11 @@
     /* ── Fundo e Superfícies ── */
     --color-background:                 {{ settings.color_background }};
     --color-surface:                    {{ settings.color_background }};
-    --color-surface-container-lowest:   #ffffff;
+    --color-surface-container-lowest:   {{ settings.color_surface_lowest | default: '#ffffff' }};
     --color-surface-container-low:      #fef2e5;
     --color-surface-container:          {{ settings.color_surface_container }};
     --color-surface-container-high:     {{ settings.color_surface_container_high }};
-    --color-surface-container-highest:  #ece1d5;
+    --color-surface-container-highest:  {{ settings.color_surface_highest | default: '#ece1d5' }};
     --color-surface-variant:            #ece1d5;
     --color-surface-dim:                #e3d8cc;
     --color-surface-light:              #f8ece085;
@@ -150,13 +150,47 @@
       sobre #f7f5f2 (mínimo AA = 4,5:1) e continua claramente secundário ao
       #201b14. Use este token em vez de rgba() com alpha baixo.
     {%- endcomment -%}
-    --color-on-surface-muted:   #6f645d;
-    --color-outline:            #817471;
+    --color-on-surface-muted:   {{ settings.color_on_surface_muted | default: '#6f645d' }};
+    --color-outline:            {{ settings.color_outline | default: '#817471' }};
     --color-outline-variant:    {{ settings.color_outline_variant }};
 
     /* ── Barra de anúncios ── */
     --color-announce-bg:   {{ settings.color_announce_bg }};
     --color-announce-text: {{ settings.color_announce_text }};
+
+    /* ── Cabeçalho e menu ──
+       Ícones/links em branco nas configurações seguem a paleta (Cor Principal
+       e Texto secundário). O fundo é só a cor-base: o CSS aplica a
+       transparência com color-mix. */
+    --color-header-bg:         {{ settings.color_header_bg | default: '#fff8f3' }};
+    --color-header-icons:      {{ settings.color_header_icons | default: settings.color_primary }};
+    --color-header-link:       {{ settings.color_header_link | default: settings.color_on_surface_variant }};
+    --color-header-link-hover: {{ settings.color_header_link_hover | default: settings.color_primary }};
+
+    /* ── Carrinho (gaveta) ── */
+    --color-cart-bg: {{ settings.color_cart_bg | default: '#ffffff' }};
+
+    /* ── Sombras e escurecimentos ──
+       Base das sombras de cartões/menus e do véu escuro sobre banners, vídeos e
+       atrás da gaveta. Separada do Texto principal de propósito: num tema escuro
+       o texto é claro, e sombra clara vira brilho. */
+    --color-shade: {{ settings.color_shade | default: '#201b14' }};
+
+    /* ── Selos, mensagens e avisos ──
+       Cada um nasceu de uma cor escrita à mão em vários arquivos; os valores
+       padrão são os que já estavam lá. */
+    --color-accent-green: {{ settings.color_accent_green | default: '#5a7461' }};
+    --color-accent-blue:  {{ settings.color_accent_blue | default: '#5a6b74' }};
+    --color-gold:         {{ settings.color_gold | default: '#c89b5e' }};
+    --color-gold-light:   {{ settings.color_gold_light | default: '#e9c89a' }};
+    --color-star:         {{ settings.color_star | default: '#f5a623' }};
+    --color-error:        {{ settings.color_error | default: '#c0392b' }};
+    --color-success:      {{ settings.color_success | default: '#15803d' }};
+    --color-success-bg:   {{ settings.color_success_bg | default: '#d4f0db' }};
+    --color-info:         {{ settings.color_info | default: '#1d4ed8' }};
+    --color-info-bg:      {{ settings.color_info_bg | default: '#dbeafe' }};
+    --color-notice:       {{ settings.color_notice | default: '#d4a76a' }};
+    --color-notice-text:  {{ settings.color_notice_text | default: '#8a6630' }};
 
     /* ── Botão primário ── */
     --color-btn-primary-bg:   {{ settings.color_btn_primary_bg }};

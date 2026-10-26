@@ -255,7 +255,7 @@
     max-width: 28rem;
     background: var(--color-surface-container-lowest, #fff);
     border-radius: var(--radius-lg, 0.5rem);
-    box-shadow: var(--shadow-ambient, 0 16px 32px rgba(32, 27, 20, 0.06));
+    box-shadow: var(--shadow-ambient, 0 16px 32px color-mix(in srgb, var(--color-shade) 6%, transparent));
     padding: clamp(1.5rem, 4vw, 2.5rem);
   }
   .ame-cadastro__header {
@@ -457,7 +457,7 @@
   }
   .ame-cadastro__alert--success {
     background: var(--success-50, #f0fdf4);
-    color: var(--success-700, #15803d);
+    color: var(--success-700, var(--color-success));
     border: 1px solid var(--success-200, #bbf7d0);
   }
 

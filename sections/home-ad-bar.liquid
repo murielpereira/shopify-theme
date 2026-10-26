@@ -99,7 +99,7 @@
     width: 100%;
     background: var(--color-surface-container, #f8ece0);
     overflow: hidden;
-    border-bottom: 1px solid rgba(210, 195, 192, 0.18);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 18%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,7 +141,7 @@
       top: 20%;
       height: 60%;
       width: 1px;
-      background: rgba(210, 195, 192, 0.35);
+      background: color-mix(in srgb, var(--color-outline-variant) 35%, transparent);
     }
   }
 
@@ -157,7 +157,7 @@
     height: 100%;
   }
   a.ame-ad-bar__item-inner:hover {
-    background: rgba(210, 195, 192, 0.18);
+    background: color-mix(in srgb, var(--color-outline-variant) 18%, transparent);
   }
 
   .ame-ad-bar__icon {

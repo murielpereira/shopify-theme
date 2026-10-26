@@ -493,20 +493,41 @@
       if product.available == false
         assign show_meta = true
       endif
-      # Selo de promoção da aba Badges do Waltz (metafield `waltz.badges` = ações
-      # ativas, já em ordem de prioridade; o primeiro que casar vence).
+      # Selos da aba Badges do Waltz (metafield waltz.badges = ações ativas, em
+      # ordem). O primeiro EXCLUSIVO que casar é o principal; os que têm empilha
+      # vêm além dele. perm = o Waltz já gerencia também os selos de sempre, e as
+      # tags escritas no código deste bloco deixam de valer.
+      assign waltz_lista = shop.metafields.waltz.badges.value
+      assign waltz_gerencia = false
       assign waltz_texto = ''
       assign waltz_fundo = ''
       assign waltz_cor = ''
-      for wb in shop.metafields.waltz.badges.value
+      assign waltz_brilho = false
+      assign waltz_empilha_n = 0
+      for wb in waltz_lista
+        if wb.perm
+          assign waltz_gerencia = true
+        endif
         if product.tags contains wb.tag
-          assign waltz_texto = wb.texto
-          assign waltz_fundo = wb.fundo
-          assign waltz_cor = wb.cor
-          assign show_meta = true
-          break
+          if wb.empilha
+            assign waltz_empilha_n = waltz_empilha_n | plus: 1
+          elsif waltz_texto == ''
+            assign waltz_texto = wb.texto
+            assign waltz_fundo = wb.fundo
+            assign waltz_cor = wb.cor
+            assign waltz_brilho = wb.brilho | default: false
+          endif
         endif
       endfor
+      if waltz_gerencia
+        assign show_meta = false
+        if product.available == false
+          assign show_meta = true
+        endif
+      endif
+      if waltz_texto != '' or waltz_empilha_n > 0
+        assign show_meta = true
+      endif
     -%}
     {%- if show_meta -%}
       <div class="pdp__meta">
@@ -517,20 +538,33 @@
           📊 Impact: Reduces template compilation overhead and improves server response time for products with many tags.
         {%- endcomment -%}
         {%- if waltz_texto != '' -%}
-          <span class="ame-chip" style="background: {{ waltz_fundo | escape }}; color: {{ waltz_cor | escape }}; border-color: transparent;">{{ waltz_texto | escape }}</span>
+          {%- if waltz_brilho -%}
+            <span class="ame-chip ame-chip--lancamento">{{ waltz_texto | escape }}</span>
+          {%- else -%}
+            <span class="ame-chip" style="background: {{ waltz_fundo | escape }}; color: {{ waltz_cor | escape }}; border-color: transparent;">{{ waltz_texto | escape }}</span>
+          {%- endif -%}
         {%- endif -%}
-        {%- if product.tags contains 'lancamento' -%}
-          <span class="ame-chip ame-chip--lancamento">Lançamento</span>
+        {%- if waltz_empilha_n > 0 -%}
+          {%- for wb in waltz_lista -%}
+            {%- if wb.empilha and product.tags contains wb.tag -%}
+              <span class="ame-chip" style="background: {{ wb.fundo | escape }}; color: {{ wb.cor | escape }}; border-color: transparent;">{{ wb.texto | escape }}</span>
+            {%- endif -%}
+          {%- endfor -%}
         {%- endif -%}
-        {%- if product.tags contains 'heritage' or product.tags contains 'Heritage' -%}
-          <span class="ame-chip">Heritage Series</span>
-        {%- endif -%}
-        {%- if product.tags contains 'customizacao_sobmedida' -%}
-          <span class="ame-chip ame-chip--sob-medida">Sob Medida</span>
-        {%- endif -%}
-        {%- if product.tags contains 'pingente_opcional' -%}
-          <span class="ame-chip ame-chip--pingente-opcional">Pingente Opcional</span>
-        {%- endif -%}
+        {%- unless waltz_gerencia -%}
+          {%- if product.tags contains 'lancamento' -%}
+            <span class="ame-chip ame-chip--lancamento">Lançamento</span>
+          {%- endif -%}
+          {%- if product.tags contains 'heritage' or product.tags contains 'Heritage' -%}
+            <span class="ame-chip">Heritage Series</span>
+          {%- endif -%}
+          {%- if product.tags contains 'customizacao_sobmedida' -%}
+            <span class="ame-chip ame-chip--sob-medida">Sob Medida</span>
+          {%- endif -%}
+          {%- if product.tags contains 'pingente_opcional' -%}
+            <span class="ame-chip ame-chip--pingente-opcional">Pingente Opcional</span>
+          {%- endif -%}
+        {%- endunless -%}
         {%- if product.available == false -%}
           <span class="ame-chip">Esgotado</span>
         {%- endif -%}
@@ -2839,7 +2873,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(90, 71, 66, 0.09);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
     color: var(--color-primary, #5a4742);
     padding: 0.15rem 0.45rem;
     border-radius: 999px;
@@ -3020,7 +3054,7 @@
 
   .pdp__option-value {
     font-size: 0.6875rem;
-    /*color: rgba(90, 71, 66, 0.5);*/
+    /*color: color-mix(in srgb, var(--color-primary) 50%, transparent);*/
     color: var(--color-on-surface-variant, #4f4442);
   }
 
@@ -3054,7 +3088,7 @@
     overflow: hidden;
     transition: transform 0.25s ease, outline 0.2s ease;
     flex-shrink: 0;
-    border: 1px solid rgba(210, 195, 192, 0.25);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 25%, transparent);
     min-width: 0;
     box-sizing: border-box;
   }
@@ -3124,7 +3158,7 @@
     padding: 0.625rem 0.5rem;
     text-align: center;
     background: var(--color-surface, #fff8f3);
-    border: 1px solid rgba(210, 195, 192, 0.25);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 25%, transparent);
     border-radius: var(--radius-md, 0.25rem);
     font-size: 0.6875rem;
     letter-spacing: 0.08em;
@@ -3140,7 +3174,7 @@
 
   .pdp__size-btn--active {
     border-color: var(--color-primary, #5a4742);
-    background: rgba(90, 71, 66, 0.05);
+    background: color-mix(in srgb, var(--color-primary) 5%, transparent);
     color: var(--color-primary, #5a4742);
     font-weight: 500;
   }
@@ -3212,7 +3246,7 @@
     height: 4.5rem;
     object-fit: contain;
     border-radius: var(--radius-sm, 0.25rem);
-    background: #fff;
+    background: var(--color-surface-container-lowest);
   }
 
   .pdp__acabamento-btn__txt {
@@ -3227,8 +3261,8 @@
     background-image: linear-gradient(
       to top right,
       transparent calc(50% - 1px),
-      rgba(90, 71, 66, 0.6) calc(50% - 1px),
-      rgba(90, 71, 66, 0.6) calc(50% + 1px),
+      color-mix(in srgb, var(--color-primary) 60%, transparent) calc(50% - 1px),
+      color-mix(in srgb, var(--color-primary) 60%, transparent) calc(50% + 1px),
       transparent calc(50% + 1px)
     );
     pointer-events: none;
@@ -3266,7 +3300,7 @@
   .pdp__qty-btn {
     width: 2.5rem;
     height: 2.5rem;
-    border: 1px solid rgba(210, 195, 192, 0.25);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 25%, transparent);
     background: var(--color-surface, #fff8f3);
     cursor: pointer;
     font-size: 1.125rem;
@@ -3298,7 +3332,7 @@
     width: 3rem;
     height: 2.5rem;
     text-align: center;
-    border: 1px solid rgba(210, 195, 192, 0.25);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 25%, transparent);
     border-left: none;
     border-right: none;
     border-radius: 0;
@@ -3394,18 +3428,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(210, 195, 192, 0.25);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 25%, transparent);
     border-radius: var(--radius-md, 0.25rem);
     background: transparent;
     cursor: pointer;
-    color: rgba(90, 71, 66, 0.35);
+    color: color-mix(in srgb, var(--color-primary) 35%, transparent);
     transition: color 0.25s ease, border-color 0.25s ease;
   }
 
   .pdp__wishlist-btn:hover,
   .pdp__wishlist-btn.is-active {
     color: var(--color-primary, #5a4742);
-    border-color: rgba(90, 71, 66, 0.3);
+    border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
   }
 
   .pdp__wishlist-btn.is-active .material-symbols-outlined {
@@ -3418,7 +3452,7 @@
     flex-direction: column;
     gap: 0.625rem;
     padding-top: 1.25rem;
-    border-top: 1px solid rgba(210, 195, 192, 0.15);
+    border-top: 1px solid color-mix(in srgb, var(--color-outline-variant) 15%, transparent);
   }
 
   .pdp__trust-item {
@@ -3465,11 +3499,11 @@
   }
 
   .ame-accordion {
-    border-top: 1px solid rgba(210, 195, 192, 0.2);
+    border-top: 1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent);
   }
 
   .ame-accordion:last-child {
-    border-bottom: 1px solid rgba(210, 195, 192, 0.2);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 20%, transparent);
   }
 
   .ame-accordion__btn {
@@ -3636,8 +3670,8 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.375rem 0.75rem;
-    background: rgba(90, 71, 66, 0.05);
-    border: 1px solid rgba(210, 195, 192, 0.5);
+    background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-outline-variant) 50%, transparent);
     border-radius: 999px;
     font-size: 0.8125rem;
     color: var(--color-on-background, #201b14);
@@ -3756,7 +3790,7 @@
   }
   .pdp__custom-field__counter.is-full {
     opacity: 1;
-    color: #c0392b;
+    color: var(--color-error);
     font-weight: 600;
   }
 
@@ -3772,7 +3806,7 @@
 
   .pdp__custom-field__error-msg {
     font-size: 0.75rem;
-    color: #c0392b;
+    color: var(--color-error);
     margin: 0;
     display: none;
   }
@@ -3782,16 +3816,16 @@
   }
 
   .pdp__custom-field--error .pdp__custom-field__label {
-    color: #c0392b;
+    color: var(--color-error);
   }
 
   .pdp__custom-field--error .pdp__custom-field__input,
   .pdp__custom-field--error .pdp__custom-field__textarea {
-    border-color: #c0392b;
+    border-color: var(--color-error);
   }
 
   .pdp__custom-field--error .pdp__size-btn {
-    border-color: #c0392b;
+    border-color: var(--color-error);
   }
 
   /* ── Override: cor do botão selecionado e add-to-cart (configurável via painel) ── */
@@ -3807,7 +3841,7 @@
 
   .pdp .pdp__add-btn {
     background: var(--pdp-btn-bg);
-    color: var(--color-btn-primary-text, var(--color-on-primary, #ffffff));
+    color: var(--pdp-btn-fg, var(--color-on-primary, #ffffff));
   }
 
   /* ── Largura flexível dos botões de variação ── */
@@ -3841,7 +3875,7 @@
     pointer-events: none;
     border-radius: 50%;
     overflow: hidden;
-    /* filter: drop-shadow(0 6px 14px rgba(32, 27, 20, 0.28)); */
+    /* filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--color-shade) 28%, transparent)); */
     opacity: 0;
     transform: translateY(6px) scale(0.9);
     transition: opacity 0.25s ease, transform 0.25s var(--ease-luxury, cubic-bezier(0.22, 1, 0.36, 1));
@@ -3913,7 +3947,7 @@
     font-size: 0.67rem;
     line-height: 1.35;
     text-align: center;
-    border-top: 1px solid rgba(210, 195, 192, 0.3);
+    border-top: 1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent);
     opacity: 0.8;
   }
   .pdp__selection-info[hidden] {
@@ -3970,12 +4004,12 @@
     padding: 0.75rem;
     /*margin-left: -0.75rem;
       margin-right: -0.75rem;*/
-    background: rgba(192, 57, 43, 0.06);
-    box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.55);
+    background: color-mix(in srgb, var(--color-error) 6%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-error) 55%, transparent);
     animation: pdpOptionShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
   .pdp__option--invalid .pdp__option-label {
-    color: #c0392b;
+    color: var(--color-error);
   }
   @keyframes pdpOptionShake {
     10%,
@@ -4009,7 +4043,7 @@
     font-size: 0.875rem;
     padding: 0.75rem 1.25rem;
     border-radius: var(--radius-md, 4px);
-    box-shadow: 0 12px 32px rgba(32, 27, 20, 0.35);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--color-shade) 35%, transparent);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
@@ -4059,7 +4093,7 @@
       height: auto;
       margin: 0 auto;
       border-radius: var(--radius-lg, 0.75rem);
-      box-shadow: 0 10px 24px rgba(32, 27, 20, 0.18);
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--color-shade) 18%, transparent);
     }
     /* Pingente sobreposto reposicionado para acompanhar a imagem encolhida */
     .pdp__sticky-wrap.is-pinned .pdp__pingente-overlay {

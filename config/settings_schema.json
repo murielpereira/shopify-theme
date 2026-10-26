@@ -25,7 +25,7 @@
     ]
   },
   {
-    "name": "Cores",
+    "name": "Cores · Marca e botões",
     "settings": [
       {
         "type": "header",
@@ -33,149 +33,515 @@
       },
       {
         "type": "paragraph",
-        "content": "Usada em botões primários, links ativos, bordas de seleção e ícones."
+        "content": "A cor da marca. Aparece nos botões e destaques, nos ícones e no logo do cabeçalho, no rodapé, no contador do carrinho e em vários detalhes."
       },
       {
         "type": "color",
         "id": "color_primary",
-        "default": "#5a4742",
-        "label": "Cor Principal"
+        "label": "Cor Principal",
+        "info": "Fundo do rodapé, ícones e logo (texto) do cabeçalho, contador do carrinho, botão \"Finalizar compra\", links e preços em destaque, barra de rolagem e contorno de foco dos campos.",
+        "default": "#5a4742"
       },
       {
         "type": "color",
         "id": "color_primary_container",
-        "default": "#735e59",
-        "label": "Cor Principal — variação (gradiente)"
+        "label": "Cor Principal — variação (degradê)",
+        "info": "Segunda cor dos degradês: botão \"Finalizar compra\" da gaveta e barra de frete grátis. Também colore o destaque da faixa de benefícios da home.",
+        "default": "#735e59"
       },
       {
         "type": "color",
         "id": "color_on_primary",
-        "default": "#ffffff",
-        "label": "Texto sobre Cor Principal"
+        "label": "Texto sobre a Cor Principal",
+        "info": "Texto e ícones sobre fundos na Cor Principal: rodapé, contador do carrinho, selos, botão \"Finalizar compra\".",
+        "default": "#ffffff"
       },
       {
         "type": "header",
-        "content": "Botão de compra (CTA principal)"
+        "content": "Botão de compra"
       },
       {
         "type": "paragraph",
-        "content": "Cor aplicada nos botões 'Comprar' dos cards de produto e 'Adicionar ao Carrinho' da página do produto/kit."
+        "content": "Os botões \"Comprar\" dos cards de produto e \"Adicionar ao carrinho\" da página do produto e dos kits."
       },
       {
         "type": "color",
         "id": "pdp_btn_bg_color",
-        "default": "#5a4742",
-        "label": "Cor de fundo do botão"
+        "label": "Fundo do botão",
+        "info": "Fundo dos botões \"Comprar\" e \"Adicionar ao carrinho\", do tamanho selecionado na página do produto e da etiqueta \"kit\" na gaveta.",
+        "default": "#5a4742"
       },
       {
         "type": "color",
         "id": "pdp_btn_fg_color",
-        "default": "#ffffff",
-        "label": "Cor do texto do botão"
+        "label": "Texto do botão",
+        "info": "Texto e ícone desses mesmos botões.",
+        "default": "#ffffff"
       },
       {
         "type": "header",
-        "content": "Cor Secundária"
+        "content": "Botão \"Buscar\""
       },
       {
         "type": "paragraph",
-        "content": "Usada em chips, badges e elementos de apoio."
-      },
-      {
-        "type": "color",
-        "id": "color_secondary",
-        "default": "#655d54",
-        "label": "Cor Secundária"
-      },
-      {
-        "type": "color",
-        "id": "color_secondary_container",
-        "default": "#e9ded2",
-        "label": "Container Secundário"
-      },
-      {
-        "type": "header",
-        "content": "Fundo e Superfícies"
-      },
-      {
-        "type": "paragraph",
-        "content": "Fundo da página e das seções. Sem linhas — use variações de tom para separar áreas."
-      },
-      {
-        "type": "color",
-        "id": "color_background",
-        "default": "#fff8f3",
-        "label": "Fundo da Página"
-      },
-      {
-        "type": "color",
-        "id": "color_surface_container",
-        "default": "#f8ece0",
-        "label": "Superfície — Container (cards, seções)"
-      },
-      {
-        "type": "color",
-        "id": "color_surface_container_high",
-        "default": "#f2e6da",
-        "label": "Superfície — Container Alto (hover, destaque)"
-      },
-      {
-        "type": "header",
-        "content": "Texto"
-      },
-      {
-        "type": "color",
-        "id": "color_on_background",
-        "default": "#201b14",
-        "label": "Texto Principal"
-      },
-      {
-        "type": "color",
-        "id": "color_on_surface_variant",
-        "default": "#4f4442",
-        "label": "Texto Secundário"
-      },
-      {
-        "type": "header",
-        "content": "Barra de Anúncios"
-      },
-      {
-        "type": "color",
-        "id": "color_announce_bg",
-        "default": "#5a4742",
-        "label": "Fundo da barra de anúncios"
-      },
-      {
-        "type": "color",
-        "id": "color_announce_text",
-        "default": "#ffffff",
-        "label": "Texto da barra de anúncios"
-      },
-      {
-        "type": "header",
-        "content": "Botão Primário (CTA)"
+        "content": "Só o botão da página de busca."
       },
       {
         "type": "color",
         "id": "color_btn_primary_bg",
-        "default": "#5a4742",
-        "label": "Fundo do botão"
+        "label": "Fundo do botão \"Buscar\"",
+        "info": "Fundo do botão da página de busca.",
+        "default": "#5a4742"
       },
       {
         "type": "color",
         "id": "color_btn_primary_text",
+        "label": "Texto do botão \"Buscar\"",
+        "info": "Texto do botão da página de busca.",
+        "default": "#ffffff"
+      }
+    ]
+  },
+  {
+    "name": "Cores · Fundos e textos",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Fundos"
+      },
+      {
+        "type": "paragraph",
+        "content": "Sem linhas pesadas: variações de tom separam as áreas."
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Fundo da página",
+        "info": "Fundo de todas as páginas e contorno da barra de rolagem.",
+        "default": "#fff8f3"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_container",
+        "label": "Fundo de cartões e caixas",
+        "info": "Fundo das imagens dos itens do carrinho, dos cartões de avaliação, dos itens do menu ao passar o mouse e das caixas de aviso.",
+        "default": "#f8ece0"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_container_high",
+        "label": "Fundo de destaque",
+        "info": "Fundo dos chips (etiquetas pequenas) e do botão \"ver mais\" das avaliações ao passar o mouse.",
+        "default": "#f2e6da"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_lowest",
+        "label": "Branco dos campos e janelas",
         "default": "#ffffff",
-        "label": "Texto do botão"
+        "info": "Fundo de campos de formulário, janelas (modais), calculadoras de frete e seletores. A gaveta do carrinho tem cor própria, em \"Cores · Carrinho\"."
+      },
+      {
+        "type": "color",
+        "id": "color_surface_highest",
+        "label": "Fundo atrás das fotos",
+        "default": "#ece1d5",
+        "info": "Cor que aparece atrás das fotos de produtos e das imagens de coleções, enquanto carregam."
       },
       {
         "type": "header",
-        "content": "Bordas e Divisores"
+        "content": "Textos"
+      },
+      {
+        "type": "color",
+        "id": "color_on_background",
+        "label": "Texto principal",
+        "info": "Títulos, nomes de produtos, textos da gaveta do carrinho e a maior parte dos textos do site.",
+        "default": "#201b14"
+      },
+      {
+        "type": "color",
+        "id": "color_on_surface_variant",
+        "label": "Texto secundário",
+        "info": "Descrições, rótulos de campos e links do menu.",
+        "default": "#4f4442"
+      },
+      {
+        "type": "color",
+        "id": "color_on_surface_muted",
+        "label": "Texto discreto",
+        "default": "#6f645d",
+        "info": "Informação de apoio: preço \"de\", parcelas, \"a partir de\", legendas, nome da coleção nos cards e ajuda dos campos."
+      },
+      {
+        "type": "header",
+        "content": "Bordas e divisores"
       },
       {
         "type": "color",
         "id": "color_outline_variant",
-        "default": "#d2c3c0",
-        "label": "Borda sutil (inputs, divisores)"
+        "label": "Borda sutil",
+        "info": "Linhas e bordas de campos, divisores da gaveta, cartões e menus (inclusive as versões translúcidas).",
+        "default": "#d2c3c0"
+      },
+      {
+        "type": "color",
+        "id": "color_outline",
+        "label": "Cinza neutro",
+        "default": "#817471",
+        "info": "Botão \"Esgotado\", bordas de campos em destaque e ícones secundários."
+      },
+      {
+        "type": "header",
+        "content": "Sombras e escurecimentos"
+      },
+      {
+        "type": "color",
+        "id": "color_shade",
+        "label": "Sombras e véu escuro",
+        "default": "#201b14",
+        "info": "Sombra dos cartões, menus e janelas, e o véu escuro sobre banners e vídeos e atrás da gaveta do carrinho. Use um tom escuro mesmo em temas escuros."
+      }
+    ]
+  },
+  {
+    "name": "Cores · Cabeçalho e menu",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Cabeçalho = a barra com logo e ícones. Menu = a barra de links logo abaixo. Os dois ficam translúcidos sobre o banner e mais opacos ao rolar a página."
+      },
+      {
+        "type": "color",
+        "id": "color_header_bg",
+        "label": "Fundo do cabeçalho, menu e busca",
+        "default": "#fff8f3",
+        "info": "Cor de fundo (com transparência) do cabeçalho, da barra de menu, do menu do celular e da tela de busca."
+      },
+      {
+        "type": "color",
+        "id": "color_header_icons",
+        "label": "Logo (texto) e ícones",
+        "info": "Cor do logo quando é texto e dos ícones de busca, conta, rastreio, favoritos e carrinho. Em branco usa a Cor Principal."
+      },
+      {
+        "type": "color",
+        "id": "color_header_link",
+        "label": "Links do menu",
+        "info": "Cor dos links da barra de menu. Em branco usa o Texto secundário."
+      },
+      {
+        "type": "color",
+        "id": "color_header_link_hover",
+        "label": "Link do menu: mouse em cima e página atual",
+        "info": "Cor do link ao passar o mouse, da página em que a cliente está e do sublinhado. Em branco usa a Cor Principal."
+      }
+    ]
+  },
+  {
+    "name": "Cores · Barra de anúncios",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "A faixa fina no topo do site com os avisos rotativos (ex.: frete grátis). Atenção: se a seção \"Barra de anúncios\" tiver cores próprias no Personalizar, elas vencem estas. Para estas valerem, limpe as cores dentro da seção."
+      },
+      {
+        "type": "color",
+        "id": "color_announce_bg",
+        "label": "Fundo da barra",
+        "info": "Fundo da barra de anúncios (e do degradê nas pontas do texto que rola).",
+        "default": "#5a4742"
+      },
+      {
+        "type": "color",
+        "id": "color_announce_text",
+        "label": "Texto da barra",
+        "info": "Texto e ícones da barra de anúncios.",
+        "default": "#ffffff"
+      }
+    ]
+  },
+  {
+    "name": "Cores · Carrinho",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "A gaveta lateral que abre ao adicionar um produto. Os botões e a barra de frete grátis usam a Cor Principal; o escurecimento atrás dela usa \"Sombras e escurecimentos\" (em Fundos e textos)."
+      },
+      {
+        "type": "color",
+        "id": "color_cart_bg",
+        "label": "Fundo da gaveta",
+        "default": "#ffffff",
+        "info": "Fundo da gaveta do carrinho: topo, lista de produtos e rodapé com o total."
+      }
+    ]
+  },
+  {
+    "name": "Cores · Selos e avisos",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Cores de função, usadas em selos, mensagens e etiquetas pequenas. Já nascem com os valores atuais da loja."
+      },
+      {
+        "type": "header",
+        "content": "Selos dos produtos"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_green",
+        "label": "Verde: brinde e \"sob medida\"",
+        "default": "#5a7461",
+        "info": "Seletor de brinde no carrinho, selo \"sob medida\", destaques do parcelamento e botões do brinde."
+      },
+      {
+        "type": "color",
+        "id": "color_accent_blue",
+        "label": "Azul: \"pingente opcional\"",
+        "default": "#5a6b74",
+        "info": "Selo \"pingente opcional\" nos cards de produto."
+      },
+      {
+        "type": "color",
+        "id": "color_gold",
+        "label": "Dourado: selo \"Lançamento\"",
+        "default": "#c89b5e",
+        "info": "Cor principal do selo dourado \"Lançamento\" e do brilho ao redor dele."
+      },
+      {
+        "type": "color",
+        "id": "color_gold_light",
+        "label": "Dourado claro (brilho do \"Lançamento\")",
+        "default": "#e9c89a",
+        "info": "Tom claro no meio do degradê do selo \"Lançamento\"."
+      },
+      {
+        "type": "color",
+        "id": "color_star",
+        "label": "Estrelas de avaliação",
+        "default": "#f5a623",
+        "info": "Estrelinha da nota nos cards de produto."
+      },
+      {
+        "type": "header",
+        "content": "Mensagens"
+      },
+      {
+        "type": "color",
+        "id": "color_error",
+        "label": "Vermelho: erro e campo obrigatório",
+        "default": "#c0392b",
+        "info": "Mensagens de erro, asterisco e destaque dos campos obrigatórios não preenchidos (página do produto, pingente e kits)."
+      },
+      {
+        "type": "color",
+        "id": "color_success",
+        "label": "Verde: desconto e frete mais barato",
+        "default": "#15803d",
+        "info": "Linha de desconto no carrinho e etiqueta \"mais barato\" nas opções de frete."
+      },
+      {
+        "type": "color",
+        "id": "color_success_bg",
+        "label": "Fundo da etiqueta de frete mais barato",
+        "default": "#d4f0db",
+        "info": "Fundo da etiqueta \"mais barato\" nas calculadoras de frete."
+      },
+      {
+        "type": "color",
+        "id": "color_info",
+        "label": "Azul: frete mais rápido",
+        "default": "#1d4ed8",
+        "info": "Texto da etiqueta \"mais rápido\" nas opções de frete."
+      },
+      {
+        "type": "color",
+        "id": "color_info_bg",
+        "label": "Fundo da etiqueta de frete mais rápido",
+        "default": "#dbeafe",
+        "info": "Fundo da etiqueta \"mais rápido\" nas calculadoras de frete."
+      },
+      {
+        "type": "header",
+        "content": "Avisos de frete"
+      },
+      {
+        "type": "color",
+        "id": "color_notice",
+        "label": "Âmbar: borda dos avisos",
+        "default": "#d4a76a",
+        "info": "Borda e destaque lateral dos avisos de frete (greve, atraso). O fundo usa o Fundo de cartões e caixas."
+      },
+      {
+        "type": "color",
+        "id": "color_notice_text",
+        "label": "Âmbar: ícone e link dos avisos",
+        "default": "#8a6630",
+        "info": "Ícone de caminhão e link \"Saiba mais\" dos avisos de frete."
+      }
+    ]
+  },
+  {
+    "name": "Tema · Ateliê (Atena)",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Página de personalização da Atena. As cores abaixo marcadas \"em branco acompanha o tema\" mudam junto com o tema geral; preencha uma para dar à página uma cor só dela. As demais (latão, estúdio, espresso) são só do Ateliê."
+      },
+      {
+        "type": "header",
+        "content": "Acompanham o tema geral (em branco = igual ao tema)"
+      },
+      {
+        "type": "color",
+        "id": "atl_papel",
+        "label": "Fundo da página",
+        "info": "Fundo do Ateliê e das caixas claras. Em branco usa o Fundo da página."
+      },
+      {
+        "type": "color",
+        "id": "atl_couro",
+        "label": "Couro: botões e destaques",
+        "info": "Botões, links, chips e ícones do Ateliê. Em branco usa a Cor Principal."
+      },
+      {
+        "type": "color",
+        "id": "atl_couro_2",
+        "label": "Couro: tom 2",
+        "info": "Segunda cor dos botões (degradê), pequenos títulos e subtítulos. Em branco usa a variação da Cor Principal."
+      },
+      {
+        "type": "color",
+        "id": "atl_tinta",
+        "label": "Texto principal",
+        "info": "Títulos, preços e texto principal do Ateliê. Em branco usa o Texto principal."
+      },
+      {
+        "type": "color",
+        "id": "atl_tinta_2",
+        "label": "Texto secundário",
+        "info": "Descrições, rótulos e nomes de cores. Em branco usa o Texto secundário."
+      },
+      {
+        "type": "color",
+        "id": "atl_areia",
+        "label": "Areia: cartões",
+        "info": "Fundo de cartões, avisos de erro, benefícios e lista de raças. Em branco usa o Fundo de cartões."
+      },
+      {
+        "type": "color",
+        "id": "atl_areia_2",
+        "label": "Areia escura: fotos",
+        "info": "Fundo atrás de vídeos e fotos de stories. Em branco usa o Fundo atrás das fotos."
+      },
+      {
+        "type": "header",
+        "content": "Só do Ateliê"
+      },
+      {
+        "type": "color",
+        "id": "atl_estudio",
+        "label": "Estúdio (palco da peça)",
+        "default": "#efe8e1",
+        "info": "Fundo do palco onde aparece a coleira montada."
+      },
+      {
+        "type": "color",
+        "id": "atl_latao_1",
+        "label": "Latão claro",
+        "default": "#ecd593",
+        "info": "Brilho do latão: assinatura da ficha, trilhos de progresso e links dourados."
+      },
+      {
+        "type": "color",
+        "id": "atl_latao_2",
+        "label": "Latão médio",
+        "default": "#c29a52",
+        "info": "Contorno de foco, bolinhas do carrossel, passo atual e fios dourados."
+      },
+      {
+        "type": "color",
+        "id": "atl_latao_3",
+        "label": "Latão escuro",
+        "default": "#8a6322",
+        "info": "Sombra do degradê dourado, selos de metal e de tamanho e ícones de recomendação."
+      },
+      {
+        "type": "color",
+        "id": "atl_espresso",
+        "label": "Espresso (fundos escuros)",
+        "default": "#231b16",
+        "info": "Fundo escuro da ficha técnica, do aviso e da seção \"processo\"."
+      },
+      {
+        "type": "color",
+        "id": "atl_terracota",
+        "label": "Terracota (alerta do campo)",
+        "default": "#b5473a",
+        "info": "Sublinhado e texto de campo inválido no Ateliê."
+      }
+    ]
+  },
+  {
+    "name": "Tema · Esquenta Black",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Página da coleção da campanha Esquenta Black (fundo preto com destaque verde-limão). Edite as cores aqui, ou ligue a chave abaixo para ela usar as cores do tema geral."
+      },
+      {
+        "type": "checkbox",
+        "id": "eb_usar_tema_geral",
+        "label": "Usar as cores do tema geral",
+        "default": false,
+        "info": "Ligado: a página usa Fundo da página, Texto principal, Cor Principal etc. do tema e ignora as cores abaixo. Desligado: usa as cores abaixo (preto e verde-limão)."
+      },
+      {
+        "type": "header",
+        "content": "Cores próprias da campanha"
+      },
+      {
+        "type": "color",
+        "id": "eb_bg",
+        "label": "Fundo da página",
+        "default": "#0a0a0a",
+        "info": "Fundo da página, da contagem regressiva e do topo; também escurece a foto do banner."
+      },
+      {
+        "type": "color",
+        "id": "eb_fg",
+        "label": "Texto",
+        "default": "#ffffff",
+        "info": "Títulos, textos, nomes dos kits e linhas e bordas translúcidas (versões mais claras desta cor)."
+      },
+      {
+        "type": "color",
+        "id": "eb_secondary",
+        "label": "Fundo das fotos dos kits",
+        "default": "#1f1f1f",
+        "info": "Fundo atrás das fotos dos kits."
+      },
+      {
+        "type": "color",
+        "id": "eb_border",
+        "label": "Bordas",
+        "default": "#2e2e2e",
+        "info": "Linhas que separam as seções, o contador, as abas e os cards."
+      },
+      {
+        "type": "color",
+        "id": "eb_lime",
+        "label": "Destaque (verde-limão)",
+        "default": "#c1ff72",
+        "info": "Faixa de destaque, palavra em itálico dos títulos, contador, selos de desconto, botões ao passar o mouse e seleção de texto."
+      },
+      {
+        "type": "color",
+        "id": "eb_on_lime",
+        "label": "Texto sobre o destaque",
+        "default": "#0f0f0f",
+        "info": "Texto sobre o verde-limão: faixa, selos, aba ativa e botões ao passar o mouse."
       }
     ]
   },
