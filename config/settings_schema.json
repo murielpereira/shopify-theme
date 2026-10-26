@@ -276,7 +276,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "A faixa fina no topo do site com os avisos rotativos (ex.: frete grátis). Atenção: se a seção \"Barra de anúncios\" tiver cores próprias no Personalizar, elas vencem estas. Para estas valerem, limpe as cores dentro da seção."
+        "content": "A faixa fina no topo do site com os avisos rotativos (ex.: frete grátis). Se a seção \"Barra de anúncios\" tiver cores próprias no Personalizar, elas vencem estas no modo Claro. No modo Escuro a barra sempre usa a paleta Escura."
       },
       {
         "type": "color",
@@ -606,7 +606,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Cores do modo Escuro para cabeçalho, barra de anúncios, rodapé e gaveta do carrinho. Se a seção \"Barra de anúncios\" tiver cores próprias no Personalizar, elas vencem estas nos dois modos."
+        "content": "Cores do modo Escuro para cabeçalho, barra de anúncios, rodapé e gaveta do carrinho. A cor própria da seção \"Barra de anúncios\" no Personalizar é ignorada no modo Escuro: a barra usa sempre estas."
       },
       {
         "type": "color",

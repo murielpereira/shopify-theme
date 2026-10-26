@@ -3,14 +3,16 @@
 {%- if section.blocks.size > 0 -%}
   {%- comment -%}
     A cor global (Configurações do tema, respeitando o Modo de cores) vem do :root.
-    Só entra aqui a cor que estiver preenchida DENTRO desta seção, que vence a global.
+    No modo CLARO, a cor preenchida DENTRO desta seção vence a global.
+    No modo ESCURO a cor da seção é IGNORADA: ela costuma ser a cor do tema claro
+    (marrom) gravada na loja, e deixaria a barra marrom no meio de um tema escuro.
   {%- endcomment -%}
   <div
     class="ame-announce"
     role="region"
     aria-label="Anúncios"
     data-announce
-    style="top: 0;{% if section.settings.bg_color != blank %} --color-announce-bg: {{ section.settings.bg_color }};{% endif %}{% if section.settings.text_color != blank %} --color-announce-text: {{ section.settings.text_color }};{% endif %}"
+    style="top: 0;{% if section.settings.bg_color != blank and settings.modo_cores != 'escuro' %} --color-announce-bg: {{ section.settings.bg_color }};{% endif %}{% if section.settings.text_color != blank and settings.modo_cores != 'escuro' %} --color-announce-text: {{ section.settings.text_color }};{% endif %}"
   >
     <div class="ame-announce__track" data-announce-track>
       {%- for block in section.blocks -%}

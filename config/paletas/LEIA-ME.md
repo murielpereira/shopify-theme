@@ -16,8 +16,7 @@ Quem segue o modo sozinho: cabeçalho, páginas, carrinho, rodapé, selos, bloco
 da Shopify (cor em branco), a página do Ateliê e a página Esquenta Black (no Escuro
 ela usa o tema geral).
 
-**Cores escolhidas DENTRO de uma seção** no Personalizar (ex.: a cor da "Barra de
-anúncios") vencem a paleta nos dois modos. Para a seção seguir o modo, limpe a cor dela.
+**Cores escolhidas DENTRO de uma seção** no Personalizar vencem a paleta no modo Claro. A exceção é a **Barra de anúncios**: no modo Escuro a cor da seção é ignorada (ela costuma ser a do tema claro gravada na loja), e a barra usa sempre a paleta Escura.
 
 ## Conferir contraste (PageSpeed / WCAG AA = 4,5:1)
 
