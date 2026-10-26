@@ -191,6 +191,13 @@
   {%- if atl_escuro -%}
     --atl-estudio:{{ settings.escuro_atl_estudio }};
     --atl-latao-3:{{ settings.escuro_atl_latao_3 }};
+    --atl-brilho: color-mix(in srgb, var(--atl-papel) 94%, #fff);
+    --atl-papel-fim: color-mix(in srgb, var(--atl-papel) 85%, #000);
+    --atl-palavra: color-mix(in srgb, var(--atl-papel) 88%, #fff);
+    --atl-palavra-luz: rgba(255, 255, 255, 0.07);
+    --atl-esqueleto-brilho: color-mix(in srgb, var(--atl-areia) 92%, #fff);
+    --atl-on-latao: #0f0f0f;
+    --atl-titulo: var(--atl-tinta);
   {%- else -%}
     --atl-estudio:{{ settings.atl_estudio | default: '#efe8e1' }};
     --atl-latao-3:{{ settings.atl_latao_3 | default: '#8a6322' }};

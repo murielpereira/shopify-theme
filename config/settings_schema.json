@@ -779,8 +779,8 @@
         "type": "color",
         "id": "escuro_atl_estudio",
         "label": "Estúdio (palco da peça)",
-        "default": "#1a1a1a",
-        "info": "Fundo do palco onde aparece a coleira montada."
+        "default": "#efe8e1",
+        "info": "Fundo do palco onde aparece a coleira montada. As fotos têm fundo branco, então o palco fica CLARO mesmo no modo escuro (um palco escuro deixa a peça quase preta)."
       },
       {
         "type": "color",

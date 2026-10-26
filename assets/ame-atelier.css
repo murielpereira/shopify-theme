@@ -46,6 +46,14 @@
   --atl-espresso: #231b16;
   --atl-fio: color-mix(in srgb, var(--atl-couro) 16%, transparent);
   --atl-terracota: #b5473a;
+  /* Estes valem no claro; no modo Escuro a seção os redefine em linha (atelier-coleira.liquid). */
+  --atl-brilho: #fbf8f4;          /* centro claro do degradê do herói */
+  --atl-papel-fim: #f1ebe4;       /* fim do degradê do herói */
+  --atl-palavra: #e9dfd4;         /* palavra gravada ao fundo do herói */
+  --atl-palavra-luz: rgba(255, 255, 255, 0.95);
+  --atl-esqueleto-brilho: #fbf3ea;
+  --atl-on-latao: #fff;           /* texto sobre os selos de latão */
+  --atl-titulo: var(--atl-couro); /* título do herói (no escuro a seção troca por --atl-tinta) */
   --atl-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --atl-margem: 16px;
   --atl-largura: 1180px;
@@ -277,8 +285,8 @@
   overflow: hidden;
   padding: 1.25rem var(--atl-margem) 2.5rem;
   background:
-    radial-gradient(120% 60% at 50% 30%, #fbf8f4 0%, rgba(251, 248, 244, 0) 70%),
-    linear-gradient(180deg, var(--atl-papel) 0%, #f1ebe4 100%);
+    radial-gradient(120% 60% at 50% 30%, var(--atl-brilho) 0%, color-mix(in srgb, var(--atl-brilho) 0%, transparent) 70%),
+    linear-gradient(180deg, var(--atl-papel) 0%, var(--atl-papel-fim) 100%);
   isolation: isolate;
 }
 
@@ -320,9 +328,9 @@
   line-height: 1;
   letter-spacing: -0.05em;
   white-space: nowrap;
-  color: #e9dfd4;
+  color: var(--atl-palavra);
   text-shadow:
-    0 1.5px 0 rgba(255, 255, 255, 0.95),
+    0 1.5px 0 var(--atl-palavra-luz),
     0 -1px 0 color-mix(in srgb, var(--atl-couro) 14%, transparent);
   transform: translate(-50%, calc(var(--p) * 40px)) scale(0.96);
   transform-origin: 50% 100%;
@@ -508,7 +516,7 @@
   font-weight: 250;
   line-height: 1.02;
   letter-spacing: -0.04em;
-  color: #5a4742;
+  color: var(--atl-titulo);
   text-wrap: balance;
 }
 
@@ -697,7 +705,7 @@
 }
 
 .atl-passos__item.is-feito .atl-passos__n {
-  color: #fff;
+  color: var(--color-on-primary, #fff);
   background: var(--atl-couro);
   box-shadow: none;
 }
@@ -709,7 +717,7 @@
 
 .atl-passos__item.is-atual .atl-passos__n {
   color: var(--atl-tinta);
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 0 0 4px color-mix(in srgb, var(--atl-latao-1) 35%, transparent);
   transform: scale(1.08);
 }
@@ -810,7 +818,7 @@
   /* Fundo branco da foto some no "estúdio"; 1,5 % a mais esconde a borda
      fina que algumas fotos têm. */
   transform: scale(1.015);
-  mix-blend-mode: var(--blend-multiply, multiply);
+  mix-blend-mode: multiply;
   opacity: 0;
   transition: filter 0.45s ease;
 }
@@ -1173,7 +1181,7 @@
 .atl-esqueleto span {
   height: 44px;
   border-radius: 6px;
-  background: linear-gradient(90deg, var(--atl-areia) 0%, #fbf3ea 50%, var(--atl-areia) 100%);
+  background: linear-gradient(90deg, var(--atl-areia) 0%, var(--atl-esqueleto-brilho) 50%, var(--atl-areia) 100%);
   background-size: 200% 100%;
   animation: atl-esqueleto 1.4s ease-in-out infinite;
 }
@@ -1234,7 +1242,7 @@ textarea.atl-campo__input {
 }
 
 .atl-campo__input::placeholder {
-  color: rgba(79, 68, 66, 0.4);
+  color: color-mix(in srgb, var(--atl-tinta-2) 40%, transparent);
 }
 
 .atl-campo__rotulo {
@@ -1255,7 +1263,7 @@ textarea.atl-campo__input {
   bottom: 0.65rem;
   font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
-  color: rgba(79, 68, 66, 0.6);
+  color: color-mix(in srgb, var(--atl-tinta-2) 60%, transparent);
 }
 
 .atl-campo.is-invalido .atl-campo__input {
@@ -1303,7 +1311,7 @@ textarea.atl-campo__input {
 
 .atl-alterna button.is-ativo {
   color: var(--atl-tinta);
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: 0 1px 4px color-mix(in srgb, var(--color-shade) 12%, transparent);
 }
 
@@ -1317,7 +1325,7 @@ textarea.atl-campo__input {
   padding: 6px;
   list-style: none;
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--color-shade) 28%, transparent);
 }
 
@@ -1405,7 +1413,7 @@ textarea.atl-campo__input {
   font-size: 0.625rem;
   font-weight: 600;
   color: var(--atl-couro);
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: 0 2px 6px color-mix(in srgb, var(--color-shade) 16%, transparent);
 }
 
@@ -1458,7 +1466,7 @@ textarea.atl-campo__input {
 }
 
 .atl-passador__op.is-ativo {
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 8px 18px -12px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
@@ -1515,7 +1523,7 @@ textarea.atl-campo__input {
 }
 
 .atl-metal.is-ativo {
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
@@ -1604,7 +1612,7 @@ textarea.atl-campo__input {
 }
 
 .atl-tam.is-ativo {
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
@@ -1641,7 +1649,7 @@ textarea.atl-campo__input {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: #fff;
+  color: var(--atl-on-latao, #fff);
   background: linear-gradient(90deg, var(--atl-latao-3), var(--atl-latao-2));
 }
 
@@ -1672,7 +1680,7 @@ textarea.atl-campo__input {
 }
 
 .atl-tipo.is-ativo {
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2), 0 12px 24px -16px color-mix(in srgb, var(--color-shade) 45%, transparent);
 }
 
@@ -1738,7 +1746,7 @@ textarea.atl-campo__input {
 }
 
 .atl-formato.is-ativo {
-  background: #fff;
+  background: var(--color-surface-container-lowest);
   box-shadow: inset 0 0 0 1.5px var(--atl-latao-2);
 }
 
@@ -2460,7 +2468,7 @@ html.atl-travado body {
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
-  color: #fff;
+  color: var(--color-on-primary, #fff);
   background: linear-gradient(135deg, var(--atl-couro), var(--atl-couro-2));
   box-shadow: 0 18px 36px -16px color-mix(in srgb, var(--color-shade) 70%, transparent);
   transform: translateY(140%);

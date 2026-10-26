@@ -295,5 +295,23 @@
     .ame-col-header__desc .ame-label { color: var(--color-on-surface-muted) !important; }
     .ame-col-header__desc .ame-h2 { color: var(--color-on-background) !important; }
     .ame-col-header__desc .ame-divider { background: var(--color-outline) !important; }
+
+    /* Avaliações e perguntas da Konfidency: o app traz cores fixas (#3e3e3e, #666, fundos brancos e
+       creme). No escuro, texto claro e fundos da paleta. Estrelas (svg) e o verde dos
+       tópicos da IA ficam como estão. */
+    :is(#konfidency-reviews-container, #konfidency-questions-container) *:not(svg):not(path):not(.konfidency__ai-summary--topic-text):not(.konfidency__ai-summary--topic-text *) { color: var(--color-on-surface-variant) !important; }
+    :is(#konfidency-reviews-container, #konfidency-questions-container) h2,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) h3,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .summary,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .kfyDetails__review-count--total { color: var(--color-on-background) !important; }
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__ai-summary,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .review { background: var(--color-surface-container) !important; }
+    :is(#konfidency-reviews-container, #konfidency-questions-container) button.fetch-review,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) button.send-question,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) button.fetch-questions {
+      background: var(--color-surface-container-lowest) !important;
+      color: var(--color-primary) !important;
+      border-color: var(--color-outline-variant) !important;
+    }
   {%- endif -%}
 {% endstyle %}
