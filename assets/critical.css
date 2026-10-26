@@ -3456,6 +3456,13 @@ shopify-account {
 
 /* "há 4 horas" da avaliação: a Konfidency usa #787878 sobre #f7f5f2 (4,06:1,
    abaixo dos 4,5:1 do WCAG AA — PSI 22/10/2026). #6b6b6b dá ~5:1. */
+/* Konfidency (app): o texto do resumo vem preto. Segue o tema. */
+.aggregate-rating,
+.review-count-full,
+.review-count-full * {
+  color: var(--color-on-surface-variant, #4f4442) !important;
+}
+
 #konfidency-reviews-container .details .reviews .review .review-details .date,
 #konfidency-questions-container .details .questions .question .question-details .date {
   color: var(--color-on-surface-muted, #6b6b6b) !important;

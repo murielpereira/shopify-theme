@@ -25,7 +25,7 @@
     "color_on_background": "#201b14",
     "color_on_surface_variant": "#4f4442",
     "color_outline_variant": "#d2c3c0",
-    "color_announce_bg": "#000000",
+    "color_announce_bg": "#5a4742",
     "color_announce_text": "#ffffff",
     "header_sticky": true,
     "checkout_yampi_ativo": false,

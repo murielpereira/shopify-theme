@@ -364,7 +364,7 @@
   margin: -53.2% 0 0 -56%;
   transform: perspective(900px) rotateX(calc(var(--p) * -10deg + var(--my) * -8deg)) rotateY(calc(var(--mx) * 12deg)) scale(1.025);
   transition: transform 0.6s var(--atl-ease);
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--blend-multiply, multiply);
   /* A foto não é branca pura nas pontas; sem o esfumado aparece um
      retângulo claro em volta da coleira no computador. */
   -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 47.5%, #000 86%, transparent 100%);
@@ -810,7 +810,7 @@
   /* Fundo branco da foto some no "estúdio"; 1,5 % a mais esconde a borda
      fina que algumas fotos têm. */
   transform: scale(1.015);
-  mix-blend-mode: multiply;
+  mix-blend-mode: var(--blend-multiply, multiply);
   opacity: 0;
   transition: filter 0.45s ease;
 }

@@ -130,7 +130,7 @@
 
     /* ── Fundo e Superfícies ── */
     --color-background:                 {% if escuro %}{{ settings.escuro_color_background }}{% else %}{{ settings.color_background }}{% endif %};
-    --color-surface:                    {% if escuro %}{{ settings.escuro_color_background }}{% else %}{{ settings.color_background }}{% endif %};
+    --color-surface:                    {% if escuro %}{{ settings.escuro_color_surface_lowest | default: '#1c1c1c' }}{% else %}{{ settings.color_background }}{% endif %};
     --color-surface-container-lowest:   {% if escuro %}{{ settings.escuro_color_surface_lowest | default: '#ffffff' }}{% else %}{{ settings.color_surface_lowest | default: '#ffffff' }}{% endif %};
     --color-surface-container-low:      {% if escuro %}{{ settings.escuro_color_surface_low | default: '#fef2e5' }}{% else %}{{ settings.color_surface_low | default: '#fef2e5' }}{% endif %};
     --color-surface-container:          {% if escuro %}{{ settings.escuro_color_surface_container }}{% else %}{{ settings.color_surface_container }}{% endif %};
@@ -178,6 +178,11 @@
 
     /* ── Carrinho (gaveta) ── */
     --color-cart-bg: {% if escuro %}{{ settings.escuro_color_cart_bg | default: '#ffffff' }}{% else %}{{ settings.color_cart_bg | default: '#ffffff' }}{% endif %};
+
+    /* ── Mistura de imagem ──
+       As fotos de fundo branco usam multiply para "derreter" no fundo claro. Num fundo
+       escuro o multiply escurece a foto inteira, então no modo Escuro vira normal. */
+    --blend-multiply: {% if escuro %}normal{% else %}multiply{% endif %};
 
     /* ── Sombras e escurecimentos ──
        Base das sombras de cartões/menus e do véu escuro sobre banners, vídeos e
@@ -282,4 +287,13 @@
       /*--page-margin original -e 12px*/
     }
   }
+  {%- if escuro -%}
+    /* Conteúdo escrito no admin (descrição de coleção etc.) traz <style> e cores inline
+       fixas (fundo branco, texto marrom). No modo Escuro segue a paleta. */
+    .ame-col-header__desc .ame-section { background: var(--color-surface-container) !important; }
+    .ame-col-header__desc .ame-section p:not(.ame-label):not(.ame-h2) { color: var(--color-on-surface-variant) !important; }
+    .ame-col-header__desc .ame-label { color: var(--color-on-surface-muted) !important; }
+    .ame-col-header__desc .ame-h2 { color: var(--color-on-background) !important; }
+    .ame-col-header__desc .ame-divider { background: var(--color-outline) !important; }
+  {%- endif -%}
 {% endstyle %}

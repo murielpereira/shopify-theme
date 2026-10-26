@@ -533,7 +533,7 @@
         "type": "color",
         "id": "escuro_color_surface_low",
         "label": "Fundo suave",
-        "default": "#131313",
+        "default": "#181818",
         "info": "Fundo de avisos da busca por cor e do botão \"voltar\" do assistente de kits. Fica entre o fundo da página e o fundo de cartões."
       },
       {
@@ -547,8 +547,8 @@
         "type": "color",
         "id": "escuro_color_surface_lowest",
         "label": "Branco dos campos e janelas",
-        "default": "#101010",
-        "info": "Fundo de campos de formulário, janelas (modais), calculadoras de frete e seletores. A gaveta do carrinho tem cor própria, em \"Claro · Carrinho\"."
+        "default": "#1c1c1c",
+        "info": "Fundo de campos, janelas e dos botões de opção (tamanho, cor). No escuro precisa ser mais claro que o fundo da página, senão os botões somem."
       },
       {
         "type": "color",
@@ -582,7 +582,7 @@
         "type": "color",
         "id": "escuro_color_outline_variant",
         "label": "Borda sutil",
-        "default": "#3a3633",
+        "default": "#4d4742",
         "info": "Linhas e bordas de campos, divisores da gaveta, cartões e menus (inclusive as versões translúcidas)."
       },
       {
