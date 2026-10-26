@@ -37,7 +37,10 @@
         título da seção; por último um texto de marca. Garante que o <img>
         nunca fique sem alt (auditoria de acessibilidade do PSI).
       {%- endcomment -%}
-      {%- assign story_alt = section.settings.image.alt | default: section.settings.title | default: 'Âme Acessórios Pet' -%}
+      {%- assign story_alt = section.settings.image.alt
+        | default: section.settings.title
+        | default: 'Âme Acessórios Pet'
+      -%}
       {%- capture image_col_html -%}
         <div class="ame-story__image-wrap">
           {%- if section.settings.image != blank -%}
@@ -81,8 +84,10 @@
           </div>
         {%- endif -%}
 
-        <!-- Imagem SÓ pro mobile — dentro do collapse pra ser parte da
-             animação de expansão. Escondida via CSS em >=768px. -->
+        <!--
+          Imagem SÓ pro mobile — dentro do collapse pra ser parte da
+          animação de expansão. Escondida via CSS em >=768px.
+        -->
         <div class="ame-story__image-col ame-story__image-col--mobile ame-reveal">
           {{ image_col_html }}
         </div>
@@ -100,8 +105,10 @@
       </button>
     </div>
 
-    <!-- Imagem SÓ pro desktop — irmã de .ame-story__text no grid 2-col.
-         Escondida via CSS em <768px (mobile usa a versão dentro do collapse). -->
+    <!--
+      Imagem SÓ pro desktop — irmã de .ame-story__text no grid 2-col.
+      Escondida via CSS em <768px (mobile usa a versão dentro do collapse).
+    -->
     <div class="ame-story__image-col ame-story__image-col--desktop ame-reveal">
       {{ image_col_html }}
     </div>
@@ -174,7 +181,7 @@
     font-size: 0.625rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+    color: var(--color-on-surface-muted) 50%, transparent;
     margin-top: 0.25rem;
   }
 
@@ -294,7 +301,9 @@
      visível só no seu breakpoint. Mais simples que `display: contents`
      (que tem quirks) e não depende de subgrid. Custo: um <img> a mais
      no DOM, mas o browser evita baixar 2x com o mesmo src+widths. */
-  .ame-story__image-col--desktop { display: none; }
+  .ame-story__image-col--desktop {
+    display: none;
+  }
   @media (min-width: 768px) {
     /* Desktop: sem colapso. Wrapper sempre visível, botão sumido. */
     .ame-story__collapse {
@@ -304,8 +313,12 @@
     .ame-story__toggle {
       display: none;
     }
-    .ame-story__image-col--mobile { display: none; }
-    .ame-story__image-col--desktop { display: block; }
+    .ame-story__image-col--mobile {
+      display: none;
+    }
+    .ame-story__image-col--desktop {
+      display: block;
+    }
   }
 {% endstylesheet %}
 
