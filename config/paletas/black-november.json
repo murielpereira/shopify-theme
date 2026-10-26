@@ -1,0 +1,7 @@
+{
+  "nome": "Black November (tema escuro)",
+  "descricao": "Tema escuro: preto + verde-limão da campanha. Os valores escuros moram como PADRÃO dos grupos \"Escuro · …\" do schema; esta paleta só liga o modo. Conferir: node scripts/contraste.js config/paletas/black-november.json",
+  "cores": {
+    "modo_cores": "escuro"
+  }
+}

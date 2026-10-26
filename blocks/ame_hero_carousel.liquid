@@ -220,7 +220,7 @@
                 <a
                   href="{{ cta_url | default: '#' }}"
                   class="ame-hero-c__cta"
-                  style="background: {{ block.settings.button_bg_color }}; color: {{ block.settings.button_text_color }}; border-radius: {{ block.settings.button_border_radius }}px;"
+                  style="background: {{ block.settings.button_bg_color | default: 'var(--color-surface-container-lowest)' }}; color: {{ block.settings.button_text_color | default: 'var(--color-primary)' }}; border-radius: {{ block.settings.button_border_radius }}px;"
                 >
                   {{ cta_label }}
                 </a>
@@ -468,7 +468,7 @@
     transition: background 0.2s ease, transform 0.2s ease;
   }
   .ame-hero-c__nav:hover {
-    background: var(--color-surface-container-lowest);
+    background: #ffffff;
     transform: translateY(-50%) scale(1.06);
   }
   .ame-hero-c__nav:focus-visible,
@@ -519,7 +519,7 @@
     transition: background 0.2s ease, width 0.2s ease;
   }
   .ame-hero-c__dot.is-active::before {
-    background: var(--color-surface-container-lowest);
+    background: #fff;
     width: 24px;
     border-radius: 4px;
   }
@@ -766,13 +766,13 @@
       "type": "color",
       "id": "button_bg_color",
       "label": "Cor de fundo",
-      "default": "#ffffff"
+      "info": "Em branco, acompanha o Branco dos campos e janelas do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "button_text_color",
       "label": "Cor do texto",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",

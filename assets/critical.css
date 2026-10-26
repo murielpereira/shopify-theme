@@ -514,7 +514,7 @@ body::after {
    neutros do tema. Reusada na PDP (.pdp__meta) e no card (.ame-card__badge). */
 .ame-chip--lancamento {
   background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 50%, var(--color-gold) 100%);
-  color: #fff;
+  color: var(--color-on-gold, #3a2a0c);
   border-color: transparent;
 }
 
@@ -522,7 +522,7 @@ body::after {
    (produção sob demanda), diferenciando dos chips marrons do tema. */
 .ame-chip--sob-medida {
   background: var(--color-accent-green);
-  color: #fff;
+  color: var(--color-on-accent, #fff);
   border-color: transparent;
 }
 
@@ -530,7 +530,7 @@ body::after {
    permite acrescentar um pingente customizado no momento da compra. */
 .ame-chip--pingente-opcional {
   background: var(--color-accent-blue);
-  color: #fff;
+  color: var(--color-on-accent, #fff);
   border-color: transparent;
 }
 
@@ -690,20 +690,20 @@ body::after {
    Comunica visualmente que é informação técnica do produto, não promoção. */
 .ame-card__badge-pill--sob-medida {
   background: var(--color-accent-green);
-  color: #ffffff;
+  color: var(--color-on-accent, #fff);
 }
 
 /* "Pingente Opcional": azul acinzentado — mesmo racional do sob-medida
    (informação técnica). Tom distinto pra não competir visualmente. */
 .ame-card__badge-pill--pingente-opcional {
   background: var(--color-accent-blue);
-  color: #ffffff;
+  color: var(--color-on-accent, #fff);
 }
 
 /* Lançamento: gradiente dourado com glow pulsante pra atrair atenção. */
 .ame-card__badge-pill--lancamento {
   background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-light) 50%, var(--color-gold) 100%);
-  color: #fff;
+  color: var(--color-on-gold, #3a2a0c);
   box-shadow: 0 4px 14px color-mix(in srgb, var(--color-gold) 35%, transparent);
   animation: ame-badge-pulse 2.4s ease-in-out infinite;
 }
@@ -794,7 +794,7 @@ body::after {
   bottom: 0.75rem;
   right: 0.75rem;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.65);
+  background: color-mix(in srgb, var(--color-surface-container-lowest) 65%, transparent);
   backdrop-filter: blur(8px);
   border: none;
   cursor: pointer;
@@ -1856,7 +1856,7 @@ body::after {
 .ame-gift-selector__variant.is-active {
   background: var(--color-accent-green);
   border-color: var(--color-accent-green);
-  color: #fff;
+  color: var(--color-on-accent, #fff);
 }
 
 .ame-gift-selector__add {
@@ -1869,7 +1869,7 @@ body::after {
   border-radius: var(--radius-md, 6px);
   border: none;
   background: var(--color-accent-green);
-  color: #fff;
+  color: var(--color-on-accent, #fff);
   cursor: pointer;
   transition: background 0.15s ease, opacity 0.15s ease;
 }
@@ -2083,7 +2083,7 @@ body::after {
   object-fit: cover;
   border-radius: var(--radius-md, 0.25rem);
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: color-mix(in srgb, var(--color-surface-container-lowest) 50%, transparent);
 }
 
 .ame-cart-crosssell__info {
@@ -2491,13 +2491,13 @@ body::after {
   width: 0.25rem;
   height: 0.25rem;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: color-mix(in srgb, var(--color-announce-text, #fff) 30%, transparent);
   transition: background 0.3s ease, transform 0.3s ease;
   cursor: default;
 }
 
 .ame-announce__dot--active {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--color-announce-text, #fff) 90%, transparent);
   transform: scale(1.4);
 }
 
@@ -3458,7 +3458,7 @@ shopify-account {
    abaixo dos 4,5:1 do WCAG AA — PSI 22/10/2026). #6b6b6b dá ~5:1. */
 #konfidency-reviews-container .details .reviews .review .review-details .date,
 #konfidency-questions-container .details .questions .question .question-details .date {
-  color: #6b6b6b !important;
+  color: var(--color-on-surface-muted, #6b6b6b) !important;
 }
 
 #konfidency-questions-container .details .questions .question {

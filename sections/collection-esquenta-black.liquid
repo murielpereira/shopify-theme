@@ -21,10 +21,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
 
 {%- liquid
-  # Paleta da campanha. Ligada a chave "Usar as cores do tema geral" (Configurações
+  # Paleta da campanha. Ligada a chave "Usar as cores do tema geral" (ou com o Modo de cores em Escuro) (Configurações
   # do tema → Tema · Esquenta Black), a página herda a paleta da loja; desligada,
   # usa as cores próprias dessa mesma tela (padrão: preto + verde-limão).
-  if settings.eb_usar_tema_geral
+  if settings.eb_usar_tema_geral or settings.modo_cores == 'escuro'
     assign eb_bg = 'var(--color-background)'
     assign eb_fg = 'var(--color-on-background)'
     assign eb_secondary = 'var(--color-surface-container)'
@@ -95,11 +95,11 @@
   .eb-bar__period { opacity: .7; }
   .eb-count { border-bottom: 1px solid var(--eb-border); background: var(--eb-bg); }
   .eb-count__in { display: flex; align-items: center; justify-content: center; gap: .75rem; padding: .5rem 1rem; }
-  .eb-count__label { font-size: 9px; text-transform: uppercase; letter-spacing: .28em; color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-count__label { font-size: 9px; text-transform: uppercase; letter-spacing: .28em; color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   .eb-count__units { display: flex; align-items: baseline; gap: .625rem; font-variant-numeric: tabular-nums; }
   .eb-count__unit { display: flex; align-items: baseline; gap: .25rem; }
   .eb-count__unit b { font-size: 15px; font-weight: 600; line-height: 1; color: var(--eb-lime); }
-  .eb-count__unit small { font-size: 9px; text-transform: uppercase; letter-spacing: .14em; color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-count__unit small { font-size: 9px; text-transform: uppercase; letter-spacing: .14em; color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   .eb-count__end { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: var(--eb-lime); }
 
   /* Hero */
@@ -167,7 +167,7 @@
   @media (min-width: 640px) { .eb-kit__now { font-size: 18px; } }
   .eb-kit__de { font-size: 11px; color: color-mix(in srgb, var(--eb-fg) 35%, transparent); text-decoration: line-through; }
   @media (min-width: 640px) { .eb-kit__de { font-size: .875rem; } }
-  .eb-kit__save { margin-top: .25rem; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-kit__save { margin-top: .25rem; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   @media (min-width: 640px) { .eb-kit__save { margin-top: .375rem; font-size: 11px; letter-spacing: .14em; } }
   .eb-kit__cash { margin-top: .375rem; display: inline-flex; align-items: center; border-radius: 999px; background: color-mix(in srgb, var(--eb-lime) 12%, transparent); padding: .25rem .625rem; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--eb-lime); }
   @media (min-width: 640px) { .eb-kit__cash { font-size: 10px; letter-spacing: .14em; } }
@@ -177,7 +177,7 @@
   @media (min-width: 640px) { .eb-kit__cta { margin-top: 1rem; padding: .75rem 1.25rem; font-size: 10px; letter-spacing: .18em; } .eb-kit__cta .eb-i { width: 1rem; height: 1rem; } }
   @media (min-width: 1024px) { .eb-kit__cta { display: none; } }
   .eb-kit--out .eb-kit__img img { opacity: .55; }
-  .eb-kit--out .eb-kit__cta { border-color: var(--eb-border); color: color-mix(in srgb, var(--eb-fg) 45%, transparent); pointer-events: none; }
+  .eb-kit--out .eb-kit__cta { border-color: var(--eb-border); color: color-mix(in srgb, var(--eb-fg) 55%, transparent); pointer-events: none; }
   .eb-more { margin-top: 2.5rem; display: flex; justify-content: center; gap: .75rem; }
   .eb-more a { border-radius: 999px; border: 1px solid color-mix(in srgb, var(--eb-lime) 60%, transparent); padding: .625rem 1.25rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .18em; color: var(--eb-lime); }
   .eb-more a:hover { background: var(--eb-lime); color: var(--eb-on-lime); }
@@ -206,7 +206,7 @@
   .eb-rv__score { display: flex; align-items: center; gap: .375rem; font-size: 11px; }
   .eb-rv__score .eb-i { width: .875rem; height: .875rem; fill: var(--eb-lime); stroke: none; }
   .eb-rv__score b { font-weight: 600; letter-spacing: .04em; }
-  .eb-rv__score span { color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-rv__score span { color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   .eb-rv__name { margin-top: .375rem; font-family: var(--eb-display); font-size: 19px; font-weight: 400; line-height: 1.25; }
   .eb-rv__pet { margin-top: .25rem; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .22em; color: var(--eb-lime); }
   .eb-rv__thumbs { display: flex; flex: none; gap: .375rem; }
@@ -215,7 +215,7 @@
   .eb-rv__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .eb-rv__text { margin-top: .75rem; flex: 1; font-size: 13px; line-height: 1.625; color: color-mix(in srgb, var(--eb-fg) 60%, transparent); }
   .eb-rv__foot { margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--eb-border); padding-top: .75rem; }
-  .eb-rv__rec { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-rv__rec { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   .eb-rv__link { display: inline-flex; align-items: center; gap: .25rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--eb-lime); transition: opacity .2s; }
   .eb-rv__link:hover { opacity: .7; }
   .eb-rv__link .eb-i { width: .875rem; height: .875rem; }
@@ -225,7 +225,7 @@
   .eb-short__img { width: 3rem; height: 3rem; flex: none; overflow: hidden; border-radius: 50%; border: 1px solid var(--eb-border); }
   .eb-short__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .eb-short blockquote { font-size: 13px; line-height: 1.625; color: color-mix(in srgb, var(--eb-fg) 80%, transparent); }
-  .eb-short figcaption { margin-top: .375rem; display: flex; align-items: center; gap: .375rem; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; color: color-mix(in srgb, var(--eb-fg) 45%, transparent); }
+  .eb-short figcaption { margin-top: .375rem; display: flex; align-items: center; gap: .375rem; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; color: color-mix(in srgb, var(--eb-fg) 55%, transparent); }
   .eb-short figcaption .eb-i { width: .875rem; height: .875rem; color: var(--eb-lime); stroke-width: 1.6; }
 
   /* Chamada */

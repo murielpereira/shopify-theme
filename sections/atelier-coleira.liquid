@@ -172,18 +172,31 @@
   deriva do tema geral. As próprias do Ateliê sempre entram, com o valor atual
   como padrão. Variável inline no próprio .atl vence a do arquivo CSS.
 {%- endcomment -%}
+{%- comment -%}
+  Modo Escuro: ignora os overrides do modo claro (papel, couro, tinta, areia) —
+  o Ateliê herda a paleta escura do tema — e usa as cores próprias escuras.
+{%- endcomment -%}
+{%- assign atl_escuro = false -%}
+{%- if settings.modo_cores == 'escuro' -%}{%- assign atl_escuro = true -%}{%- endif -%}
 {%- capture atl_vars -%}
-  {%- if settings.atl_papel != blank -%}--atl-papel:{{ settings.atl_papel }};{%- endif -%}
-  {%- if settings.atl_couro != blank -%}--atl-couro:{{ settings.atl_couro }};{%- endif -%}
-  {%- if settings.atl_couro_2 != blank -%}--atl-couro-2:{{ settings.atl_couro_2 }};{%- endif -%}
-  {%- if settings.atl_tinta != blank -%}--atl-tinta:{{ settings.atl_tinta }};{%- endif -%}
-  {%- if settings.atl_tinta_2 != blank -%}--atl-tinta-2:{{ settings.atl_tinta_2 }};{%- endif -%}
-  {%- if settings.atl_areia != blank -%}--atl-areia:{{ settings.atl_areia }};{%- endif -%}
-  {%- if settings.atl_areia_2 != blank -%}--atl-areia-2:{{ settings.atl_areia_2 }};{%- endif -%}
-  --atl-estudio:{{ settings.atl_estudio | default: '#efe8e1' }};
+  {%- unless atl_escuro -%}
+    {%- if settings.atl_papel != blank -%}--atl-papel:{{ settings.atl_papel }};{%- endif -%}
+    {%- if settings.atl_couro != blank -%}--atl-couro:{{ settings.atl_couro }};{%- endif -%}
+    {%- if settings.atl_couro_2 != blank -%}--atl-couro-2:{{ settings.atl_couro_2 }};{%- endif -%}
+    {%- if settings.atl_tinta != blank -%}--atl-tinta:{{ settings.atl_tinta }};{%- endif -%}
+    {%- if settings.atl_tinta_2 != blank -%}--atl-tinta-2:{{ settings.atl_tinta_2 }};{%- endif -%}
+    {%- if settings.atl_areia != blank -%}--atl-areia:{{ settings.atl_areia }};{%- endif -%}
+    {%- if settings.atl_areia_2 != blank -%}--atl-areia-2:{{ settings.atl_areia_2 }};{%- endif -%}
+  {%- endunless -%}
+  {%- if atl_escuro -%}
+    --atl-estudio:{{ settings.escuro_atl_estudio }};
+    --atl-latao-3:{{ settings.escuro_atl_latao_3 }};
+  {%- else -%}
+    --atl-estudio:{{ settings.atl_estudio | default: '#efe8e1' }};
+    --atl-latao-3:{{ settings.atl_latao_3 | default: '#8a6322' }};
+  {%- endif -%}
   --atl-latao-1:{{ settings.atl_latao_1 | default: '#ecd593' }};
   --atl-latao-2:{{ settings.atl_latao_2 | default: '#c29a52' }};
-  --atl-latao-3:{{ settings.atl_latao_3 | default: '#8a6322' }};
   --atl-espresso:{{ settings.atl_espresso | default: '#231b16' }};
   --atl-terracota:{{ settings.atl_terracota | default: '#b5473a' }};
 {%- endcapture -%}

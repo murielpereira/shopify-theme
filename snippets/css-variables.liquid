@@ -91,6 +91,13 @@
     assign r_lg   = r_base | times: 2
     assign r_xl   = r_base | times: 4
     assign r_full = r_base | times: 6
+
+    # Modo de cores (Configurações do tema → Modo de cores): Escuro usa os grupos
+    # "Escuro · …"; Claro, os "Claro · …".
+    assign escuro = false
+    if settings.modo_cores == 'escuro'
+      assign escuro = true
+    endif
   -%}
 
   :root {
@@ -114,33 +121,31 @@
     --section-gap:  clamp(3rem, 6vw, 120px);
 
     /* ── Cor Principal ── */
-    --color-primary:            {{ settings.color_primary }};
-    --color-primary-container:  {{ settings.color_primary_container }};
-    --color-on-primary:         {{ settings.color_on_primary }};
+    --color-primary:            {% if escuro %}{{ settings.escuro_color_primary }}{% else %}{{ settings.color_primary }}{% endif %};
+    --color-primary-container:  {% if escuro %}{{ settings.escuro_color_primary_container }}{% else %}{{ settings.color_primary_container }}{% endif %};
+    --color-on-primary:         {% if escuro %}{{ settings.escuro_color_on_primary }}{% else %}{{ settings.color_on_primary }}{% endif %};
     --color-primary-fixed:      #f9dcd6;
     --color-primary-fixed-dim:  #dcc1ba;
 
-    /* ── Cor Secundária ── */
-    --color-secondary:           {{ settings.color_secondary }};
-    --color-secondary-container: {{ settings.color_secondary_container }};
 
     /* ── Fundo e Superfícies ── */
-    --color-background:                 {{ settings.color_background }};
-    --color-surface:                    {{ settings.color_background }};
-    --color-surface-container-lowest:   {{ settings.color_surface_lowest | default: '#ffffff' }};
-    --color-surface-container-low:      #fef2e5;
-    --color-surface-container:          {{ settings.color_surface_container }};
-    --color-surface-container-high:     {{ settings.color_surface_container_high }};
-    --color-surface-container-highest:  {{ settings.color_surface_highest | default: '#ece1d5' }};
-    --color-surface-variant:            #ece1d5;
-    --color-surface-dim:                #e3d8cc;
-    --color-surface-light:              #f8ece085;
+    --color-background:                 {% if escuro %}{{ settings.escuro_color_background }}{% else %}{{ settings.color_background }}{% endif %};
+    --color-surface:                    {% if escuro %}{{ settings.escuro_color_background }}{% else %}{{ settings.color_background }}{% endif %};
+    --color-surface-container-lowest:   {% if escuro %}{{ settings.escuro_color_surface_lowest | default: '#ffffff' }}{% else %}{{ settings.color_surface_lowest | default: '#ffffff' }}{% endif %};
+    --color-surface-container-low:      {% if escuro %}{{ settings.escuro_color_surface_low | default: '#fef2e5' }}{% else %}{{ settings.color_surface_low | default: '#fef2e5' }}{% endif %};
+    --color-surface-container:          {% if escuro %}{{ settings.escuro_color_surface_container }}{% else %}{{ settings.color_surface_container }}{% endif %};
+    --color-surface-container-high:     {% if escuro %}{{ settings.escuro_color_surface_container_high }}{% else %}{{ settings.color_surface_container_high }}{% endif %};
+    --color-surface-container-highest:  {% if escuro %}{{ settings.escuro_color_surface_highest | default: '#ece1d5' }}{% else %}{{ settings.color_surface_highest | default: '#ece1d5' }}{% endif %};
+    /* derivados dos tokens configuráveis (valores de hoje: #ece1d5, #e3d8cc, #f8ece085) */
+    --color-surface-variant:            var(--color-surface-container-highest);
+    --color-surface-dim:                color-mix(in srgb, var(--color-surface-container-highest) 96%, #000);
+    --color-surface-light:              color-mix(in srgb, var(--color-surface-container) 52%, transparent);
     --color-tertiary-fixed:             #e7e2de;
 
     /* ── Texto ── */
-    --color-on-background:      {{ settings.color_on_background }};
-    --color-on-surface:         {{ settings.color_on_background }};
-    --color-on-surface-variant: {{ settings.color_on_surface_variant }};
+    --color-on-background:      {% if escuro %}{{ settings.escuro_color_on_background }}{% else %}{{ settings.color_on_background }}{% endif %};
+    --color-on-surface:         {% if escuro %}{{ settings.escuro_color_on_background }}{% else %}{{ settings.color_on_background }}{% endif %};
+    --color-on-surface-variant: {% if escuro %}{{ settings.escuro_color_on_surface_variant }}{% else %}{{ settings.color_on_surface_variant }}{% endif %};
     {%- comment -%}
       Terceiro nível de texto (abaixo de --color-on-surface-variant). Existe
       porque metade dos blocos de preço usava rgba(90,71,66, .45~.6) direto no
@@ -150,51 +155,57 @@
       sobre #f7f5f2 (mínimo AA = 4,5:1) e continua claramente secundário ao
       #201b14. Use este token em vez de rgba() com alpha baixo.
     {%- endcomment -%}
-    --color-on-surface-muted:   {{ settings.color_on_surface_muted | default: '#6f645d' }};
-    --color-outline:            {{ settings.color_outline | default: '#817471' }};
-    --color-outline-variant:    {{ settings.color_outline_variant }};
+    --color-on-surface-muted:   {% if escuro %}{{ settings.escuro_color_on_surface_muted | default: '#6c6159' }}{% else %}{{ settings.color_on_surface_muted | default: '#6c6159' }}{% endif %};
+    --color-outline:            {% if escuro %}{{ settings.escuro_color_outline | default: '#7a6f6b' }}{% else %}{{ settings.color_outline | default: '#7a6f6b' }}{% endif %};
+    --color-outline-variant:    {% if escuro %}{{ settings.escuro_color_outline_variant }}{% else %}{{ settings.color_outline_variant }}{% endif %};
 
     /* ── Barra de anúncios ── */
-    --color-announce-bg:   {{ settings.color_announce_bg }};
-    --color-announce-text: {{ settings.color_announce_text }};
+    --color-announce-bg:   {% if escuro %}{{ settings.escuro_color_announce_bg }}{% else %}{{ settings.color_announce_bg }}{% endif %};
+    --color-announce-text: {% if escuro %}{{ settings.escuro_color_announce_text }}{% else %}{{ settings.color_announce_text }}{% endif %};
 
     /* ── Cabeçalho e menu ──
        Ícones/links em branco nas configurações seguem a paleta (Cor Principal
        e Texto secundário). O fundo é só a cor-base: o CSS aplica a
        transparência com color-mix. */
-    --color-header-bg:         {{ settings.color_header_bg | default: '#fff8f3' }};
-    --color-header-icons:      {{ settings.color_header_icons | default: settings.color_primary }};
-    --color-header-link:       {{ settings.color_header_link | default: settings.color_on_surface_variant }};
-    --color-header-link-hover: {{ settings.color_header_link_hover | default: settings.color_primary }};
+    --color-header-bg:         {% if escuro %}{{ settings.escuro_color_header_bg | default: '#fff8f3' }}{% else %}{{ settings.color_header_bg | default: '#fff8f3' }}{% endif %};
+    --color-header-icons:      {% if escuro %}{{ settings.escuro_color_header_icons | default: settings.escuro_color_primary }}{% else %}{{ settings.color_header_icons | default: settings.color_primary }}{% endif %};
+    --color-header-link:       {% if escuro %}{{ settings.escuro_color_header_link | default: settings.escuro_color_on_surface_variant }}{% else %}{{ settings.color_header_link | default: settings.color_on_surface_variant }}{% endif %};
+    --color-header-link-hover: {% if escuro %}{{ settings.escuro_color_header_link_hover | default: settings.escuro_color_primary }}{% else %}{{ settings.color_header_link_hover | default: settings.color_primary }}{% endif %};
+
+    /* ── Rodapé ── em branco nas configurações = Cor Principal / Texto sobre ela */
+    --color-footer-bg:   {% if escuro %}{{ settings.escuro_color_footer_bg | default: settings.escuro_color_primary }}{% else %}{{ settings.color_footer_bg | default: settings.color_primary }}{% endif %};
+    --color-footer-text: {% if escuro %}{{ settings.escuro_color_footer_text | default: settings.escuro_color_on_primary }}{% else %}{{ settings.color_footer_text | default: settings.color_on_primary }}{% endif %};
 
     /* ── Carrinho (gaveta) ── */
-    --color-cart-bg: {{ settings.color_cart_bg | default: '#ffffff' }};
+    --color-cart-bg: {% if escuro %}{{ settings.escuro_color_cart_bg | default: '#ffffff' }}{% else %}{{ settings.color_cart_bg | default: '#ffffff' }}{% endif %};
 
     /* ── Sombras e escurecimentos ──
        Base das sombras de cartões/menus e do véu escuro sobre banners, vídeos e
        atrás da gaveta. Separada do Texto principal de propósito: num tema escuro
        o texto é claro, e sombra clara vira brilho. */
-    --color-shade: {{ settings.color_shade | default: '#201b14' }};
+    --color-shade: {% if escuro %}{{ settings.escuro_color_shade | default: '#201b14' }}{% else %}{{ settings.color_shade | default: '#201b14' }}{% endif %};
 
     /* ── Selos, mensagens e avisos ──
        Cada um nasceu de uma cor escrita à mão em vários arquivos; os valores
        padrão são os que já estavam lá. */
-    --color-accent-green: {{ settings.color_accent_green | default: '#5a7461' }};
-    --color-accent-blue:  {{ settings.color_accent_blue | default: '#5a6b74' }};
-    --color-gold:         {{ settings.color_gold | default: '#c89b5e' }};
-    --color-gold-light:   {{ settings.color_gold_light | default: '#e9c89a' }};
+    --color-on-accent:    {% if escuro %}{{ settings.escuro_color_on_accent | default: '#ffffff' }}{% else %}{{ settings.color_on_accent | default: '#ffffff' }}{% endif %};
+    --color-on-gold:      {% if escuro %}{{ settings.escuro_color_on_gold | default: '#3a2a0c' }}{% else %}{{ settings.color_on_gold | default: '#3a2a0c' }}{% endif %};
+    --color-accent-green: {% if escuro %}{{ settings.escuro_color_accent_green | default: '#5a7461' }}{% else %}{{ settings.color_accent_green | default: '#5a7461' }}{% endif %};
+    --color-accent-blue:  {% if escuro %}{{ settings.escuro_color_accent_blue | default: '#5a6b74' }}{% else %}{{ settings.color_accent_blue | default: '#5a6b74' }}{% endif %};
+    --color-gold:         {% if escuro %}{{ settings.escuro_color_gold | default: '#c89b5e' }}{% else %}{{ settings.color_gold | default: '#c89b5e' }}{% endif %};
+    --color-gold-light:   {% if escuro %}{{ settings.escuro_color_gold_light | default: '#e9c89a' }}{% else %}{{ settings.color_gold_light | default: '#e9c89a' }}{% endif %};
     --color-star:         {{ settings.color_star | default: '#f5a623' }};
-    --color-error:        {{ settings.color_error | default: '#c0392b' }};
-    --color-success:      {{ settings.color_success | default: '#15803d' }};
-    --color-success-bg:   {{ settings.color_success_bg | default: '#d4f0db' }};
-    --color-info:         {{ settings.color_info | default: '#1d4ed8' }};
-    --color-info-bg:      {{ settings.color_info_bg | default: '#dbeafe' }};
-    --color-notice:       {{ settings.color_notice | default: '#d4a76a' }};
-    --color-notice-text:  {{ settings.color_notice_text | default: '#8a6630' }};
+    --color-error:        {% if escuro %}{{ settings.escuro_color_error | default: '#c0392b' }}{% else %}{{ settings.color_error | default: '#c0392b' }}{% endif %};
+    --color-success:      {% if escuro %}{{ settings.escuro_color_success | default: '#166534' }}{% else %}{{ settings.color_success | default: '#166534' }}{% endif %};
+    --color-success-bg:   {% if escuro %}{{ settings.escuro_color_success_bg | default: '#d4f0db' }}{% else %}{{ settings.color_success_bg | default: '#d4f0db' }}{% endif %};
+    --color-info:         {% if escuro %}{{ settings.escuro_color_info | default: '#1d4ed8' }}{% else %}{{ settings.color_info | default: '#1d4ed8' }}{% endif %};
+    --color-info-bg:      {% if escuro %}{{ settings.escuro_color_info_bg | default: '#dbeafe' }}{% else %}{{ settings.color_info_bg | default: '#dbeafe' }}{% endif %};
+    --color-notice:       {% if escuro %}{{ settings.escuro_color_notice | default: '#d4a76a' }}{% else %}{{ settings.color_notice | default: '#d4a76a' }}{% endif %};
+    --color-notice-text:  {% if escuro %}{{ settings.escuro_color_notice_text | default: '#8a6630' }}{% else %}{{ settings.color_notice_text | default: '#8a6630' }}{% endif %};
 
     /* ── Botão primário ── */
-    --color-btn-primary-bg:   {{ settings.color_btn_primary_bg }};
-    --color-btn-primary-text: {{ settings.color_btn_primary_text }};
+    --color-btn-primary-bg:   {% if escuro %}{{ settings.escuro_color_btn_primary_bg }}{% else %}{{ settings.color_btn_primary_bg }}{% endif %};
+    --color-btn-primary-text: {% if escuro %}{{ settings.escuro_color_btn_primary_text }}{% else %}{{ settings.color_btn_primary_text }}{% endif %};
 
     /* ── Border radius (gerados a partir de border_radius_base) ── */
     --radius-sm:   {{ r_sm }}px;
@@ -257,9 +268,9 @@
       (.ame-cta / .pdp__add-btn). Configurável em Configurações do Tema →
       Cores → "Botão de compra (CTA principal)".
     {%- endcomment -%}
-    --pdp-btn-bg: {{ settings.pdp_btn_bg_color | default: '#5a4742' }};
-    --pdp-btn-text: {{ settings.pdp_btn_fg_color | default: '#ffffff' }};
-    --pdp-btn-fg: {{ settings.pdp_btn_fg_color | default: '#ffffff' }};
+    --pdp-btn-bg: {% if escuro %}{{ settings.escuro_pdp_btn_bg_color | default: '#5a4742' }}{% else %}{{ settings.pdp_btn_bg_color | default: '#5a4742' }}{% endif %};
+    --pdp-btn-text: {% if escuro %}{{ settings.escuro_pdp_btn_fg_color | default: '#ffffff' }}{% else %}{{ settings.pdp_btn_fg_color | default: '#ffffff' }}{% endif %};
+    --pdp-btn-fg: {% if escuro %}{{ settings.escuro_pdp_btn_fg_color | default: '#ffffff' }}{% else %}{{ settings.pdp_btn_fg_color | default: '#ffffff' }}{% endif %};
   }
 
   /* Mobile override: 12px de margem lateral é o suficiente. O clamp(2rem, 10vw, 160px)

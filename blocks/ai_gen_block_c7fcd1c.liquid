@@ -15,7 +15,7 @@
   .ai-category-grid__title-{{ ai_gen_id }} {
     text-align: {{ block.settings.title_alignment }};
     font-size: {{ block.settings.title_size }}px;
-    color: {{ block.settings.title_color }};
+    color: {{ block.settings.title_color | default: 'var(--color-primary-container)' }};
     margin: 0 0 {{ block.settings.title_spacing }}px;
   }
 
@@ -29,7 +29,7 @@
     position: relative;
     overflow: hidden;
     border-radius: {{ block.settings.card_border_radius }}px;
-    background-color: {{ block.settings.card_bg_color }};
+    background-color: {{ block.settings.card_bg_color | default: 'var(--color-surface-container-lowest)' }};
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
@@ -49,7 +49,7 @@
     width: 100%;
     padding-bottom: 100%;
     overflow: hidden;
-    background-color: {{ block.settings.image_bg_color }};
+    background-color: {{ block.settings.image_bg_color | default: 'var(--color-surface-container)' }};
   }
 
   .ai-category-grid__image-{{ ai_gen_id }} {
@@ -86,7 +86,7 @@
   .ai-category-grid__name-{{ ai_gen_id }} {
     font-size: {{ block.settings.category_name_size }}px;
     font-weight: 600;
-    color: {{ block.settings.category_name_color }};
+    color: {{ block.settings.category_name_color | default: 'var(--color-primary-container)' }};
     margin: 0;
   }
 
@@ -503,7 +503,7 @@
       "type": "color",
       "id": "title_color",
       "label": "Cor",
-      "default": "#201b14"
+      "info": "Em branco, acompanha a variação da Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -543,13 +543,13 @@
       "type": "color",
       "id": "card_bg_color",
       "label": "Cor de fundo",
-      "default": "#ffffff"
+      "info": "Em branco, acompanha o Branco dos campos e janelas do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "image_bg_color",
       "label": "Cor de fundo da imagem",
-      "default": "#f8ece0"
+      "info": "Em branco, acompanha o Fundo de cartões e caixas do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "header",
@@ -569,7 +569,7 @@
       "type": "color",
       "id": "category_name_color",
       "label": "Cor",
-      "default": "#201b14"
+      "info": "Em branco, acompanha a variação da Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     }
   ],
   "presets": [

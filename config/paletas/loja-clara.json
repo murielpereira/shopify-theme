@@ -1,0 +1,22 @@
+{
+  "nome": "Loja clara (original, 26/10/2026 13:44)",
+  "descricao": "Paleta da loja antes dos testes do tema escuro. Chaves que não aparecem usam o padrão do schema (= o valor que já estava escrito no tema).",
+  "cores": {
+    "modo_cores": "claro",
+    "color_primary": "#5a4742",
+    "color_primary_container": "#735e59",
+    "color_on_primary": "#ffffff",
+    "pdp_btn_bg_color": "#727a52",
+    "pdp_btn_fg_color": "#ffffff",
+    "color_background": "#f7f5f2",
+    "color_surface_container": "#f8ece0",
+    "color_surface_container_high": "#f2e6da",
+    "color_on_background": "#201b14",
+    "color_on_surface_variant": "#4f4442",
+    "color_announce_bg": "#000000",
+    "color_announce_text": "#ffffff",
+    "color_btn_primary_bg": "#000000",
+    "color_btn_primary_text": "#ffffff",
+    "color_outline_variant": "#d2c3c0"
+  }
+}

@@ -257,7 +257,7 @@
       width: 100%;
       padding: 0.875rem 1.25rem;
       background: var(--color-primary, #5a4742);
-      color: #fff;
+      color: var(--color-on-primary, #fff);
       border: none;
       border-radius: var(--radius-md, 4px);
       font-size: 0.6875rem;
@@ -343,7 +343,7 @@
       flex: 1;
       cursor: pointer;
       position: relative;
-      background: #f7ece1;
+      background: var(--color-surface-container);
       font-weight: bold;
     }
     .ame-pingente__opt input {
@@ -590,7 +590,7 @@
       padding: 0.625rem 0.875rem;
       border: 2px solid var(--color-outline-variant, #d2c3c0);
       border-radius: var(--radius-md, 4px);
-      background: rgba(255, 255, 255, 0.6);
+      background: color-mix(in srgb, var(--color-surface-container-lowest) 60%, transparent);
       font-size: 1rem;
       color: var(--color-on-background, #201b14);
       outline: none;

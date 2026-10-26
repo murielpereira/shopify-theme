@@ -58,6 +58,11 @@ The `<slug-cor>` is the *last* word of the collar's `Cor` option (split on `" co
 ### Custom fields on collars
 The source of truth is the **Waltz** (Aplicativos → Campos personalizados): it publishes the active fields to the shop metafield `waltz.campos_personalizados` (JSON array: `tag, name, title, placeholder, helper, limiter, type, options, order, required`). Four places read it — [sections/product.liquid](sections/product.liquid), [sections/atelier-coleira.liquid](sections/atelier-coleira.liquid), [snippets/pdp-bundle.liquid](snippets/pdp-bundle.liquid) and `comprimentoGuia` in [layout/theme.liquid](layout/theme.liquid) (found by tag `comprimento_guia`). There is **no fallback**: with no metafield no field renders, and the old `custom_field_N_*` theme settings no longer exist. Edit fields in the Waltz (draft → Publicar), not in the theme editor.
 
+### Color modes (light / dark)
+Theme settings → **Modo de cores** (`modo_cores`: `claro` | `escuro`) picks which palette the whole site uses. Light values live in the `Claro · …` groups (ids `color_*`, `pdp_btn_*`); dark values live in parallel `Escuro · …` groups (ids `escuro_<same id>`, defaults = the Black November palette). [snippets/css-variables.liquid](snippets/css-variables.liquid) is the ONLY place that chooses: each token is `{% if escuro %}…escuro_x…{% else %}…x…{% endif %}`. Never read `settings.color_*` directly in a section — use the CSS token (`var(--color-…)`), or the mode won't apply. Colors typed inside a section/block in the editor override the palette in both modes; block color settings are "blank = follow the theme" (`| default: 'var(--token)'`). Hard-coded colors are a bug: add a token + a setting (default = the value that was hard-coded) instead.
+
+Contrast (PageSpeed AA 4.5:1) is checked offline: `node scripts/contraste.js <paleta>` and `node scripts/contraste-css.js <paleta> --base config/paletas/loja-clara.json` (see [config/paletas/LEIA-ME.md](config/paletas/LEIA-ME.md)). Run them after touching any color.
+
 ### Money formatting
 Calculations are done in cents (integer). Display uses `money_without_currency` filter (respects shop's locale: BRL → `1.820,50`). Avoid `round: 1 | replace: '.', ','` — that produces `18,2` instead of `18,20`. The `Shopify.formatMoney` JS helper is available client-side.
 

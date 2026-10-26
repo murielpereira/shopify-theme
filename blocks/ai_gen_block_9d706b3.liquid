@@ -30,7 +30,7 @@
   .ai-video-banner__placeholder-{{ ai_gen_id }} {
     width: 100%;
     height: 100%;
-    background-color: #f4f4f4;
+    background-color: var(--color-surface-container-highest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,8 +85,8 @@
     align-items: center;
     justify-content: center;
     padding: {{ block.settings.cta_padding_vertical }}px {{ block.settings.cta_padding_horizontal }}px;
-    background-color: {{ block.settings.cta_bg_color }};
-    color: {{ block.settings.cta_text_color }};
+    background-color: {{ block.settings.cta_bg_color | default: 'var(--color-primary)' }};
+    color: {{ block.settings.cta_text_color | default: 'var(--color-on-primary)' }};
     text-decoration: none;
     border-radius: {{ block.settings.cta_border_radius }}px;
     font-size: {{ block.settings.cta_font_size }}px;
@@ -469,13 +469,13 @@
       "type": "color",
       "id": "cta_bg_color",
       "label": "Cor de fundo",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "cta_text_color",
       "label": "Cor do texto",
-      "default": "#ffffff"
+      "info": "Em branco, acompanha o Texto sobre a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",

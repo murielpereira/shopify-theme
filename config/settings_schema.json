@@ -25,7 +25,33 @@
     ]
   },
   {
-    "name": "Cores · Marca e botões",
+    "name": "Modo de cores",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Escolha a paleta do site inteiro. Em Claro valem os grupos \"Claro · …\"; em Escuro valem os grupos \"Escuro · …\". As duas paletas são editadas separadamente, e trocar o modo não apaga nada. A página Esquenta Black segue o tema geral quando o modo é Escuro."
+      },
+      {
+        "type": "select",
+        "id": "modo_cores",
+        "label": "Modo de cores do site",
+        "default": "claro",
+        "options": [
+          {
+            "value": "claro",
+            "label": "Claro"
+          },
+          {
+            "value": "escuro",
+            "label": "Escuro (Black November)"
+          }
+        ],
+        "info": "Muda cabeçalho, páginas, carrinho, rodapé, selos e a página do Ateliê de uma vez."
+      }
+    ]
+  },
+  {
+    "name": "Claro · Marca e botões",
     "settings": [
       {
         "type": "header",
@@ -68,7 +94,7 @@
         "type": "color",
         "id": "pdp_btn_bg_color",
         "label": "Fundo do botão",
-        "info": "Fundo dos botões \"Comprar\" e \"Adicionar ao carrinho\", do tamanho selecionado na página do produto e da etiqueta \"kit\" na gaveta.",
+        "info": "Fundo dos botões \"Comprar\" e \"Adicionar ao carrinho\", do tamanho selecionado na página do produto e da etiqueta \"kit\" na gaveta. Para passar no PageSpeed, o texto do botão precisa de contraste mínimo de 4,5:1 com esta cor.",
         "default": "#5a4742"
       },
       {
@@ -103,7 +129,7 @@
     ]
   },
   {
-    "name": "Cores · Fundos e textos",
+    "name": "Claro · Fundos e textos",
     "settings": [
       {
         "type": "header",
@@ -129,6 +155,13 @@
       },
       {
         "type": "color",
+        "id": "color_surface_low",
+        "label": "Fundo suave",
+        "default": "#fef2e5",
+        "info": "Fundo de avisos da busca por cor e do botão \"voltar\" do assistente de kits. Fica entre o fundo da página e o fundo de cartões."
+      },
+      {
+        "type": "color",
         "id": "color_surface_container_high",
         "label": "Fundo de destaque",
         "info": "Fundo dos chips (etiquetas pequenas) e do botão \"ver mais\" das avaliações ao passar o mouse.",
@@ -139,7 +172,7 @@
         "id": "color_surface_lowest",
         "label": "Branco dos campos e janelas",
         "default": "#ffffff",
-        "info": "Fundo de campos de formulário, janelas (modais), calculadoras de frete e seletores. A gaveta do carrinho tem cor própria, em \"Cores · Carrinho\"."
+        "info": "Fundo de campos de formulário, janelas (modais), calculadoras de frete e seletores. A gaveta do carrinho tem cor própria, em \"Claro · Carrinho\"."
       },
       {
         "type": "color",
@@ -170,7 +203,7 @@
         "type": "color",
         "id": "color_on_surface_muted",
         "label": "Texto discreto",
-        "default": "#6f645d",
+        "default": "#6c6159",
         "info": "Informação de apoio: preço \"de\", parcelas, \"a partir de\", legendas, nome da coleção nos cards e ajuda dos campos."
       },
       {
@@ -188,7 +221,7 @@
         "type": "color",
         "id": "color_outline",
         "label": "Cinza neutro",
-        "default": "#817471",
+        "default": "#7a6f6b",
         "info": "Botão \"Esgotado\", bordas de campos em destaque e ícones secundários."
       },
       {
@@ -205,7 +238,7 @@
     ]
   },
   {
-    "name": "Cores · Cabeçalho e menu",
+    "name": "Claro · Cabeçalho e menu",
     "settings": [
       {
         "type": "paragraph",
@@ -239,7 +272,7 @@
     ]
   },
   {
-    "name": "Cores · Barra de anúncios",
+    "name": "Claro · Barra de anúncios",
     "settings": [
       {
         "type": "paragraph",
@@ -262,7 +295,7 @@
     ]
   },
   {
-    "name": "Cores · Carrinho",
+    "name": "Claro · Carrinho",
     "settings": [
       {
         "type": "paragraph",
@@ -278,7 +311,28 @@
     ]
   },
   {
-    "name": "Cores · Selos e avisos",
+    "name": "Claro · Rodapé",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "A faixa no fim de todas as páginas (links, redes sociais, contato). As linhas e fundos translúcidos do rodapé são versões desta cor de texto."
+      },
+      {
+        "type": "color",
+        "id": "color_footer_bg",
+        "label": "Fundo do rodapé",
+        "info": "Em branco usa a Cor Principal. Num tema escuro, use um tom escuro aqui para o rodapé não ficar uma faixa clara."
+      },
+      {
+        "type": "color",
+        "id": "color_footer_text",
+        "label": "Texto e ícones do rodapé",
+        "info": "Em branco usa o Texto sobre a Cor Principal. Também é a base das linhas e dos fundos translúcidos dos ícones sociais e dos campos."
+      }
+    ]
+  },
+  {
+    "name": "Claro · Selos e avisos",
     "settings": [
       {
         "type": "paragraph",
@@ -287,6 +341,20 @@
       {
         "type": "header",
         "content": "Selos dos produtos"
+      },
+      {
+        "type": "color",
+        "id": "color_on_accent",
+        "label": "Texto sobre os selos coloridos",
+        "default": "#ffffff",
+        "info": "Cor do texto dentro dos selos verde e azul e do botão do brinde. (O selo dourado tem a própria, logo abaixo.)"
+      },
+      {
+        "type": "color",
+        "id": "color_on_gold",
+        "label": "Texto sobre o dourado \"Lançamento\"",
+        "default": "#3a2a0c",
+        "info": "Cor do texto dentro do selo dourado \"Lançamento\" e da etiqueta \"melhor opção\" do frete. O dourado é claro, então o texto precisa ser escuro para ter contraste."
       },
       {
         "type": "color",
@@ -338,7 +406,7 @@
         "type": "color",
         "id": "color_success",
         "label": "Verde: desconto e frete mais barato",
-        "default": "#15803d",
+        "default": "#166534",
         "info": "Linha de desconto no carrinho e etiqueta \"mais barato\" nas opções de frete."
       },
       {
@@ -379,6 +447,347 @@
         "label": "Âmbar: ícone e link dos avisos",
         "default": "#8a6630",
         "info": "Ícone de caminhão e link \"Saiba mais\" dos avisos de frete."
+      }
+    ]
+  },
+  {
+    "name": "Escuro · Marca e botões",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Paleta usada quando o \"Modo de cores\" (no topo desta tela) está em Escuro. Cada cor tem o mesmo papel da cor de mesmo nome nos grupos \"Claro · …\". Os valores já nascem com a paleta Black November (preto e verde-limão), conferida para contraste AA."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_primary",
+        "label": "Cor Principal",
+        "default": "#c1ff72",
+        "info": "Fundo do rodapé, ícones e logo (texto) do cabeçalho, contador do carrinho, botão \"Finalizar compra\", links e preços em destaque, barra de rolagem e contorno de foco dos campos."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_primary_container",
+        "label": "Cor Principal — variação (degradê)",
+        "default": "#a8e65a",
+        "info": "Segunda cor dos degradês: botão \"Finalizar compra\" da gaveta e barra de frete grátis. Também colore o destaque da faixa de benefícios da home."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_primary",
+        "label": "Texto sobre a Cor Principal",
+        "default": "#0f0f0f",
+        "info": "Texto e ícones sobre fundos na Cor Principal: rodapé, contador do carrinho, selos, botão \"Finalizar compra\"."
+      },
+      {
+        "type": "color",
+        "id": "escuro_pdp_btn_bg_color",
+        "label": "Fundo do botão",
+        "default": "#c1ff72",
+        "info": "Fundo dos botões \"Comprar\" e \"Adicionar ao carrinho\", do tamanho selecionado na página do produto e da etiqueta \"kit\" na gaveta. Para passar no PageSpeed, o texto do botão precisa de contraste mínimo de 4,5:1 com esta cor."
+      },
+      {
+        "type": "color",
+        "id": "escuro_pdp_btn_fg_color",
+        "label": "Texto do botão",
+        "default": "#0f0f0f",
+        "info": "Texto e ícone desses mesmos botões."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_btn_primary_bg",
+        "label": "Fundo do botão \"Buscar\"",
+        "default": "#c1ff72",
+        "info": "Fundo do botão da página de busca."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_btn_primary_text",
+        "label": "Texto do botão \"Buscar\"",
+        "default": "#0f0f0f",
+        "info": "Texto do botão da página de busca."
+      }
+    ]
+  },
+  {
+    "name": "Escuro · Fundos e textos",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Cores do modo Escuro. Atenção: \"Sombras e véu escuro\" deve continuar escuro mesmo no tema escuro, senão a sombra vira brilho."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_background",
+        "label": "Fundo da página",
+        "default": "#0a0a0a",
+        "info": "Fundo de todas as páginas e contorno da barra de rolagem."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_surface_container",
+        "label": "Fundo de cartões e caixas",
+        "default": "#161616",
+        "info": "Fundo das imagens dos itens do carrinho, dos cartões de avaliação, dos itens do menu ao passar o mouse e das caixas de aviso."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_surface_low",
+        "label": "Fundo suave",
+        "default": "#131313",
+        "info": "Fundo de avisos da busca por cor e do botão \"voltar\" do assistente de kits. Fica entre o fundo da página e o fundo de cartões."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_surface_container_high",
+        "label": "Fundo de destaque",
+        "default": "#1f1f1f",
+        "info": "Fundo dos chips (etiquetas pequenas) e do botão \"ver mais\" das avaliações ao passar o mouse."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_surface_lowest",
+        "label": "Branco dos campos e janelas",
+        "default": "#101010",
+        "info": "Fundo de campos de formulário, janelas (modais), calculadoras de frete e seletores. A gaveta do carrinho tem cor própria, em \"Claro · Carrinho\"."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_surface_highest",
+        "label": "Fundo atrás das fotos",
+        "default": "#262626",
+        "info": "Cor que aparece atrás das fotos de produtos e das imagens de coleções, enquanto carregam."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_background",
+        "label": "Texto principal",
+        "default": "#f5f1ec",
+        "info": "Títulos, nomes de produtos, textos da gaveta do carrinho e a maior parte dos textos do site."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_surface_variant",
+        "label": "Texto secundário",
+        "default": "#d6cec6",
+        "info": "Descrições, rótulos de campos e links do menu."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_surface_muted",
+        "label": "Texto discreto",
+        "default": "#a9a199",
+        "info": "Informação de apoio: preço \"de\", parcelas, \"a partir de\", legendas, nome da coleção nos cards e ajuda dos campos."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_outline_variant",
+        "label": "Borda sutil",
+        "default": "#3a3633",
+        "info": "Linhas e bordas de campos, divisores da gaveta, cartões e menus (inclusive as versões translúcidas)."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_outline",
+        "label": "Cinza neutro",
+        "default": "#8a827c",
+        "info": "Botão \"Esgotado\", bordas de campos em destaque e ícones secundários."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_shade",
+        "label": "Sombras e véu escuro",
+        "default": "#000000",
+        "info": "Sombra dos cartões, menus e janelas, e o véu escuro sobre banners e vídeos e atrás da gaveta do carrinho. Use um tom escuro mesmo em temas escuros."
+      }
+    ]
+  },
+  {
+    "name": "Escuro · Cabeçalho, barra e rodapé",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Cores do modo Escuro para cabeçalho, barra de anúncios, rodapé e gaveta do carrinho. Se a seção \"Barra de anúncios\" tiver cores próprias no Personalizar, elas vencem estas nos dois modos."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_header_bg",
+        "label": "Fundo do cabeçalho, menu e busca",
+        "default": "#0a0a0a",
+        "info": "Cor de fundo (com transparência) do cabeçalho, da barra de menu, do menu do celular e da tela de busca."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_header_icons",
+        "label": "Logo (texto) e ícones",
+        "default": "#f5f1ec",
+        "info": "Cor do logo quando é texto e dos ícones de busca, conta, rastreio, favoritos e carrinho. Em branco usa a Cor Principal."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_header_link",
+        "label": "Links do menu",
+        "default": "#d6cec6",
+        "info": "Cor dos links da barra de menu. Em branco usa o Texto secundário."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_header_link_hover",
+        "label": "Link do menu: mouse em cima e página atual",
+        "default": "#c1ff72",
+        "info": "Cor do link ao passar o mouse, da página em que a cliente está e do sublinhado. Em branco usa a Cor Principal."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_announce_bg",
+        "label": "Fundo da barra",
+        "default": "#c1ff72",
+        "info": "Fundo da barra de anúncios (e do degradê nas pontas do texto que rola)."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_announce_text",
+        "label": "Texto da barra",
+        "default": "#0f0f0f",
+        "info": "Texto e ícones da barra de anúncios."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_footer_bg",
+        "label": "Fundo do rodapé",
+        "default": "#050505",
+        "info": "Em branco usa a Cor Principal. Num tema escuro, use um tom escuro aqui para o rodapé não ficar uma faixa clara."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_footer_text",
+        "label": "Texto e ícones do rodapé",
+        "default": "#f5f1ec",
+        "info": "Em branco usa o Texto sobre a Cor Principal. Também é a base das linhas e dos fundos translúcidos dos ícones sociais e dos campos."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_cart_bg",
+        "label": "Fundo da gaveta",
+        "default": "#121212",
+        "info": "Fundo da gaveta do carrinho: topo, lista de produtos e rodapé com o total."
+      }
+    ]
+  },
+  {
+    "name": "Escuro · Selos e avisos",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Cores do modo Escuro para selos, mensagens e avisos. Em tema escuro as cores de destaque precisam ser claras; o texto dentro dos selos, escuro."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_accent",
+        "label": "Texto sobre os selos coloridos",
+        "default": "#0f0f0f",
+        "info": "Cor do texto dentro dos selos verde e azul e do botão do brinde. (O selo dourado tem a própria, logo abaixo.)"
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_on_gold",
+        "label": "Texto sobre o dourado \"Lançamento\"",
+        "default": "#0f0f0f",
+        "info": "Cor do texto dentro do selo dourado \"Lançamento\" e da etiqueta \"melhor opção\" do frete. O dourado é claro, então o texto precisa ser escuro para ter contraste."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_accent_green",
+        "label": "Verde: brinde e \"sob medida\"",
+        "default": "#8fd19e",
+        "info": "Seletor de brinde no carrinho, selo \"sob medida\", destaques do parcelamento e botões do brinde."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_accent_blue",
+        "label": "Azul: \"pingente opcional\"",
+        "default": "#8fb8cf",
+        "info": "Selo \"pingente opcional\" nos cards de produto."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_gold",
+        "label": "Dourado: selo \"Lançamento\"",
+        "default": "#e3b866",
+        "info": "Cor principal do selo dourado \"Lançamento\" e do brilho ao redor dele."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_gold_light",
+        "label": "Dourado claro (brilho do \"Lançamento\")",
+        "default": "#f3d9a0",
+        "info": "Tom claro no meio do degradê do selo \"Lançamento\"."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_error",
+        "label": "Vermelho: erro e campo obrigatório",
+        "default": "#ff7b6b",
+        "info": "Mensagens de erro, asterisco e destaque dos campos obrigatórios não preenchidos (página do produto, pingente e kits)."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_success",
+        "label": "Verde: desconto e frete mais barato",
+        "default": "#7ee2a1",
+        "info": "Linha de desconto no carrinho e etiqueta \"mais barato\" nas opções de frete."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_success_bg",
+        "label": "Fundo da etiqueta de frete mais barato",
+        "default": "#0f2a1b",
+        "info": "Fundo da etiqueta \"mais barato\" nas calculadoras de frete."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_info",
+        "label": "Azul: frete mais rápido",
+        "default": "#8ab4ff",
+        "info": "Texto da etiqueta \"mais rápido\" nas opções de frete."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_info_bg",
+        "label": "Fundo da etiqueta de frete mais rápido",
+        "default": "#11233f",
+        "info": "Fundo da etiqueta \"mais rápido\" nas calculadoras de frete."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_notice",
+        "label": "Âmbar: borda dos avisos",
+        "default": "#e3b866",
+        "info": "Borda e destaque lateral dos avisos de frete (greve, atraso). O fundo usa o Fundo de cartões e caixas."
+      },
+      {
+        "type": "color",
+        "id": "escuro_color_notice_text",
+        "label": "Âmbar: ícone e link dos avisos",
+        "default": "#f0c77d",
+        "info": "Ícone de caminhão e link \"Saiba mais\" dos avisos de frete."
+      },
+      {
+        "type": "header",
+        "content": "Ateliê (Atena)"
+      },
+      {
+        "type": "color",
+        "id": "escuro_atl_estudio",
+        "label": "Estúdio (palco da peça)",
+        "default": "#1a1a1a",
+        "info": "Fundo do palco onde aparece a coleira montada."
+      },
+      {
+        "type": "color",
+        "id": "escuro_atl_latao_3",
+        "label": "Latão escuro",
+        "default": "#c29a52",
+        "info": "Sombra do degradê dourado, selos de metal e de tamanho e ícones de recomendação."
       }
     ]
   },
@@ -715,7 +1124,7 @@
         "type": "color",
         "id": "cashback_color",
         "label": "Cor do ícone e texto de cashback",
-        "default": "#5a4742"
+        "info": "Cor do ícone e do texto \"Ganhe até R$ X de cashback\". Em branco usa a Cor Principal."
       }
     ]
   },

@@ -1,12 +1,12 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "1777297182d3f231ef": {
@@ -33,8 +33,6 @@
             "text_color": "#ffffff",
             "text_size_mobile": 17,
             "text_size_desktop": 18,
-            "button_bg_color": "#ffffff",
-            "button_text_color": "#5a4742",
             "button_border_radius": 40,
             "slide_1_image": "shopify://shop_images/pixweek_desktop.png",
             "slide_1_image_mobile": "shopify://shop_images/pixweek_mobile.png",
@@ -300,12 +298,9 @@
             "button_text": "",
             "button_bg_color": "#00ff2b",
             "button_hover_bg_color": "#ff0004",
-            "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#735e59",
-            "subtitle_size": 16,
-            "subtitle_color": "#4f4442"
+            "subtitle_size": 16
           },
           "blocks": {}
         },
@@ -324,12 +319,9 @@
             "button_text": "",
             "button_bg_color": "#00ff2b",
             "button_hover_bg_color": "#ff0004",
-            "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#735e59",
-            "subtitle_size": 16,
-            "subtitle_color": "#4f4442"
+            "subtitle_size": 16
           },
           "blocks": {}
         }
@@ -378,14 +370,10 @@
             "grid_gap": 16,
             "title_alignment": "center",
             "title_size": 28,
-            "title_color": "#201b14",
             "title_spacing": 24,
             "card_border_radius": 8,
             "card_padding": 16,
-            "card_bg_color": "#ffffff",
-            "image_bg_color": "#f8ece0",
-            "category_name_size": 16,
-            "category_name_color": "#735e59"
+            "category_name_size": 16
           },
           "blocks": {}
         },
@@ -403,14 +391,9 @@
             "grid_gap": 24,
             "desktop_width_percent": 100,
             "button_text": "Ver mais produtos",
-            "button_bg_color": "#5a4742",
-            "button_hover_bg_color": "#735e59",
-            "button_text_color": "#ffffff",
             "button_border_radius": 4,
             "title_size": 32,
-            "title_color": "#735e59",
-            "subtitle_size": 16,
-            "subtitle_color": "#4f4442"
+            "subtitle_size": 16
           },
           "blocks": {}
         },
@@ -431,8 +414,6 @@
             "text_color": "#ffffff",
             "text_size_mobile": 16,
             "text_size_desktop": 18,
-            "button_bg_color": "#ffffff",
-            "button_text_color": "#5a4742",
             "button_border_radius": 4,
             "slide_1_heading": "Para quem ama de verdade",
             "slide_1_text": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>",
@@ -602,14 +583,10 @@
             "grid_gap": 16,
             "title_alignment": "center",
             "title_size": 28,
-            "title_color": "#735e59",
             "title_spacing": 24,
             "card_border_radius": 8,
             "card_padding": 16,
-            "card_bg_color": "#ffffff",
-            "image_bg_color": "#f8ece0",
-            "category_name_size": 16,
-            "category_name_color": "#735e59"
+            "category_name_size": 16
           },
           "blocks": {}
         }
@@ -712,11 +689,7 @@
             "card_3_title": "Manutenção e limpeza de acessórios",
             "card_3_link": "",
             "desktop_width_percent": 100,
-            "background_color": "#fff8f3",
-            "card_background": "#ffffff",
             "feature_text_color": "#ffffff",
-            "category_color": "#5a4742",
-            "card_text_color": "#201b14",
             "section_padding": 60,
             "grid_gap": 20,
             "border_radius": 8,

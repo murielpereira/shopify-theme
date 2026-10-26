@@ -144,14 +144,14 @@
 
   .ai-product-grid__title-{{ ai_gen_id }} {
     font-size: {{ block.settings.title_size }}px;
-    color: {{ block.settings.title_color }};
+    color: {{ block.settings.title_color | default: 'var(--color-primary-container)' }};
     margin: 0 0 12px;
     font-weight: 600;
   }
 
   .ai-product-grid__subtitle-{{ ai_gen_id }} {
     font-size: {{ block.settings.subtitle_size }}px;
-    color: {{ block.settings.subtitle_color }};
+    color: {{ block.settings.subtitle_color | default: 'var(--color-on-surface-variant)' }};
     margin: 0;
   }
 
@@ -238,7 +238,7 @@
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;
-    background: rgba(255, 248, 243, 0.95);
+    background: color-mix(in srgb, var(--color-header-bg) 95%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
     cursor: pointer;
     display: none;
@@ -276,8 +276,8 @@
 
   .ai-product-grid__button-{{ ai_gen_id }} {
     padding: 14px 32px;
-    background-color: {{ block.settings.button_bg_color }};
-    color: {{ block.settings.button_text_color }};
+    background-color: {{ block.settings.button_bg_color | default: 'var(--color-primary)' }};
+    color: {{ block.settings.button_text_color | default: 'var(--color-on-primary)' }};
     border: none;
     border-radius: {{ block.settings.button_border_radius }}px;
     font-size: 16px;
@@ -286,7 +286,7 @@
   }
 
   .ai-product-grid__button-{{ ai_gen_id }}:hover {
-    background-color: {{ block.settings.button_hover_bg_color }};
+    background-color: {{ block.settings.button_hover_bg_color | default: 'var(--color-primary-container)' }};
   }
 
   .ai-product-grid__button-{{ ai_gen_id }}.hidden {
@@ -296,7 +296,7 @@
   .ai-product-grid__empty-{{ ai_gen_id }} {
     text-align: center;
     padding: 60px 20px;
-    color: #999;
+    color: var(--color-outline);
     font-size: 16px;
   }
 {% endstyle %}
@@ -556,19 +556,19 @@
       "type": "color",
       "id": "button_bg_color",
       "label": "Cor de fundo",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "button_hover_bg_color",
       "label": "Cor de fundo (hover)",
-      "default": "#735e59"
+      "info": "Em branco, acompanha a variação da Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "button_text_color",
       "label": "Cor do texto",
-      "default": "#ffffff"
+      "info": "Em branco, acompanha o Texto sobre a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -598,7 +598,7 @@
       "type": "color",
       "id": "title_color",
       "label": "Cor do título",
-      "default": "#201b14"
+      "info": "Em branco, acompanha a variação da Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -614,7 +614,7 @@
       "type": "color",
       "id": "subtitle_color",
       "label": "Cor do subtítulo",
-      "default": "#4f4442"
+      "info": "Em branco, acompanha o Texto secundário do tema. Preencha para dar uma cor só a este bloco."
     }
   ],
   "presets": [

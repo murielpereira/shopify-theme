@@ -1,16 +1,16 @@
 {% comment %} Âme — Barra de anúncios rotativa (fluxo normal — some ao rolar) {% endcomment %}
 
 {%- if section.blocks.size > 0 -%}
-  {%- liquid
-    assign announce_bg = section.settings.bg_color | default: settings.color_announce_bg
-    assign announce_text = section.settings.text_color | default: settings.color_announce_text
-  -%}
+  {%- comment -%}
+    A cor global (Configurações do tema, respeitando o Modo de cores) vem do :root.
+    Só entra aqui a cor que estiver preenchida DENTRO desta seção, que vence a global.
+  {%- endcomment -%}
   <div
     class="ame-announce"
     role="region"
     aria-label="Anúncios"
     data-announce
-    style="top: 0; --color-announce-bg: {{ announce_bg }}; --color-announce-text: {{ announce_text }};"
+    style="top: 0;{% if section.settings.bg_color != blank %} --color-announce-bg: {{ section.settings.bg_color }};{% endif %}{% if section.settings.text_color != blank %} --color-announce-text: {{ section.settings.text_color }};{% endif %}"
   >
     <div class="ame-announce__track" data-announce-track>
       {%- for block in section.blocks -%}

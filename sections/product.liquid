@@ -2562,7 +2562,7 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    background: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--color-surface-container-lowest) 55%, transparent);
     backdrop-filter: blur(8px);
     border: none;
     cursor: pointer;
@@ -2608,7 +2608,7 @@
     left: 0.875rem;
     z-index: 10;
     background: var(--color-on-background, #201b14);
-    color: #ffffff;
+    color: var(--color-on-primary, #fff);
     font-size: 0.625rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -2623,7 +2623,7 @@
     position: absolute;
     bottom: 0.75rem;
     right: 0.75rem;
-    background: rgba(255, 255, 255, 0.55);
+    background: color-mix(in srgb, var(--color-surface-container-lowest) 55%, transparent);
     backdrop-filter: blur(8px);
     border-radius: 999px;
     padding: 0.2rem 0.625rem;
@@ -2794,7 +2794,7 @@
          parte é desse bloco). */
     min-height: 120px;
     /*teste destaque preco*/
-    background: #f8ece099;
+    background: color-mix(in srgb, var(--color-surface-container) 60%, transparent);
     padding: 24px;
     justify-content: center;
     align-items: center;
@@ -3246,7 +3246,7 @@
     height: 4.5rem;
     object-fit: contain;
     border-radius: var(--radius-sm, 0.25rem);
-    background: var(--color-surface-container-lowest);
+    background: #fff;
   }
 
   .pdp__acabamento-btn__txt {
@@ -3942,7 +3942,7 @@
   /* ── Resumo das variações escolhidas (abaixo da imagem, mobile) ── */
   .pdp__selection-info {
     padding: 0.5rem 1rem;
-    background: #f7f5f2c9; /*--color-surface*/
+    background: color-mix(in srgb, var(--color-background) 79%, transparent); /*--color-surface*/
     color: var(--color-on-surface-variant, #4f4442);
     font-size: 0.67rem;
     line-height: 1.35;

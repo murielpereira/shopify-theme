@@ -25,7 +25,7 @@
     top: 0;
     bottom: 0;
     width: {{ block.settings.line_width }}px;
-    background-color: {{ block.settings.line_color }};
+    background-color: {{ block.settings.line_color | default: 'var(--color-outline-variant)' }};
     transform: translateX(-50%);
     z-index: 1;
   }
@@ -36,7 +36,7 @@
     top: 0;
     width: 100%;
     height: 0%;
-    background: {{ block.settings.line_active_color }};
+    background: {{ block.settings.line_active_color | default: 'var(--color-primary)' }};
     transition: height 0.3s ease;
   }
 
@@ -59,7 +59,7 @@
     position: relative;
     width: calc(50% - 40px);
     padding: 24px;
-    background-color: {{ block.settings.card_bg_color }};
+    background-color: {{ block.settings.card_bg_color | default: 'var(--color-surface-container-lowest)' }};
     border-radius: {{ block.settings.card_border_radius }}px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
@@ -80,8 +80,8 @@
     top: 30px;
     width: {{ block.settings.marker_size }}px;
     height: {{ block.settings.marker_size }}px;
-    background-color: {{ block.settings.marker_color }};
-    border: {{ block.settings.marker_border_width }}px solid {{ block.settings.marker_border_color }};
+    background-color: {{ block.settings.marker_color | default: 'var(--color-surface-container)' }};
+    border: {{ block.settings.marker_border_width }}px solid {{ block.settings.marker_border_color | default: 'var(--color-outline-variant)' }};
     border-radius: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
@@ -89,28 +89,28 @@
   }
 
   .ai-timeline-item-{{ ai_gen_id }}.active .ai-timeline-marker-{{ ai_gen_id }} {
-    background-color: {{ block.settings.marker_active_color }};
-    border-color: {{ block.settings.marker_active_border_color }};
+    background-color: {{ block.settings.marker_active_color | default: 'var(--color-primary)' }};
+    border-color: {{ block.settings.marker_active_border_color | default: 'var(--color-primary)' }};
     transform: translate(-50%, -50%) scale(1.2);
   }
 
   .ai-timeline-date-{{ ai_gen_id }} {
     font-size: {{ block.settings.date_font_size }}px;
-    color: {{ block.settings.date_color }};
+    color: {{ block.settings.date_color | default: 'var(--color-primary)' }};
     font-weight: 600;
     margin-bottom: 8px;
   }
 
   .ai-timeline-title-{{ ai_gen_id }} {
     font-size: {{ block.settings.title_font_size }}px;
-    color: {{ block.settings.title_color }};
+    color: {{ block.settings.title_color | default: 'var(--color-on-background)' }};
     font-weight: 700;
     margin: 0 0 12px 0;
   }
 
   .ai-timeline-description-{{ ai_gen_id }} {
     font-size: {{ block.settings.description_font_size }}px;
-    color: {{ block.settings.description_color }};
+    color: {{ block.settings.description_color | default: 'var(--color-on-surface-variant)' }};
     line-height: 1.6;
   }
 
@@ -294,13 +294,13 @@
       "type": "color",
       "id": "line_color",
       "label": "Cor da linha",
-      "default": "#d2c3c0"
+      "info": "Em branco, acompanha a Borda sutil do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "line_active_color",
       "label": "Cor da linha ativa",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "header",
@@ -320,13 +320,13 @@
       "type": "color",
       "id": "marker_color",
       "label": "Cor do marcador",
-      "default": "#f8ece0"
+      "info": "Em branco, acompanha o Fundo de cartões e caixas do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "marker_border_color",
       "label": "Cor da borda",
-      "default": "#d2c3c0"
+      "info": "Em branco, acompanha a Borda sutil do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -342,13 +342,13 @@
       "type": "color",
       "id": "marker_active_color",
       "label": "Cor do marcador ativo",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "color",
       "id": "marker_active_border_color",
       "label": "Cor da borda ativa",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "header",
@@ -358,7 +358,7 @@
       "type": "color",
       "id": "card_bg_color",
       "label": "Cor de fundo",
-      "default": "#ffffff"
+      "info": "Em branco, acompanha o Branco dos campos e janelas do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -388,7 +388,7 @@
       "type": "color",
       "id": "date_color",
       "label": "Cor da data",
-      "default": "#5a4742"
+      "info": "Em branco, acompanha a Cor Principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -404,7 +404,7 @@
       "type": "color",
       "id": "title_color",
       "label": "Cor do título",
-      "default": "#201b14"
+      "info": "Em branco, acompanha o Texto principal do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "range",
@@ -420,7 +420,7 @@
       "type": "color",
       "id": "description_color",
       "label": "Cor da descrição",
-      "default": "#4f4442"
+      "info": "Em branco, acompanha o Texto secundário do tema. Preencha para dar uma cor só a este bloco."
     },
     {
       "type": "header",

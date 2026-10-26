@@ -9,7 +9,7 @@
   {%- liquid
     assign cb_pct = shop.metafields.waltz.vitrine.value.cashback_pct | default: settings.cashback_percent | default: 8
     assign cb_min = settings.cashback_min_value | default: 10
-    assign cb_color = settings.cashback_color | default: '#5a4742'
+    assign cb_color = settings.cashback_color | default: 'var(--color-primary)'
     assign cb_mode = cashback_mode | default: 'pdp'
 
     assign cb_value_cents = cashback_price | default: 0

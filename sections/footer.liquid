@@ -677,10 +677,10 @@
 
 {% stylesheet %}
   .ame-footer {
-    background: var(--color-primary, #5a4742);
+    background: var(--color-footer-bg, var(--color-primary, #5a4742));
     padding: 3rem var(--page-margin, 2rem) 1rem;
     margin-top: 10px;
-    color: var(--color-on-primary, #ffffff);
+    color: var(--color-footer-text, var(--color-on-primary, #ffffff));
   }
 
   .ame-footer__inner {
@@ -714,7 +714,7 @@
     min-width: 24px;
     margin-bottom: 1rem;
     text-decoration: none;
-    color: var(--color-on-primary, #ffffff);
+    color: var(--color-footer-text, var(--color-on-primary, #ffffff));
   }
   .ame-footer__logo-img {
     display: block;
@@ -765,7 +765,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-surface-container-lowest);
+    background: #fff;
     border-radius: 0.25rem;
     padding: 0.25rem 0.375rem;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
@@ -839,14 +839,14 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--color-on-primary, #ffffff);
+    background: color-mix(in srgb, var(--color-footer-text) 8%, transparent);
+    color: var(--color-footer-text, var(--color-on-primary, #ffffff));
     transition: background 0.2s ease, transform 0.2s ease;
   }
 
   .ame-footer__social-link:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.16);
+    background: color-mix(in srgb, var(--color-footer-text) 16%, transparent);
   }
 
   .ame-footer__social-link svg {
@@ -952,7 +952,7 @@
     line-height: 1.6;
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid color-mix(in srgb, var(--color-footer-text) 12%, transparent);
     opacity: 0.7;
     display: flex;
     flex-direction: column;
@@ -970,7 +970,7 @@
     width: 100%;
     border: 0;
     border-radius: var(--radius-md, 8px);
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--color-footer-text) 5%, transparent);
     /* Filtro deixa o mapa em tons mais sóbrios pra combinar com o footer escuro.
        Cliente ainda enxerga ruas/marcador, mas com paleta sutil. */
     filter: grayscale(0.25) brightness(0.95);
@@ -985,21 +985,21 @@
     width: 100%;
     height: 180px;
     border-radius: var(--radius-md, 8px);
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: color-mix(in srgb, var(--color-footer-text) 6%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--color-footer-text) 15%, transparent);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: color-mix(in srgb, var(--color-footer-text) 70%, transparent);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
   .ame-footer__map-placeholder:hover,
   .ame-footer__map-placeholder:focus-visible {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
+    background: color-mix(in srgb, var(--color-footer-text) 10%, transparent);
+    color: color-mix(in srgb, var(--color-footer-text) 85%, transparent);
     outline: none;
   }
   .ame-footer__map-placeholder-icon {
@@ -1020,10 +1020,10 @@
     align-items: center;
     justify-content: center;
     padding: 0.5rem 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid color-mix(in srgb, var(--color-footer-text) 20%, transparent);
     border-radius: var(--radius-md, 8px);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--color-on-primary, #fff);
+    background: color-mix(in srgb, var(--color-footer-text) 4%, transparent);
+    color: var(--color-footer-text, var(--color-on-primary, #ffffff));
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.02em;
@@ -1031,8 +1031,8 @@
     transition: background 0.2s ease, border-color 0.2s ease;
   }
   .ame-footer__map-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: color-mix(in srgb, var(--color-footer-text) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-footer-text) 40%, transparent);
   }
 
   /* Bottom row — spans all columns */
