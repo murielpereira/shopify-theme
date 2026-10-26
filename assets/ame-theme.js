@@ -914,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return guia.featured_image || '';
   }
 
-  /* Lê a config de comprimento_guia das settings do tema (custom_field_13).
+  /* Lê a config de comprimento_guia dos campos personalizados do Waltz (tag comprimento_guia).
      Vem de window.AmeThemeConfig, montado via Liquid em layout/theme.liquid. */
   const COMPRIMENTO_GUIA_CONFIG = (window.AmeThemeConfig || {}).comprimentoGuia || {};
 

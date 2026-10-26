@@ -23,39 +23,29 @@
 </div>
 
 {%- comment -%}
-  Custom fields globais (settings 1..20) — gated por tag. Passamos a config
-  inteira pro JS; ele decide quais aplicam a cada cross-sell comparando a
-  tag de cada CF com as tags do produto sugerido (carregadas via /products/X.js).
+  Custom fields globais — gated por tag. Passamos a config inteira pro JS; ele
+  decide quais aplicam a cada cross-sell comparando a tag de cada CF com as tags
+  do produto sugerido (carregadas via /products/X.js).
+
+  Fonte: metafield do Waltz (Aplicativos → Campos personalizados;
+  waltz.campos_personalizados, só os ativos). Sem o metafield, lista vazia.
 {%- endcomment -%}
+{%- assign cfs_waltz = shop.metafields.waltz.campos_personalizados.value -%}
 {%- capture cfs_json -%}
   [
-    {%- assign first = true -%}
-    {%- for cf_i in (1..20) -%}
-      {%- assign en = 'custom_field_' | append: cf_i | append: '_enable' -%}
-      {%- if settings[en] -%}
-        {%- unless first -%},{%- endunless -%}
-        {%- assign first = false -%}
-        {%- assign tag_k = 'custom_field_' | append: cf_i | append: '_tag' -%}
-        {%- assign nm_k  = 'custom_field_' | append: cf_i | append: '_name' -%}
-        {%- assign tt_k  = 'custom_field_' | append: cf_i | append: '_title' -%}
-        {%- assign ph_k  = 'custom_field_' | append: cf_i | append: '_placeholder' -%}
-        {%- assign hl_k  = 'custom_field_' | append: cf_i | append: '_helper' -%}
-        {%- assign lm_k  = 'custom_field_' | append: cf_i | append: '_limiter' -%}
-        {%- assign tp_k  = 'custom_field_' | append: cf_i | append: '_type' -%}
-        {%- assign op_k  = 'custom_field_' | append: cf_i | append: '_options' -%}
-        {%- assign rq_k  = 'custom_field_' | append: cf_i | append: '_required' -%}
-        {
-          "tag": {{ settings[tag_k] | default: '' | json }},
-          "name": {{ settings[nm_k] | default: '' | json }},
-          "title": {{ settings[tt_k] | default: '' | json }},
-          "placeholder": {{ settings[ph_k] | default: '' | json }},
-          "helper": {{ settings[hl_k] | default: '' | json }},
-          "limiter": {{ settings[lm_k] | default: 0 | json }},
-          "type": {{ settings[tp_k] | default: 'text' | json }},
-          "options": {{ settings[op_k] | default: '' | json }},
-          "required": {{ settings[rq_k] | default: false | json }}
-        }
-      {%- endif -%}
+    {%- for cf_w in cfs_waltz -%}
+      {%- unless forloop.first -%},{%- endunless -%}
+      {
+        "tag": {{ cf_w.tag | default: '' | json }},
+        "name": {{ cf_w.name | default: '' | json }},
+        "title": {{ cf_w.title | default: '' | json }},
+        "placeholder": {{ cf_w.placeholder | default: '' | json }},
+        "helper": {{ cf_w.helper | default: '' | json }},
+        "limiter": {{ cf_w.limiter | default: 0 | json }},
+        "type": {{ cf_w.type | default: 'text' | json }},
+        "options": {{ cf_w.options | default: '' | json }},
+        "required": {{ cf_w.required | default: false | json }}
+      }
     {%- endfor -%}
   ]
 {%- endcapture -%}

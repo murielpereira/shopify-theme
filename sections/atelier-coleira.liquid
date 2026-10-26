@@ -112,40 +112,33 @@
   endif
 
   # Campos personalizados ativos para este produto (mesma regra da página normal).
+  # Fonte: metafield do Waltz (Aplicativos → Campos personalizados;
+  # waltz.campos_personalizados, só os ativos). Sem o metafield, nenhum campo.
+  assign cfs_waltz = shop.metafields.waltz.campos_personalizados.value
   assign cf_json = ''
-  for cf_i in (1..20)
-    assign k_en = 'custom_field_' | append: cf_i | append: '_enable'
-    assign k_tag = 'custom_field_' | append: cf_i | append: '_tag'
-    assign cf_tag = settings[k_tag]
-    if settings[k_en] and cf_tag != blank and product.tags contains cf_tag
-      assign k_nm = 'custom_field_' | append: cf_i | append: '_name'
-      assign k_tt = 'custom_field_' | append: cf_i | append: '_title'
-      assign k_ph = 'custom_field_' | append: cf_i | append: '_placeholder'
-      assign k_tp = 'custom_field_' | append: cf_i | append: '_type'
-      assign k_rq = 'custom_field_' | append: cf_i | append: '_required'
-      assign k_lm = 'custom_field_' | append: cf_i | append: '_limiter'
-      assign k_or = 'custom_field_' | append: cf_i | append: '_order'
+  for cf_w in cfs_waltz
+    if cf_w.tag != blank and product.tags contains cf_w.tag
       capture item_cf
         echo '{"tag":'
-        echo cf_tag | json
+        echo cf_w.tag | json
         echo ',"nome":'
-        echo settings[k_nm] | json
+        echo cf_w.name | json
         echo ',"titulo":'
-        echo settings[k_tt] | json
+        echo cf_w.title | json
         echo ',"placeholder":'
-        echo settings[k_ph] | json
+        echo cf_w.placeholder | json
         echo ',"tipo":'
-        echo settings[k_tp] | json
+        echo cf_w.type | json
         echo ',"obrigatorio":'
-        if settings[k_rq]
+        if cf_w.required
           echo 'true'
         else
           echo 'false'
         endif
         echo ',"limite":'
-        echo settings[k_lm] | default: '' | json
+        echo cf_w.limiter | default: '' | json
         echo ',"ordem":'
-        echo settings[k_or] | default: cf_i | json
+        echo cf_w.order | default: forloop.index | json
         echo '}'
       endcapture
       if cf_json != ''

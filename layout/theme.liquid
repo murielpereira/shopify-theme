@@ -186,15 +186,33 @@
       JS global do tema em assets/ame-theme.js (era inline, ~59 KB em toda
       página). Os únicos valores do Liquid que ele usa vão aqui.
     {%- endcomment -%}
+    {%- liquid
+      # Comprimento da guia: vem dos campos personalizados do Waltz (metafield
+      # waltz.campos_personalizados), achado pela TAG. Sem o campo, desligado.
+      assign cfs_waltz = shop.metafields.waltz.campos_personalizados.value
+      assign guia_cf = cfs_waltz | where: 'tag', 'comprimento_guia' | first
+      assign guia_enabled = false
+      assign guia_tag = ''
+      assign guia_name = ''
+      assign guia_options = ''
+      assign guia_required = false
+      if guia_cf != blank
+        assign guia_enabled = true
+        assign guia_tag = guia_cf.tag
+        assign guia_name = guia_cf.name
+        assign guia_options = guia_cf.options
+        assign guia_required = guia_cf.required
+      endif
+    -%}
     <script>
       window.AmeThemeConfig = {
         yampiAtivo: {{ checkout_yampi | json }},
         comprimentoGuia: {
-          enabled: {{ settings.custom_field_13_enable | json }},
-          tag: {{ settings.custom_field_13_tag | json }},
-          name: {{ settings.custom_field_13_name | json }},
-          options: {{ settings.custom_field_13_options | json }},
-          required: {{ settings.custom_field_13_required | json }}
+          enabled: {{ guia_enabled | json }},
+          tag: {{ guia_tag | json }},
+          name: {{ guia_name | json }},
+          options: {{ guia_options | json }},
+          required: {{ guia_required | json }}
         }
       };
     </script>

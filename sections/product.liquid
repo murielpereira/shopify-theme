@@ -1072,21 +1072,20 @@
         📊 Impact: Improves server response time (TTFB) on product pages with custom fields enabled.
       {%- endcomment -%}
       {%- liquid
-        assign active_cf_str = ''
-        for cf_i in (1..20)
-          assign cf_en_key = 'custom_field_' | append: cf_i | append: '_enable'
-          assign cf_tag_key = 'custom_field_' | append: cf_i | append: '_tag'
-          assign cf_enabled = settings[cf_en_key]
-          assign cf_cfg_tag = settings[cf_tag_key]
+        # Fonte dos campos: metafield do Waltz (Aplicativos → Campos personalizados;
+        # waltz.campos_personalizados, só os ATIVOS, com as chaves tag/name/title/
+        # placeholder/helper/limiter/type/options/order/required). Sem o metafield,
+        # nenhum campo aparece.
+        # Cada item vira "ordem_posição", onde a posição é o índice na lista.
+        assign cfs_waltz = shop.metafields.waltz.campos_personalizados.value
 
-          if cf_enabled and effective_tags contains cf_cfg_tag
-            assign cf_or_key = 'custom_field_' | append: cf_i | append: '_order'
-            assign cf_order = settings[cf_or_key] | default: cf_i
+        assign active_cf_str = ''
+        for cf_src in cfs_waltz
+          if effective_tags contains cf_src.tag
+            assign cf_order = cf_src.order | default: forloop.index
             # Padds order with 0 if single digit to ensure correct string sorting
             assign padded_order = cf_order | prepend: '00' | slice: -2, 2
-
-            # Format: order_cf_i
-            assign cf_item = padded_order | append: '_' | append: cf_i
+            assign cf_item = padded_order | append: '_' | append: forloop.index0
             assign active_cf_str = active_cf_str | append: cf_item | append: ','
           endif
         endfor
@@ -1099,30 +1098,20 @@
 
         {%- liquid
           assign cf_parts = sorted_cf | split: '_'
-          assign cf_i = cf_parts[1]
-
-          assign cf_nm_key = 'custom_field_' | append: cf_i | append: '_name'
-          assign cf_tt_key = 'custom_field_' | append: cf_i | append: '_title'
-          assign cf_ph_key = 'custom_field_' | append: cf_i | append: '_placeholder'
-          assign cf_hl_key = 'custom_field_' | append: cf_i | append: '_helper'
-          assign cf_lm_key = 'custom_field_' | append: cf_i | append: '_limiter'
-          assign cf_tp_key = 'custom_field_' | append: cf_i | append: '_type'
-          assign cf_op_key = 'custom_field_' | append: cf_i | append: '_options'
-          assign cf_rq_key = 'custom_field_' | append: cf_i | append: '_required'
-
-          assign cf_name = settings[cf_nm_key]
-          assign cf_title = settings[cf_tt_key]
-          assign cf_placeholder = settings[cf_ph_key] | default: cf_title
-          assign cf_helper = settings[cf_hl_key]
-          assign cf_limiter = settings[cf_lm_key]
-          assign cf_type = settings[cf_tp_key]
-          assign cf_options = settings[cf_op_key]
-          assign cf_req = settings[cf_rq_key]
-          # Re-resolve a tag desse CF pra anotar no DOM. O JS do kit usa pra
-          # decidir em qual item da requisição /cart/add.js essa property entra
-          # (só vai pro componente que tem a tag).
-          assign cf_tag_key2 = 'custom_field_' | append: cf_i | append: '_tag'
-          assign cf_field_tag = settings[cf_tag_key2]
+          assign cf_idx = cf_parts[1] | plus: 0
+          assign cf_w = cfs_waltz[cf_idx]
+          assign cf_name = cf_w.name
+          assign cf_title = cf_w.title
+          assign cf_placeholder = cf_w.placeholder | default: cf_title
+          assign cf_helper = cf_w.helper
+          assign cf_limiter = cf_w.limiter
+          assign cf_type = cf_w.type
+          assign cf_options = cf_w.options
+          assign cf_req = cf_w.required
+          # A tag vai anotada no DOM. O JS do kit usa pra decidir em qual item da
+          # requisição /cart/add.js essa property entra (só vai pro componente
+          # que tem a tag).
+          assign cf_field_tag = cf_w.tag
         -%}
         <div class="pdp__custom-field" data-cf-tag="{{ cf_field_tag | escape }}" data-cf-name="{{ cf_name | escape }}">
           {%- if cf_type == 'text' or cf_type == 'date' or cf_type == 'phone' -%}
