@@ -78,15 +78,7 @@
   endif
 
   assign card_effective_price = card_price
-  if card_has_discount == false and settings.auto_discount_enabled and settings.auto_discount_percent > 0
-    assign card_has_discount = true
-    assign card_discount_pct = settings.auto_discount_percent
-    assign card_compare_price = card_price
-    assign card_discount_cents = card_price | times: card_discount_pct | divided_by: 100
-    assign card_effective_price = card_price | minus: card_discount_cents
-  else
-    assign card_compare_price = card_compare
-  endif
+  assign card_compare_price = card_compare
 
   # Badge de status do produto. Prioridade: lancamento > heritage > novo > mais-vendido.
   # Lançamento ganha prioridade pra dar destaque aos produtos recém-saídos do forno;
@@ -103,6 +95,22 @@
   elsif card_product.tags contains 'mais-vendido'
     assign card_badge = 'Mais Vendido'
   endif
+
+  # Badge de promoção, vindo da aba Badges do Waltz: o metafield da loja
+  # `waltz.badges` lista só as ações ATIVAS agora (já em ordem de prioridade) e o
+  # Waltz põe/tira a tag nos produtos. O primeiro que casar ocupa o lugar do badge
+  # de status acima — um selo só por card. Sem metafield, nada muda.
+  assign card_waltz_texto = ''
+  assign card_waltz_fundo = ''
+  assign card_waltz_cor = ''
+  for wb in shop.metafields.waltz.badges.value
+    if card_product.tags contains wb.tag
+      assign card_waltz_texto = wb.texto
+      assign card_waltz_fundo = wb.fundo
+      assign card_waltz_cor = wb.cor
+      break
+    endif
+  endfor
 
   # Esgotado: card_product.available é false quando TODAS as variantes têm
   # inventory_quantity <= 0 e tracking habilitado. Cobre tanto produtos
@@ -198,14 +206,16 @@
     <!-- Pilha de badges no top-left: Esgotado/Desconto + Lançamento/Heritage/Novo + Sob Medida.
          Esgotado tem prioridade sobre desconto (se não dá pra comprar, o % não importa).
          "Sob Medida" é informação técnica, aparece junto com qualquer outro badge. -->
-    {%- if card_is_sold_out or card_has_discount or card_badge != '' or card_is_sob_medida or card_is_pingente_opcional -%}
+    {%- if card_is_sold_out or card_has_discount or card_badge != '' or card_waltz_texto != '' or card_is_sob_medida or card_is_pingente_opcional -%}
       <div class="ame-card__badges">
         {%- if card_is_sold_out -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--sold-out" aria-label="Produto esgotado">Esgotado</span>
         {%- elsif card_has_discount -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--discount" aria-label="{{ card_discount_pct }}% de desconto">{{ card_discount_pct }}% OFF</span>
         {%- endif -%}
-        {%- if card_badge != '' -%}
+        {%- if card_waltz_texto != '' -%}
+          <span class="ame-card__badge-pill ame-card__badge-pill--waltz" style="background: {{ card_waltz_fundo | escape }}; color: {{ card_waltz_cor | escape }};">{{ card_waltz_texto | escape }}</span>
+        {%- elsif card_badge != '' -%}
           <span class="ame-card__badge-pill ame-card__badge-pill--{{ card_badge_mod | default: 'status' }}">{{ card_badge }}</span>
         {%- endif -%}
         {%- if card_is_sob_medida -%}

@@ -29,15 +29,7 @@
       endif
     
       assign card_effective_price = card_product.price
-      if card_has_discount == false and settings.auto_discount_enabled and settings.auto_discount_percent > 0
-        assign card_has_discount = true
-        assign card_discount_pct = settings.auto_discount_percent
-        assign card_compare_price = card_product.price
-        assign card_discount_cents = card_product.price | times: card_discount_pct | divided_by: 100
-        assign card_effective_price = card_product.price | minus: card_discount_cents
-      else
-        assign card_compare_price = card_compare
-      endif
+      assign card_compare_price = card_compare
     
       assign card_badge = ''
       if card_product.tags contains 'heritage'

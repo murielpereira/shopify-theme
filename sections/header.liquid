@@ -327,8 +327,8 @@
   {%- liquid
     assign ld_home = shop.url | append: routes.root_url
     assign ld_org_id = ld_home | append: '#organization'
-    assign ld_instagram = settings.social_instagram | default: 'https://www.instagram.com/ameacessoriospet'
-    assign ld_facebook = settings.social_facebook | default: 'https://www.facebook.com/ameacessoriospet/'
+    assign ld_instagram = 'https://www.instagram.com/ameacessoriospet'
+    assign ld_facebook = 'https://www.facebook.com/ameacessoriospet/'
   -%}
   <script type="application/ld+json">
     {

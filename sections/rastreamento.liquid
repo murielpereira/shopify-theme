@@ -43,8 +43,8 @@
     </form>
   </div>
 
-  {% comment %} Aviso de atraso nos Correios — vide Configurações do tema {% endcomment %}
-  {%- render 'aviso-correios' -%}
+  {% comment %} Avisos de frete — cadastrados no Waltz (Aplicativos → Avisos de frete) {% endcomment %}
+  {%- render 'avisos-frete', onde: 'rastreamento' -%}
 
   {% comment %} Estado vazio (default antes da pesquisa) {% endcomment %}
   <div class="ame-track__empty" data-track-empty>

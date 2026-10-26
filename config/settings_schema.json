@@ -8,19 +8,14 @@
     "theme_support_url": "https://support.shopify.com/"
   },
   {
-    "name": "Tipografia",
+    "name": "Fonte e favicon",
     "settings": [
       {
         "type": "font_picker",
         "id": "type_primary_font",
         "label": "Fonte principal",
         "default": "assistant_n4"
-      }
-    ]
-  },
-  {
-    "name": "Favicon",
-    "settings": [
+      },
       {
         "type": "image_picker",
         "id": "favicon",
@@ -192,34 +187,12 @@
         "id": "header_sticky",
         "label": "Cabeçalho fixo ao rolar",
         "default": true
-      },
-      {
-        "type": "checkbox",
-        "id": "header_transparent",
-        "label": "Transparente sobre o hero",
-        "default": true
       }
     ]
   },
   {
-    "name": "Carrinho",
+    "name": "Carrinho e checkout",
     "settings": [
-      {
-        "type": "select",
-        "id": "cart_type",
-        "label": "Tipo de carrinho",
-        "options": [
-          {
-            "value": "page",
-            "label": "Página de carrinho"
-          },
-          {
-            "value": "drawer",
-            "label": "Gaveta lateral"
-          }
-        ],
-        "default": "drawer"
-      },
       {
         "type": "header",
         "content": "Barra de frete grátis"
@@ -241,12 +214,11 @@
         "label": "Threshold nacional — demais regiões (em centavos)",
         "info": "Ex: 29000 = R$ 290,00",
         "default": 29000
-      }
-    ]
-  },
-  {
-    "name": "Checkout",
-    "settings": [
+      },
+      {
+        "type": "header",
+        "content": "Checkout externo (Yampi)"
+      },
       {
         "type": "paragraph",
         "content": "Checkout externo da Yampi. Ligado: o botão \"Finalizar compra\" do carrinho manda o carrinho pra Yampi e leva a cliente pro checkout deles. Desligado: volta na hora pro checkout padrão da Shopify — é a chave de emergência se algo der errado na Yampi. Vale só pra quem a Shopify identifica como Brasil (o checkout da Yampi não aceita endereço estrangeiro): visitante de outro país sempre usa o checkout da Shopify."
@@ -261,58 +233,11 @@
     ]
   },
   {
-    "name": "Aviso dos Correios",
+    "name": "Pix, parcelas e cashback",
     "settings": [
       {
         "type": "paragraph",
-        "content": "Aviso de possíveis atrasos nas entregas feitas pelos Correios (paralisação). Aparece na página de rastreamento e nas calculadoras de frete da página de produto e do carrinho. Quando a greve acabar, é só desmarcar \"Exibir aviso\" — ele some das três telas de uma vez."
-      },
-      {
-        "type": "checkbox",
-        "id": "aviso_correios_ativo",
-        "label": "Exibir aviso",
-        "default": true
-      },
-      {
-        "type": "text",
-        "id": "aviso_correios_titulo",
-        "label": "Título",
-        "default": "Entregas pelos Correios podem atrasar"
-      },
-      {
-        "type": "richtext",
-        "id": "aviso_correios_texto",
-        "label": "Texto — página de rastreamento",
-        "default": "<p>Por causa da greve dos Correios, pedidos enviados por PAC ou SEDEX podem levar mais tempo que o prazo estimado. As demais transportadoras seguem operando normalmente.</p>"
-      },
-      {
-        "type": "textarea",
-        "id": "aviso_correios_texto_curto",
-        "label": "Texto — calculadoras de frete",
-        "info": "Versão curta, exibida na página do produto e no carrinho.",
-        "default": "Envios pelos Correios (PAC e SEDEX) podem atrasar por causa da greve. As demais transportadoras seguem com os prazos normais."
-      },
-      {
-        "type": "text",
-        "id": "aviso_correios_link",
-        "label": "Link do \"Saiba mais\"",
-        "info": "Cole o endereço completo (https://...). Deixe em branco para não exibir o link.",
-        "default": "https://g1.globo.com/trabalho-e-carreira/noticia/2026/09/14/greve-dos-correios-continua-veja-como-ficam-as-entregas.ghtml"
-      },
-      {
-        "type": "text",
-        "id": "aviso_correios_link_label",
-        "label": "Texto do link",
-        "default": "Saiba mais"
-      }
-    ]
-  },
-  {
-    "name": "Opções de Pagamento",
-    "settings": [
-      {
-        "type": "paragraph",
-        "content": "Configurações de Pix, parcelamento e cashback exibidas nos cards e na PDP. São apenas ANÚNCIO — o pagamento real é processado pelo pagar.me no checkout. Mantenha sincronizado com o admin do pagar.me pra cliente não ver valor diferente do que será cobrado."
+        "content": "Valores exibidos nos cards e na página do produto. São apenas ANÚNCIO — o pagamento real é processado pelo pagar.me no checkout. Mantenha sincronizado com o admin do pagar.me pra cliente não ver valor diferente do que será cobrado. Pix e cashback: se o Waltz tiver publicado um percentual (ações por período nas abas Pix e Cashback, ou o valor padrão de lá), ele vale no lugar do daqui. O valor desta tela é o reserva."
       },
       {
         "type": "header",
@@ -429,27 +354,7 @@
     ]
   },
   {
-    "name": "Redes Sociais",
-    "settings": [
-      {
-        "type": "url",
-        "id": "social_instagram",
-        "label": "Instagram"
-      },
-      {
-        "type": "url",
-        "id": "social_facebook",
-        "label": "Facebook"
-      },
-      {
-        "type": "url",
-        "id": "social_whatsapp",
-        "label": "WhatsApp"
-      }
-    ]
-  },
-  {
-    "name": "Produto",
+    "name": "Página do produto",
     "settings": [
       {
         "type": "header",
@@ -467,30 +372,6 @@
       },
       {
         "type": "header",
-        "content": "Desconto automático (vitrine)"
-      },
-      {
-        "type": "paragraph",
-        "content": "Espelha o desconto automático criado em Admin → Descontos. Marque a opção abaixo e informe a MESMA % do desconto automático para que o badge e o preço 'De/Por' apareçam nos cards e na página do produto. O desconto real continua sendo aplicado pelo Shopify no carrinho."
-      },
-      {
-        "type": "checkbox",
-        "id": "auto_discount_enabled",
-        "label": "Exibir desconto automático em cards e PDP",
-        "default": false
-      },
-      {
-        "type": "range",
-        "id": "auto_discount_percent",
-        "min": 1,
-        "max": 90,
-        "step": 1,
-        "unit": "%",
-        "label": "Porcentagem do desconto automático",
-        "default": 10
-      },
-      {
-        "type": "header",
         "content": "Cor do Metal (swatches visuais)"
       },
       {
@@ -502,11 +383,12 @@
         "id": "show_metal_color_swatches",
         "label": "Exibir swatches visuais para 'Cor do Metal'",
         "default": true
-      },
-      {
-        "type": "header",
-        "content": "Pingente personalizado"
-      },
+      }
+    ]
+  },
+  {
+    "name": "Pingente personalizado",
+    "settings": [
       {
         "type": "paragraph",
         "content": "Ativa o bloco de customização em produtos com a tag 'customizacao_pingente'. O pingente é adicionado ao carrinho como um produto separado. Requer cadastro dos produtos 'pingente-de-metal-para-identificacao-pet', 'pingente-de-couro-para-identificacao-pet-<cor>' e 'pingente-de-metal-com-couro-para-identificacao-pet-<cor>' no admin, cada um com variantes 'Cor do Metal', 'Formato' e 'Tamanho'."
@@ -581,11 +463,12 @@
         "label": "Tamanho da coleira → Tamanho do pingente",
         "info": "Um par por linha ou separados por vírgula, no formato 'TamanhoColeira=TamanhoPingente'. Ex: XPP=P, P=P, M=G, G=G",
         "default": "XPP=P, XPP+=P, PP=P, P=P, M=G, G=G"
-      },
-      {
-        "type": "header",
-        "content": "Swatch sólido"
-      },
+      }
+    ]
+  },
+  {
+    "name": "Swatch sólido (peças finas)",
+    "settings": [
       {
         "type": "paragraph",
         "content": "Para produtos com a tag 'swatch_solido' (peças finas onde a foto não mostra a cor com clareza), o swatch é renderizado como bloco sólido. Se a cor tem 2 partes (ex: 'Allure com Off White'), o swatch é dividido na diagonal. As pedras são ignoradas no swatch."
@@ -600,7 +483,54 @@
     ]
   },
   {
-    "name": "Campo Personalizado 1",
+    "name": "Aviso dos Correios",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Aviso de possíveis atrasos nas entregas feitas pelos Correios (paralisação). Aparece na página de rastreamento e nas calculadoras de frete da página de produto e do carrinho. Quando a greve acabar, é só desmarcar \"Exibir aviso\" — ele some das três telas de uma vez."
+      },
+      {
+        "type": "checkbox",
+        "id": "aviso_correios_ativo",
+        "label": "Exibir aviso",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_titulo",
+        "label": "Título",
+        "default": "Entregas pelos Correios podem atrasar"
+      },
+      {
+        "type": "richtext",
+        "id": "aviso_correios_texto",
+        "label": "Texto — página de rastreamento",
+        "default": "<p>Por causa da greve dos Correios, pedidos enviados por PAC ou SEDEX podem levar mais tempo que o prazo estimado. As demais transportadoras seguem operando normalmente.</p>"
+      },
+      {
+        "type": "textarea",
+        "id": "aviso_correios_texto_curto",
+        "label": "Texto — calculadoras de frete",
+        "info": "Versão curta, exibida na página do produto e no carrinho.",
+        "default": "Envios pelos Correios (PAC e SEDEX) podem atrasar por causa da greve. As demais transportadoras seguem com os prazos normais."
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_link",
+        "label": "Link do \"Saiba mais\"",
+        "info": "Cole o endereço completo (https://...). Deixe em branco para não exibir o link.",
+        "default": "https://g1.globo.com/trabalho-e-carreira/noticia/2026/09/14/greve-dos-correios-continua-veja-como-ficam-as-entregas.ghtml"
+      },
+      {
+        "type": "text",
+        "id": "aviso_correios_link_label",
+        "label": "Texto do link",
+        "default": "Saiba mais"
+      }
+    ]
+  },
+  {
+    "name": "Campo 1 · Observações (raça, idade e peso)",
     "settings": [
       {
         "type": "paragraph",
@@ -694,7 +624,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 2",
+    "name": "Campo 2 · Nome do pet (frente)",
     "settings": [
       {
         "type": "checkbox",
@@ -784,7 +714,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 3",
+    "name": "Campo 3 · Nome do tutor (verso)",
     "settings": [
       {
         "type": "checkbox",
@@ -874,7 +804,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 4",
+    "name": "Campo 4 · Telefone do tutor (verso)",
     "settings": [
       {
         "type": "checkbox",
@@ -964,7 +894,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 5",
+    "name": "Campo 5 · Data do evento",
     "settings": [
       {
         "type": "checkbox",
@@ -1054,7 +984,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 6",
+    "name": "Campo 6 · Iniciais",
     "settings": [
       {
         "type": "checkbox",
@@ -1144,7 +1074,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 7",
+    "name": "Campo 7 · Nome (jogo americano)",
     "settings": [
       {
         "type": "checkbox",
@@ -1234,7 +1164,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 8",
+    "name": "Campo 8 · Nome do pet (escrita)",
     "settings": [
       {
         "type": "checkbox",
@@ -1324,7 +1254,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 9",
+    "name": "Campo 9 · Nome do tutor (escrita)",
     "settings": [
       {
         "type": "checkbox",
@@ -1414,7 +1344,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 10",
+    "name": "Campo 10 · Telefone do tutor (escrita)",
     "settings": [
       {
         "type": "checkbox",
@@ -1504,7 +1434,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 11",
+    "name": "Campo 11 · Medida do pescoço (sob medida)",
     "settings": [
       {
         "type": "checkbox",
@@ -1594,7 +1524,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 12",
+    "name": "Campo 12 · Largura da guia",
     "settings": [
       {
         "type": "checkbox",
@@ -1684,7 +1614,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 13",
+    "name": "Campo 13 · Comprimento da guia",
     "settings": [
       {
         "type": "checkbox",
@@ -1774,7 +1704,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 14",
+    "name": "Campo 14 · Letra",
     "settings": [
       {
         "type": "checkbox",
@@ -1864,7 +1794,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 15",
+    "name": "Campo 15 · Raça do pet",
     "settings": [
       {
         "type": "checkbox",
@@ -1954,7 +1884,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 16",
+    "name": "Campo 16 · Nascimento do pet",
     "settings": [
       {
         "type": "checkbox",
@@ -2044,7 +1974,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 17",
+    "name": "Campo 17 · Acabamento do laço",
     "settings": [
       {
         "type": "checkbox",
@@ -2134,7 +2064,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 18",
+    "name": "Campo 18 · Telefone (aba interna)",
     "settings": [
       {
         "type": "checkbox",
@@ -2224,7 +2154,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 19",
+    "name": "Campo 19 · livre (reserva)",
     "settings": [
       {
         "type": "checkbox",
@@ -2314,7 +2244,7 @@
     ]
   },
   {
-    "name": "Campo Personalizado 20",
+    "name": "Campo 20 · livre (reserva)",
     "settings": [
       {
         "type": "checkbox",

@@ -1,0 +1,63 @@
+{% comment %}
+  Avisos de frete (greve dos Correios, atraso de transportadora, feriado…).
+
+  Quem cadastra, liga e desliga é o Waltz: Aplicativos → Avisos de frete. O
+  Waltz grava no metafield da loja `waltz.avisos_frete` a lista dos avisos que
+  valem AGORA (começo e fim já aplicados) e este snippet só desenha. Sem
+  metafield, ou lista vazia, não renderiza nada.
+
+  Uso (o parâmetro `onde` é obrigatório — o aviso só aparece onde foi marcado):
+    {%- render 'avisos-frete', onde: 'rastreamento' -%}  → versão completa
+    {%- render 'avisos-frete', onde: 'produto' -%}       → versão enxuta (frete na PDP)
+    {%- render 'avisos-frete', onde: 'carrinho' -%}      → versão enxuta (frete no carrinho)
+
+  Os textos vêm como texto puro: aqui são escapados e as quebras de linha viram <br>.
+
+  Os estilos (.ame-aviso-correios*) vivem em assets/critical.css porque o
+  snippet é reaproveitado por mais de uma seção/snippet. O nome da classe ficou
+  da época em que o aviso era só dos Correios.
+{% endcomment %}
+
+{%- assign avisos_frete = shop.metafields.waltz.avisos_frete.value -%}
+{%- if avisos_frete != blank and onde != blank -%}
+  {%- assign compacto = true -%}
+  {%- if onde == 'rastreamento' -%}{%- assign compacto = false -%}{%- endif -%}
+  {%- for aviso in avisos_frete -%}
+    {%- unless aviso.onde contains onde -%}{%- continue -%}{%- endunless -%}
+    {%- if compacto -%}
+      {%- assign aviso_corpo = aviso.texto_curto | default: aviso.texto -%}
+    {%- else -%}
+      {%- assign aviso_corpo = aviso.texto | default: aviso.texto_curto -%}
+    {%- endif -%}
+    <aside class="ame-aviso-correios{% if compacto %} ame-aviso-correios--compact{% endif %}" role="note">
+      <span class="material-symbols-outlined ame-aviso-correios__icon" aria-hidden="true">local_shipping</span>
+      <div class="ame-aviso-correios__content">
+        {%- if aviso.titulo != blank -%}
+          <p class="ame-aviso-correios__title">{{ aviso.titulo | escape }}</p>
+        {%- endif -%}
+        {%- if aviso_corpo != blank -%}
+          <div class="ame-aviso-correios__body">{{ aviso_corpo | escape | newline_to_br }}</div>
+        {%- endif -%}
+        {%- if aviso.link != blank -%}
+          <a
+            class="ame-aviso-correios__link"
+            href="{{ aviso.link | escape }}"
+            target="_blank"
+            rel="noopener nofollow"
+          >
+            {{ aviso.link_rotulo | default: 'Saiba mais' | escape }}
+            {%- comment -%}
+              SVG inline em vez de Material Symbols: o ícone "open_in_new" não faz
+              parte do subset self-hosted da fonte (vide snippets/css-variables.liquid)
+              e sairia como texto literal.
+            {%- endcomment -%}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+    </aside>
+  {%- endfor -%}
+{%- endif -%}

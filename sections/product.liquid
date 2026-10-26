@@ -387,8 +387,6 @@
           assign pdp_img_discount = 0
           if img_compare > img_base_price
             assign pdp_img_discount = img_compare | minus: img_base_price | times: 100 | divided_by: img_compare | round
-          elsif settings.auto_discount_enabled and settings.auto_discount_percent > 0
-            assign pdp_img_discount = settings.auto_discount_percent
           endif
         -%}
         <div id="pdp-img-badge-wrap">
@@ -495,6 +493,20 @@
       if product.available == false
         assign show_meta = true
       endif
+      # Selo de promoção da aba Badges do Waltz (metafield `waltz.badges` = ações
+      # ativas, já em ordem de prioridade; o primeiro que casar vence).
+      assign waltz_texto = ''
+      assign waltz_fundo = ''
+      assign waltz_cor = ''
+      for wb in shop.metafields.waltz.badges.value
+        if product.tags contains wb.tag
+          assign waltz_texto = wb.texto
+          assign waltz_fundo = wb.fundo
+          assign waltz_cor = wb.cor
+          assign show_meta = true
+          break
+        endif
+      endfor
     -%}
     {%- if show_meta -%}
       <div class="pdp__meta">
@@ -504,6 +516,9 @@
           🎯 Why: Iterating over `product.tags` to find a specific tag causes O(N) rendering overhead. Native `contains` provides O(N) internal C++ lookup without the Liquid loop scoping overhead.
           📊 Impact: Reduces template compilation overhead and improves server response time for products with many tags.
         {%- endcomment -%}
+        {%- if waltz_texto != '' -%}
+          <span class="ame-chip" style="background: {{ waltz_fundo | escape }}; color: {{ waltz_cor | escape }}; border-color: transparent;">{{ waltz_texto | escape }}</span>
+        {%- endif -%}
         {%- if product.tags contains 'lancamento' -%}
           <span class="ame-chip ame-chip--lancamento">Lançamento</span>
         {%- endif -%}
@@ -590,13 +605,6 @@
 
       assign effective_price = base_price
       assign displayed_compare = cv_compare
-      if has_compare == false and settings.auto_discount_enabled and settings.auto_discount_percent > 0
-        assign has_compare = true
-        assign discount_pct = settings.auto_discount_percent
-        assign displayed_compare = base_price
-        assign disc_cents = base_price | times: discount_pct | divided_by: 100
-        assign effective_price = base_price | minus: disc_cents
-      endif
 
       # Pix é só anúncio no tema — pagar.me processa no checkout. Mantém
       # `settings.pix_discount` sincronizado com a config do pagar.me admin.
