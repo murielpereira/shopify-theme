@@ -596,7 +596,7 @@
     font-size: 0.625rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+    color: var(--color-on-surface-muted, #6c6159);
     margin-bottom: 0.875rem;
   }
   .ame-col-select-wrap {
@@ -618,6 +618,12 @@
   }
   .ame-col-select:focus {
     border-bottom-color: var(--color-primary, #5a4742);
+  }
+
+  /* A lista aberta é desenhada pelo navegador: precisa de fundo e texto próprios. */
+  .ame-col-select option {
+    background: var(--color-surface-container-lowest, #fff);
+    color: var(--color-on-background, #201b14);
   }
   .ame-col-select-icon {
     position: absolute;

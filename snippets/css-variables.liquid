@@ -288,6 +288,10 @@
     }
   }
   {%- if escuro -%}
+    /* Controles nativos do navegador (lista aberta do <select>, campos, barras) seguem o
+       tema escuro; sem isto a lista abre BRANCA com texto claro e as opções somem. */
+    :root { color-scheme: dark; }
+
     /* Conteúdo escrito no admin (descrição de coleção etc.) traz <style> e cores inline
        fixas (fundo branco, texto marrom). No modo Escuro segue a paleta. */
     .ame-col-header__desc .ame-section { background: var(--color-surface-container) !important; }
