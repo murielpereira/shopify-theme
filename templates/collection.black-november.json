@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "main": {
+      "type": "collection-black-november",
+      "blocks": {
+        "aba_coleiras": { "type": "aba", "settings": { "colecao": "coleiras-black", "titulo": "Coleiras", "selo": "20% OFF", "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão." } },
+        "aba_kits": { "type": "aba", "settings": { "colecao": "kits", "titulo": "Kits", "selo": "15% OFF", "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis." } },
+        "aba_mais_vendidos": { "type": "aba", "settings": { "colecao": "mais-vendidos", "titulo": "Mais vendidos", "selo": "Favoritos da Black", "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha." } },
+        "b1": { "type": "beneficio", "settings": { "titulo": "Garantia de 6 meses", "texto": "Em todos os acessórios de couro." } },
+        "b2": { "type": "beneficio", "settings": { "titulo": "Couro legítimo", "texto": "Material nobre que envelhece bonito." } },
+        "b3": { "type": "beneficio", "settings": { "titulo": "Feito à mão", "texto": "Cada peça é produzida com carinho, no Brasil." } },
+        "b4": { "type": "beneficio", "settings": { "titulo": "Todo o Brasil", "texto": "Frete grátis acima de R$ 190 no Sul e Sudeste e R$ 390 nas demais regiões." } },
+        "b5": { "type": "beneficio", "settings": { "titulo": "Até 6x sem juros", "texto": "Parcele a sua compra no cartão." } },
+        "b6": { "type": "beneficio", "settings": { "titulo": "Cashback de 10%", "texto": "Volta em saldo para usar na loja." } },
+        "q1": { "type": "pergunta", "settings": { "pergunta": "Até quando valem as ofertas da Black November?", "resposta": "As ofertas ficam no ar até 30 de novembro e enquanto durar o estoque de cada modelo. Depois dessa data, os preços voltam ao normal." } },
+        "q2": { "type": "pergunta", "settings": { "pergunta": "Como funciona o brinde do Colar de Natal?", "resposta": "Compras acima de R$ 390 durante a Black November levam o Colar de Natal. O brinde é adicionado ao seu pedido sem custo." } },
+        "q3": { "type": "pergunta", "settings": { "pergunta": "Qual é o frete e o prazo de entrega?", "resposta": "Entregamos para todo o Brasil. O frete é grátis para Sul e Sudeste a partir de R$ 190 e para as demais regiões a partir de R$ 390." } },
+        "q4": { "type": "pergunta", "settings": { "pergunta": "E se o tamanho não servir no meu pet?", "resposta": "Você tem troca de tamanho grátis. Além disso, todos os acessórios têm garantia de 6 meses." } },
+        "q5": { "type": "pergunta", "settings": { "pergunta": "As peças são personalizadas?", "resposta": "Sim. As coleiras são feitas à mão em couro legítimo e podem ser personalizadas com o nome do seu pet." } }
+      },
+      "block_order": ["aba_coleiras", "aba_kits", "aba_mais_vendidos", "b1", "b2", "b3", "b4", "b5", "b6", "q1", "q2", "q3", "q4", "q5"],
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

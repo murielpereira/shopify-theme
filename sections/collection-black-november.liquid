@@ -1,0 +1,788 @@
+{% comment %}
+  Âme — Coleção "Black November": página de campanha escura (faixa + hero + ofertas por
+  aba com ordenar/filtrar por % de desconto + brinde + contagem da coleção de Natal + FAQ).
+  Base: protótipo do Base44 (ame-black-pet).
+
+  Quais produtos aparecem: os da coleção base (padrão = a coleção onde o template foi
+  aplicado, a automática pela tag `black_november` que o Waltz põe/tira conforme a
+  promoção Black November). Cada aba é uma coleção; só entram nela os produtos que
+  TAMBÉM estão na coleção base. Lista, preço, riscado e % vêm da loja em tempo real
+  (/collections/<handle>/products.json): % = maior desconto entre as variantes
+  (compare_at_price x price), o mesmo que o Waltz grava ao aplicar a promoção.
+{% endcomment %}
+
+{%- liquid
+  assign base_handle = section.settings.colecao_base.handle | default: collection.handle | default: 'black-november'
+  assign solo_promo = section.settings.so_da_promocao
+  assign fim_data = section.settings.fim_data | strip
+  assign natal_data = section.settings.natal_data | strip
+  assign hero_img = section.settings.hero_image
+  assign natal_img = section.settings.natal_image
+  assign brinde_img = section.settings.brinde_image
+  assign abas = section.blocks | where: 'type', 'aba'
+  assign beneficios = section.blocks | where: 'type', 'beneficio'
+  assign perguntas = section.blocks | where: 'type', 'pergunta'
+  assign raiz = routes.root_url
+  if raiz != '/'
+    assign raiz = raiz | append: '/'
+  endif
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  # Mesma regra da página Esquenta Black: com "Usar as cores do tema geral" (ou Modo de cores
+  # Escuro) a página herda a paleta da loja; senão, preto + verde-limão da campanha.
+  if settings.eb_usar_tema_geral or settings.modo_cores == 'escuro'
+    assign bn_bg = 'var(--color-background)'
+    assign bn_fg = 'var(--color-on-background)'
+    assign bn_card = 'var(--color-surface-container)'
+    assign bn_border = 'var(--color-outline-variant)'
+    assign bn_lime = 'var(--color-primary)'
+    assign bn_on_lime = 'var(--color-on-primary)'
+  else
+    assign bn_bg = settings.eb_bg | default: '#080808'
+    assign bn_fg = settings.eb_fg | default: '#ffffff'
+    assign bn_card = settings.eb_secondary | default: '#141414'
+    assign bn_border = settings.eb_border | default: '#2e2e2e'
+    assign bn_lime = settings.eb_lime | default: '#c8ff3d'
+    assign bn_on_lime = settings.eb_on_lime | default: '#080808'
+  endif
+-%}
+
+<style>
+  .bn {
+    --bn-bg: {{ bn_bg }};
+    --bn-fg: {{ bn_fg }};
+    --bn-card: {{ bn_card }};
+    --bn-border: {{ bn_border }};
+    --bn-lime: {{ bn_lime }};
+    --bn-on-lime: {{ bn_on_lime }};
+    --bn-muted: color-mix(in srgb, var(--bn-fg) 68%, transparent);
+    --bn-faint: color-mix(in srgb, var(--bn-fg) 55%, transparent);
+    --bn-natal: #8e1014;
+    --bn-natal-deep: #5c0a0d;
+    --bn-pine: #0e5b3a;
+    --bn-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --bn-display: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+
+    background: var(--bn-bg);
+    color: var(--bn-fg);
+    color-scheme: dark;
+    font-family: var(--bn-body);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .bn *, .bn *::before, .bn *::after { box-sizing: border-box; }
+  .bn ::selection { background: var(--bn-lime); color: var(--bn-on-lime); }
+  :where(.bn) a { color: inherit; text-decoration: none; }
+  :where(.bn) :is(h1, h2, h3, p, ul, figure) { margin: 0; padding: 0; }
+  :where(.bn) ul { list-style: none; }
+  :where(.bn) button, :where(.bn) select { font: inherit; color: inherit; }
+  :where(.bn) button { cursor: pointer; background: none; border: 0; padding: 0; }
+  .bn [hidden] { display: none !important; }
+  .bn :focus-visible { outline: 2px solid var(--bn-lime); outline-offset: 3px; }
+
+  .bn-wrap { max-width: 1400px; margin: 0 auto; padding: 0 1.25rem; }
+  @media (min-width: 640px) { .bn-wrap { padding: 0 2rem; } }
+  @media (min-width: 1280px) { .bn-wrap { padding: 0 4rem; } }
+
+  .bn-eyebrow { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .38em; color: var(--bn-lime); }
+  .bn-h2 { margin-top: 1rem; font-family: var(--bn-display); font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.02; letter-spacing: -.01em; }
+  .bn-h2 em { font-style: italic; color: var(--bn-lime); }
+  .bn-lead { margin-top: 1.25rem; max-width: 36rem; font-size: 16px; line-height: 1.65; color: var(--bn-muted); }
+  .bn-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: 1rem 1.75rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; transition: transform .3s; }
+  .bn-btn:hover { transform: translateY(-2px); }
+  .bn-btn--line { background: none; color: var(--bn-lime); border: 1px solid color-mix(in srgb, var(--bn-lime) 60%, transparent); }
+  .bn-btn--line:hover { background: var(--bn-lime); color: var(--bn-on-lime); }
+  .bn-section { padding: 4.5rem 0; scroll-margin-top: 6rem; }
+  @media (min-width: 768px) { .bn-section { padding: 6rem 0; } }
+
+  /* Faixa que corre + contagem do fim da Black */
+  .bn-marquee { overflow: hidden; background: var(--bn-lime); color: var(--bn-on-lime); padding: .875rem 0; }
+  .bn-marquee__track { display: flex; width: max-content; align-items: center; gap: 2.5rem; padding-right: 2.5rem; animation: bn-marquee 38s linear infinite; }
+  .bn-marquee__item { display: flex; align-items: center; gap: 2.5rem; white-space: nowrap; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .26em; }
+  .bn-marquee__item::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .5; }
+  @keyframes bn-marquee { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .bn-marquee__track { animation: none; } }
+
+  /* Hero */
+  .bn-hero { position: relative; isolation: isolate; display: flex; align-items: flex-end; min-height: min(92vh, 820px); background: var(--bn-bg); }
+  .bn-hero__media { position: absolute; inset: 0; z-index: -2; }
+  .bn-hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; display: block; }
+  .bn-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, var(--bn-bg) 2%, color-mix(in srgb, var(--bn-bg) 35%, transparent) 55%, color-mix(in srgb, var(--bn-bg) 55%, transparent)); }
+  @media (min-width: 1024px) { .bn-hero::after { background: linear-gradient(to right, var(--bn-bg) 5%, color-mix(in srgb, var(--bn-bg) 70%, transparent) 45%, transparent); } }
+  .bn-hero__in { width: 100%; padding-top: 7rem; padding-bottom: 3.5rem; }
+  @media (min-width: 1024px) { .bn-hero__in { padding-bottom: 5rem; } }
+  .bn-hero__copy { max-width: 36rem; }
+  .bn-pill { display: inline-block; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: .4rem 1rem; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .24em; }
+  .bn-hero__title { margin-top: 1rem; font-family: var(--bn-display); font-size: clamp(3.6rem, 11vw, 7rem); font-weight: 400; line-height: .86; letter-spacing: -.02em; }
+  .bn-hero__title span { display: block; }
+  .bn-hero__title span + span { color: var(--bn-lime); }
+  .bn-hero__text { margin-top: 1.5rem; max-width: 32rem; font-size: 16px; line-height: 1.65; color: var(--bn-muted); }
+  .bn-hero__text strong { font-weight: 500; color: var(--bn-fg); }
+  .bn-hero__label { margin-top: 2rem; font-size: 10px; text-transform: uppercase; letter-spacing: .3em; color: var(--bn-faint); }
+  .bn-chips { margin-top: .75rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .bn-chip { display: inline-flex; align-items: baseline; gap: .5rem; border: 1px solid color-mix(in srgb, var(--bn-fg) 28%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--bn-bg) 45%, transparent); padding: .75rem 1.1rem; font-size: 11px; text-transform: uppercase; letter-spacing: .16em; transition: background .3s, color .3s, border-color .3s; }
+  .bn-chip small { font-size: 9px; color: var(--bn-lime); letter-spacing: .12em; }
+  .bn-chip:hover { border-color: var(--bn-lime); background: var(--bn-lime); color: var(--bn-on-lime); }
+  .bn-chip:hover small { color: color-mix(in srgb, var(--bn-on-lime) 70%, transparent); }
+  .bn-left { margin-top: 1.5rem; display: inline-flex; align-items: center; gap: .6rem; font-size: 11px; text-transform: uppercase; letter-spacing: .2em; color: var(--bn-faint); }
+  .bn-left b { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--bn-lime); letter-spacing: .08em; }
+
+  /* Ofertas */
+  .bn-offers { background: var(--bn-bg); }
+  .bn-offers__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.25rem; }
+  .bn-tabs { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+  @media (min-width: 900px) { .bn-tabs { grid-template-columns: repeat(4, 1fr); gap: 1rem; } }
+  .bn-tab { display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--bn-border); border-radius: 22px; background: var(--bn-card); padding: .9rem 1rem 1rem; text-align: left; transition: transform .3s, border-color .3s, background .3s; }
+  .bn-tab:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--bn-lime) 50%, transparent); }
+  .bn-tab[aria-pressed="true"] { border-color: var(--bn-lime); background: var(--bn-lime); color: var(--bn-on-lime); box-shadow: 0 16px 40px -18px color-mix(in srgb, var(--bn-lime) 55%, transparent); }
+  .bn-tab__n { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--bn-fg) 8%, transparent); font-size: 9px; letter-spacing: .1em; color: var(--bn-faint); }
+  .bn-tab[aria-pressed="true"] .bn-tab__n { background: color-mix(in srgb, var(--bn-on-lime) 12%, transparent); color: color-mix(in srgb, var(--bn-on-lime) 75%, transparent); }
+  .bn-tab__t { margin-top: .6rem; font-family: var(--bn-display); font-size: 1.6rem; line-height: 1; }
+  @media (min-width: 900px) { .bn-tab__t { font-size: 1.9rem; } }
+  .bn-tab__s { margin-top: .75rem; display: inline-block; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: .25rem .65rem; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; }
+  .bn-tab[aria-pressed="true"] .bn-tab__s { background: var(--bn-on-lime); color: var(--bn-lime); }
+
+  .bn-bar { margin-top: 2.5rem; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--bn-border); padding-bottom: 1.25rem; }
+  .bn-bar h3 { font-family: var(--bn-display); font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 400; line-height: 1; }
+  .bn-bar p { margin-top: .5rem; max-width: 32rem; font-size: 14px; line-height: 1.55; color: var(--bn-muted); }
+  .bn-count { font-size: 10px; text-transform: uppercase; letter-spacing: .22em; color: var(--bn-lime); white-space: nowrap; }
+
+  .bn-tools { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+  .bn-filter { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .bn-filter__label, .bn-sort__label { font-size: 10px; text-transform: uppercase; letter-spacing: .22em; color: var(--bn-faint); }
+  .bn-pct { border: 1px solid var(--bn-border); border-radius: 999px; padding: .5rem .9rem; font-size: 11px; font-weight: 500; letter-spacing: .08em; color: var(--bn-muted); transition: border-color .25s, background .25s, color .25s; }
+  .bn-pct small { margin-left: .3rem; font-size: 10px; opacity: .7; }
+  .bn-pct:hover { border-color: color-mix(in srgb, var(--bn-lime) 60%, transparent); color: var(--bn-fg); }
+  .bn-pct[aria-pressed="true"] { border-color: var(--bn-lime); background: var(--bn-lime); color: var(--bn-on-lime); }
+  .bn-sort { display: flex; align-items: center; gap: .65rem; }
+  .bn-select { appearance: none; -webkit-appearance: none; border: 1px solid var(--bn-border); border-radius: 999px; background: var(--bn-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23999' stroke-width='1.6'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E") no-repeat right .95rem center; padding: .6rem 2.2rem .6rem 1rem; font-size: 12px; color: var(--bn-fg); }
+  .bn-select option { background: var(--bn-card); color: var(--bn-fg); }
+
+  .bn-grid { margin-top: 1.75rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  @media (min-width: 768px) { .bn-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
+  @media (min-width: 1100px) { .bn-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; } }
+  .bn-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--bn-border); border-radius: 20px; background: var(--bn-bg); transition: border-color .3s; animation: bn-in .5s both; animation-delay: var(--bn-delay, 0s); }
+  .bn-card:hover { border-color: color-mix(in srgb, var(--bn-lime) 55%, transparent); }
+  @keyframes bn-in { from { opacity: 0; transform: translateY(14px); } }
+  @media (prefers-reduced-motion: reduce) { .bn-card { animation: none; } }
+  .bn-card__img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--bn-card); }
+  .bn-card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .7s, opacity .4s; }
+  .bn-card:hover .bn-card__img img { transform: scale(1.05); }
+  .bn-card__img img + img { opacity: 0; }
+  .bn-card:hover .bn-card__img img + img { opacity: 1; }
+  .bn-card__off { position: absolute; left: .6rem; top: .6rem; z-index: 1; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: .25rem .6rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+  .bn-card__soldout { position: absolute; right: .6rem; top: .6rem; z-index: 1; border-radius: 999px; background: rgba(0,0,0,.7); color: #fff; padding: .25rem .6rem; font-size: 9px; text-transform: uppercase; letter-spacing: .14em; }
+  .bn-card__body { display: flex; flex: 1; flex-direction: column; padding: .8rem; }
+  @media (min-width: 768px) { .bn-card__body { padding: 1rem; } }
+  .bn-card__type { font-size: 9px; text-transform: uppercase; letter-spacing: .22em; color: var(--bn-faint); }
+  .bn-card__name { margin-top: .4rem; font-family: var(--bn-display); font-size: 1.3rem; line-height: 1.05; }
+  @media (min-width: 768px) { .bn-card__name { font-size: 1.55rem; } }
+  .bn-card__price { margin: .65rem 0 .9rem; font-size: 13px; color: var(--bn-muted); }
+  .bn-card__price s { margin-right: .4rem; font-size: 11px; opacity: .6; }
+  .bn-card__price b { font-weight: 600; color: var(--bn-fg); }
+  .bn-card__price small { display: block; margin-bottom: .15rem; font-size: 10px; letter-spacing: .06em; opacity: .6; }
+  .bn-card__cta { margin-top: auto; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: .75rem 0; text-align: center; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; transition: background .3s, color .3s; }
+  .bn-card:hover .bn-card__cta { background: var(--bn-bg); color: var(--bn-lime); box-shadow: inset 0 0 0 1px var(--bn-lime); }
+  .bn-skel { aspect-ratio: 4 / 5.6; border-radius: 20px; background: var(--bn-card); animation: bn-pulse 1.4s ease-in-out infinite; }
+  @keyframes bn-pulse { 50% { opacity: .5; } }
+  .bn-empty { padding: 4rem 0; text-align: center; font-size: 15px; line-height: 1.6; color: var(--bn-muted); }
+  .bn-empty a { color: var(--bn-lime); text-decoration: underline; }
+  .bn-more { margin-top: 2rem; display: flex; justify-content: center; }
+
+  /* Brinde */
+  .bn-gift { background: var(--bn-card); }
+  .bn-gift__in { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 900px) { .bn-gift__in { grid-template-columns: .9fr 1.1fr; gap: 4rem; } }
+  .bn-gift__img { aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid color-mix(in srgb, var(--bn-lime) 40%, transparent); }
+  .bn-gift__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bn-steps { margin-top: 2rem; display: grid; gap: 1.25rem; }
+  .bn-step { border-top: 1px solid var(--bn-border); padding-top: 1rem; }
+  .bn-step b { font-family: var(--bn-display); font-size: 1.15rem; font-weight: 400; color: var(--bn-lime); }
+  .bn-step p:first-of-type { margin-top: .4rem; font-size: 15px; }
+  .bn-step p + p { margin-top: .35rem; font-size: 13px; line-height: 1.6; color: var(--bn-muted); }
+  .bn-gift .bn-btn { margin-top: 2.25rem; }
+
+  /* Natal */
+  .bn-natal { position: relative; overflow: hidden; background: linear-gradient(160deg, var(--bn-natal), var(--bn-natal-deep)); color: #fff; }
+  .bn-natal::before, .bn-natal::after { content: ''; position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none; }
+  .bn-natal::before { left: -6rem; top: 4rem; width: 16rem; height: 16rem; background: rgba(255,255,255,.1); }
+  .bn-natal::after { right: -5rem; bottom: 2rem; width: 14rem; height: 14rem; background: rgba(0,0,0,.25); }
+  .bn-natal__in { position: relative; display: grid; gap: 2.5rem; align-items: center; z-index: 1; }
+  @media (min-width: 900px) { .bn-natal__in { grid-template-columns: 1.1fr .9fr; gap: 4rem; } }
+  .bn-natal__pill { display: inline-block; border-radius: 999px; background: var(--bn-pine); padding: .4rem .9rem; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .26em; }
+  .bn-natal .bn-h2 { color: #fff; }
+  .bn-natal .bn-h2 em { color: #ffd9a8; }
+  .bn-natal .bn-lead { color: rgba(255,255,255,.78); }
+  .bn-clock { margin-top: 2rem; display: flex; gap: .6rem; }
+  .bn-clock__u { min-width: 4.4rem; border: 1px solid rgba(255,255,255,.22); border-radius: 16px; background: rgba(0,0,0,.22); padding: .8rem .5rem; text-align: center; font-variant-numeric: tabular-nums; }
+  .bn-clock__u b { display: block; font-family: var(--bn-display); font-size: 2.2rem; font-weight: 400; line-height: 1; }
+  .bn-clock__u small { display: block; margin-top: .35rem; font-size: 9px; text-transform: uppercase; letter-spacing: .2em; color: rgba(255,255,255,.7); }
+  .bn-clock__date { margin-top: 1rem; font-size: 12px; letter-spacing: .08em; color: rgba(255,255,255,.7); }
+  .bn-natal__live { margin-top: 2rem; }
+  .bn-natal__img { aspect-ratio: 4 / 5; overflow: hidden; border-radius: 20px; border: 1px solid rgba(255,255,255,.18); }
+  .bn-natal__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Benefícios e dúvidas */
+  .bn-benefits { display: grid; gap: 2rem; margin-top: 2.5rem; }
+  @media (min-width: 640px) { .bn-benefits { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1000px) { .bn-benefits { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; } }
+  .bn-benefit { display: flex; gap: 1rem; }
+  .bn-benefit::before { content: ''; flex: none; width: 8px; height: 8px; margin-top: .5rem; border-radius: 50%; background: var(--bn-lime); }
+  .bn-benefit p:first-child { font-size: 15px; }
+  .bn-benefit p + p { margin-top: .3rem; font-size: 13px; line-height: 1.6; color: var(--bn-muted); }
+  .bn-faq { max-width: 52rem; margin-top: 2.5rem; border-top: 1px solid var(--bn-border); }
+  .bn-faq__q { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--bn-border); padding: 1.25rem 0; text-align: left; font-family: var(--bn-display); font-size: clamp(1.25rem, 2.6vw, 1.6rem); line-height: 1.2; }
+  .bn-faq__q::after { content: '+'; flex: none; font-family: var(--bn-body); font-size: 1.4rem; color: var(--bn-lime); transition: transform .3s; }
+  .bn-faq__q[aria-expanded="true"]::after { transform: rotate(45deg); }
+  .bn-faq__a { border-bottom: 1px solid var(--bn-border); padding: 0 0 1.4rem; font-size: 15px; line-height: 1.7; color: var(--bn-muted); }
+</style>
+
+<div class="bn" data-bn>
+
+  {%- if section.settings.faixa != blank -%}
+    {%- assign faixa_itens = section.settings.faixa | newline_to_br | split: '<br />' -%}
+    <div class="bn-marquee" aria-hidden="true">
+      <div class="bn-marquee__track">
+        {%- for rodada in (1..2) -%}
+          {%- for item in faixa_itens -%}
+            {%- assign t = item | strip -%}
+            {%- if t != blank -%}<span class="bn-marquee__item">{{ t }}</span>{%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <section class="bn-hero">
+    <div class="bn-hero__media">
+      {%- if hero_img != blank -%}
+        {{ hero_img | image_url: width: 1600 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '800, 1200, 1600', sizes: '100vw', alt: section.settings.hero_alt }}
+      {%- else -%}
+        <img src="{{ 'black-november-hero.jpg' | asset_url }}" alt="{{ section.settings.hero_alt | escape }}" width="1536" height="2752" fetchpriority="high">
+      {%- endif -%}
+    </div>
+    <div class="bn-wrap bn-hero__in">
+      <div class="bn-hero__copy">
+        <span class="bn-pill">{{ section.settings.hero_selo }}</span>
+        <h1 class="bn-hero__title"><span>{{ section.settings.titulo_1 }}</span><span>{{ section.settings.titulo_2 }}</span></h1>
+        <p class="bn-hero__text">{{ section.settings.hero_texto }}</p>
+        {%- if abas.size > 0 -%}
+          <p class="bn-hero__label">Compre por categoria</p>
+          <div class="bn-chips">
+            <a class="bn-chip" href="#ofertas" data-bn-go="0">{{ section.settings.titulo_todos }} <small>{{ section.settings.selo_todos }}</small></a>
+            {%- assign idx = 0 -%}
+            {%- for aba in abas -%}
+              {%- if aba.settings.colecao != blank -%}
+                {%- assign idx = idx | plus: 1 -%}
+                <a class="bn-chip" href="#ofertas" data-bn-go="{{ idx }}" {{ aba.shopify_attributes }}>{{ aba.settings.titulo }} <small>{{ aba.settings.selo }}</small></a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+        {%- if fim_data != blank -%}
+          <p class="bn-left" data-bn-left="{{ fim_data }}" hidden>Termina em <b data-bn-left-t></b></p>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+
+  <section id="ofertas" class="bn-section bn-offers" data-bn-offers>
+    <div class="bn-wrap">
+      <div class="bn-offers__top">
+        <div>
+          <span class="bn-eyebrow">Ofertas da Black</span>
+          <h2 class="bn-h2">{{ section.settings.ofertas_titulo }}</h2>
+        </div>
+        <a class="bn-btn bn-btn--line" href="{{ routes.all_products_collection_url }}">Ver a loja completa</a>
+      </div>
+
+      <div class="bn-tabs" data-bn-tabs>
+        <button type="button" class="bn-tab" data-bn-tab="0" aria-pressed="true">
+          <span class="bn-tab__n">01</span>
+          <span class="bn-tab__t">{{ section.settings.titulo_todos }}</span>
+          <span class="bn-tab__s">{{ section.settings.selo_todos }}</span>
+        </button>
+        {%- assign idx = 0 -%}
+        {%- for aba in abas -%}
+          {%- if aba.settings.colecao != blank -%}
+            {%- assign idx = idx | plus: 1 -%}
+            <button type="button" class="bn-tab" data-bn-tab="{{ idx }}" aria-pressed="false" {{ aba.shopify_attributes }}>
+              <span class="bn-tab__n">0{{ idx | plus: 1 }}</span>
+              <span class="bn-tab__t">{{ aba.settings.titulo }}</span>
+              <span class="bn-tab__s">{{ aba.settings.selo }}</span>
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="bn-bar">
+        <div>
+          <h3 data-bn-title></h3>
+          <p data-bn-sub></p>
+        </div>
+        <span class="bn-count" data-bn-count hidden></span>
+      </div>
+
+      <div class="bn-tools" data-bn-tools hidden>
+        <div class="bn-filter" data-bn-filter role="group" aria-label="Filtrar por desconto"></div>
+        <label class="bn-sort">
+          <span class="bn-sort__label">Ordenar</span>
+          <select class="bn-select" data-bn-sort>
+            <option value="rel">Em destaque</option>
+            <option value="off">Maior desconto</option>
+            <option value="menor">Menor preço</option>
+            <option value="maior">Maior preço</option>
+            <option value="az">A–Z</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="bn-grid" data-bn-grid aria-live="polite">
+        {%- for i in (1..4) -%}<div class="bn-skel"></div>{%- endfor -%}
+      </div>
+      <div class="bn-empty" data-bn-empty hidden></div>
+      <div class="bn-more" data-bn-more hidden>
+        <button type="button" class="bn-btn bn-btn--line" data-bn-more-btn>Ver mais</button>
+      </div>
+      <noscript><p class="bn-empty"><a href="{{ routes.collections_url }}/{{ base_handle }}">Ver todas as ofertas da Black November</a></p></noscript>
+    </div>
+  </section>
+
+  {%- if section.settings.brinde_show -%}
+    <section id="brinde" class="bn-section bn-gift">
+      <div class="bn-wrap bn-gift__in">
+        {%- if brinde_img != blank -%}
+          <div class="bn-gift__img">{{ brinde_img | image_url: width: 1000 | image_tag: loading: 'lazy', widths: '500, 800, 1000', sizes: '(min-width: 900px) 40vw, 100vw', alt: section.settings.brinde_titulo }}</div>
+        {%- endif -%}
+        <div>
+          <span class="bn-eyebrow">Brinde exclusivo</span>
+          <h2 class="bn-h2">{{ section.settings.brinde_titulo }}</h2>
+          <p class="bn-lead">{{ section.settings.brinde_texto }}</p>
+          <div class="bn-steps">
+            {%- for passo in (1..3) -%}
+              {%- assign k_t = 'passo_' | append: passo | append: '_titulo' -%}
+              {%- assign k_x = 'passo_' | append: passo | append: '_texto' -%}
+              {%- if section.settings[k_t] != blank -%}
+                <div class="bn-step"><b>0{{ passo }}</b><p>{{ section.settings[k_t] }}</p><p>{{ section.settings[k_x] }}</p></div>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+          <a class="bn-btn" href="#ofertas" data-bn-go="0">Comprar e garantir o brinde</a>
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if section.settings.natal_show -%}
+    <section id="natal" class="bn-section bn-natal">
+      <div class="bn-wrap bn-natal__in">
+        <div>
+          <span class="bn-natal__pill">{{ section.settings.natal_selo }}</span>
+          <h2 class="bn-h2">{{ section.settings.natal_titulo }}</h2>
+          <p class="bn-lead">{{ section.settings.natal_texto }}</p>
+          {%- if natal_data != blank -%}
+            <div data-bn-natal="{{ natal_data }}">
+              <div class="bn-clock" data-bn-clock role="timer" aria-label="Contagem para o lançamento da coleção de Natal">
+                <div class="bn-clock__u"><b data-u="d">00</b><small>dias</small></div>
+                <div class="bn-clock__u"><b data-u="h">00</b><small>horas</small></div>
+                <div class="bn-clock__u"><b data-u="m">00</b><small>min</small></div>
+                <div class="bn-clock__u"><b data-u="s">00</b><small>seg</small></div>
+              </div>
+              {%- if section.settings.natal_data_label != blank -%}
+                <p class="bn-clock__date" data-bn-clock-date>{{ section.settings.natal_data_label }}</p>
+              {%- endif -%}
+              <div class="bn-natal__live" data-bn-natal-live hidden>
+                {%- if section.settings.natal_url != blank -%}
+                  <a class="bn-btn" href="{{ section.settings.natal_url }}">Ver a coleção de Natal</a>
+                {%- else -%}
+                  <p class="bn-lead">A coleção de Natal chegou.</p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+        {%- if natal_img != blank -%}
+          <div class="bn-natal__img">{{ natal_img | image_url: width: 900 | image_tag: loading: 'lazy', widths: '450, 700, 900', sizes: '(min-width: 900px) 40vw, 100vw', alt: section.settings.natal_titulo }}</div>
+        {%- else -%}
+          <div class="bn-natal__img"><img src="{{ 'black-november-natal.jpg' | asset_url }}" alt="{{ section.settings.natal_titulo | escape }}" width="1536" height="2752" loading="lazy"></div>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if beneficios.size > 0 -%}
+    <section class="bn-section">
+      <div class="bn-wrap">
+        <span class="bn-eyebrow">Por que comprar na Âme</span>
+        <h2 class="bn-h2">{{ section.settings.beneficios_titulo }}</h2>
+        <div class="bn-benefits">
+          {%- for b in beneficios -%}
+            <div class="bn-benefit" {{ b.shopify_attributes }}><div><p>{{ b.settings.titulo }}</p><p>{{ b.settings.texto }}</p></div></div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- if perguntas.size > 0 -%}
+    <section id="duvidas" class="bn-section" style="padding-top:0">
+      <div class="bn-wrap">
+        <span class="bn-eyebrow">Dúvidas frequentes</span>
+        <h2 class="bn-h2">{{ section.settings.faq_titulo }}</h2>
+        <div class="bn-faq">
+          {%- for q in perguntas -%}
+            <div {{ q.shopify_attributes }}>
+              <button type="button" class="bn-faq__q" aria-expanded="false" aria-controls="bn-a-{{ forloop.index }}">{{ q.settings.pergunta }}</button>
+              <div class="bn-faq__a" id="bn-a-{{ forloop.index }}" hidden>{{ q.settings.resposta | newline_to_br }}</div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+</div>
+
+{%- comment -%} Configuração lida pelo script: as abas (a 0 é "Todos" = a coleção base). {%- endcomment -%}
+<script type="application/json" data-bn-config>
+  {
+    "root": {{ raiz | json }},
+    "base": {{ base_handle | json }},
+    "soPromo": {{ solo_promo | json }},
+    "porPagina": {{ section.settings.por_pagina | default: 12 | json }},
+    "abas": [
+      { "handle": {{ base_handle | json }}, "titulo": {{ section.settings.titulo_todos | json }}, "sub": {{ section.settings.sub_todos | json }} }
+      {%- for aba in abas -%}
+        {%- if aba.settings.colecao != blank -%}
+          , { "handle": {{ aba.settings.colecao.handle | json }}, "titulo": {{ aba.settings.titulo | json }}, "sub": {{ aba.settings.subtitulo | json }} }
+        {%- endif -%}
+      {%- endfor -%}
+    ],
+    "vazio": {{ section.settings.texto_vazio | json }}
+  }
+</script>
+
+<script>
+  (function () {
+    var root = document.currentScript.previousElementSibling.previousElementSibling;
+    var cfgEl = document.currentScript.previousElementSibling;
+    if (!root || !root.hasAttribute('data-bn') || !cfgEl) return;
+    var cfg = JSON.parse(cfgEl.textContent);
+    var $ = function (s, r) { return (r || root).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || root).querySelectorAll(s)); };
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+
+    /* ---------- Contagens ---------- */
+    function countdown(iso, onTick) {
+      var end = Date.parse(iso);
+      if (isNaN(end)) return;
+      var tick = function () {
+        var left = end - Date.now();
+        onTick(Math.max(left, 0));
+        return left > 0;
+      };
+      if (tick()) { var t = setInterval(function () { if (!tick()) clearInterval(t); }, 1000); }
+    }
+
+    var leftEl = $('[data-bn-left]');
+    if (leftEl) {
+      countdown(leftEl.getAttribute('data-bn-left'), function (ms) {
+        if (ms <= 0) { leftEl.hidden = true; return; }
+        leftEl.hidden = false;
+        var d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), m = Math.floor(ms % 3600000 / 60000);
+        $('[data-bn-left-t]', leftEl).textContent = (d ? d + 'd ' : '') + pad(h) + 'h ' + pad(m) + 'min';
+      });
+    }
+
+    var natal = $('[data-bn-natal]');
+    if (natal) {
+      var u = {};
+      $$('[data-u]', natal).forEach(function (el) { u[el.getAttribute('data-u')] = el; });
+      countdown(natal.getAttribute('data-bn-natal'), function (ms) {
+        u.d.textContent = pad(Math.floor(ms / 86400000));
+        u.h.textContent = pad(Math.floor(ms % 86400000 / 3600000));
+        u.m.textContent = pad(Math.floor(ms % 3600000 / 60000));
+        u.s.textContent = pad(Math.floor(ms % 60000 / 1000));
+        if (ms <= 0) {
+          $('[data-bn-clock]', natal).hidden = true;
+          var dl = $('[data-bn-clock-date]', natal); if (dl) dl.hidden = true;
+          $('[data-bn-natal-live]', natal).hidden = false;
+        }
+      });
+    }
+
+    /* ---------- Ofertas ---------- */
+    var grid = $('[data-bn-grid]'), emptyEl = $('[data-bn-empty]'), moreBox = $('[data-bn-more]'), moreBtn = $('[data-bn-more-btn]');
+    var tools = $('[data-bn-tools]'), filterBox = $('[data-bn-filter]'), sortSel = $('[data-bn-sort]');
+    var countEl = $('[data-bn-count]'), titleEl = $('[data-bn-title]'), subEl = $('[data-bn-sub]');
+    var tabBtns = $$('[data-bn-tab]');
+    var cache = {};       // handle -> Promise<produtos[]>
+    var state = { tab: 0, pct: 0, sort: 'rel', shown: cfg.porPagina, list: [] };
+
+    function url(handle, page) {
+      return cfg.root + 'collections/' + encodeURIComponent(handle) + '/products.json?limit=250&page=' + page;
+    }
+    function fetchAll(handle) {
+      if (cache[handle]) return cache[handle];
+      cache[handle] = (function next(page, acc) {
+        return fetch(url(handle, page), { headers: { Accept: 'application/json' } })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function (j) {
+            var all = acc.concat(j.products || []);
+            return (j.products || []).length === 250 && page < 8 ? next(page + 1, all) : all;
+          });
+      })(1, []).catch(function (e) { delete cache[handle]; throw e; });
+      return cache[handle];
+    }
+
+    // % = maior desconto entre as variantes; preço mostrado = o da variante que dá esse desconto.
+    function norm(p, i) {
+      var best = null, min = Infinity, avail = false;
+      (p.variants || []).forEach(function (v) {
+        var pr = parseFloat(v.price), cp = v.compare_at_price ? parseFloat(v.compare_at_price) : 0;
+        if (v.available) avail = true;
+        if (pr < min) min = pr;
+        if (cp > pr) {
+          var pct = (1 - pr / cp) * 100;
+          if (!best || pct > best.pct || (pct === best.pct && pr < best.pr)) best = { pct: pct, pr: pr, cp: cp };
+        }
+      });
+      var img = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+      return {
+        id: p.id, i: i, handle: p.handle, title: p.title, type: p.product_type || '',
+        pct: best ? Math.round(best.pct) : 0,
+        por: best ? best.pr : (isFinite(min) ? min : 0), de: best ? best.cp : 0,
+        avail: avail, imgs: img.slice(0, 2).map(function (m) { return m.src; })
+      };
+    }
+    function sized(src, w) { return src.replace(/(\.[a-z]+)(\?|$)/i, '_' + w + 'x$1$2'); }
+
+    function load(tab) {
+      var aba = cfg.abas[tab];
+      return Promise.all([fetchAll(cfg.base), tab ? fetchAll(aba.handle) : null]).then(function (r) {
+        var base = r[0].map(norm), byId = {};
+        base.forEach(function (p) { byId[p.id] = p; });
+        if (!tab) return base;
+        // Ordem da própria aba (ex.: mais vendidos); só o que também está na promoção.
+        var out = [];
+        r[1].forEach(function (p, i) {
+          var item = byId[p.id] || (cfg.soPromo ? null : norm(p, i));
+          if (item) out.push(Object.assign({}, item, { i: i }));
+        });
+        return out;
+      });
+    }
+
+    function visibleList() {
+      var l = state.list.filter(function (p) { return !state.pct || p.pct === state.pct; });
+      var by = {
+        rel: function (a, b) { return a.i - b.i; },
+        off: function (a, b) { return b.pct - a.pct || a.i - b.i; },
+        menor: function (a, b) { return a.por - b.por; },
+        maior: function (a, b) { return b.por - a.por; },
+        az: function (a, b) { return a.title.localeCompare(b.title, 'pt-BR'); }
+      }[state.sort];
+      // Esgotado vai sempre para o fim, qualquer que seja a ordem.
+      return l.sort(function (a, b) { return (b.avail - a.avail) || by(a, b); });
+    }
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function card(p, n) {
+      var a = el('a', 'bn-card'); a.href = cfg.root + 'products/' + p.handle;
+      a.style.setProperty('--bn-delay', Math.min(n, 8) * 0.05 + 's');
+      var im = el('div', 'bn-card__img');
+      p.imgs.forEach(function (src, k) {
+        var i = el('img'); i.src = sized(src, 600); i.alt = k ? '' : p.title; i.loading = n < 4 ? 'eager' : 'lazy'; i.width = 600; i.height = 750;
+        i.srcset = sized(src, 400) + ' 400w, ' + sized(src, 600) + ' 600w, ' + sized(src, 900) + ' 900w';
+        i.sizes = '(min-width: 1100px) 22vw, (min-width: 768px) 30vw, 46vw';
+        im.appendChild(i);
+      });
+      if (p.pct) im.appendChild(el('span', 'bn-card__off', p.pct + '% OFF'));
+      if (!p.avail) im.appendChild(el('span', 'bn-card__soldout', 'Esgotado'));
+      a.appendChild(im);
+      var b = el('div', 'bn-card__body');
+      if (p.type) b.appendChild(el('p', 'bn-card__type', p.type));
+      b.appendChild(el('p', 'bn-card__name', p.title));
+      var pr = el('p', 'bn-card__price');
+      if (p.de) pr.appendChild(el('s', '', BRL.format(p.de)));
+      pr.appendChild(el('b', '', BRL.format(p.por)));
+      b.appendChild(pr);
+      b.appendChild(el('span', 'bn-card__cta', p.avail ? 'Comprar' : 'Ver produto'));
+      a.appendChild(b);
+      return a;
+    }
+
+    function renderChips() {
+      var counts = {};
+      state.list.forEach(function (p) { if (p.pct) counts[p.pct] = (counts[p.pct] || 0) + 1; });
+      var vals = Object.keys(counts).map(Number).sort(function (a, b) { return b - a; });
+      if (state.pct && !counts[state.pct]) state.pct = 0;
+      filterBox.textContent = '';
+      tools.hidden = !state.list.length;
+      if (vals.length > 1) {
+        filterBox.appendChild(el('span', 'bn-filter__label', 'Desconto'));
+        [0].concat(vals).forEach(function (v) {
+          var b = el('button', 'bn-pct', v ? v + '% OFF' : 'Todos');
+          b.type = 'button'; b.setAttribute('aria-pressed', String(state.pct === v));
+          if (v) b.appendChild(el('small', '', '(' + counts[v] + ')'));
+          b.addEventListener('click', function () { state.pct = v; state.shown = cfg.porPagina; renderChips(); renderGrid(); });
+          filterBox.appendChild(b);
+        });
+      }
+    }
+
+    function renderGrid(append) {
+      var list = visibleList();
+      if (!append) grid.textContent = '';
+      var from = append ? grid.children.length : 0;
+      var frag = document.createDocumentFragment();
+      list.slice(from, state.shown).forEach(function (p, k) { frag.appendChild(card(p, append ? k : from + k)); });
+      grid.appendChild(frag);
+      emptyEl.hidden = list.length > 0;
+      if (!list.length) emptyEl.textContent = cfg.vazio;
+      countEl.hidden = !list.length;
+      countEl.textContent = list.length + (list.length === 1 ? ' modelo' : ' modelos');
+      var rest = list.length - state.shown;
+      moreBox.hidden = rest <= 0;
+      if (rest > 0) moreBtn.textContent = 'Ver mais ' + Math.min(cfg.porPagina, rest) + ' modelos';
+    }
+
+    function setTab(tab, scroll) {
+      state.tab = tab; state.pct = 0; state.shown = cfg.porPagina; state.list = [];
+      tabBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-bn-tab') === tab)); });
+      titleEl.textContent = cfg.abas[tab].titulo; subEl.textContent = cfg.abas[tab].sub || '';
+      grid.textContent = ''; emptyEl.hidden = true; moreBox.hidden = true; countEl.hidden = true; tools.hidden = true;
+      for (var i = 0; i < 4; i++) grid.appendChild(el('div', 'bn-skel'));
+      if (scroll) $('#ofertas').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      var mine = tab;
+      load(tab).then(function (list) {
+        if (mine !== state.tab) return;
+        state.list = list; renderChips(); renderGrid();
+      }).catch(function () {
+        if (mine !== state.tab) return;
+        grid.textContent = ''; emptyEl.hidden = false; emptyEl.textContent = '';
+        emptyEl.appendChild(document.createTextNode('Não consegui carregar as ofertas agora. '));
+        var a = el('a', '', 'Ver a coleção direto na loja'); a.href = cfg.root + 'collections/' + cfg.base; emptyEl.appendChild(a);
+      });
+    }
+
+    tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTab(+b.getAttribute('data-bn-tab'), false); }); });
+    $$('[data-bn-go]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); setTab(+a.getAttribute('data-bn-go'), true); });
+    });
+    sortSel.addEventListener('change', function () { state.sort = sortSel.value; state.shown = cfg.porPagina; renderGrid(); });
+    moreBtn.addEventListener('click', function () { state.shown += cfg.porPagina; renderGrid(true); });
+    setTab(0, false);
+
+    /* ---------- FAQ: um aberto por vez ---------- */
+    var qs = $$('.bn-faq__q');
+    qs.forEach(function (q) {
+      q.addEventListener('click', function () {
+        var open = q.getAttribute('aria-expanded') === 'true';
+        qs.forEach(function (o) { o.setAttribute('aria-expanded', 'false'); document.getElementById(o.getAttribute('aria-controls')).hidden = true; });
+        if (!open) { q.setAttribute('aria-expanded', 'true'); document.getElementById(q.getAttribute('aria-controls')).hidden = false; }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Black November",
+  "settings": [
+    { "type": "header", "content": "Quais produtos aparecem" },
+    { "type": "collection", "id": "colecao_base", "label": "Coleção base da promoção", "info": "Vazio = a própria coleção onde este template foi aplicado (a automática pela tag black_november, que o Waltz mantém)." },
+    { "type": "checkbox", "id": "so_da_promocao", "label": "Mostrar só produtos que estão na coleção base", "info": "Ligado: cada aba mostra apenas o que também está na promoção Black November.", "default": true },
+    { "type": "range", "id": "por_pagina", "label": "Produtos por \"Ver mais\"", "min": 8, "max": 40, "step": 4, "default": 12 },
+    { "type": "textarea", "id": "texto_vazio", "label": "Texto quando não há produtos", "default": "As ofertas desta categoria entram aqui assim que a Black November começar." },
+
+    { "type": "header", "content": "Campanha" },
+    { "type": "text", "id": "fim_data", "label": "Fim da Black (mostra \"Termina em …\")", "info": "Formato AAAA-MM-DDTHH:MM:SS-03:00. Vazio esconde.", "default": "2026-11-30T23:59:59-03:00" },
+    { "type": "textarea", "id": "faixa", "label": "Faixa que corre (uma frase por linha)", "default": "Até 50% OFF na Black\nColeiras 20% OFF\nKits 15% OFF\nColar de Natal de brinde acima de R$ 390\nFeito à mão em couro legítimo" },
+
+    { "type": "header", "content": "Hero" },
+    { "type": "image_picker", "id": "hero_image", "label": "Imagem (vazio = foto padrão do tema)" },
+    { "type": "text", "id": "hero_alt", "label": "Descrição da imagem", "default": "Cachorro usando coleira de couro legítimo feita à mão" },
+    { "type": "text", "id": "hero_selo", "label": "Selo", "default": "Black November · até 30/11" },
+    { "type": "text", "id": "titulo_1", "label": "Título — linha 1", "default": "Black" },
+    { "type": "text", "id": "titulo_2", "label": "Título — linha 2 (cor de destaque)", "default": "November" },
+    { "type": "textarea", "id": "hero_texto", "label": "Texto", "default": "Até 50% OFF em acessórios de couro legítimo feitos à mão, com o Colar de Natal de brinde nas compras acima de R$ 390." },
+
+    { "type": "header", "content": "Ofertas" },
+    { "type": "text", "id": "ofertas_titulo", "label": "Título", "default": "Escolha a categoria e veja os preços da Black" },
+    { "type": "text", "id": "titulo_todos", "label": "Primeira aba — nome", "default": "Black November" },
+    { "type": "text", "id": "selo_todos", "label": "Primeira aba — selo", "default": "Todos os descontos" },
+    { "type": "text", "id": "sub_todos", "label": "Primeira aba — descrição", "default": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão." },
+
+    { "type": "header", "content": "Brinde" },
+    { "type": "checkbox", "id": "brinde_show", "label": "Mostrar seção do brinde", "default": true },
+    { "type": "image_picker", "id": "brinde_image", "label": "Imagem" },
+    { "type": "text", "id": "brinde_titulo", "label": "Título", "default": "O Colar de Natal é por nossa conta" },
+    { "type": "textarea", "id": "brinde_texto", "label": "Texto", "default": "Um mimo natalino para o seu pet: compras acima de R$ 390 durante a Black November levam o Colar de Natal junto ao pedido." },
+    { "type": "text", "id": "passo_1_titulo", "label": "Passo 1 — título", "default": "Escolha seus modelos" },
+    { "type": "text", "id": "passo_1_texto", "label": "Passo 1 — texto", "default": "Coleiras, peitorais, guias ou kits — todos com o desconto da Black November." },
+    { "type": "text", "id": "passo_2_titulo", "label": "Passo 2 — título", "default": "Some R$ 390 em compras" },
+    { "type": "text", "id": "passo_2_texto", "label": "Passo 2 — texto", "default": "Vale o valor total dos produtos do seu pedido na loja." },
+    { "type": "text", "id": "passo_3_titulo", "label": "Passo 3 — título", "default": "Leve o Colar de Natal" },
+    { "type": "text", "id": "passo_3_texto", "label": "Passo 3 — texto", "default": "O brinde é adicionado ao seu pedido sem custo, até 30 de novembro." },
+
+    { "type": "header", "content": "Coleção de Natal (contagem)" },
+    { "type": "checkbox", "id": "natal_show", "label": "Mostrar seção de Natal", "default": true },
+    { "type": "text", "id": "natal_data", "label": "Data de lançamento", "info": "Formato AAAA-MM-DDTHH:MM:SS-03:00. Vazio = só o texto, sem contagem. Ao chegar a hora, a contagem some e aparece o botão (se houver link).", "default": "2026-11-11T00:00:00-03:00" },
+    { "type": "text", "id": "natal_data_label", "label": "Data por extenso (abaixo da contagem)", "default": "Lançamento em 11 de novembro" },
+    { "type": "url", "id": "natal_url", "label": "Link da coleção de Natal (usado quando ela chegar)" },
+    { "type": "image_picker", "id": "natal_image", "label": "Imagem (vazio = foto padrão do tema)" },
+    { "type": "text", "id": "natal_selo", "label": "Selo", "default": "Lançamentos de Natal" },
+    { "type": "text", "id": "natal_titulo", "label": "Título", "default": "A coleção de Natal da Âme está chegando" },
+    { "type": "textarea", "id": "natal_texto", "label": "Texto", "default": "Novidades em couro legítimo com clima natalino, reveladas durante a Black November. Quem compra na Black conhece a coleção antes de todo mundo." },
+
+    { "type": "header", "content": "Títulos das seções finais" },
+    { "type": "text", "id": "beneficios_titulo", "label": "Benefícios", "default": "Acessórios que acompanham a vida do seu pet" },
+    { "type": "text", "id": "faq_titulo", "label": "Dúvidas", "default": "Tudo que você precisa saber antes de comprar" }
+  ],
+  "blocks": [
+    {
+      "type": "aba",
+      "name": "Aba de ofertas",
+      "limit": 6,
+      "settings": [
+        { "type": "collection", "id": "colecao", "label": "Coleção" },
+        { "type": "text", "id": "titulo", "label": "Nome da aba", "default": "Coleiras" },
+        { "type": "text", "id": "selo", "label": "Selo", "default": "20% OFF" },
+        { "type": "textarea", "id": "subtitulo", "label": "Descrição" }
+      ]
+    },
+    {
+      "type": "beneficio",
+      "name": "Benefício",
+      "limit": 9,
+      "settings": [
+        { "type": "text", "id": "titulo", "label": "Título", "default": "Couro legítimo" },
+        { "type": "text", "id": "texto", "label": "Texto", "default": "Material nobre que envelhece bonito." }
+      ]
+    },
+    {
+      "type": "pergunta",
+      "name": "Pergunta",
+      "limit": 12,
+      "settings": [
+        { "type": "text", "id": "pergunta", "label": "Pergunta", "default": "Pergunta" },
+        { "type": "textarea", "id": "resposta", "label": "Resposta" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Black November" }]
+}
+{% endschema %}
