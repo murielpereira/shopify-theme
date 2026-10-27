@@ -9,7 +9,9 @@
   Renderizado em sections/product.liquid imediatamente antes de .pdp__ctas.
 {% endcomment %}
 
-<div class="ame-pdp-freight" data-pdp-freight>
+<div class="ame-pdp-freight" data-pdp-freight
+  data-t-regional="{{ settings.shipping_bar_t_regional | default: 19000 }}"
+  data-t-nacional="{{ settings.shipping_bar_t_nacional | default: 29000 }}">
   <p class="ame-pdp-freight__title">
     <span class="material-symbols-outlined" aria-hidden="true">local_shipping</span>
     Calcular frete e prazo
@@ -150,7 +152,33 @@
       };
     }
 
-    function renderRates(rates, meta) {
+    // ── Frete grátis ──
+    // A cotação da transportadora é SEMPRE o frete cheio: ela não conhece a regra de
+    // frete grátis da loja (confirmado em 27/10/2026 — para a Bolsa Ollie, R$ 1.900, a
+    // SmartEnvios devolve Sedex R$ 65 mesmo assim). Sem esta conta, quem calculava o frete
+    // aqui via R$ 44 num produto que na compra sai de graça, e desistia ou reclamava.
+    // Os limites são os MESMOS da barra de frete grátis do carrinho (ame-cart-frete.js):
+    // Sul e Sudeste (CEP 01–39 e 80–99) têm o limite regional; o resto, o nacional.
+    const T_REGIONAL = parseInt(host.dataset.tRegional, 10) || 19000;
+    const T_NACIONAL = parseInt(host.dataset.tNacional, 10) || 29000;
+
+    function regiaoDoCep(cep) {
+      const prefixo = parseInt(String(cep).replace(/\D/g, '').slice(0, 2), 10);
+      if (isNaN(prefixo)) return null;
+      return (prefixo >= 1 && prefixo <= 39) || (prefixo >= 80 && prefixo <= 99) ? 'regional' : 'nacional';
+    }
+
+    // Devolve { limite } quando só este produto (preço × quantidade) já alcança o limite
+    // da região do CEP. É conservador de propósito: no carrinho o total só aumenta, então
+    // quem alcança sozinho continua alcançando; preço desconhecido nunca vira "grátis".
+    function freteGratisPara(cep, preco, quantidade) {
+      if (!(preco > 0)) return null;
+      const limite = regiaoDoCep(cep) === 'nacional' ? T_NACIONAL : T_REGIONAL;
+      const total = Math.round(preco * 100) * Math.max(1, quantidade || 1);
+      return total >= limite ? { limite: limite } : null;
+    }
+
+    function renderRates(rates, meta, gratis) {
       if (!rates || rates.length === 0) {
         // Usa meta pra dar mensagem mais útil: se a transportadora devolveu
         // serviços mas todos com erro/inválidos, mostra o motivo.
@@ -171,6 +199,23 @@
         return;
       }
       const sorted = [...rates].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+      if (gratis) {
+        // O prazo é o da opção mais barata (a que a loja costuma usar no frete grátis).
+        const d0 = Array.isArray(sorted[0].delivery_days) && sorted[0].delivery_days[0] != null ? sorted[0].delivery_days[0] : null;
+        const prazoGratis = d0 != null ? `Entrega estimada em ${d0} dia${d0 === 1 ? '' : 's'} úteis` : '';
+        results.innerHTML = `
+          <li class="ame-pdp-freight__result">
+            <div class="ame-pdp-freight__result-top">
+              <span class="ame-pdp-freight__result-name">Frete grátis para o seu CEP</span>
+              <strong class="ame-pdp-freight__result-price">Grátis</strong>
+            </div>
+            ${prazoGratis ? `<div class="ame-pdp-freight__result-prazo">${escapeHtml(prazoGratis)}</div>` : ''}
+            <div class="ame-pdp-freight__tags"><span class="ame-pdp-freight__tag ame-pdp-freight__tag--best">Pedidos a partir de ${escapeHtml(fmtMoney(gratis.limite / 100))}</span></div>
+          </li>`;
+        results.hidden = false;
+        return;
+      }
 
       // Tags mais barato/mais rápido (mesma lógica do cart)
       const cheapestIdx = 0;
@@ -216,6 +261,7 @@
 
       const { weight, price } = await resolveVariantData();
       const quantity = getQuantity();
+      const gratis = freteGratisPara(cep, price, quantity);
 
       const xhr = new XMLHttpRequest();
       xhr.open('POST', WALTZ_BASE + '/api/public/cotacao', true);
@@ -230,7 +276,7 @@
         }
         try {
           const data = JSON.parse(xhr.responseText);
-          renderRates(data.rates || [], data.meta || null);
+          renderRates(data.rates || [], data.meta || null, gratis);
           try { localStorage.setItem(STORAGE_KEY, cep); } catch (_) {}
         } catch (_) {
           showError('Resposta inválida do servidor.');

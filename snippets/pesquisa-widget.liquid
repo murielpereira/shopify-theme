@@ -27,6 +27,9 @@
 {% endcomment %}
 
 {%- comment -%}
+  `freteGratis` são os limites de frete grátis do tema (centavos); a etapa do CEP da
+  pesquisa os usa para NÃO mostrar frete cheio num pedido que sai de graça.
+
   `preco` e `pesoKg` só existem na página de produto: são o que a cotação de
   frete do final da pesquisa usa para dizer quanto ESTE produto sairia para o
   CEP da pessoa. Sem eles, a cotação usa o peso padrão do Waltz e preço zero.
@@ -38,6 +41,11 @@
     pais: {{ localization.country.iso_code | json }},
     designMode: {{ request.design_mode | json }},
     preco: {% if pesq_variante %}{{ pesq_variante.price | divided_by: 100.0 | json }}{% else %}null{% endif %},
-    pesoKg: {% if pesq_variante and pesq_variante.weight > 0 %}{{ pesq_variante.weight | divided_by: 1000.0 | json }}{% else %}null{% endif %}
+    pesoKg: {% if pesq_variante and pesq_variante.weight > 0 %}{{ pesq_variante.weight | divided_by: 1000.0 | json }}{% else %}null{% endif %},
+    // Os limites de frete grátis (em centavos): os MESMOS da barra do carrinho e da calculadora do produto.
+    freteGratis: {
+      regional: {{ settings.shipping_bar_t_regional | default: 19000 | json }},
+      nacional: {{ settings.shipping_bar_t_nacional | default: 29000 | json }}
+    }
   };
 </script>
