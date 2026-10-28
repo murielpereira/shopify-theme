@@ -47,13 +47,18 @@
   --atl-fio: color-mix(in srgb, var(--atl-couro) 16%, transparent);
   --atl-terracota: #b5473a;
   /* Estes valem no claro; no modo Escuro a seção os redefine em linha (atelier-coleira.liquid). */
-  --atl-brilho: #fbf8f4;          /* centro claro do degradê do herói */
-  --atl-papel-fim: #f1ebe4;       /* fim do degradê do herói */
-  --atl-palavra: #e9dfd4;         /* palavra gravada ao fundo do herói */
+  --atl-brilho: #fbf8f4;
+  /* centro claro do degradê do herói */
+  --atl-papel-fim: #f1ebe4;
+  /* fim do degradê do herói */
+  --atl-palavra: #e9dfd4;
+  /* palavra gravada ao fundo do herói */
   --atl-palavra-luz: rgba(255, 255, 255, 0.95);
   --atl-esqueleto-brilho: #fbf3ea;
-  --atl-on-latao: #fff;           /* texto sobre os selos de latão */
-  --atl-titulo: var(--atl-couro); /* título do herói (no escuro a seção troca por --atl-tinta) */
+  --atl-on-latao: #fff;
+  /* texto sobre os selos de latão */
+  --atl-titulo: var(--atl-couro);
+  /* título do herói (no escuro a seção troca por --atl-tinta) */
   --atl-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --atl-margem: 16px;
   --atl-largura: 1180px;
@@ -2213,7 +2218,7 @@ html.atl-travado body {
 .atl-beneficios {
   max-width: var(--atl-largura);
   margin: 0 auto;
-  padding: 3rem var(--atl-margem) 4rem;
+  padding: 2rem var(--atl-margem) 4rem;
 }
 
 .atl-beneficios__grade {
@@ -2731,6 +2736,7 @@ html.atl-travado body {
     height: 110vw;
   }
 }
+
 /* ── Stories: vídeos em círculos no topo (16/10/2026) ── */
 .atl-stories {
   display: flex;
@@ -2985,9 +2991,10 @@ html.atl-travado body {
 /* Destaques do topo: iconografia curta no lugar do parágrafo (28/10/2026). */
 .atl-hero__destaques {
   display: grid;
-  grid-template-columns: repeat(2, max-content);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   justify-content: center;
-  gap: 0.85rem 1.75rem;
+  gap: 0.85rem 1rem;
+  max-width: 100%;
   margin: 1.2rem 0 0;
   padding: 0;
   list-style: none;
@@ -3022,7 +3029,7 @@ html.atl-travado body {
 }
 
 /* Cores mais vendidas: estrelinha dourada no canto do círculo + legenda. */
-.atl-cor > .atl-cor__top {
+.atl-cor>.atl-cor__top {
   position: absolute;
   top: -3px;
   left: calc(50% - 30px);
@@ -3052,4 +3059,23 @@ html.atl-travado body {
 
 .atl-cores__legenda[hidden] {
   display: none;
+}
+/* Tabela de medidas (widget do Waltz) + botão do vídeo, lado a lado acima dos tamanhos. */
+.atl-medidas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.atl-medidas > button {
+  margin: 0;
+}
+
+.atl-campo__dica {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--atl-tinta-2);
 }

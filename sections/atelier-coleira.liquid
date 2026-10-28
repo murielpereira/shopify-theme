@@ -175,6 +175,19 @@
     assign nome_curto = product.title
   endif
   assign palavra = section.settings.hero_palavra | default: nome_curto
+  comment
+    Cores mais vendidas (estrelinha nos círculos): o Waltz lê as vendas uma vez
+    por semana e grava, no metafield da loja waltz.mais_vendidas, as 3 cores de
+    cada produto. Se o campo do editor estiver preenchido, ele vence (manual).
+  endcomment
+  assign mais_vendidas_lista = section.settings.mais_vendidas | split: ','
+  if mais_vendidas_lista.size == 0
+    assign produto_id_txt = product.id | append: ''
+    assign mais_vendidas_auto = shop.metafields.waltz.mais_vendidas.value.produtos[produto_id_txt]
+    if mais_vendidas_auto
+      assign mais_vendidas_lista = mais_vendidas_auto
+    endif
+  endif
   assign eyebrow_topo = section.settings.hero_eyebrow
   if eyebrow_topo == blank
     assign eyebrow_topo = 'Coleira ' | append: nome_curto | append: ' · couro legítimo'
@@ -270,8 +283,7 @@
         "sepia": {{ 'couro-sepia.jpg' | asset_url | json }}
       },
       "nomeCurto": {{ palavra | json }},
-      "camposPet": {{ section.settings.campos_pet | default: 'completo' | json }},
-      "maisVendidas": {{ section.settings.mais_vendidas | split: ',' | json }},
+      "maisVendidas": {{ mais_vendidas_lista | json }},
       "waltz": {{ section.settings.waltz_base | default: 'https://waltz.up.railway.app' | json }},
       "pixPct": {{ pix_pct | json }},
       "parcelas": {
@@ -548,19 +560,24 @@
         <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p3-t">
           <h3 class="atl-painel__titulo" id="atl-p3-t" tabindex="-1">O tamanho certo</h3>
           <p class="atl-painel__sub">
-            Conte sobre o seu pet. A gente sugere o tamanho e confere tudo antes de produzir.
+            Escolha pela medida do pescoço. Na dúvida, abra a tabela de medidas.
           </p>
-          <div class="atl-pet-info" data-atl-pet-info></div>
-          <div class="atl-recomendacao" data-atl-recomendacao hidden aria-live="polite"></div>
+          {%- comment -%}
+            Tabela de medidas = widget do Waltz (ele insere o botão aqui dentro por
+            [data-wm-mount]). O botão do vídeo é nosso e abre a aba "Como Medir" do widget.
+          {%- endcomment -%}
+          <div class="atl-medidas" data-wm-mount>
+            <button type="button" class="atl-link atl-link--icone atl-medidas__video" data-atl-medidas-video hidden>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+                <rect x="3" y="6" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m16 10 5-3v10l-5-3Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+              Vídeo: como medir
+            </button>
+          </div>
           <h4 class="atl-painel__subtitulo">Tamanho</h4>
           <div class="atl-tamanhos" role="group" aria-label="Tamanho" data-atl-tamanhos></div>
           <p class="atl-nota" data-atl-tamanho-nota hidden></p>
-          <button type="button" class="atl-link atl-link--icone" data-atl-medir-abrir>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8v3m4-3v4m4-4v3" stroke="currentColor" stroke-width="1.2"/>
-            </svg>
-            Como medir o pescoço
-          </button>
+          <div class="atl-pet-info" data-atl-pet-info></div>
           <div class="atl-campos-extra" data-atl-campos-extra></div>
         </section>
 
@@ -807,20 +824,6 @@
     <strong data-atl-flutuante-valor>{{ product.price_min | money }}</strong>
   </a>
 
-  {%- comment -%} Folha "Como medir" {%- endcomment -%}
-  <div class="atl-folha" data-atl-folha hidden role="dialog" aria-modal="true" aria-labelledby="atl-folha-t">
-    <div class="atl-folha__fundo" data-atl-folha-fechar></div>
-    <div class="atl-folha__caixa">
-      <button type="button" class="atl-folha__fechar" data-atl-folha-fechar aria-label="Fechar">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
-          <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <h3 id="atl-folha-t" class="atl-folha__titulo">Como medir o pescoço</h3>
-      <div class="atl-folha__conteudo" data-atl-folha-conteudo></div>
-    </div>
-  </div>
-
   {%- comment -%} Visualizador dos stories (conteúdo montado pelo JS) {%- endcomment -%}
   <div class="atl-hist" data-atl-hist hidden role="dialog" aria-modal="true" aria-label="Vídeos">
     <div class="atl-hist__fundo" data-atl-hist-fechar></div>
@@ -870,18 +873,7 @@
       "info": "Curtos. O ícone segue a posição: 1 garantia, 2 troca, 3 cores, 4 metal, 5 feito à mão, 6 pingente.",
       "default": "6 meses de garantia\nTroca facilitada\n15 cores de couro legítimo\n4 cores de metal\nFeita à mão, para seu pet\nPingente opcional"
     },
-    {
-      "type": "select",
-      "id": "campos_pet",
-      "label": "Campos do pet na etapa Tamanho",
-      "info": "Teste: \"Só a raça\" mostra apenas a raça (opcional) e não pede idade nem peso. Os pedidos dessa versão levam a origem atelier_raca nos relatórios.",
-      "options": [
-        { "value": "completo", "label": "Raça, idade e peso (padrão)" },
-        { "value": "so_raca", "label": "Só a raça, opcional (teste)" }
-      ],
-      "default": "completo"
-    },
-    { "type": "text", "id": "mais_vendidas", "label": "Cores mais vendidas (destaque nos círculos)", "info": "Nomes das cores separados por vírgula, como aparecem na loja. Vazio = sem destaque.", "default": "Borgonha, Rosa Seco, Camel" },
+    { "type": "text", "id": "mais_vendidas", "label": "Cores mais vendidas (manual)", "info": "Vazio = automático: o Waltz lê as vendas toda semana e escolhe as 3 cores de maior saída do produto. Preencha só para forçar uma lista (nomes separados por vírgula, como na loja)." },
     { "type": "text", "id": "hero_cta", "label": "Botão", "default": "Criar a coleira do meu pet" },
     {
       "type": "textarea",

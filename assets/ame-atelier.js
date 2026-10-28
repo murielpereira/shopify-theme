@@ -116,10 +116,7 @@
         metal: null,
         tamanho: null,
         tamanhoManual: false,
-        raca: '',
-        idade: '',
-        idadeUn: 'anos',
-        peso: '',
+        pet: '',
         extras: {},       // outros campos personalizados, por nome
         pTipo: null,      // 'nenhum' | 'metal' | 'couro' | 'metal-couro'
         pFormato: null,
@@ -127,7 +124,7 @@
         pTutor: '',
         pTel: '',
     };
-    const CAMPOS_SALVOS = ['maxPasso', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'raca', 'idade', 'idadeUn', 'peso', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pTutor', 'pTel'];
+    const CAMPOS_SALVOS = ['maxPasso', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'pet', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pTutor', 'pTel'];
 
     let salvarTimer = 0;
     function salvar() {
@@ -1193,33 +1190,24 @@
     }
 
     const campoRaca = () => (CFG.campos || []).find((c) => c.tag === 'customizacao_raca') || null;
-    // Versão de teste (?view=atelier-raca): só a raça, opcional, sem idade e peso.
-    const SO_RACA = CFG.camposPet === 'so_raca';
-    const ORIGEM = SO_RACA ? 'atelier_raca' : 'atelier';
     const camposExtras = () => (CFG.campos || []).filter((c) => c.tag !== 'customizacao_raca').sort((a, b) => (parseInt(a.ordem, 10) || 0) - (parseInt(b.ordem, 10) || 0));
 
+    // Raça, idade e peso: uma caixa de texto livre e OPCIONAL logo abaixo dos
+    // tamanhos, como nas outras coleiras (o campo "customizacao_raca" do Waltz).
+    // Antes eram três campos obrigatórios com sugestão de tamanho; agora quem
+    // ajuda a escolher é o widget da tabela de medidas, acima dos tamanhos.
     function renderPetInfo() {
         const box = $('[data-atl-pet-info]');
-        box.innerHTML = `
-          <div class="atl-campo atl-campo--raca">
-            <input type="text" id="atl-raca" class="atl-campo__input" autocomplete="off" placeholder=" " value="${esc(S.raca)}" data-atl-raca role="combobox" aria-expanded="false" aria-controls="atl-racas" aria-autocomplete="list">
-            <label for="atl-raca" class="atl-campo__rotulo">${SO_RACA ? 'Raça (opcional)' : 'Raça'}</label>
-            <ul class="atl-racas" id="atl-racas" role="listbox" data-atl-racas hidden></ul>
+        const cr = campoRaca();
+        const titulo = (cr && cr.titulo) || 'Qual a raça, idade e peso do pet?';
+        const dica = (cr && cr.placeholder) || 'Usamos essas informações somente para auxiliar você na escolha correta do tamanho das peças.';
+        // Sem o campo configurado para o produto, não há caixa do pet (mesma regra das outras coleiras).
+        box.innerHTML = !cr ? '' : `
+          <div class="atl-campo">
+            <textarea id="atl-pet" class="atl-campo__input" rows="2" placeholder=" " ${cr.limite ? `maxlength="${esc(cr.limite)}"` : ''} data-atl-pet>${esc(S.pet)}</textarea>
+            <label for="atl-pet" class="atl-campo__rotulo">${esc(titulo)} (opcional)</label>
           </div>
-          <div class="atl-linha"${SO_RACA ? ' hidden' : ''}>
-            <div class="atl-campo atl-campo--idade">
-              <input type="number" id="atl-idade" class="atl-campo__input" min="0" max="40" step="1" inputmode="numeric" placeholder=" " value="${esc(S.idade)}" data-atl-idade>
-              <label for="atl-idade" class="atl-campo__rotulo">Idade</label>
-              <div class="atl-alterna" role="group" aria-label="Unidade da idade">
-                <button type="button" aria-pressed="${S.idadeUn === 'meses'}" data-atl-un="meses" class="${S.idadeUn === 'meses' ? 'is-ativo' : ''}">meses</button>
-                <button type="button" aria-pressed="${S.idadeUn === 'anos'}" data-atl-un="anos" class="${S.idadeUn === 'anos' ? 'is-ativo' : ''}">anos</button>
-              </div>
-            </div>
-            <div class="atl-campo atl-campo--peso">
-              <input type="text" id="atl-peso" class="atl-campo__input" inputmode="decimal" placeholder=" " value="${esc(S.peso)}" data-atl-peso>
-              <label for="atl-peso" class="atl-campo__rotulo">Peso (kg)</label>
-            </div>
-          </div>`;
+          <p class="atl-campo__dica">${esc(dica)}</p>`;
         const extras = camposExtras();
         $('[data-atl-campos-extra]').innerHTML = extras.map((c, i) => `
           <div class="atl-campo">
@@ -1232,13 +1220,10 @@
 
     function renderTamanhos() {
         const box = $('[data-atl-tamanhos]');
-        const rec = recomendacao();
         box.innerHTML = M.tamanhos.map((t) => {
             const preco = M.precoTam.get(t);
             const md = medidaDe(t);
-            const indicado = rec && rec.tamanho === t;
-            return `<button type="button" class="atl-tam${S.tamanho === t ? ' is-ativo' : ''}${indicado ? ' is-indicado' : ''}" aria-pressed="${S.tamanho === t}" data-tam="${esc(t)}">
-                ${indicado ? '<span class="atl-tam__selo">indicado</span>' : ''}
+            return `<button type="button" class="atl-tam${S.tamanho === t ? ' is-ativo' : ''}" aria-pressed="${S.tamanho === t}" data-tam="${esc(t)}">
                 <span class="atl-tam__nome">${esc(t)}</span>
                 ${md ? `<span class="atl-tam__medida">${esc(md.replace(' a ', '–'))}</span>` : ''}
                 ${preco != null ? `<span class="atl-tam__preco">${dinheiro(preco)}</span>` : ''}
@@ -1253,132 +1238,12 @@
         } else {
             nota.hidden = true;
         }
-        renderRecomendacao(rec);
-    }
-
-    function racaDoCatalogo(nome) {
-        if (!TM || !TM.racas || !nome) return null;
-        const n = compacto(nome);
-        return TM.racas.find((r) => compacto(r.nome_raca) === n) || null;
-    }
-
-    function idadeEmMeses() {
-        const v = parseFloat(String(S.idade).replace(',', '.'));
-        if (!isFinite(v)) return null;
-        return S.idadeUn === 'meses' ? v : v * 12;
-    }
-    function pesoNum() {
-        const v = parseFloat(String(S.peso).replace(',', '.'));
-        return isFinite(v) && v > 0 ? v : null;
-    }
-
-    // Mesma regra de public/widget-medidas.js (encontrarVariacao) no Waltz.
-    function encontrarVariacao(variacoes, fase, peso) {
-        const daFase = variacoes.filter((v) => norm(v.fase) === norm(fase) && v.tamanho_coleira);
-        if (!daFase.length) return null;
-        const temPeso = peso != null && !isNaN(peso);
-        if (temPeso) {
-            const porPeso = daFase.find((v) => {
-                const mn = v.peso_min != null ? parseFloat(v.peso_min) : null;
-                const mx = v.peso_max != null ? parseFloat(v.peso_max) : null;
-                if (mn != null && mx != null) return peso >= mn && peso <= mx;
-                if (mn != null) return peso >= mn;
-                if (mx != null) return peso <= mx;
-                return false;
-            });
-            if (porPeso) return porPeso;
-        }
-        const generica = daFase.find((v) => v.peso_min == null && v.peso_max == null);
-        if (generica) return generica;
-        if (daFase.length === 1) return daFase[0];
-        return temPeso ? null : { precisaPeso: true };
-    }
-
-    function recomendacao() {
-        const raca = racaDoCatalogo(S.raca);
-        if (!raca) return null;
-        const vars = (raca.variacoes || []).filter((v) => v.tamanho_coleira);
-        if (!vars.length) return null;
-        const fases = Array.from(new Set(vars.map((v) => v.fase)));
-        const meses = idadeEmMeses();
-        let fase = fases.find((f) => norm(f) === 'adulto') || fases[0];
-        if (meses != null && meses < 12) fase = fases.find((f) => norm(f) === 'filhote') || fase;
-        const v = encontrarVariacao(vars, fase, pesoNum());
-        if (!v) return { semIndicacao: true, raca: raca.nome_raca, fase };
-        if (v.precisaPeso) return { precisaPeso: true, raca: raca.nome_raca, fase };
-        const tam = String(v.tamanho_coleira).split(/[\s/,]+|\bou\b/).map((s) => s.trim()).find((s) => M.tamanhos.includes(s));
-        if (!tam) return null;
-        return { tamanho: tam, raca: raca.nome_raca, fase, obs: v.observacao || '' };
-    }
-
-    function renderRecomendacao(rec) {
-        const box = $('[data-atl-recomendacao]');
-        if (!rec) { box.hidden = true; return; }
-        box.hidden = false;
-        const faseTxt = norm(rec.fase) === 'filhote' ? 'filhote' : 'adulto';
-        if (rec.precisaPeso) {
-            box.innerHTML = SO_RACA
-                ? `<p>Só pela raça não conseguimos indicar o tamanho de um ${esc(rec.raca)}. Meça o pescoço para escolher com segurança.</p>`
-                : `<p>Para indicar o tamanho de um ${esc(rec.raca)}, precisamos do <strong>peso</strong>.</p>`;
-            return;
-        }
-        if (rec.semIndicacao) {
-            box.innerHTML = `<p>Não temos uma indicação de tamanho para ${esc(rec.raca)} ${faseTxt} com esse peso. Meça o pescoço para escolher com segurança.</p>`;
-            return;
-        }
-        const md = medidaDe(rec.tamanho);
-        box.innerHTML = `
-          <span class="atl-recomendacao__icone" aria-hidden="true">✦</span>
-          <p>Para ${esc(rec.raca)} ${faseTxt}, indicamos o <strong>${esc(rec.tamanho)}</strong>${md ? ` (pescoço de ${esc(md)})` : ''}.${rec.obs ? ` <span class="atl-recomendacao__obs">${esc(rec.obs)}</span>` : ''}</p>
-          ${S.tamanho !== rec.tamanho ? `<button type="button" class="atl-link" data-tam="${esc(rec.tamanho)}">Usar o ${esc(rec.tamanho)}</button>` : ''}`;
-    }
-
-    function aplicarRecomendacao() {
-        const rec = recomendacao();
-        if (rec && rec.tamanho && !S.tamanhoManual && S.tamanho !== rec.tamanho) {
-            S.tamanho = rec.tamanho;
-        }
-        renderTamanhos();
-        atualizarPalco();
-        atualizarTudo();
-    }
-
-    function sugerirRacas(termo) {
-        const ul = $('[data-atl-racas]');
-        const inp = $('[data-atl-raca]');
-        const t = norm(termo), tc = compacto(termo);
-        if (!TM || !TM.racas || t.length < 2) { ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
-        const pontuadas = TM.racas.map((r) => {
-            const n = norm(r.nome_raca), nc = compacto(r.nome_raca);
-            let p = 0;
-            if (n === t) p = 5;
-            else if (n.startsWith(t)) p = 4;
-            else if (n.split(/[\s(-]+/).some((w) => w.startsWith(t))) p = 3;
-            else if (nc.includes(tc)) p = 2;
-            else if (n.includes(t)) p = 1;
-            return { r, p };
-        }).filter((x) => x.p > 0).sort((a, b) => b.p - a.p || (a.r.especie === 'cao' ? -1 : 1)).slice(0, 6);
-        if (!pontuadas.length) { ul.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
-        ul.innerHTML = pontuadas.map(({ r }, i) => `<li role="option" id="atl-raca-op-${i}" data-atl-raca-op="${esc(r.nome_raca)}">${esc(r.nome_raca)}${r.especie === 'gato' ? ' <small>gato</small>' : ''}</li>`).join('');
-        ul.hidden = false;
-        inp.setAttribute('aria-expanded', 'true');
     }
 
     root.addEventListener('input', (e) => {
         const el = e.target;
-        if (el.matches('[data-atl-raca]')) {
-            S.raca = limpo(el.value);
-            sugerirRacas(el.value);
-            aplicarRecomendacao();
-            salvar();
-        } else if (el.matches('[data-atl-idade]')) {
-            S.idade = el.value;
-            aplicarRecomendacao();
-            salvar();
-        } else if (el.matches('[data-atl-peso]')) {
-            el.value = el.value.replace(/[^\d,.]/g, '').slice(0, 5);
-            S.peso = el.value;
-            aplicarRecomendacao();
+        if (el.matches('[data-atl-pet]')) {
+            S.pet = el.value;
             salvar();
         } else if (el.matches('[data-atl-extra]')) {
             S.extras[el.dataset.atlExtra] = el.value;
@@ -1387,36 +1252,7 @@
         }
     });
 
-    root.addEventListener('mousedown', (e) => {
-        // Escolher na lista sem perder o foco antes do clique.
-        if (e.target.closest('[data-atl-raca-op]')) e.preventDefault();
-    });
     root.addEventListener('click', (e) => {
-        const op = e.target.closest('[data-atl-raca-op]');
-        if (op) {
-            S.raca = op.dataset.atlRacaOp;
-            const inp = $('[data-atl-raca]');
-            inp.value = S.raca;
-            $('[data-atl-racas]').hidden = true;
-            inp.setAttribute('aria-expanded', 'false');
-            aplicarRecomendacao();
-            salvar();
-            const idade = $('[data-atl-idade]');
-            if (idade && !idade.value) idade.focus();
-            return;
-        }
-        const un = e.target.closest('[data-atl-un]');
-        if (un) {
-            S.idadeUn = un.dataset.atlUn;
-            $$('[data-atl-un]').forEach((b) => {
-                const on = b === un;
-                b.classList.toggle('is-ativo', on);
-                b.setAttribute('aria-pressed', on);
-            });
-            aplicarRecomendacao();
-            salvar();
-            return;
-        }
         const tam = e.target.closest('[data-tam]');
         if (tam && M) {
             S.tamanho = tam.dataset.tam;
@@ -1429,9 +1265,24 @@
             publicar('tamanho', { tamanho: S.tamanho });
         }
     });
-    root.addEventListener('focusout', (e) => {
-        if (e.target.matches('[data-atl-raca]')) setTimeout(() => { const ul = $('[data-atl-racas]'); if (ul) ul.hidden = true; }, 150);
-    });
+
+    // Tabela de medidas: é o widget do Waltz (public/widget-medidas.js). Ele põe o
+    // botão dentro de [data-wm-mount], acima dos tamanhos; o botão do vídeo "como
+    // medir" é nosso e abre a aba de vídeo do mesmo widget. Só aparece se o
+    // widget carregou e a tabela tem vídeo.
+    const btnVideoMedidas = $('[data-atl-medidas-video]');
+    function atualizarBotaoVideoMedidas() {
+        if (!btnVideoMedidas) return;
+        const w = window.WaltzMedidas;
+        btnVideoMedidas.hidden = !(w && w.temVideo && w.temVideo());
+    }
+    document.addEventListener('wm:pronto', atualizarBotaoVideoMedidas);
+    if (btnVideoMedidas) {
+        btnVideoMedidas.addEventListener('click', () => {
+            if (window.WaltzMedidas) { window.WaltzMedidas.abrir('video'); publicar('como_medir_video'); }
+        });
+    }
+    atualizarBotaoVideoMedidas();
 
     // ── Stories: vídeos em círculos no topo, tocados em tela cheia ──
     // Os vídeos do produto já vêm no HTML (data-atl-story); o "Como medir" vem
@@ -1513,57 +1364,6 @@
         });
         storyMedir();
     }
-
-    // ── Folha "Como medir" ──
-    const folha = $('[data-atl-folha]');
-    function abrirFolha() {
-        const box = $('[data-atl-folha-conteudo]');
-        // O vídeo de como medir agora é um dos stories do topo (storyMedir).
-        box.innerHTML = `
-          <p>${esc((TM && TM.observacao) || 'Passe a fita métrica ao redor do pescoço, bem justa e nivelada.')}</p>
-          <p class="atl-folha__dica">Sem fita métrica? Use um barbante e meça na régua.</p>
-          <div class="atl-campo atl-campo--medida">
-            <input type="text" id="atl-medida" class="atl-campo__input" inputmode="decimal" placeholder=" " data-atl-medida>
-            <label for="atl-medida" class="atl-campo__rotulo">Medida do pescoço (cm)</label>
-          </div>
-          <div class="atl-folha__resultado" data-atl-medida-resultado aria-live="polite"></div>
-          <table class="atl-folha__tabela">
-            <thead><tr><th>Tamanho</th><th>Pescoço</th><th>Tira</th></tr></thead>
-            <tbody>${(M ? M.tamanhos : []).map((t) => `<tr><td>${esc(t)}</td><td>${esc(medidaDe(t) || '—')}</td><td>${esc(larguraTiraDe(t) || '—')}</td></tr>`).join('')}</tbody>
-          </table>`;
-        folha.hidden = false;
-        document.documentElement.classList.add('atl-travado');
-        requestAnimationFrame(() => folha.classList.add('is-aberta'));
-        publicar('como_medir');
-    }
-    function fecharFolha() {
-        folha.classList.remove('is-aberta');
-        document.documentElement.classList.remove('atl-travado');
-        setTimeout(() => { folha.hidden = true; $('[data-atl-folha-conteudo]').innerHTML = ''; }, 300);
-    }
-    $('[data-atl-medir-abrir]').addEventListener('click', abrirFolha);
-    $$('[data-atl-folha-fechar]').forEach((b) => b.addEventListener('click', fecharFolha));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !folha.hidden) fecharFolha(); });
-    folha.addEventListener('input', (e) => {
-        if (!e.target.matches('[data-atl-medida]')) return;
-        const cm = parseFloat(e.target.value.replace(',', '.'));
-        const out = $('[data-atl-medida-resultado]');
-        if (!isFinite(cm) || !TM) { out.innerHTML = ''; return; }
-        const servem = (TM.medidas || []).filter((m) => m.pescoco_min != null && cm >= parseFloat(m.pescoco_min) && cm <= parseFloat(m.pescoco_max)).map((m) => m.tamanho).filter((t) => M.tamanhos.includes(t));
-        out.innerHTML = servem.length
-            ? `Com ${esc(String(cm).replace('.', ','))} cm, servem: ${servem.map((t) => `<button type="button" class="atl-chip" data-tam="${esc(t)}" data-atl-folha-fechar-apos>${esc(t)}</button>`).join(' ')}`
-            : 'Essa medida fica fora da tabela. Fale com a gente pelo WhatsApp para uma peça sob medida.';
-    });
-    folha.addEventListener('click', (e) => {
-        const b = e.target.closest('[data-tam]');
-        if (!b) return;
-        S.tamanho = b.dataset.tam;
-        S.tamanhoManual = true;
-        renderTamanhos();
-        atualizarPalco();
-        atualizarTudo();
-        fecharFolha();
-    });
 
     // ── Etapa 4: pingente ──
     const TIPOS = [
@@ -1806,15 +1606,7 @@
     // ═══════════════════════════ navegação ═══════════════════════════
 
     function textoPet() {
-        const partes = [];
-        if (S.raca) partes.push(S.raca);
-        if (String(S.idade).trim()) {
-            const n = parseFloat(String(S.idade).replace(',', '.'));
-            const un = S.idadeUn === 'meses' ? (n === 1 ? 'mês' : 'meses') : (n === 1 ? 'ano' : 'anos');
-            partes.push(`${String(S.idade).trim()} ${un}`);
-        }
-        if (String(S.peso).trim()) partes.push(`${String(S.peso).trim().replace('.', ',')} kg`);
-        return partes.join(', ');
+        return String(S.pet || '').replace(/\s+/g, ' ').trim();
     }
 
     /** Devolve null se a etapa está completa, ou { msg, el } do que falta. */
@@ -1828,12 +1620,6 @@
                 if (!S.metal) return { msg: 'Escolha o banho do metal.', el: $('[data-atl-metais]') };
                 return null;
             case E.tamanho: {
-                const cr = campoRaca();
-                if (cr && cr.obrigatorio && !SO_RACA) {
-                    if (!S.raca) return { msg: 'Conte a raça do seu pet (ou escreva "SRD").', el: $('[data-atl-raca]') };
-                    if (!String(S.idade).trim()) return { msg: 'Informe a idade do seu pet.', el: $('[data-atl-idade]') };
-                    if (!pesoNum()) return { msg: 'Informe o peso do seu pet.', el: $('[data-atl-peso]') };
-                }
                 if (!S.tamanho) return { msg: 'Escolha o tamanho.', el: $('[data-atl-tamanhos]') };
                 for (const c of camposExtras()) {
                     if (c.obrigatorio && !String(S.extras[c.nome] || '').trim()) return { msg: `Preencha: ${c.titulo || c.nome}.`, el: $(`[data-atl-extra="${CSS.escape(c.nome)}"]`) };
@@ -2066,7 +1852,7 @@
             if (v) propsColeira[c.nome] = v;
         });
         if (vp) propsColeira._kit = chave;
-        propsColeira._origem = ORIGEM;
+        propsColeira._origem = 'atelier';
         const itens = [{ id: vc.id, quantity: 1, properties: propsColeira }];
 
         if (vp) {
@@ -2078,7 +1864,7 @@
             if (S.pFrente) linhas.push(`Nome do pet: ${limpo(S.pFrente)}`);
             if (S.pTutor) linhas.push(`Nome do tutor: ${limpo(S.pTutor)}`);
             if (S.pTel) linhas.push(`Telefone do tutor: ${S.pTel.trim()}`);
-            itens.push({ id: vp.id, quantity: 1, properties: { 'Personalização': linhas.join('\n'), _kit: chave, _origem: ORIGEM } });
+            itens.push({ id: vp.id, quantity: 1, properties: { 'Personalização': linhas.join('\n'), _kit: chave, _origem: 'atelier' } });
         }
 
         // Guia e peitoral marcados no Compre Junto vão no MESMO POST, com a
@@ -2437,7 +2223,7 @@
         guarda.apagar();
         Object.assign(S, {
             passo: 0, maxPasso: 0, couro: null, cor: null, metal: null, tamanho: null, tamanhoManual: false,
-            raca: '', idade: '', idadeUn: 'anos', peso: '', extras: {}, pTipo: null, pFormato: null,
+            pet: '', extras: {}, pTipo: null, pFormato: null,
             pFrente: '', pTutor: '', pTel: '',
         });
         $('[data-atl-restaurado]').hidden = true;
