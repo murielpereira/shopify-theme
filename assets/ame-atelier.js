@@ -1266,23 +1266,25 @@
         }
     });
 
-    // Tabela de medidas: é o widget do Waltz (public/widget-medidas.js). Ele põe o
-    // botão dentro de [data-wm-mount], acima dos tamanhos; o botão do vídeo "como
-    // medir" é nosso e abre a aba de vídeo do mesmo widget. Só aparece se o
-    // widget carregou e a tabela tem vídeo.
+    // Tabela de medidas = widget do Waltz (public/widget-medidas.js): ele põe o botão
+    // dele dentro de [data-wm-mount], acima dos tamanhos. O botão "Como medir" ao
+    // lado é nosso e abre SÓ o vídeo, no mesmo visualizador dos stories, sem o
+    // widget inteiro. Aparece quando a tabela do produto tem vídeo.
     const btnVideoMedidas = $('[data-atl-medidas-video]');
+    const videoEhArquivo = (u) => !/youtu\.?be/i.test(String(u || ''));
     function atualizarBotaoVideoMedidas() {
-        if (!btnVideoMedidas) return;
-        const w = window.WaltzMedidas;
-        btnVideoMedidas.hidden = !(w && w.temVideo && w.temVideo());
+        if (btnVideoMedidas) btnVideoMedidas.hidden = !(TM && TM.video);
     }
-    document.addEventListener('wm:pronto', atualizarBotaoVideoMedidas);
     if (btnVideoMedidas) {
         btnVideoMedidas.addEventListener('click', () => {
-            if (window.WaltzMedidas) { window.WaltzMedidas.abrir('video'); publicar('como_medir_video'); }
+            publicar('como_medir_video');
+            if (!TM || !TM.video) return;
+            const alvo = $('[data-atl-story-medir]');
+            if (alvo && videoEhArquivo(TM.video)) abrirStories(0, [alvo]);
+            // Vídeo do YouTube não toca num <video>: aí abre a aba de vídeo do widget.
+            else if (window.WaltzMedidas) window.WaltzMedidas.abrir('video');
         });
     }
-    atualizarBotaoVideoMedidas();
 
     // ── Stories: vídeos em círculos no topo, tocados em tela cheia ──
     // Os vídeos do produto já vêm no HTML (data-atl-story); o "Como medir" vem
@@ -1290,9 +1292,10 @@
     const faixaStories = $('[data-atl-stories]');
     const hist = $('[data-atl-hist]');
     const histVideo = $('[data-atl-hist-video]');
-    const hs = { i: 0, som: true };
+    const hs = { i: 0, som: true, lista: [] };
     function storyMedir() {
-        if (!faixaStories || !TM || !TM.video || faixaStories.querySelector('[data-atl-story-medir]')) return;
+        atualizarBotaoVideoMedidas();
+        if (!faixaStories || !TM || !TM.video || !videoEhArquivo(TM.video) || faixaStories.querySelector('[data-atl-story-medir]')) return;
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'atl-story atl-story--medir';
@@ -1308,7 +1311,7 @@
     }
     const listaStories = () => $$('[data-atl-story]', faixaStories || root);
     function tocarStory(i) {
-        const itens = listaStories();
+        const itens = hs.lista;
         if (!itens.length) return;
         hs.i = (i + itens.length) % itens.length;
         const it = itens[hs.i];
@@ -1325,12 +1328,15 @@
         if (m) m.style.display = histVideo.muted ? '' : 'none';
         $('[data-atl-hist-som]').setAttribute('aria-label', histVideo.muted ? 'Ativar som' : 'Desativar som');
     }
-    function abrirStories(i) {
+    // `lista` = os vídeos desta abertura: todos os stories (padrão) ou só um ("Como medir").
+    function abrirStories(i, lista) {
+        hs.lista = lista || listaStories();
+        hist.classList.toggle('atl-hist--unico', hs.lista.length === 1);
         hist.hidden = false;
         document.documentElement.classList.add('atl-travado');
         requestAnimationFrame(() => hist.classList.add('is-aberta'));
         tocarStory(i);
-        const aberto = listaStories()[i];
+        const aberto = hs.lista[i];
         publicar('story', { story: aberto ? aberto.dataset.rotulo : '' });
     }
     function fecharStories() {
@@ -1350,7 +1356,7 @@
         $('[data-atl-hist-prox]').addEventListener('click', () => tocarStory(hs.i + 1));
         $('[data-atl-hist-som]').addEventListener('click', () => { hs.som = histVideo.muted; histVideo.muted = !hs.som; mostrarSomHist(); });
         histVideo.addEventListener('ended', () => {
-            if (hs.i < listaStories().length - 1) tocarStory(hs.i + 1); else fecharStories();
+            if (hs.i < hs.lista.length - 1) tocarStory(hs.i + 1); else fecharStories();
         });
         histVideo.addEventListener('timeupdate', () => {
             const atual = $('[data-atl-hist-barras] .is-atual i');
@@ -1364,6 +1370,7 @@
         });
         storyMedir();
     }
+    atualizarBotaoVideoMedidas();
 
     // ── Etapa 4: pingente ──
     const TIPOS = [

@@ -2218,7 +2218,7 @@ html.atl-travado body {
 .atl-beneficios {
   max-width: var(--atl-largura);
   margin: 0 auto;
-  padding: 2rem var(--atl-margem) 4rem;
+  padding: 1rem var(--atl-margem) 4rem;
 }
 
 .atl-beneficios__grade {
@@ -2998,7 +2998,7 @@ html.atl-travado body {
   margin: 1.2rem 0 0;
   padding: 0;
   list-style: none;
-  font-size: 0.9375rem;
+  font-size: 0.8rem;
   font-weight: 500;
   line-height: 1.3;
   color: var(--atl-tinta);
@@ -3060,6 +3060,7 @@ html.atl-travado body {
 .atl-cores__legenda[hidden] {
   display: none;
 }
+
 /* Tabela de medidas (widget do Waltz) + botão do vídeo, lado a lado acima dos tamanhos. */
 .atl-medidas {
   display: flex;
@@ -3069,7 +3070,7 @@ html.atl-travado body {
   margin: 0.5rem 0 0.25rem;
 }
 
-.atl-medidas > button {
+.atl-medidas>button {
   margin: 0;
 }
 
@@ -3078,4 +3079,35 @@ html.atl-travado body {
   font-size: 0.75rem;
   line-height: 1.4;
   color: var(--atl-tinta-2);
+}
+/* Botão "Como medir": mesmo porte do botão da tabela de medidas (widget do Waltz). */
+.atl-medidas__video {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 10px 20px;
+  border: 1px solid var(--atl-couro);
+  border-radius: 24px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--atl-couro);
+  cursor: pointer;
+}
+
+.atl-medidas__video[hidden] {
+  display: none;
+}
+
+.atl-medidas__video:hover {
+  background: color-mix(in srgb, var(--atl-couro) 8%, transparent);
+}
+
+/* Visualizador com um vídeo só: sem barras de progresso nem toques de avançar/voltar. */
+.atl-hist--unico .atl-hist__barras,
+.atl-hist--unico .atl-hist__nav {
+  display: none;
 }
