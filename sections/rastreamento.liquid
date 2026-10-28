@@ -565,6 +565,20 @@
     color: var(--color-on-surface-variant, #8a7d7b);
     font-variant-numeric: tabular-nums;
   }
+  .ame-track-timeline__receipt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary, #5a4742);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ame-track-timeline__receipt .material-symbols-outlined {
+    font-size: 1.125rem;
+  }
 
   /* Side cards */
   .ame-track-side {
@@ -1053,16 +1067,21 @@
           : 'Sob consulta';
       const previsaoEstimada = !!r.delivery_prevision_estimada;
 
+      // Comprovante de entrega (PDF da transportadora, via SmartEnvios). Só
+      // aceita https: o valor vem de API externa e entra num href.
+      const receiptUrl = /^https:\/\//i.test(r.event_receipt || '') ? r.event_receipt : '';
+
       const timelineHTML =
         events.length === 0
           ? '<p style="color:var(--color-on-surface-variant);font-size:0.9375rem;">Nenhum evento registrado ainda. Volte mais tarde.</p>'
           : events
               .map(
-                (ev) => `
+                (ev, i) => `
             <div class="ame-track-timeline__item ame-track-timeline__item--${eventClass(ev.code?.tracking_type)}">
               <p class="ame-track-timeline__status">${escapeHTML(ev.code?.name || '')}</p>
               ${ev.observation ? `<p class="ame-track-timeline__desc">${escapeHTML(ev.observation)}</p>` : ''}
               <p class="ame-track-timeline__date">${formatDate(ev.date)}</p>
+              ${i === 0 && isDelivered && receiptUrl ? `<a class="ame-track-timeline__receipt" href="${escapeHTML(receiptUrl)}" target="_blank" rel="noopener noreferrer"><span class="material-symbols-outlined" aria-hidden="true">download</span>Comprovante de entrega</a>` : ''}
             </div>
           `
               )
