@@ -1193,6 +1193,9 @@
     }
 
     const campoRaca = () => (CFG.campos || []).find((c) => c.tag === 'customizacao_raca') || null;
+    // Versão de teste (?view=atelier-raca): só a raça, opcional, sem idade e peso.
+    const SO_RACA = CFG.camposPet === 'so_raca';
+    const ORIGEM = SO_RACA ? 'atelier_raca' : 'atelier';
     const camposExtras = () => (CFG.campos || []).filter((c) => c.tag !== 'customizacao_raca').sort((a, b) => (parseInt(a.ordem, 10) || 0) - (parseInt(b.ordem, 10) || 0));
 
     function renderPetInfo() {
@@ -1200,10 +1203,10 @@
         box.innerHTML = `
           <div class="atl-campo atl-campo--raca">
             <input type="text" id="atl-raca" class="atl-campo__input" autocomplete="off" placeholder=" " value="${esc(S.raca)}" data-atl-raca role="combobox" aria-expanded="false" aria-controls="atl-racas" aria-autocomplete="list">
-            <label for="atl-raca" class="atl-campo__rotulo">Raça</label>
+            <label for="atl-raca" class="atl-campo__rotulo">${SO_RACA ? 'Raça (opcional)' : 'Raça'}</label>
             <ul class="atl-racas" id="atl-racas" role="listbox" data-atl-racas hidden></ul>
           </div>
-          <div class="atl-linha">
+          <div class="atl-linha"${SO_RACA ? ' hidden' : ''}>
             <div class="atl-campo atl-campo--idade">
               <input type="number" id="atl-idade" class="atl-campo__input" min="0" max="40" step="1" inputmode="numeric" placeholder=" " value="${esc(S.idade)}" data-atl-idade>
               <label for="atl-idade" class="atl-campo__rotulo">Idade</label>
@@ -1314,7 +1317,9 @@
         box.hidden = false;
         const faseTxt = norm(rec.fase) === 'filhote' ? 'filhote' : 'adulto';
         if (rec.precisaPeso) {
-            box.innerHTML = `<p>Para indicar o tamanho de um ${esc(rec.raca)}, precisamos do <strong>peso</strong>.</p>`;
+            box.innerHTML = SO_RACA
+                ? `<p>Só pela raça não conseguimos indicar o tamanho de um ${esc(rec.raca)}. Meça o pescoço para escolher com segurança.</p>`
+                : `<p>Para indicar o tamanho de um ${esc(rec.raca)}, precisamos do <strong>peso</strong>.</p>`;
             return;
         }
         if (rec.semIndicacao) {
@@ -1824,7 +1829,7 @@
                 return null;
             case E.tamanho: {
                 const cr = campoRaca();
-                if (cr && cr.obrigatorio) {
+                if (cr && cr.obrigatorio && !SO_RACA) {
                     if (!S.raca) return { msg: 'Conte a raça do seu pet (ou escreva "SRD").', el: $('[data-atl-raca]') };
                     if (!String(S.idade).trim()) return { msg: 'Informe a idade do seu pet.', el: $('[data-atl-idade]') };
                     if (!pesoNum()) return { msg: 'Informe o peso do seu pet.', el: $('[data-atl-peso]') };
@@ -2061,7 +2066,7 @@
             if (v) propsColeira[c.nome] = v;
         });
         if (vp) propsColeira._kit = chave;
-        propsColeira._origem = 'atelier';
+        propsColeira._origem = ORIGEM;
         const itens = [{ id: vc.id, quantity: 1, properties: propsColeira }];
 
         if (vp) {
@@ -2073,7 +2078,7 @@
             if (S.pFrente) linhas.push(`Nome do pet: ${limpo(S.pFrente)}`);
             if (S.pTutor) linhas.push(`Nome do tutor: ${limpo(S.pTutor)}`);
             if (S.pTel) linhas.push(`Telefone do tutor: ${S.pTel.trim()}`);
-            itens.push({ id: vp.id, quantity: 1, properties: { 'Personalização': linhas.join('\n'), _kit: chave, _origem: 'atelier' } });
+            itens.push({ id: vp.id, quantity: 1, properties: { 'Personalização': linhas.join('\n'), _kit: chave, _origem: ORIGEM } });
         }
 
         // Guia e peitoral marcados no Compre Junto vão no MESMO POST, com a
