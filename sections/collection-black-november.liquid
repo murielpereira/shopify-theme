@@ -704,7 +704,7 @@
   "settings": [
     { "type": "header", "content": "Quais produtos aparecem" },
     { "type": "collection", "id": "colecao_base", "label": "Coleção base da promoção", "info": "Vazio = a própria coleção onde este template foi aplicado (a automática pela tag black_november, que o Waltz mantém)." },
-    { "type": "checkbox", "id": "so_da_promocao", "label": "Mostrar só produtos que estão na coleção base", "info": "Ligado: cada aba mostra apenas o que também está na promoção Black November.", "default": true },
+    { "type": "checkbox", "id": "so_da_promocao", "label": "Abas: só produtos que também estão na coleção base", "info": "Desligado (padrão): cada aba mostra todos os produtos da própria coleção. Ligado: só os que também têm a tag da promoção — a aba fica vazia até o Waltz aplicar a tag.", "default": false },
     { "type": "range", "id": "por_pagina", "label": "Produtos por \"Ver mais\"", "min": 8, "max": 40, "step": 4, "default": 12 },
     { "type": "textarea", "id": "texto_vazio", "label": "Texto quando não há produtos", "default": "As ofertas desta categoria entram aqui assim que a Black November começar." },
 
