@@ -317,5 +317,14 @@
       color: var(--color-primary) !important;
       border-color: var(--color-outline-variant) !important;
     }
+
+    /* Modal que abre ao clicar numa foto/avaliação: o app pinta o painel de BRANCO fixo, e a regra
+       de cima deixava o texto claro por cima (ilegível). O painel vira escuro como o resto; a área
+       da foto fica cinza-claro porque as fotos dos clientes têm fundo claro e as setas são pretas. */
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__media-modal { background: var(--color-surface-container) !important; border: 1px solid var(--color-outline-variant); }
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__media-modal--name,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__meddia-modal--text,
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__media-modal--btn-close { color: var(--color-on-background) !important; }
+    :is(#konfidency-reviews-container, #konfidency-questions-container) .konfidency__media-modal--btn-close { opacity: 1; }
   {%- endif -%}
 {% endstyle %}
