@@ -163,6 +163,10 @@
   .bn-select { appearance: none; -webkit-appearance: none; border: 1px solid var(--bn-border); border-radius: 999px; background: var(--bn-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23999' stroke-width='1.6'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E") no-repeat right .95rem center; padding: .6rem 2.2rem .6rem 1rem; font-size: 12px; color: var(--bn-fg); }
   .bn-select option { background: var(--bn-card); color: var(--bn-fg); }
 
+  .bn-species { margin-top: 1.25rem; display: inline-flex; max-width: 100%; border: 1px solid var(--bn-border); border-radius: 999px; background: var(--bn-card); padding: .3rem; }
+  .bn-species button { border-radius: 999px; padding: .65rem 1.2rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--bn-muted); transition: background .25s, color .25s; }
+  .bn-species button small { margin-left: .3rem; font-size: 10px; opacity: .7; }
+  .bn-species button[aria-pressed="true"] { background: var(--bn-lime); color: var(--bn-on-lime); }
   .bn-grid { margin-top: 1.75rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
   @media (min-width: 768px) { .bn-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
   @media (min-width: 1100px) { .bn-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; } }
@@ -328,6 +332,12 @@
         <span class="bn-count" data-bn-count hidden></span>
       </div>
 
+      <div class="bn-species" data-bn-species role="group" aria-label="Filtrar por espécie" hidden>
+        <button type="button" data-bn-esp="" aria-pressed="true">Todos</button>
+        <button type="button" data-bn-esp="cao" aria-pressed="false">Para cães</button>
+        <button type="button" data-bn-esp="gato" aria-pressed="false">Para gatos</button>
+      </div>
+
       <div class="bn-tools" data-bn-tools hidden>
         <div class="bn-filter" data-bn-filter role="group" aria-label="Filtrar por desconto"></div>
         <label class="bn-sort">
@@ -453,6 +463,7 @@
     "root": {{ raiz | json }},
     "base": {{ base_handle | json }},
     "soPromo": {{ solo_promo | json }},
+    "tagGato": {{ section.settings.tag_gato | strip | downcase | json }},
     "porPagina": {{ section.settings.por_pagina | default: 12 | json }},
     "abas": [
       { "handle": {{ base_handle | json }}, "titulo": {{ section.settings.titulo_todos | json }}, "sub": {{ section.settings.sub_todos | json }} }
@@ -522,8 +533,9 @@
     var tools = $('[data-bn-tools]'), filterBox = $('[data-bn-filter]'), sortSel = $('[data-bn-sort]');
     var countEl = $('[data-bn-count]'), titleEl = $('[data-bn-title]'), subEl = $('[data-bn-sub]');
     var tabBtns = $$('[data-bn-tab]');
+    var speciesBox = $('[data-bn-species]');
     var cache = {};       // handle -> Promise<produtos[]>
-    var state = { tab: 0, pct: 0, sort: 'rel', shown: cfg.porPagina, list: [] };
+    var state = { tab: 0, esp: '', pct: 0, sort: 'rel', shown: cfg.porPagina, list: [] };
 
     function url(handle, page) {
       return cfg.root + 'collections/' + encodeURIComponent(handle) + '/products.json?limit=250&page=' + page;
@@ -554,7 +566,10 @@
         }
       });
       var img = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+      var tags = (p.tags || []).map(function (t) { return String(t).toLowerCase(); });
+      var gato = /gato/i.test(p.title) || (cfg.tagGato && tags.indexOf(cfg.tagGato) !== -1);
       return {
+        gato: gato,
         id: p.id, i: i, handle: p.handle, title: p.title, type: p.product_type || '',
         pct: best ? Math.round(best.pct) : 0,
         por: best ? best.pr : (isFinite(min) ? min : 0), de: best ? best.cp : 0,
@@ -579,8 +594,11 @@
       });
     }
 
+    function bySpecies() {
+      return state.list.filter(function (p) { return !state.esp || (state.esp === 'gato') === p.gato; });
+    }
     function visibleList() {
-      var l = state.list.filter(function (p) { return !state.pct || p.pct === state.pct; });
+      var l = bySpecies().filter(function (p) { return !state.pct || p.pct === state.pct; });
       var by = {
         rel: function (a, b) { return a.i - b.i; },
         off: function (a, b) { return b.pct - a.pct || a.i - b.i; },
@@ -626,11 +644,22 @@
 
     function renderChips() {
       var counts = {};
-      state.list.forEach(function (p) { if (p.pct) counts[p.pct] = (counts[p.pct] || 0) + 1; });
+      bySpecies().forEach(function (p) { if (p.pct) counts[p.pct] = (counts[p.pct] || 0) + 1; });
       var vals = Object.keys(counts).map(Number).sort(function (a, b) { return b - a; });
       if (state.pct && !counts[state.pct]) state.pct = 0;
       filterBox.textContent = '';
-      tools.hidden = !state.list.length;
+      var nGato = state.list.filter(function (p) { return p.gato; }).length, nCao = state.list.length - nGato;
+      // Só oferece a separação quando a aba tem cães E gatos.
+      speciesBox.hidden = !(nGato && nCao);
+      if (speciesBox.hidden) state.esp = '';
+      $$('[data-bn-esp]', speciesBox).forEach(function (b) {
+        var v = b.getAttribute('data-bn-esp');
+        b.setAttribute('aria-pressed', String(state.esp === v));
+        var n = v === 'gato' ? nGato : v === 'cao' ? nCao : state.list.length;
+        b.querySelector('small') && b.querySelector('small').remove();
+        b.appendChild(el('small', '', '(' + n + ')'));
+      });
+      tools.hidden = !bySpecies().length;
       if (vals.length > 1) {
         filterBox.appendChild(el('span', 'bn-filter__label', 'Desconto'));
         [0].concat(vals).forEach(function (v) {
@@ -660,10 +689,10 @@
     }
 
     function setTab(tab, scroll) {
-      state.tab = tab; state.pct = 0; state.shown = cfg.porPagina; state.list = [];
+      state.tab = tab; state.pct = 0; state.esp = ''; state.shown = cfg.porPagina; state.list = [];
       tabBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-bn-tab') === tab)); });
       titleEl.textContent = cfg.abas[tab].titulo; subEl.textContent = cfg.abas[tab].sub || '';
-      grid.textContent = ''; emptyEl.hidden = true; moreBox.hidden = true; countEl.hidden = true; tools.hidden = true;
+      grid.textContent = ''; emptyEl.hidden = true; moreBox.hidden = true; countEl.hidden = true; tools.hidden = true; speciesBox.hidden = true;
       for (var i = 0; i < 4; i++) grid.appendChild(el('div', 'bn-skel'));
       if (scroll) $('#ofertas').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
       var mine = tab;
@@ -681,6 +710,9 @@
     tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTab(+b.getAttribute('data-bn-tab'), false); }); });
     $$('[data-bn-go]').forEach(function (a) {
       a.addEventListener('click', function (e) { e.preventDefault(); setTab(+a.getAttribute('data-bn-go'), true); });
+    });
+    $$('[data-bn-esp]').forEach(function (b) {
+      b.addEventListener('click', function () { state.esp = b.getAttribute('data-bn-esp'); state.pct = 0; state.shown = cfg.porPagina; renderChips(); renderGrid(); });
     });
     sortSel.addEventListener('change', function () { state.sort = sortSel.value; state.shown = cfg.porPagina; renderGrid(); });
     moreBtn.addEventListener('click', function () { state.shown += cfg.porPagina; renderGrid(true); });
@@ -705,6 +737,7 @@
     { "type": "header", "content": "Quais produtos aparecem" },
     { "type": "collection", "id": "colecao_base", "label": "Coleção base da promoção", "info": "Vazio = a própria coleção onde este template foi aplicado (a automática pela tag black_november, que o Waltz mantém)." },
     { "type": "checkbox", "id": "so_da_promocao", "label": "Abas: só produtos que também estão na coleção base", "info": "Desligado (padrão): cada aba mostra todos os produtos da própria coleção. Ligado: só os que também têm a tag da promoção — a aba fica vazia até o Waltz aplicar a tag.", "default": false },
+    { "type": "text", "id": "tag_gato", "label": "Tag de produto para gato (além de \"gato\" no título)", "info": "Separa Para cães / Para gatos dentro de cada aba. O resto é cachorro.", "default": "gato" },
     { "type": "range", "id": "por_pagina", "label": "Produtos por \"Ver mais\"", "min": 8, "max": 40, "step": 4, "default": 12 },
     { "type": "textarea", "id": "texto_vazio", "label": "Texto quando não há produtos", "default": "As ofertas desta categoria entram aqui assim que a Black November começar." },
 
