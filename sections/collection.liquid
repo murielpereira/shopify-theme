@@ -225,59 +225,67 @@
             cuidam de buscar as próximas páginas via fetch.
           {%- endcomment -%}
           {%- if pagination_mode == 'paginate' -%}
-          <nav class="ame-col-pagination" aria-label="Paginação">
-            {%- if paginate.previous -%}
-              <a
-                class="ame-col-pagination__nav ame-col-pagination__nav--prev"
-                href="{{ paginate.previous.url }}"
-                aria-label="Página anterior"
-                rel="prev"
-              >« Anterior</a>
-            {%- else -%}
-              <span class="ame-col-pagination__nav ame-col-pagination__nav--prev is-disabled" aria-disabled="true">« Anterior</span>
-            {%- endif -%}
+            <nav class="ame-col-pagination" aria-label="Paginação">
+              {%- if paginate.previous -%}
+                <a
+                  class="ame-col-pagination__nav ame-col-pagination__nav--prev"
+                  href="{{ paginate.previous.url }}"
+                  aria-label="Página anterior"
+                  rel="prev"
+                  >« Anterior</a
+                >
+              {%- else -%}
+                <span class="ame-col-pagination__nav ame-col-pagination__nav--prev is-disabled" aria-disabled="true"
+                  >« Anterior</span
+                >
+              {%- endif -%}
 
-            <div class="ame-col-pagination__pages" data-pagination-pages>
-              {%- for part in paginate.parts -%}
-                {%- if part.is_link -%}
-                  <a class="ame-col-pagination__page" href="{{ part.url }}" aria-label="Página {{ part.title }}">{{ part.title }}</a>
-                {%- else -%}
-                  {%- if part.title == paginate.current_page -%}
-                    <span class="ame-col-pagination__page is-current" aria-current="page">{{ part.title }}</span>
+              <div class="ame-col-pagination__pages" data-pagination-pages>
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}
+                    <a class="ame-col-pagination__page" href="{{ part.url }}" aria-label="Página {{ part.title }}">
+                      {{- part.title -}}
+                    </a>
                   {%- else -%}
-                    <span class="ame-col-pagination__page is-gap" aria-hidden="true">{{ part.title }}</span>
+                    {%- if part.title == paginate.current_page -%}
+                      <span class="ame-col-pagination__page is-current" aria-current="page">{{ part.title }}</span>
+                    {%- else -%}
+                      <span class="ame-col-pagination__page is-gap" aria-hidden="true">{{ part.title }}</span>
+                    {%- endif -%}
                   {%- endif -%}
-                {%- endif -%}
-              {%- endfor -%}
-            </div>
+                {%- endfor -%}
+              </div>
 
-            {%- if paginate.next -%}
-              <a
-                class="ame-col-pagination__nav ame-col-pagination__nav--next"
-                href="{{ paginate.next.url }}"
-                aria-label="Próxima página"
-                rel="next"
-              >Avançar »</a>
-            {%- else -%}
-              <span class="ame-col-pagination__nav ame-col-pagination__nav--next is-disabled" aria-disabled="true">Avançar »</span>
-            {%- endif -%}
-          </nav>
+              {%- if paginate.next -%}
+                <a
+                  class="ame-col-pagination__nav ame-col-pagination__nav--next"
+                  href="{{ paginate.next.url }}"
+                  aria-label="Próxima página"
+                  rel="next"
+                  >Avançar »</a
+                >
+              {%- else -%}
+                <span class="ame-col-pagination__nav ame-col-pagination__nav--next is-disabled" aria-disabled="true"
+                  >Avançar »</span
+                >
+              {%- endif -%}
+            </nav>
 
-          <script>
-            /* Centraliza a página atual no scroll horizontal do meio — sem isso,
+            <script>
+              /* Centraliza a página atual no scroll horizontal do meio — sem isso,
                quando o cliente está na página 8 de 10, o scroll começa na 1 e
                ele teria que rolar pra ver onde está. */
-            (() => {
-              const wrap = document.querySelector('[data-pagination-pages]');
-              if (!wrap) return;
-              const current = wrap.querySelector('.is-current');
-              if (!current) return;
-              const wrapRect = wrap.getBoundingClientRect();
-              const curRect = current.getBoundingClientRect();
-              const offset = curRect.left - wrapRect.left - (wrapRect.width / 2) + (curRect.width / 2);
-              wrap.scrollLeft = offset;
-            })();
-          </script>
+              (() => {
+                const wrap = document.querySelector('[data-pagination-pages]');
+                if (!wrap) return;
+                const current = wrap.querySelector('.is-current');
+                if (!current) return;
+                const wrapRect = wrap.getBoundingClientRect();
+                const curRect = current.getBoundingClientRect();
+                const offset = curRect.left - wrapRect.left - wrapRect.width / 2 + curRect.width / 2;
+                wrap.scrollLeft = offset;
+              })();
+            </script>
           {%- else -%}
             {%- comment -%}
               Modo "infinite": sentinel invisível abaixo do grid. Quando entra
@@ -289,7 +297,12 @@
             {%- endcomment -%}
             {%- if paginate.next -%}
               <div class="ame-col-load-more" data-load-more-wrap>
-                <div class="ame-col-load-more__sentinel" data-load-more data-next-url="{{ paginate.next.url }}" aria-hidden="true"></div>
+                <div
+                  class="ame-col-load-more__sentinel"
+                  data-load-more
+                  data-next-url="{{ paginate.next.url }}"
+                  aria-hidden="true"
+                ></div>
                 <p class="ame-col-load-more__status" data-load-more-status aria-live="polite">
                   <span class="ame-col-load-more__spinner" aria-hidden="true"></span>
                   Carregando mais produtos…
@@ -363,11 +376,14 @@
         }
 
         if ('IntersectionObserver' in window) {
-          io = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) loadNext();
-            });
-          }, { rootMargin: '400px' }); // dispara 400px antes do sentinel aparecer
+          io = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) loadNext();
+              });
+            },
+            { rootMargin: '400px' }
+          ); // dispara 400px antes do sentinel aparecer
           io.observe(sentinel);
         } else {
           // Fallback: navegadores antigos carregam imediatamente
@@ -435,7 +451,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-bottom: 3.5rem;
+    /*margin-bottom: 3.5rem;*/
   }
   @media (min-width: 768px) {
     .ame-col-header__inner {
@@ -563,7 +579,7 @@
   .ame-col-layout {
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 1rem;
     padding: 3rem var(--page-margin, 2rem) var(--section-gap, 7.5rem);
     width: 100%;
     box-sizing: border-box;
@@ -685,7 +701,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    /*margin-bottom: 2rem;*/
   }
   .ame-col-count {
     font-size: 0.6875rem;
@@ -753,11 +769,11 @@
   }
   .ame-col-pagination__pages {
     flex: 1 1 0;
-    min-width: 0;              /* impede o flex item de crescer pra além do pai */
+    min-width: 0; /* impede o flex item de crescer pra além do pai */
     display: flex;
     gap: 0.375rem;
     overflow-x: auto;
-    padding: 0.25rem 0.5rem;   /* respiro vertical pro :hover não cortar */
+    padding: 0.25rem 0.5rem; /* respiro vertical pro :hover não cortar */
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -841,7 +857,9 @@
     display: inline-block;
   }
   @keyframes ame-col-load-spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* .ame-label-sm vive global no critical.css */

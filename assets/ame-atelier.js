@@ -1064,14 +1064,19 @@
     }
 
     // ── Etapa 1: cores ──
+    // Cores mais vendidas (lista do editor do tema; casa pelo nome sem acento).
+    const MAIS_VENDIDAS = new Set((CFG.maisVendidas || []).map((n) => compacto(n)).filter(Boolean));
     function renderCouros() {
         const box = $('[data-atl-couros]');
+        const leg = $('[data-atl-cores-legenda]');
+        if (leg) leg.hidden = !M.couros.some((c) => MAIS_VENDIDAS.has(compacto(c)));
         box.innerHTML = M.couros.map((c) => {
             const hex = hexDe(c);
             const n = M.porCouro.get(c).length;
             return `<button type="button" class="atl-cor${S.couro === c ? ' is-ativo' : ''}" aria-pressed="${S.couro === c}" data-couro="${esc(c)}" style="--cor:${hex}${miniDe(c) ? `;--img:url('${miniDe(c)}');--atl-grao:none` : ''}" data-tom="${claroOuEscuro(hex)}">
                 <span class="atl-cor__disco" aria-hidden="true"></span>
                 <span class="atl-cor__nome">${esc(c)}</span>
+                ${MAIS_VENDIDAS.has(compacto(c)) ? '<span class="atl-cor__top" title="Mais vendida" aria-label="Mais vendida">★</span>' : ''}
                 ${n > 1 ? `<span class="atl-cor__mais" aria-label="${n} opções de passador">${n}</span>` : ''}
             </button>`;
         }).join('');
@@ -1962,9 +1967,11 @@
         btnVoltar.hidden = S.passo === 0;
         const rotulo = $('[data-atl-continuar-rotulo]');
         if (rotulo && !finalizando) {
+            // O botão diz o que vem a seguir (curto, para caber ao lado do preço).
+            const PROXIMO = { [E.cores]: 'Escolher o metal', [E.metal]: 'Escolher o tamanho', [E.tamanho]: 'Escolher o pingente', [E.pingente]: 'Ver resumo' };
             rotulo.textContent = S.passo === PASSOS.length - 1
                 ? 'Adicionar ao carrinho'
-                : S.passo === E.pingente ? 'Ver resumo' : 'Continuar';
+                : PROXIMO[S.passo] || 'Continuar';
         }
         btnContinuar.setAttribute('aria-label', S.passo < PASSOS.length - 1 ? `Continuar para ${PASSOS[S.passo + 1]}` : 'Adicionar ao carrinho');
         btnContinuar.classList.toggle('is-pronto', !problemaDoPasso(S.passo));

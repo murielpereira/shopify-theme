@@ -270,6 +270,7 @@
         "sepia": {{ 'couro-sepia.jpg' | asset_url | json }}
       },
       "nomeCurto": {{ palavra | json }},
+      "maisVendidas": {{ section.settings.mais_vendidas | split: ',' | json }},
       "waltz": {{ section.settings.waltz_base | default: 'https://waltz.up.railway.app' | json }},
       "pixPct": {{ pix_pct | json }},
       "parcelas": {
@@ -351,7 +352,31 @@
             <span class="atl-ouro"> {{ section.settings.hero_titulo_destaque }}</span>
           {%- endif -%}
         </h1>
-        <p class="atl-hero__texto atl-in" style="--d: 4">{{ section.settings.hero_texto }}</p>
+        {%- comment -%}
+          Destaques do produto: uma linha de texto curta por item (até 4), cada um
+          com o ícone da sua posição (cores, metal, pingente, feito à mão).
+        {%- endcomment -%}
+        {%- assign destaques = section.settings.hero_destaques | newline_to_br | split: '<br />' -%}
+        <ul class="atl-hero__destaques atl-in" style="--d: 4" role="list">
+          {%- assign n_dest = 0 -%}
+          {%- for linha in destaques -%}
+            {%- assign txt = linha | strip | strip_newlines -%}
+            {%- if txt != blank and n_dest < 4 -%}
+              {%- assign n_dest = n_dest | plus: 1 -%}
+              <li>
+                <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                  {%- case n_dest -%}
+                    {%- when 1 -%}<circle cx="8.2" cy="9" r="3.6"/><circle cx="15.8" cy="9" r="3.6"/><circle cx="12" cy="15.4" r="3.6"/>
+                    {%- when 2 -%}<path d="M12 3.5l1.9 5.6 5.6 1.9-5.6 1.9L12 18.5l-1.9-5.6L4.5 11l5.6-1.9Z" stroke-linejoin="round"/>
+                    {%- when 3 -%}<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" stroke-linejoin="round"/>
+                    {%- else -%}<path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" stroke-linejoin="round"/>
+                  {%- endcase -%}
+                </svg>
+                {{ txt }}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
         <ul class="atl-hero__garantias atl-in" style="--d: 4" role="list">
           <li>
             <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
@@ -364,6 +389,24 @@
               <path d="M5 9h13m-3-3 3 3-3 3M19 15H6m3 3-3-3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Troca facilitada
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 3c4 3 7 4.5 7 9.5S15.5 20 12 21c-3.5-1-7-3.5-7-8.5S8 6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v10" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2"/>
+            </svg>
+            Couro legítimo
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+            Feita à mão
+          </li>
+          <li>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8v3m4-3v4m4-4v3m4-3v4" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+            Tamanho conferido
           </li>
         </ul>
         <div class="atl-hero__acoes atl-in" style="--d: 5">
@@ -388,26 +431,6 @@
             <div class="konfidency-reviews-summary" data-sku="{%- render 'konfidency-id', product: product -%}"></div>
           </div>
         </div>
-        <ul class="atl-hero__confianca atl-in" style="--d: 6" role="list">
-          <li>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M12 3c4 3 7 4.5 7 9.5S15.5 20 12 21c-3.5-1-7-3.5-7-8.5S8 6 12 3Z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v10" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2"/>
-            </svg>
-            Couro legítimo
-          </li>
-          <li>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M4 20 15 9m-3-3 6 6M14 4l6 6-2 2-6-6 2-2Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-            </svg>
-            Feita à mão
-          </li>
-          <li>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
-              <path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8v3m4-3v4m4-4v3m4-3v4" stroke="currentColor" stroke-width="1.2"/>
-            </svg>
-            Tamanho conferido
-          </li>
-        </ul>
         {%- comment -%}
           Stories: os vídeos do produto em círculos, logo abaixo dos selos.
           Tocam num visualizador de tela cheia (JS). O vídeo "Como medir" vem
@@ -541,6 +564,7 @@
           <h3 class="atl-painel__titulo" id="atl-p1-t" tabindex="-1">Escolha o couro</h3>
           <p class="atl-painel__sub" data-atl-sub-cores>Couro bovino legítimo. Toque numa cor para ver na peça.</p>
           <div class="atl-cores" role="group" aria-label="Cor do couro" data-atl-couros></div>
+          <p class="atl-cores__legenda" data-atl-cores-legenda hidden><span class="atl-cor__top" aria-hidden="true">★</span> Mais vendidas</p>
         </section>
 
         <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p2-t">
@@ -662,7 +686,7 @@
               </svg>
             </button>
             <button type="button" class="atl-btn atl-btn--primario" data-atl-continuar>
-              <span data-atl-continuar-rotulo>Continuar</span>
+              <span data-atl-continuar-rotulo>Escolher o metal</span>
             </button>
           </div>
         </div>
@@ -869,10 +893,15 @@
     { "type": "text", "id": "hero_titulo_destaque", "label": "Título — parte em destaque", "default": "O seu." },
     {
       "type": "textarea",
-      "id": "hero_texto",
-      "label": "Texto",
-      "default": "Couro legítimo em 15 cores, quatro banhos de metal e o nome do seu pet gravado no pingente. Cada peça é feita depois do seu pedido."
+      "id": "hero_destaques",
+      "label": "Destaques (um por linha, até 4)",
+      "info": "Curtos, como 15 cores de couro. O ícone segue a posição: 1 cores, 2 metal, 3 pingente, 4 feito à mão.",
+      "default": "15 cores de couro
+4 banhos de metal
+Nome gravado no pingente
+Feita depois do seu pedido"
     },
+    { "type": "text", "id": "mais_vendidas", "label": "Cores mais vendidas (destaque nos círculos)", "info": "Nomes das cores separados por vírgula, como aparecem na loja. Vazio = sem destaque.", "default": "Borgonha, Rosa Seco, Camel" },
     { "type": "text", "id": "hero_cta", "label": "Botão", "default": "Criar a coleira do meu pet" },
     {
       "type": "textarea",
