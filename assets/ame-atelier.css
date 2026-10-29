@@ -464,8 +464,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: -0.5rem;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
 }
 
 .atl-hero__swatch-nome {
@@ -2586,7 +2586,6 @@ html.atl-travado body {
 
   .atl-hero__swatch {
     grid-area: swatch;
-    margin-top: -1rem;
   }
 
   .atl-hero__copy {
@@ -3080,6 +3079,7 @@ html.atl-travado body {
   line-height: 1.4;
   color: var(--atl-tinta-2);
 }
+
 /* Botão "Como medir": mesmo porte do botão da tabela de medidas (widget do Waltz). */
 .atl-medidas__video {
   -webkit-appearance: none;
@@ -3120,8 +3120,8 @@ html.atl-travado body {
   gap: 0.5rem;
 }
 
-.atl-medidas > #wm-btn-abrir,
-.atl-medidas > .atl-medidas__video {
+.atl-medidas>#wm-btn-abrir,
+.atl-medidas>.atl-medidas__video {
   flex: 0 1 auto;
   min-width: 0;
   margin: 0 !important;
@@ -3131,6 +3131,6 @@ html.atl-travado body {
   white-space: nowrap;
 }
 
-.atl-medidas > #wm-btn-abrir svg {
+.atl-medidas>#wm-btn-abrir svg {
   flex: none;
 }
