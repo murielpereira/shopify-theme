@@ -3310,3 +3310,28 @@ html.atl-travado body {
     text-align: left;
   }
 }
+
+/* "Como medir": círculo com ícone (sem baixar o vídeo para pintar o quadro). */
+.atl-story__icone {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--atl-papel);
+  border-radius: 50%;
+  background: var(--atl-areia);
+  color: var(--atl-couro);
+}
+
+/* Cashback do preço do topo: uma linha só, ícone colado no texto (o texto do tema quebrava em duas linhas centralizadas). */
+.atl-preco__cashback .ame-cashback {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+}
+
+.atl-preco__cashback .ame-cashback .ame-cashback__text {
+  flex: 0 1 auto;
+  text-align: left;
+  white-space: nowrap;
+}

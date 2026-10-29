@@ -1304,8 +1304,10 @@
         b.dataset.src = TM.video;
         b.dataset.rotulo = 'Como medir';
         b.setAttribute('aria-label', 'Ver vídeo: como medir o pescoço');
-        // O círculo mostra o primeiro quadro do próprio vídeo (não há imagem de capa).
-        b.innerHTML = `<span class="atl-story__anel"><video src="${esc(TM.video)}#t=0.6" muted playsinline preload="metadata" tabindex="-1" aria-hidden="true"></video></span><span class="atl-story__nome">Como medir</span>`;
+        // Ícone de fita métrica no lugar do primeiro quadro do vídeo: o <video> do círculo saía
+        // VAZIO no PageSpeed e em alguns celulares (iPhone não pinta o quadro sem tocar) e ainda
+        // baixava o vídeo à toa. O vídeo só é pedido quando a pessoa toca (30/10/2026).
+        b.innerHTML = '<span class="atl-story__anel"><span class="atl-story__icone" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M3 8h18v8H3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 8v3m4-3v4m4-4v3m4-3v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span></span><span class="atl-story__nome">Como medir</span>';
         faixaStories.prepend(b);
         faixaStories.hidden = false;
     }
