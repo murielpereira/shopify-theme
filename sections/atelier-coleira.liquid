@@ -490,6 +490,18 @@
     aparecer e a traz para cá. Nasce escondido: sem galeria, não sobra título solto.
   {%- endcomment -%}
   {%- if section.settings.mostrar_clientes -%}
+    {%- if settings.modo_cores == 'escuro' -%}
+      {%- comment -%}
+        Tema escuro: o tema pinta o modal da foto por #konfidency-reviews-container
+        (snippets/css-variables.liquid), que não cobre a galeria trazida para o topo.
+        Mesmas cores aqui. No tema claro valem as do app.
+      {%- endcomment -%}
+      <style>
+        .atl-clientes .konfidency__media-modal { background: var(--color-surface-container) !important; border: 1px solid var(--color-outline-variant); }
+        .atl-clientes .konfidency__media-modal--name,
+        .atl-clientes .konfidency__meddia-modal--text { color: var(--color-on-background) !important; }
+      </style>
+    {%- endif -%}
     <div class="atl-clientes" data-atl-clientes hidden>
       <p class="atl-eyebrow atl-clientes__titulo">{{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}</p>
       <div class="atl-clientes__galeria" data-atl-clientes-galeria></div>

@@ -3288,17 +3288,21 @@ html.atl-travado body {
   display: none;
 }
 
-/* O modal da foto: o tema pinta por #konfidency-reviews-container, que não cobre mais a galeria aqui. */
-.atl-clientes .konfidency__media-modal {
-  background: var(--color-surface-container) !important;
-  border: 1px solid var(--color-outline-variant);
-}
-
-.atl-clientes .konfidency__media-modal--name,
-.atl-clientes .konfidency__meddia-modal--text,
+/* Modal da foto: o botão de fechar fica numa faixa PRETA (ou por cima da foto), então vale
+   branco sobre um círculo escuro nos dois temas. Antes herdava a cor do texto do tema:
+   escuro no claro = quase invisível sobre o preto (30/10/2026). As cores do painel no tema
+   escuro vêm do <style> condicional da seção. */
 .atl-clientes .konfidency__media-modal--btn-close {
-  color: var(--color-on-background) !important;
-  opacity: 1;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65) !important;
+  color: #fff !important;
+  opacity: 1 !important;
+  line-height: 1;
 }
 
 @media (min-width: 990px) {
