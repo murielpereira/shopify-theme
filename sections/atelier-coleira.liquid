@@ -475,19 +475,26 @@
         </div>
       </div>
     </div>
-    {%- comment -%}
-      "Nossos clientes usando": a galeria de fotos e vídeos dos clientes da
-      Konfidency, no lugar do ícone de rolar. O app só monta a galeria dentro da
-      lista de avaliações (.konfidency-reviews-details, mais abaixo); o JS espera ela
-      aparecer e a traz para cá. Nasce escondido: sem galeria, não sobra título solto.
-    {%- endcomment -%}
-    {%- if section.settings.mostrar_clientes -%}
-      <div class="atl-clientes" data-atl-clientes hidden>
-        <p class="atl-eyebrow atl-clientes__titulo">{{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}</p>
-        <div class="atl-clientes__galeria" data-atl-clientes-galeria></div>
-      </div>
-    {%- endif -%}
   </section>
+
+  {%- comment -%}
+    ATENÇÃO: este bloco fica FORA do <section class="atl-hero">. O hero tem
+    isolation:isolate e overflow:hidden; o modal de foto da Konfidency (position:fixed)
+    abria preso dentro desse contexto, por baixo do cabeçalho do site, com o botão de
+    fechar escondido (30/10/2026).
+  {%- endcomment -%}
+  {%- comment -%}
+    "Nossos clientes usando": a galeria de fotos e vídeos dos clientes da
+    Konfidency, no lugar do ícone de rolar. O app só monta a galeria dentro da
+    lista de avaliações (.konfidency-reviews-details, mais abaixo); o JS espera ela
+    aparecer e a traz para cá. Nasce escondido: sem galeria, não sobra título solto.
+  {%- endcomment -%}
+  {%- if section.settings.mostrar_clientes -%}
+    <div class="atl-clientes" data-atl-clientes hidden>
+      <p class="atl-eyebrow atl-clientes__titulo">{{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}</p>
+      <div class="atl-clientes__galeria" data-atl-clientes-galeria></div>
+    </div>
+  {%- endif -%}
 
   {%- comment -%} ═══════════════════════ ATELIÊ ═══════════════════════ {%- endcomment -%}
   <section class="atl-studio" id="atelie" data-atl-studio aria-labelledby="atl-studio-titulo">

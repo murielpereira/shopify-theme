@@ -3266,8 +3266,8 @@ html.atl-travado body {
 /* Nossos clientes usando: a galeria da Konfidency no topo, no lugar do ícone de rolar. */
 .atl-clientes {
   max-width: var(--atl-largura);
-  margin: 1.6rem auto 0;
-  padding: 0 var(--atl-margem);
+  margin: 0 auto;
+  padding: 0.5rem var(--atl-margem) 1.75rem;
 }
 
 .atl-clientes[hidden] {
