@@ -3111,3 +3111,26 @@ html.atl-travado body {
 .atl-hist--unico .atl-hist__nav {
   display: none;
 }
+
+/* Os dois botões (Guia de Medidas do widget e Como medir) lado a lado também no
+   celular: menores e sem quebra de linha. O botão do widget tem estilo inline,
+   por isso o !important. */
+.atl-medidas {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.atl-medidas > #wm-btn-abrir,
+.atl-medidas > .atl-medidas__video {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 8px 14px !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.atl-medidas > #wm-btn-abrir svg {
+  flex: none;
+}
