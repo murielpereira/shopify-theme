@@ -228,6 +228,17 @@
   .bn-clock__u small { display: block; margin-top: .35rem; font-size: 9px; text-transform: uppercase; letter-spacing: .2em; color: rgba(255,255,255,.7); }
   .bn-clock__date { margin-top: 1rem; font-size: 12px; letter-spacing: .08em; color: rgba(255,255,255,.7); }
   .bn-natal__live { margin-top: 2rem; }
+  .bn-notify { margin-top: 1.5rem; }
+  .bn-notify .bn-btn { background: #fff; color: var(--bn-natal-deep); }
+  .bn-notify__form { margin-top: 1rem; display: grid; max-width: 26rem; gap: .6rem; }
+  .bn-notify__label { font-size: 11px; text-transform: uppercase; letter-spacing: .2em; color: rgba(255,255,255,.8); }
+  .bn-notify__row { display: flex; gap: .5rem; }
+  .bn-notify__input { width: 100%; min-width: 0; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; background: rgba(0,0,0,.28); padding: .85rem 1.1rem; font-size: 14px; color: #fff; }
+  .bn-notify__input::placeholder { color: rgba(255,255,255,.6); }
+  .bn-notify__input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .bn-notify__send { flex: none; padding: .85rem 1.25rem; }
+  .bn-notify__msg { margin-top: .9rem; font-size: 14px; line-height: 1.5; color: #fff; }
+  .bn-notify__msg.is-erro { color: #ffd2d2; }
   .bn-natal__img { aspect-ratio: 4 / 5; overflow: hidden; border-radius: 20px; border: 1px solid rgba(255,255,255,.18); }
   .bn-natal__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -406,6 +417,20 @@
               {%- if section.settings.natal_data_label != blank -%}
                 <p class="bn-clock__date" data-bn-clock-date>{{ section.settings.natal_data_label }}</p>
               {%- endif -%}
+              {%- if section.settings.natal_lista != blank -%}
+                <div class="bn-notify" data-bn-notify data-lista="{{ section.settings.natal_lista | strip | downcase }}" data-api="{{ section.settings.waltz_url | default: 'https://waltz.up.railway.app' | strip }}">
+                  <button type="button" class="bn-btn" data-bn-notify-open aria-expanded="false" aria-controls="bn-notify-form">{{ section.settings.natal_aviso_botao | default: 'Avise-me quando lançar' }}</button>
+                  <form class="bn-notify__form" id="bn-notify-form" data-bn-notify-form hidden novalidate>
+                    <label class="bn-notify__label" for="bn-notify-email">Seu e-mail</label>
+                    <div class="bn-notify__row">
+                      <input class="bn-notify__input" id="bn-notify-email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="160" required placeholder="voce@email.com">
+                      <button type="submit" class="bn-btn bn-notify__send">Me avisar</button>
+                    </div>
+                    <input class="bn-notify__input" name="nome" type="text" autocomplete="given-name" maxlength="80" placeholder="Seu nome (opcional)" aria-label="Seu nome (opcional)">
+                  </form>
+                  <p class="bn-notify__msg" data-bn-notify-msg role="status" aria-live="polite" hidden></p>
+                </div>
+              {%- endif -%}
               <div class="bn-natal__live" data-bn-natal-live hidden>
                 {%- if section.settings.natal_url != blank -%}
                   <a class="bn-btn" href="{{ section.settings.natal_url }}">Ver a coleção de Natal</a>
@@ -524,8 +549,37 @@
           $('[data-bn-clock]', natal).hidden = true;
           var dl = $('[data-bn-clock-date]', natal); if (dl) dl.hidden = true;
           $('[data-bn-natal-live]', natal).hidden = false;
+          var nb = $('[data-bn-notify]', natal); if (nb) nb.hidden = true;
         }
       });
+
+      /* "Avise-me quando lançar": e-mail para a lista do Waltz; o aviso sai depois que o lançamento vai ao ar. */
+      var nbox = $('[data-bn-notify]', natal);
+      if (nbox) {
+        var nform = $('[data-bn-notify-form]', nbox), nopen = $('[data-bn-notify-open]', nbox), nmsg = $('[data-bn-notify-msg]', nbox);
+        var say = function (text, erro) { nmsg.textContent = text; nmsg.classList.toggle('is-erro', !!erro); nmsg.hidden = !text; };
+        nopen.addEventListener('click', function () {
+          var abrir = nform.hidden;
+          nform.hidden = !abrir;
+          nopen.setAttribute('aria-expanded', String(abrir));
+          if (abrir) $('input[name=email]', nform).focus();
+        });
+        nform.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var email = $('input[name=email]', nform).value.trim(), nome = $('input[name=nome]', nform).value.trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say('Confira o e-mail: parece incompleto.', true); return; }
+          var send = $('.bn-notify__send', nform); send.disabled = true; say('Enviando…');
+          fetch(nbox.getAttribute('data-api').replace(/\/$/, '') + '/api/lancamentos/interessado', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lista: nbox.getAttribute('data-lista'), email: email, nome: nome })
+          }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok && j.sucesso, erro: j.erro }; }); })
+            .then(function (r) {
+              if (r.ok) { nform.hidden = true; nopen.hidden = true; say('Pronto! Você vai receber um e-mail assim que a coleção chegar. 🎄'); }
+              else { send.disabled = false; say(r.erro || 'Não consegui registrar agora. Tente de novo em instantes.', true); }
+            })
+            .catch(function () { send.disabled = false; say('Sem conexão agora. Tente de novo em instantes.', true); });
+        });
+      }
     }
 
     /* ---------- Ofertas ---------- */
@@ -775,6 +829,9 @@
     { "type": "checkbox", "id": "natal_show", "label": "Mostrar seção de Natal", "default": true },
     { "type": "text", "id": "natal_data", "label": "Data de lançamento", "info": "Formato AAAA-MM-DDTHH:MM:SS-03:00. Vazio = só o texto, sem contagem. Ao chegar a hora, a contagem some e aparece o botão (se houver link).", "default": "2026-11-11T00:00:00-03:00" },
     { "type": "text", "id": "natal_data_label", "label": "Data por extenso (abaixo da contagem)", "default": "Lançamento em 11 de novembro" },
+    { "type": "text", "id": "natal_lista", "label": "Avise-me: chave da lista", "info": "Mostra o botão \"Avise-me\" abaixo da contagem. Use a MESMA chave no lançamento da aba Lançamentos do Waltz (ex.: natal-2026). Vazio esconde o botão.", "default": "natal-2026" },
+    { "type": "text", "id": "natal_aviso_botao", "label": "Avise-me: texto do botão", "default": "Avise-me quando lançar" },
+    { "type": "text", "id": "waltz_url", "label": "Endereço do Waltz", "default": "https://waltz.up.railway.app" },
     { "type": "url", "id": "natal_url", "label": "Link da coleção de Natal (usado quando ela chegar)" },
     { "type": "image_picker", "id": "natal_image", "label": "Imagem (vazio = foto padrão do tema)" },
     { "type": "text", "id": "natal_selo", "label": "Selo", "default": "Lançamentos de Natal" },
