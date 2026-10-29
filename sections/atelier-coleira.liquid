@@ -240,7 +240,11 @@
   --atl-terracota:{{ settings.atl_terracota | default: '#b5473a' }};
 {%- endcapture -%}
 
-<div class="atl full-width{% if atl_escuro %} atl--escuro{% endif %}" data-atl style="{{ atl_vars | strip_newlines | strip }}">
+<div
+  class="atl full-width{% if atl_escuro %} atl--escuro{% endif %}"
+  data-atl
+  style="{{ atl_vars | strip_newlines | strip }}"
+>
   <script type="application/json" data-atl-config>
     {
       "handle": {{ product.handle | json }},
@@ -378,7 +382,16 @@
             {%- if txt != blank and n_dest < 6 -%}
               {%- assign n_dest = n_dest | plus: 1 -%}
               <li>
-                <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  width="22"
+                  height="22"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                >
                   {%- case n_dest -%}
                     {%- when 1 -%}<path d="M12 3 5 6v5.5c0 4.3 2.9 7.6 7 9.5 4.1-1.9 7-5.2 7-9.5V6l-7-3Z" stroke-linejoin="round"/><path d="m9 12 2.2 2.2L15.4 10" stroke-linejoin="round"/>
                     {%- when 2 -%}<path d="M5 9h13m-3-3 3 3-3 3M19 15H6m3 3-3-3 3-3" stroke-linejoin="round"/>
@@ -415,10 +428,14 @@
           <div class="atl-preco">
             <p class="atl-preco__de">A partir de</p>
             {%- if settings.show_pix != false %}
-              <p class="atl-preco__pix"><strong>{{ pix_min | money }}</strong> <span>no Pix</span></p>
+              <p class="atl-preco__pix">
+                <strong>{{ pix_min | money }}</strong> <span>no Pix</span>
+              </p>
               <p class="atl-preco__cartao">ou {{ preco_min | money }} no cartão</p>
             {%- else %}
-              <p class="atl-preco__pix"><strong>{{ preco_min | money }}</strong> <span>no cartão</span></p>
+              <p class="atl-preco__pix">
+                <strong>{{ preco_min | money }}</strong> <span>no cartão</span>
+              </p>
             {%- endif %}
             <div class="atl-preco__parcelas">
               {%- render 'installments-info', price_cents: preco_min, mode: 'pdp' -%}
@@ -444,7 +461,16 @@
           nasce escondida e só aparece se o "Como medir" existir.
         {%- endcomment -%}
         {%- assign stories_videos = product.media | where: 'media_type', 'video' -%}
-        <div class="atl-stories atl-in" style="--d: 7" role="group" aria-label="Vídeos" data-atl-stories{% if stories_videos.size == 0 or section.settings.mostrar_stories == false %} hidden{% endif %}>
+        <div
+          class="atl-stories atl-in"
+          style="--d: 7"
+          role="group"
+          aria-label="Vídeos"
+          data-atl-stories
+          {% if stories_videos.size == 0 or section.settings.mostrar_stories == false %}
+            hidden
+          {% endif %}
+        >
           {%- if section.settings.mostrar_stories -%}
             {%- for m in stories_videos limit: 4 -%}
               {%- liquid
@@ -466,8 +492,17 @@
                   assign rotulo = 'Vídeo ' | append: forloop.index
                 endif
               -%}
-              <button type="button" class="atl-story" data-atl-story data-src="{{ fonte }}" data-rotulo="{{ rotulo | escape }}" aria-label="Ver vídeo: {{ rotulo | escape }}">
-                <span class="atl-story__anel"><img src="{{ m.preview_image | image_url: width: 176 }}" alt="" width="88" height="88" loading="lazy"></span>
+              <button
+                type="button"
+                class="atl-story"
+                data-atl-story
+                data-src="{{ fonte }}"
+                data-rotulo="{{ rotulo | escape }}"
+                aria-label="Ver vídeo: {{ rotulo | escape }}"
+              >
+                <span class="atl-story__anel"
+                  ><img src="{{ m.preview_image | image_url: width: 176 }}" alt="" width="88" height="88" loading="lazy"
+                ></span>
                 <span class="atl-story__nome">{{ rotulo }}</span>
               </button>
             {%- endfor -%}
@@ -497,13 +532,20 @@
         Mesmas cores aqui. No tema claro valem as do app.
       {%- endcomment -%}
       <style>
-        .atl-clientes .konfidency__media-modal { background: var(--color-surface-container) !important; border: 1px solid var(--color-outline-variant); }
+        .atl-clientes .konfidency__media-modal {
+          background: var(--color-surface-container) !important;
+          border: 1px solid var(--color-outline-variant);
+        }
         .atl-clientes .konfidency__media-modal--name,
-        .atl-clientes .konfidency__meddia-modal--text { color: var(--color-on-background) !important; }
+        .atl-clientes .konfidency__meddia-modal--text {
+          color: var(--color-on-background) !important;
+        }
       </style>
     {%- endif -%}
     <div class="atl-clientes" data-atl-clientes hidden>
-      <p class="atl-eyebrow atl-clientes__titulo">{{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}</p>
+      <p class="atl-eyebrow atl-clientes__titulo">
+        {{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}
+      </p>
       <div class="atl-clientes__galeria" data-atl-clientes-galeria></div>
     </div>
   {%- endif -%}
@@ -598,7 +640,9 @@
           <h3 class="atl-painel__titulo" id="atl-p1-t" tabindex="-1">Escolha o couro</h3>
           <p class="atl-painel__sub" data-atl-sub-cores>Couro bovino legítimo. Toque numa cor para ver na peça.</p>
           <div class="atl-cores" role="group" aria-label="Cor do couro" data-atl-couros></div>
-          <p class="atl-cores__legenda" data-atl-cores-legenda hidden><span class="atl-cor__top" aria-hidden="true">★</span> Mais vendidas</p>
+          <p class="atl-cores__legenda" data-atl-cores-legenda hidden>
+            <span class="atl-cor__top" aria-hidden="true">★</span> Mais vendidas
+          </p>
         </section>
 
         <section class="atl-painel" data-atl-painel="1" hidden aria-labelledby="atl-p2-t">
@@ -609,9 +653,7 @@
 
         <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p3-t">
           <h3 class="atl-painel__titulo" id="atl-p3-t" tabindex="-1">O tamanho certo</h3>
-          <p class="atl-painel__sub">
-            Escolha pela medida do pescoço. Na dúvida, abra a tabela de medidas.
-          </p>
+          <p class="atl-painel__sub">Escolha pela medida do pescoço. Na dúvida, abra a tabela de medidas.</p>
           {%- comment -%}
             Tabela de medidas = widget do Waltz (ele insere o botão aqui dentro por
             [data-wm-mount]). O botão do vídeo é nosso e abre a aba "Como Medir" do widget.
@@ -886,8 +928,20 @@
         </svg>
       </button>
       <video class="atl-hist__video" data-atl-hist-video playsinline></video>
-      <button type="button" class="atl-hist__nav atl-hist__nav--ant" data-atl-hist-ant aria-label="Vídeo anterior"><span class="atl-hist__seta" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-      <button type="button" class="atl-hist__nav atl-hist__nav--prox" data-atl-hist-prox aria-label="Próximo vídeo"><span class="atl-hist__seta" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="m10 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+      <button type="button" class="atl-hist__nav atl-hist__nav--ant" data-atl-hist-ant aria-label="Vídeo anterior">
+        <span class="atl-hist__seta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+      <button type="button" class="atl-hist__nav atl-hist__nav--prox" data-atl-hist-prox aria-label="Próximo vídeo">
+        <span class="atl-hist__seta" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="m10 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
       <button type="button" class="atl-hist__som" data-atl-hist-som aria-label="Desativar som">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
           <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path data-atl-hist-mudo d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:none"/>
@@ -910,7 +964,12 @@
   "class": "atl-section",
   "settings": [
     { "type": "header", "content": "Topo" },
-    { "type": "text", "id": "hero_eyebrow", "label": "Sobretítulo", "info": "Vazio = Coleira + nome do produto + · couro legítimo" },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Sobretítulo",
+      "info": "Vazio = Coleira + nome do produto + · couro legítimo"
+    },
     {
       "type": "text",
       "id": "hero_palavra",
@@ -926,9 +985,25 @@
       "info": "Curtos. O ícone segue a posição: 1 garantia, 2 troca, 3 cores, 4 metal, 5 feito à mão, 6 pingente.",
       "default": "6 meses de garantia\nTroca facilitada\n15 cores de couro legítimo\n4 cores de metal\nFeita à mão, para seu pet\nPingente opcional"
     },
-    { "type": "text", "id": "mais_vendidas", "label": "Cores mais vendidas (manual)", "info": "Vazio = automático: o Waltz lê as vendas toda semana e escolhe as 3 cores de maior saída do produto. Preencha só para forçar uma lista (nomes separados por vírgula, como na loja)." },
-    { "type": "checkbox", "id": "mostrar_clientes", "label": "Mostrar \"Nossos clientes usando\" no topo", "info": "Leva para o topo a galeria de fotos e vídeos dos clientes da Konfidency (que sai da lista de avaliações).", "default": true },
-    { "type": "text", "id": "clientes_titulo", "label": "Título da galeria de clientes", "default": "Nossos clientes usando" },
+    {
+      "type": "text",
+      "id": "mais_vendidas",
+      "label": "Cores mais vendidas (manual)",
+      "info": "Vazio = automático: o Waltz lê as vendas toda semana e escolhe as 3 cores de maior saída do produto. Preencha só para forçar uma lista (nomes separados por vírgula, como na loja)."
+    },
+    {
+      "type": "checkbox",
+      "id": "mostrar_clientes",
+      "label": "Mostrar \"Nossos clientes usando\" no topo",
+      "info": "Leva para o topo a galeria de fotos e vídeos dos clientes da Konfidency (que sai da lista de avaliações).",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "clientes_titulo",
+      "label": "Título da galeria de clientes",
+      "default": "Nossos clientes usando"
+    },
     { "type": "text", "id": "hero_cta", "label": "Botão", "default": "Criar a coleira do meu pet" },
     {
       "type": "textarea",
@@ -950,11 +1025,16 @@
       "type": "text",
       "id": "producao_texto",
       "label": "Prazo de produção",
-      "default": "Produção artesanal: de 3 a 5 dias úteis antes do envio."
+      "default": "Produção artesanal: de 3 a 5 dias úteis antes do envio, já contabilizados no prazo de entrega."
     },
     { "type": "text", "id": "flutuante_texto", "label": "Botão flutuante (celular)", "default": "Criar a minha" },
     { "type": "header", "content": "Benefícios" },
-    { "type": "text", "id": "beneficios_eyebrow", "label": "Sobretítulo", "info": "Vazio = Por que a + nome do produto" },
+    {
+      "type": "text",
+      "id": "beneficios_eyebrow",
+      "label": "Sobretítulo",
+      "info": "Vazio = Por que a + nome do produto"
+    },
     { "type": "text", "id": "beneficios_titulo", "label": "Título", "default": "Os detalhes que você sente na mão" },
     { "type": "header", "content": "Processo" },
     { "type": "text", "id": "processo_eyebrow", "label": "Sobretítulo", "default": "Produção artesanal" },
@@ -967,7 +1047,13 @@
     },
     { "type": "text", "id": "processo_assinatura", "label": "Fecho", "default": "Cada peça que sai daqui é única." },
     { "type": "header", "content": "Vídeos" },
-    { "type": "checkbox", "id": "mostrar_stories", "label": "Mostrar os vídeos em círculos (stories) no topo", "info": "O nome embaixo de cada círculo é o texto alternativo do vídeo no produto.", "default": true },
+    {
+      "type": "checkbox",
+      "id": "mostrar_stories",
+      "label": "Mostrar os vídeos em círculos (stories) no topo",
+      "info": "O nome embaixo de cada círculo é o texto alternativo do vídeo no produto.",
+      "default": true
+    },
     { "type": "checkbox", "id": "mostrar_videos", "label": "Mostrar os vídeos do produto", "default": true },
     { "type": "text", "id": "videos_eyebrow", "label": "Sobretítulo", "default": "Veja de perto" },
     { "type": "text", "id": "videos_titulo", "label": "Título", "default": "Do ateliê para o pescoço deles" },
