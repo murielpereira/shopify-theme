@@ -400,11 +400,28 @@
               <path d="M5 12h13m-5-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
+          {%- comment -%}
+            Preço e formas de pagamento, resumidos: o "a partir de" com o valor no
+            Pix, e a linha das parcelas (a mesma da PDP, snippet installments-info)
+            com o link que abre o modal "Formas de pagamento" (renderizado no fim da
+            seção, para o preço de partida). O total do ateliê muda com o tamanho e
+            o pingente; a tabela completa do modal é só do "a partir de".
+          {%- endcomment -%}
+          {%- liquid
+            assign preco_min = product.price_min
+            assign pix_desc_min = preco_min | times: pix_pct | divided_by: 100
+            assign pix_min = preco_min | minus: pix_desc_min
+          -%}
           <p class="atl-hero__preco">
-            a partir de <strong>{{ product.price_min | money }}</strong>
-            <span aria-hidden="true">·</span>
-            {{ pix_pct }}% off no Pix
+            a partir de <strong>{{ preco_min | money }}</strong>
+            {%- if settings.show_pix != false %}
+              <span aria-hidden="true">·</span>
+              <strong>{{ pix_min | money }}</strong> no Pix <span class="atl-hero__preco-off">({{ pix_pct }}% off)</span>
+            {%- endif %}
           </p>
+          <div class="atl-hero__parcelas">
+            {%- render 'installments-info', price_cents: preco_min, mode: 'pdp' -%}
+          </div>
           {%- comment -%}
             Resumo de estrelas da Konfidency, igual ao da PDP. Além de mostrar
             a nota, ele é OBRIGATÓRIO para a lista de avaliações (seção
@@ -845,6 +862,9 @@
       </button>
     </div>
   </div>
+
+  {%- comment -%} Modal "Formas de pagamento" (Pix + tabela de parcelas) para o preço de partida {%- endcomment -%}
+  {%- render 'installments-modal', price_cents: product.price_min -%}
 
   <div class="atl-aviso" data-atl-aviso role="status" aria-live="polite" hidden></div>
 </div>

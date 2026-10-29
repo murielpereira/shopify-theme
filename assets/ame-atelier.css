@@ -3134,3 +3134,39 @@ html.atl-travado body {
 .atl-medidas>#wm-btn-abrir svg {
   flex: none;
 }
+/* Formas de pagamento no topo: linha das parcelas (snippet da PDP) + link do modal. */
+.atl-hero__preco-off {
+  color: var(--atl-tinta-2);
+}
+
+.atl-hero__parcelas {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--atl-tinta-2);
+  text-align: center;
+}
+
+.atl-hero__parcelas p {
+  margin: 0;
+}
+
+.atl-hero__parcelas .pdp__installments-link {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-left: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--atl-couro);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+@media (min-width: 990px) {
+  .atl-hero__parcelas {
+    text-align: left;
+  }
+}
