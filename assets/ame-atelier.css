@@ -288,7 +288,7 @@
 .atl-hero {
   position: relative;
   overflow: hidden;
-  padding: 1.25rem var(--atl-margem) 2.5rem;
+  padding: 1.25rem var(--atl-margem) 1.5rem;
   background:
     radial-gradient(120% 60% at 50% 30%, var(--atl-brilho) 0%, color-mix(in srgb, var(--atl-brilho) 0%, transparent) 70%),
     linear-gradient(180deg, var(--atl-papel) 0%, var(--atl-papel-fim) 100%);
@@ -640,7 +640,7 @@
 
 .atl-studio {
   position: relative;
-  padding: 2.75rem var(--atl-margem) 0;
+  padding: 2rem var(--atl-margem) 0;
   background: var(--atl-papel);
   scroll-margin-top: var(--atl-topo);
 }
