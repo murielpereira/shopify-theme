@@ -308,7 +308,18 @@
         //     Bebê"), enquanto coleira "Chiclete com Rosa Bebê" aceita
         //     "Chiclete", "Rosa Bebê" e "Chiclete com Rosa Bebê" (rejeita
         //     "Rosa Bebê com Off White").
+        // Metal sem par no cross-sell (ex.: peitoral Rose, laço só com
+        // Grafite/Ouro/Prata): oferece a variante Prata em vez de ocultar.
         function autoMatchVariant(product, targetByDim) {
+            const m = matchVariant(product, targetByDim);
+            if (m.matched) return m;
+            const dimMetal = Object.keys(targetByDim).find(k => /metal/.test(k));
+            if (!dimMetal || targetByDim[dimMetal] === 'prata') return m;
+            const m2 = matchVariant(product, Object.assign({}, targetByDim, { [dimMetal]: 'prata' }));
+            return m2.matched ? m2 : m;
+        }
+
+        function matchVariant(product, targetByDim) {
             const candidateDims = nomeOpcoes(product);
 
             let best = null;

@@ -864,7 +864,8 @@
       "Bash(sed -n \"/function normalizeVariant\\\\|normalizeVariant = /,/^\\\\s*}/p\" routes/kits.js)",
       "Bash(node --check \"shopify-theme/assets/ame-kit.js\")",
       "Bash(node --check \"Waltz/routes/kits.js\")",
-      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -nE \"KITS_CACHE_MS\\\\s*=\" routes/kits.js)"
+      "Bash(cd \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/Waltz\"; grep -nE \"KITS_CACHE_MS\\\\s*=\" routes/kits.js)",
+      "Bash(node --check \"c:/Users/pedid/OneDrive/Área de Trabalho/Arquivos Âme/Muriel/Projetos/shopify-theme/assets/ame-pdp-bundle.js\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\pedid\\OneDrive\\Área de Trabalho\\Arquivos Âme\\Muriel\\Projetos\\Waltz\\routes",
