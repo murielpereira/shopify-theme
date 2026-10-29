@@ -1372,6 +1372,41 @@
     }
     atualizarBotaoVideoMedidas();
 
+    // ── "Nossos clientes usando": a galeria da Konfidency, trazida para o topo ──
+    // O app (Vue + Swiper) só monta a galeria (.konfidency__media-shelf) dentro da
+    // lista de avaliações. Esperamos ela aparecer e MOVEMOS o mesmo nó (não uma cópia:
+    // os eventos do carrossel e do modal de foto continuam ligados). Falhou ou não há
+    // galeria: o bloco fica escondido e as avaliações seguem como estavam.
+    (function clientesUsando() {
+        const bloco = $('[data-atl-clientes]');
+        const galeria = bloco && $('[data-atl-clientes-galeria]', bloco);
+        if (!galeria) return;
+        let feito = false;
+        function mover() {
+            if (feito) return true;
+            const prateleira = document.querySelector('.konfidency-reviews-details .konfidency__media-shelf');
+            if (!prateleira) return false;
+            try {
+                galeria.appendChild(prateleira);
+                bloco.hidden = false;
+                feito = true;
+                // O Swiper mede o espaço ao iniciar: depois da mudança de lugar, recalcula.
+                const sw = prateleira.querySelector('.swiper');
+                if (sw && sw.swiper && typeof sw.swiper.update === 'function') sw.swiper.update();
+                window.dispatchEvent(new Event('resize'));
+                publicar('clientes_usando');
+            } catch (e) {
+                console.warn('[ateliê] galeria dos clientes', e);
+                return true;
+            }
+            return true;
+        }
+        if (mover() || !('MutationObserver' in window)) return;
+        const obs = new MutationObserver(() => { if (mover()) obs.disconnect(); });
+        obs.observe(document.body, { childList: true, subtree: true });
+        setTimeout(() => obs.disconnect(), 45000);
+    })();
+
     // ── Etapa 4: pingente ──
     const TIPOS = [
         { id: 'nenhum', nome: 'Sem pingente', desc: 'Só a coleira' },

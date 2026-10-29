@@ -2376,7 +2376,7 @@ html.atl-travado body {
 }
 
 .atl-videos {
-  padding: 4.5rem 0 3.5rem;
+  padding: 2.5rem 0 2.5rem;
 }
 
 .atl-videos>.atl-eyebrow,
@@ -2450,7 +2450,7 @@ html.atl-travado body {
      quebrava letra por letra (15/10/2026). */
   max-width: calc(34rem + 2 * var(--atl-margem));
   margin: 0 auto;
-  padding: 3.5rem var(--atl-margem) 4.5rem;
+  padding: 2.5rem var(--atl-margem) 2.5rem;
   text-align: center;
 }
 
@@ -3134,24 +3134,61 @@ html.atl-travado body {
 .atl-medidas>#wm-btn-abrir svg {
   flex: none;
 }
-/* Formas de pagamento no topo: linha das parcelas (snippet da PDP) + link do modal. */
-.atl-hero__preco-off {
-  color: var(--atl-tinta-2);
-}
 
-.atl-hero__parcelas {
-  margin-top: 0.15rem;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  color: var(--atl-tinta-2);
+/* Preço do topo, no layout da PDP e compacto (A partir de → Pix → cartão → parcelas → cashback). */
+.atl-preco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  margin-top: 0.7rem;
   text-align: center;
+  color: var(--atl-tinta-2);
 }
 
-.atl-hero__parcelas p {
+.atl-preco p {
   margin: 0;
 }
 
-.atl-hero__parcelas .pdp__installments-link {
+.atl-preco__de {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.atl-preco__pix {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  color: var(--atl-tinta);
+}
+
+.atl-preco__pix strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.atl-preco__pix span {
+  font-size: 0.8125rem;
+  color: var(--atl-tinta-2);
+}
+
+.atl-preco__cartao {
+  font-size: 0.75rem;
+}
+
+.atl-preco__parcelas {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.atl-preco__parcelas p {
+  margin: 0;
+}
+
+.atl-preco__parcelas .pdp__installments-link {
   -webkit-appearance: none;
   appearance: none;
   margin-left: 0.4rem;
@@ -3165,8 +3202,107 @@ html.atl-travado body {
   cursor: pointer;
 }
 
+.atl-preco__cashback {
+  margin-top: 0.15rem;
+}
+
+.atl-preco__cashback .ame-cashback {
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.atl-preco__cashback .ame-cashback .ame-cashback__icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.atl-preco__cashback .ame-cashback .ame-cashback__text {
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.atl-preco__cashback .ame-cashback .ame-cashback__value {
+  font-size: 0.875rem;
+}
+
 @media (min-width: 990px) {
-  .atl-hero__parcelas {
+  .atl-preco {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .atl-preco__cashback .ame-cashback {
+    justify-content: flex-start;
+  }
+}
+
+/* Setas visíveis para ir ao vídeo anterior / próximo (a área de toque continua sendo a metade da tela). */
+.atl-hist__nav {
+  display: flex;
+  align-items: center;
+}
+
+.atl-hist__nav--ant {
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.atl-hist__nav--prox {
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.atl-hist__seta {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  pointer-events: none;
+}
+
+/* Nossos clientes usando: a galeria da Konfidency no topo, no lugar do ícone de rolar. */
+.atl-clientes {
+  max-width: var(--atl-largura);
+  margin: 1.6rem auto 0;
+  padding: 0 var(--atl-margem);
+}
+
+.atl-clientes[hidden] {
+  display: none;
+}
+
+.atl-clientes__titulo {
+  margin: 0 0 0.6rem;
+  text-align: center;
+}
+
+.atl-clientes__galeria {
+  min-width: 0;
+}
+
+/* O título da galeria vem do app; o nosso já diz o que é. */
+.atl-clientes .konfidency__media-shelf h3 {
+  display: none;
+}
+
+/* O modal da foto: o tema pinta por #konfidency-reviews-container, que não cobre mais a galeria aqui. */
+.atl-clientes .konfidency__media-modal {
+  background: var(--color-surface-container) !important;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.atl-clientes .konfidency__media-modal--name,
+.atl-clientes .konfidency__meddia-modal--text,
+.atl-clientes .konfidency__media-modal--btn-close {
+  color: var(--color-on-background) !important;
+  opacity: 1;
+}
+
+@media (min-width: 990px) {
+  .atl-clientes__titulo {
     text-align: left;
   }
 }

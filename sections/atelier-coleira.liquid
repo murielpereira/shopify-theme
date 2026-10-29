@@ -401,26 +401,31 @@
             </svg>
           </a>
           {%- comment -%}
-            Preço e formas de pagamento, resumidos: o "a partir de" com o valor no
-            Pix, e a linha das parcelas (a mesma da PDP, snippet installments-info)
-            com o link que abre o modal "Formas de pagamento" (renderizado no fim da
-            seção, para o preço de partida). O total do ateliê muda com o tamanho e
-            o pingente; a tabela completa do modal é só do "a partir de".
+            Preço no mesmo layout da página de produto (A partir de → Pix → cartão →
+            parcelas com o link do modal → cashback), só que compacto. Os valores são
+            os do "a partir de" (product.price_min); o total do ateliê muda com o
+            tamanho e o pingente. O modal "Formas de pagamento" é renderizado no fim
+            da seção para esse mesmo preço.
           {%- endcomment -%}
           {%- liquid
             assign preco_min = product.price_min
             assign pix_desc_min = preco_min | times: pix_pct | divided_by: 100
             assign pix_min = preco_min | minus: pix_desc_min
           -%}
-          <p class="atl-hero__preco">
-            a partir de <strong>{{ preco_min | money }}</strong>
+          <div class="atl-preco">
+            <p class="atl-preco__de">A partir de</p>
             {%- if settings.show_pix != false %}
-              <span aria-hidden="true">·</span>
-              <strong>{{ pix_min | money }}</strong> no Pix <span class="atl-hero__preco-off">({{ pix_pct }}% off)</span>
+              <p class="atl-preco__pix"><strong>{{ pix_min | money }}</strong> <span>no Pix</span></p>
+              <p class="atl-preco__cartao">ou {{ preco_min | money }} no cartão</p>
+            {%- else %}
+              <p class="atl-preco__pix"><strong>{{ preco_min | money }}</strong> <span>no cartão</span></p>
             {%- endif %}
-          </p>
-          <div class="atl-hero__parcelas">
-            {%- render 'installments-info', price_cents: preco_min, mode: 'pdp' -%}
+            <div class="atl-preco__parcelas">
+              {%- render 'installments-info', price_cents: preco_min, mode: 'pdp' -%}
+            </div>
+            <div class="atl-preco__cashback">
+              {%- render 'cashback', cashback_price: preco_min, cashback_mode: 'pdp' -%}
+            </div>
           </div>
           {%- comment -%}
             Resumo de estrelas da Konfidency, igual ao da PDP. Além de mostrar
@@ -470,9 +475,18 @@
         </div>
       </div>
     </div>
-    <a href="#atelie" class="atl-hero__descer" aria-label="Ir para o ateliê" data-atl-comecar>
-      <span></span>
-    </a>
+    {%- comment -%}
+      "Nossos clientes usando": a galeria de fotos e vídeos dos clientes da
+      Konfidency, no lugar do ícone de rolar. O app só monta a galeria dentro da
+      lista de avaliações (.konfidency-reviews-details, mais abaixo); o JS espera ela
+      aparecer e a traz para cá. Nasce escondido: sem galeria, não sobra título solto.
+    {%- endcomment -%}
+    {%- if section.settings.mostrar_clientes -%}
+      <div class="atl-clientes" data-atl-clientes hidden>
+        <p class="atl-eyebrow atl-clientes__titulo">{{ section.settings.clientes_titulo | default: 'Nossos clientes usando' }}</p>
+        <div class="atl-clientes__galeria" data-atl-clientes-galeria></div>
+      </div>
+    {%- endif -%}
   </section>
 
   {%- comment -%} ═══════════════════════ ATELIÊ ═══════════════════════ {%- endcomment -%}
@@ -853,8 +867,8 @@
         </svg>
       </button>
       <video class="atl-hist__video" data-atl-hist-video playsinline></video>
-      <button type="button" class="atl-hist__nav atl-hist__nav--ant" data-atl-hist-ant aria-label="Vídeo anterior"></button>
-      <button type="button" class="atl-hist__nav atl-hist__nav--prox" data-atl-hist-prox aria-label="Próximo vídeo"></button>
+      <button type="button" class="atl-hist__nav atl-hist__nav--ant" data-atl-hist-ant aria-label="Vídeo anterior"><span class="atl-hist__seta" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="m14 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+      <button type="button" class="atl-hist__nav atl-hist__nav--prox" data-atl-hist-prox aria-label="Próximo vídeo"><span class="atl-hist__seta" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="m10 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
       <button type="button" class="atl-hist__som" data-atl-hist-som aria-label="Desativar som">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
           <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path data-atl-hist-mudo d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="display:none"/>
@@ -894,6 +908,8 @@
       "default": "6 meses de garantia\nTroca facilitada\n15 cores de couro legítimo\n4 cores de metal\nFeita à mão, para seu pet\nPingente opcional"
     },
     { "type": "text", "id": "mais_vendidas", "label": "Cores mais vendidas (manual)", "info": "Vazio = automático: o Waltz lê as vendas toda semana e escolhe as 3 cores de maior saída do produto. Preencha só para forçar uma lista (nomes separados por vírgula, como na loja)." },
+    { "type": "checkbox", "id": "mostrar_clientes", "label": "Mostrar \"Nossos clientes usando\" no topo", "info": "Leva para o topo a galeria de fotos e vídeos dos clientes da Konfidency (que sai da lista de avaliações).", "default": true },
+    { "type": "text", "id": "clientes_titulo", "label": "Título da galeria de clientes", "default": "Nossos clientes usando" },
     { "type": "text", "id": "hero_cta", "label": "Botão", "default": "Criar a coleira do meu pet" },
     {
       "type": "textarea",
