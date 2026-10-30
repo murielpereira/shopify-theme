@@ -23,7 +23,7 @@
 
   var HIDE = 'is-passo-oculto';
   var atual = 0;
-  var nav, rodape, btnProx, btnVoltar, live;
+  var nav, rodape, btnProx, btnVoltar, live, resumoEl;
   var ultimoTotal = -1;
   var renderAgendado = false;
 
@@ -46,13 +46,52 @@
   }
 
   // Passos montados do DOM atual
+  function textoDoCampo(bloco) {
+    var rot = bloco.querySelector('.pdp__custom-field__label, label, legend');
+    var campo = bloco.querySelector('textarea, input[type="text"], input[type="hidden"].pdp__custom-field__radio-val, input:not([type="radio"]):not([type="checkbox"]), select');
+    var v = campo ? String(campo.value || '').trim() : '';
+    var nome = rot ? rot.textContent.replace('*', '').trim() : '';
+    return v ? [nome, v] : null;
+  }
+
+  function preencherResumo(passos) {
+    if (!resumoEl) return;
+    var linhas = [];
+    passos.forEach(function (p) {
+      if (p.tipo === 'opcao') linhas.push([p.rotulo, valorEscolhido(p.grupo)]);
+    });
+    var ping = window.amePingente;
+    if (ping && typeof ping.hasAnswered === 'function' && form.querySelector('.ame-pingente')) {
+      linhas.push(['Pingente', ping.isActive() ? 'Com pingente personalizado' : 'Sem pingente']);
+    }
+    Array.prototype.forEach.call(form.querySelectorAll('.pdp__custom-field'), function (b) {
+      var t = textoDoCampo(b);
+      if (t) linhas.push(t);
+    });
+    resumoEl.innerHTML = '';
+    var h = document.createElement('p');
+    h.className = 'pdp-passos__resumo-titulo';
+    h.textContent = 'Seu pedido';
+    resumoEl.appendChild(h);
+    var dl = document.createElement('dl');
+    dl.className = 'pdp-passos__resumo-lista';
+    linhas.forEach(function (l) {
+      var dt = document.createElement('dt'); dt.textContent = l[0];
+      var dd = document.createElement('dd'); dd.textContent = l[1];
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+    resumoEl.appendChild(dl);
+  }
+
   function montarPassos() {
     var passos = grupos().map(function (g) {
       return { tipo: 'opcao', rotulo: nomeDoGrupo(g).trim(), els: [g], grupo: g };
     });
     var det = detalhes();
     if (det.length) passos.push({ tipo: 'detalhes', rotulo: 'Detalhes', els: det });
-    passos.push({ tipo: 'resumo', rotulo: 'Resumo', els: resumo() });
+    var els = resumo();
+    if (resumoEl) els.unshift(resumoEl);
+    passos.push({ tipo: 'resumo', rotulo: 'Resumo', els: els });
     return passos;
   }
 
@@ -121,8 +160,12 @@
     rodape.appendChild(btnVoltar);
     rodape.appendChild(btnProx);
 
+    resumoEl = document.createElement('div');
+    resumoEl.className = 'pdp-passos__resumo';
     var wrap = form.querySelector('#pdp-options-wrap');
     form.insertBefore(nav, wrap || form.firstChild);
+    var qtd = form.querySelector('.pdp__qty');
+    form.insertBefore(resumoEl, qtd || rodape);
     form.appendChild(rodape);
     form.appendChild(live);
 
@@ -167,9 +210,9 @@
 
   function render() {
     renderAgendado = false;
-    var passos = montarPassos();
     if (grupos().length < 2) { desligar(); return; }
     ensureUI();
+    var passos = montarPassos();
     form.classList.add('pdp-passos');
 
     if (passos.length !== ultimoTotal) {
@@ -210,6 +253,7 @@
 
     // rodapé
     var ehResumo = passos[atual].tipo === 'resumo';
+    if (ehResumo) preencherResumo(passos);
     rodape.hidden = false;
     btnProx.hidden = ehResumo;
     btnVoltar.hidden = atual === 0;
@@ -225,7 +269,8 @@
     if (nav) nav.remove();
     if (rodape) rodape.remove();
     if (live) live.remove();
-    nav = rodape = null;
+    if (resumoEl) resumoEl.remove();
+    nav = rodape = resumoEl = null;
   }
 
   function agendar() {
@@ -241,7 +286,7 @@
       if (m.type === 'childList' && (m.addedNodes.length || m.removedNodes.length)) {
         // ignora o que a própria UI insere/remove
         var meu = function (n) {
-          return n.nodeType === 1 && (n === nav || n === rodape || n === live ||
+          return n.nodeType === 1 && (n === nav || n === rodape || n === live || n === resumoEl ||
             (n.classList && (n.classList.contains('pdp-passos__nav') || n.classList.contains('pdp-passos__rodape') || n.classList.contains('pdp-passos__live'))));
         };
         var soMeus = Array.prototype.every.call(m.addedNodes, meu) && Array.prototype.every.call(m.removedNodes, meu);

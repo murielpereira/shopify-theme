@@ -214,9 +214,10 @@
     .ame-pingente {
       margin: 1.25rem 0 1.5rem;
       padding: 1.25rem 1.25rem 1rem;
-      border: 1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent);
+      border: 1.5px solid var(--color-primary);
       border-radius: var(--radius-lg, 0.5rem);
-      background: linear-gradient(180deg, var(--color-surface-container, #f8ece0) 0%, transparent 100%);
+      background: var(--color-surface-container-lowest, var(--color-surface));
+      box-shadow: 0 2px 10px color-mix(in srgb, var(--color-primary) 14%, transparent);
     }
 
     .ame-pingente__header {
@@ -362,7 +363,6 @@
       flex: 1;
       cursor: pointer;
       position: relative;
-      background: var(--color-surface-container);
       font-weight: bold;
     }
     .ame-pingente__opt input {
@@ -375,11 +375,12 @@
       display: block;
       padding: 0.75rem 1rem;
       text-align: center;
-      background: transparent;
-      border: 1px solid var(--color-outline-variant, #d2c3c0);
+      background: var(--color-surface-container-lowest, var(--color-surface));
+      border: 1.5px solid var(--color-primary);
       border-radius: var(--radius-md, 4px);
-      font-size: 0.8125rem;
-      color: var(--color-on-surface-variant, #4f4442);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-primary);
       transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
     .ame-pingente__opt input:checked + span {
@@ -389,7 +390,11 @@
       font-weight: 500;
     }
     .ame-pingente__opt:hover span {
-      border-color: var(--color-primary, #5a4742);
+      background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface-container-lowest, var(--color-surface)));
+    }
+    .ame-pingente__opt input:focus-visible + span {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
 
     /* Passo 2 — Tipo */
