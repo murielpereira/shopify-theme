@@ -1540,6 +1540,21 @@
           if (OBRIGATORIO) properties['Brinde'] = 'Pingente cortesia incluso';
           return { id: state.variant.id, quantity: qty, properties };
         },
+        // Dados do pingente para o resumo do passo a passo (ame-pdp-passos.js).
+        // null se o cliente não escolheu pingente.
+        getResumo() {
+          if (!state.opted || !state.variant) return null;
+          const item = this.getCartItem(1);
+          const texto = item && item.properties && item.properties['Personalização'];
+          return {
+            produto: (state.product && state.product.title) || '',
+            variante: state.variant.title && state.variant.title !== 'Default Title' ? state.variant.title : '',
+            precoCents: pingentePriceCents(),
+            cortesia: !!OBRIGATORIO,
+            linhas: String(texto || '').split('
+').filter((l) => l && !/^anexo a:/i.test(l)),
+          };
+        },
         isObrigatorio() {
           return OBRIGATORIO;
         },

@@ -62,7 +62,18 @@
     });
     var ping = window.amePingente;
     if (ping && typeof ping.hasAnswered === 'function' && form.querySelector('.ame-pingente')) {
-      linhas.push(['Pingente', ping.isActive() ? 'Com pingente personalizado' : 'Sem pingente']);
+      var rs = typeof ping.getResumo === 'function' ? ping.getResumo() : null;
+      if (rs) {
+        var nomePing = [rs.produto, rs.variante].filter(Boolean).join(' — ');
+        var preco = rs.cortesia ? 'cortesia' : (rs.precoCents ? 'R$ ' + (rs.precoCents / 100).toFixed(2).replace('.', ',') : '');
+        linhas.push(['Pingente', [nomePing || 'Personalizado', preco].filter(Boolean).join(' · ')]);
+        rs.linhas.forEach(function (l) {
+          var i = l.indexOf(':');
+          linhas.push(i > 0 ? [l.slice(0, i), l.slice(i + 1).trim()] : ['', l]);
+        });
+      } else {
+        linhas.push(['Pingente', ping.isActive() ? 'Com pingente personalizado' : 'Sem pingente']);
+      }
     }
     Array.prototype.forEach.call(form.querySelectorAll('.pdp__custom-field'), function (b) {
       var t = textoDoCampo(b);
