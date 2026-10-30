@@ -1551,8 +1551,7 @@
             variante: state.variant.title && state.variant.title !== 'Default Title' ? state.variant.title : '',
             precoCents: pingentePriceCents(),
             cortesia: !!OBRIGATORIO,
-            linhas: String(texto || '').split('
-').filter((l) => l && !/^anexo a:/i.test(l)),
+            linhas: String(texto || '').split('\n').filter((l) => l && !/^anexo a:/i.test(l)),
           };
         },
         isObrigatorio() {
