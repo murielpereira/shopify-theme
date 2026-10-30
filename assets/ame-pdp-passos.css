@@ -88,3 +88,30 @@
 .pdp-passos__resumo-lista { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; font-size: 0.875rem; }
 .pdp-passos__resumo-lista dt { color: var(--color-on-surface-variant, inherit); }
 .pdp-passos__resumo-lista dd { margin: 0; font-weight: 600; color: var(--color-on-surface, inherit); overflow-wrap: anywhere; }
+
+/*
+ * ANTES do JS (sem layout antigo piscando): o form já nasce no estado do 1º passo —
+ * só o 1º grupo de opções aparece e o espaço da barra/rodapé é reservado. Quando o JS
+ * assume (.pdp-passos) estas regras saem de cena. Se o JS nunca assumir, a animação
+ * devolve o formulário completo depois de 4 s (a página continua usável).
+ */
+@keyframes pdp-passos-revelar { to { max-height: none; opacity: 1; overflow: visible; margin: revert; } }
+form[data-passos="true"]:not(.pdp-passos)::before { content: ""; display: block; height: 3.25rem; margin: 0 0 1rem; }
+form[data-passos="true"]:not(.pdp-passos)::after { content: ""; display: block; height: 3rem; margin: 1rem 0 0; }
+form[data-passos="true"]:not(.pdp-passos) #pdp-options-wrap .pdp__option:not(:first-child),
+form[data-passos="true"]:not(.pdp-passos) .ame-pingente,
+form[data-passos="true"]:not(.pdp-passos) .pdp__custom-field,
+form[data-passos="true"]:not(.pdp-passos) .pdp__qty,
+form[data-passos="true"]:not(.pdp-passos) .pdp-bundle,
+form[data-passos="true"]:not(.pdp-passos) .pdp__ctas {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  animation: pdp-passos-revelar 0.01s 4s forwards;
+}
+.pdp-passos__nav { min-height: 3.25rem; }

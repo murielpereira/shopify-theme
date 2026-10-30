@@ -100,6 +100,16 @@
     endif
   endif
 
+  # Passo a passo das opções (assets/ame-pdp-passos.js): liga pela opção da seção
+  # (template product.passos) OU automaticamente nos produtos que oferecem pingente
+  # (coleiras, peitorais…) — são os de mais escolhas. Kit tem o próprio passo a passo.
+  assign usar_passos = false
+  if section.settings.passos_ativo or pdp_oferece_pingente
+    if is_kit == false and product.options.size > 1
+      assign usar_passos = true
+    endif
+  endif
+
   # A página do add-on também não VENDE: sem campo de nome, quem chegasse aqui
   # (histórico do navegador, link antigo) compraria um pingente sem gravação.
   # No lugar do botão de compra vai um link para o MESMO pingente vendido
@@ -884,11 +894,11 @@
     {%- endif -%}
 
     <!-- ── Formulário de produto ── -->
-    {%- if section.settings.passos_ativo and is_kit != true -%}
+    {%- if usar_passos -%}
       {{ 'ame-pdp-passos.css' | asset_url | stylesheet_tag }}
       <script src="{{ 'ame-pdp-passos.js' | asset_url }}" defer></script>
     {%- endif -%}
-    {%- form 'product', product, id: 'pdp-form', novalidate: true, data-passos: section.settings.passos_ativo -%}
+    {%- form 'product', product, id: 'pdp-form', novalidate: true, data-passos: usar_passos -%}
       {%- liquid
         # ID "efetivo" — preferimos a variante completa selecionada (cv); se ela
         # ainda não existe (opções parciais), usamos a partial_variant pra que
