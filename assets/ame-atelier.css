@@ -3335,3 +3335,253 @@ html.atl-travado body {
   text-align: left;
   white-space: nowrap;
 }
+
+/* ── Acerte o tamanho: perguntas, cartões, recomendação (30/10/2026) ──
+   Formato do app atena-pet-fit no visual do Ateliê: fundos suaves e anel de latão
+   no que está escolhido, sem bordas duras. */
+.atl-pergunta {
+  margin: 1.4rem 0 0.7rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--atl-couro-2);
+}
+
+.atl-idades {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.atl-pilula {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.4rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  color: var(--atl-tinta);
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.atl-pilula.is-ativo {
+  background: var(--color-surface-container-lowest);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2);
+}
+
+.atl-pilula__t {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.atl-pilula__n {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--atl-tinta-2);
+}
+
+.atl-pilula--idade {
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 56px;
+}
+
+.atl-pilula--porte {
+  justify-content: flex-start;
+  padding: 0.35rem 1.1rem 0.35rem 0.75rem;
+  text-align: left;
+}
+
+.atl-pilula__sil {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2rem;
+  color: color-mix(in srgb, var(--atl-tinta) 38%, transparent);
+}
+
+.atl-pilula--porte.is-ativo .atl-pilula__sil {
+  color: var(--atl-latao-3);
+}
+
+.atl-pilula--raca {
+  min-height: 40px;
+  padding: 0 1rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.atl-pilula--outra {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atl-couro) 35%, transparent);
+  border-style: dashed;
+}
+
+.atl-pilula--outra.is-ativo {
+  background: var(--color-surface-container-lowest);
+  box-shadow: inset 0 0 0 1.5px var(--atl-latao-2);
+}
+
+.atl-cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.atl-cartao__cab {
+  -webkit-appearance: none;
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.5rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  text-align: left;
+  color: var(--atl-tinta);
+  background: color-mix(in srgb, var(--atl-couro) 7%, transparent);
+  cursor: pointer;
+}
+
+.atl-cartao__rotulo {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--atl-couro-2);
+}
+
+.atl-cartao__valor {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  color: var(--atl-tinta-2);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.atl-cartao__valor.tem-valor {
+  font-weight: 600;
+  color: var(--atl-tinta);
+}
+
+.atl-cartao__seta {
+  flex: none;
+  transition: transform 0.25s ease;
+}
+
+.atl-cartao.is-aberto .atl-cartao__seta {
+  transform: rotate(180deg);
+}
+
+.atl-cartao__corpo {
+  padding: 0.85rem 0.15rem 0.35rem;
+}
+
+.atl-cartao__corpo[hidden] {
+  display: none;
+}
+
+.atl-cartao__dica {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--atl-tinta-2);
+}
+
+.atl-portes,
+.atl-racas-pilulas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.atl-peso {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.7rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--atl-couro) 5%, transparent);
+}
+
+.atl-peso input {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1.5rem;
+  text-align: center;
+  color: var(--atl-tinta);
+  outline: none;
+}
+
+.atl-peso span {
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--atl-tinta-2);
+}
+
+.atl-campo--raca-livre {
+  margin-top: 0.9rem;
+}
+
+.atl-reco {
+  margin-top: 1.4rem;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--atl-tinta-2);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--atl-latao-1) 22%, transparent), rgba(220, 193, 186, 0.2));
+}
+
+.atl-reco[hidden] {
+  display: none;
+}
+
+.atl-reco p {
+  margin: 0.2rem 0 0;
+}
+
+.atl-reco .atl-reco__rotulo {
+  margin: 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--atl-latao-3);
+}
+
+.atl-reco .atl-reco__tam {
+  margin: 0.4rem 0 0.1rem;
+  font-size: 1.5rem;
+  font-weight: 350;
+  letter-spacing: -0.01em;
+  color: var(--atl-tinta);
+}
+
+.atl-reco .atl-reco__nota {
+  margin-top: 0.4rem;
+}

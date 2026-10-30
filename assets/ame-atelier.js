@@ -116,7 +116,11 @@
         metal: null,
         tamanho: null,
         tamanhoManual: false,
-        pet: '',
+        idade: '',
+        porte: '',
+        peso: '',
+        raca: '',
+        racaOutra: false,
         extras: {},       // outros campos personalizados, por nome
         pTipo: null,      // 'nenhum' | 'metal' | 'couro' | 'metal-couro'
         pFormato: null,
@@ -124,7 +128,7 @@
         pTutor: '',
         pTel: '',
     };
-    const CAMPOS_SALVOS = ['maxPasso', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'pet', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pTutor', 'pTel'];
+    const CAMPOS_SALVOS = ['maxPasso', 'couro', 'cor', 'metal', 'tamanho', 'tamanhoManual', 'idade', 'porte', 'peso', 'raca', 'racaOutra', 'extras', 'pTipo', 'pFormato', 'pFrente', 'pTutor', 'pTel'];
 
     let salvarTimer = 0;
     function salvar() {
@@ -1192,22 +1196,116 @@
     const campoRaca = () => (CFG.campos || []).find((c) => c.tag === 'customizacao_raca') || null;
     const camposExtras = () => (CFG.campos || []).filter((c) => c.tag !== 'customizacao_raca').sort((a, b) => (parseInt(a.ordem, 10) || 0) - (parseInt(b.ordem, 10) || 0));
 
-    // Raça, idade e peso: uma caixa de texto livre e OPCIONAL logo abaixo dos
-    // tamanhos, como nas outras coleiras (o campo "customizacao_raca" do Waltz).
-    // Antes eram três campos obrigatórios com sugestão de tamanho; agora quem
-    // ajuda a escolher é o widget da tabela de medidas, acima dos tamanhos.
+    // ── Acerte o tamanho (formato do app atena-pet-fit, 30/10/2026) ──
+    // Três perguntas curtas (filhote ou adulto, porte, peso opcional) + a raça, uma
+    // recomendação e, logo abaixo, a escolha direta do tamanho. Porte e peso dão o
+    // tamanho; filhote sobe um tamanho (ele ainda vai crescer). A raça entra no pedido
+    // junto com o resto, no campo "customizacao_raca" do Waltz. Nada trava o avanço,
+    // a não ser que a seção peça (exigir_porte_raca): o tamanho continua escolhível direto.
+    const PORTES = [
+        { id: 'Micro', nome: 'Micro', peso: 2, faixa: 'até 2 kg', nivel: 1 },
+        { id: 'Mini', nome: 'Mini', peso: 3, faixa: '2,2 a 3,5 kg', nivel: 2 },
+        { id: 'Pequeno', nome: 'Pequeno', peso: 7, faixa: '4 a 10 kg', nivel: 3 },
+        { id: 'Médio', nome: 'Médio', peso: 16, faixa: '11 a 22 kg', nivel: 4 },
+        { id: 'Grande', nome: 'Grande', peso: 29, faixa: '24 a 35 kg', nivel: 5 },
+    ];
+    // Até quantos kg cada tamanho serve (adulto). Ordem = do menor para o maior.
+    const LIMITES_KG = [['XPP', 2], ['PP', 3.9], ['P', 10.5], ['M', 23], ['G', Infinity]];
+    const IDADES = [{ id: 'Filhote', nota: 'ainda vai crescer' }, { id: 'Adulto', nota: 'tamanho definitivo' }];
+    // As 15 raças mais citadas nos pedidos reais de coleira (3.392 observações, jul–out/2026,
+    // lidas do texto livre do campo de raça): Chihuahua 22%, Dachshund 10%, SRD 9%, Spitz 8%…
+    const RACAS_PADRAO = ['Chihuahua', 'Dachshund', 'Vira-lata (SRD)', 'Spitz Alemão', 'Shih Tzu', 'Cavalier', 'Golden Retriever', 'Yorkshire', 'Cocker', 'Maltês', 'Bulldog Francês', 'Pinscher', 'Border Collie', 'Poodle', 'Pastor Alemão'];
+    const racasPopulares = () => {
+        const l = (CFG.racasPopulares || []).map((r) => String(r).trim()).filter(Boolean);
+        return l.length ? l : RACAS_PADRAO;
+    };
+    const UI = { abertos: { porte: true, peso: false, raca: false } };
+    const porteAtual = () => PORTES.find((p) => p.id === S.porte) || null;
+    const pesoNum = () => {
+        const v = parseFloat(String(S.peso).replace(',', '.'));
+        return isFinite(v) && v > 0 ? v : 0;
+    };
+    // Tamanho pelo peso digitado (ou o do porte), com filhote um acima. Só entre os
+    // tamanhos que o produto tem; se o calculado não existir, o disponível mais perto.
+    function tamanhoRecomendado() {
+        if (!M) return null;
+        const porte = porteAtual();
+        const kg = pesoNum() || (porte ? porte.peso : 0);
+        if (!kg) return null;
+        let i = LIMITES_KG.findIndex(([, ate]) => kg <= ate);
+        if (i < 0) i = LIMITES_KG.length - 1;
+        if (S.idade === 'Filhote') i = Math.min(i + 1, LIMITES_KG.length - 1);
+        const idx = (cod) => LIMITES_KG.findIndex(([c]) => c === cod);
+        const disp = M.tamanhos.filter((x) => idx(x) >= 0);
+        if (!disp.length) return null;
+        const tam = disp.slice().sort((a, b) => Math.abs(idx(a) - i) - Math.abs(idx(b) - i) || idx(a) - idx(b))[0];
+        return { tamanho: tam, kg, porte };
+    }
+    const silhueta = (nivel) => {
+        const h = 11 + nivel * 3;
+        return `<svg viewBox="0 0 40 28" height="${h}" width="${(h * 1.43).toFixed(1)}" fill="currentColor" aria-hidden="true" focusable="false"><rect x="7" y="10" width="20" height="10" rx="5"/><circle cx="26.5" cy="11.5" r="4.2"/><circle cx="31" cy="8" r="4.2"/><rect x="33.6" y="6.4" width="5" height="3.2" rx="1.6"/><path d="M28.8 5.2 31 1.2 33.4 5.6Z"/><path d="M7.6 13C4.6 12.4 2.7 9.4 2.3 5.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><rect x="8.4" y="17.4" width="3.6" height="8.6" rx="1.8"/><rect x="13.8" y="18.4" width="3.6" height="7.6" rx="1.8"/><rect x="20.4" y="17.4" width="3.6" height="8.6" rx="1.8"/><rect x="25.2" y="18.4" width="3.6" height="7.6" rx="1.8"/></svg>`;
+    };
+    const valorCartao = {
+        porte: () => { const p = porteAtual(); return p ? `${p.nome} · ${p.faixa}` : ''; },
+        peso: () => (S.peso ? `${S.peso} kg` : ''),
+        raca: () => S.raca,
+    };
+    function cartao(chave, rotulo, vazio, corpo) {
+        const aberto = !!UI.abertos[chave];
+        const v = valorCartao[chave]();
+        return `<div class="atl-cartao${aberto ? ' is-aberto' : ''}">
+          <button type="button" class="atl-cartao__cab" data-atl-cartao="${chave}" aria-expanded="${aberto}">
+            <span class="atl-cartao__rotulo">${rotulo}</span>
+            <span class="atl-cartao__valor${v ? ' tem-valor' : ''}" data-atl-cartao-valor="${chave}">${esc(v || vazio)}</span>
+            <svg class="atl-cartao__seta" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="atl-cartao__corpo"${aberto ? '' : ' hidden'}>${corpo}</div>
+        </div>`;
+    }
+    function atualizarResumoCartoes() {
+        $$('[data-atl-cartao-valor]').forEach((el) => {
+            const chave = el.dataset.atlCartaoValor;
+            const v = valorCartao[chave] ? valorCartao[chave]() : '';
+            const vazio = chave === 'peso' ? 'opcional' : CFG.exigirPorteRaca ? 'obrigatório' : chave === 'raca' ? 'opcional' : 'escolha';
+            el.textContent = v || vazio;
+            el.classList.toggle('tem-valor', !!v);
+        });
+    }
+    function preencherListaRacas() {
+        const dl = $('#atl-racas-lista');
+        if (!dl) return;
+        dl.innerHTML = ((TM && TM.racas) || []).map((r) => `<option value="${esc(r.nome_raca)}"></option>`).join('');
+    }
+
     function renderPetInfo() {
         const box = $('[data-atl-pet-info]');
-        const cr = campoRaca();
-        const titulo = (cr && cr.titulo) || 'Qual a raça, idade e peso do pet?';
-        const dica = (cr && cr.placeholder) || 'Usamos essas informações somente para auxiliar você na escolha correta do tamanho das peças.';
-        // Sem o campo configurado para o produto, não há caixa do pet (mesma regra das outras coleiras).
-        box.innerHTML = !cr ? '' : `
-          <div class="atl-campo">
-            <textarea id="atl-pet" class="atl-campo__input" rows="2" placeholder=" " ${cr.limite ? `maxlength="${esc(cr.limite)}"` : ''} data-atl-pet>${esc(S.pet)}</textarea>
-            <label for="atl-pet" class="atl-campo__rotulo">${esc(titulo)} (opcional)</label>
-          </div>
-          <p class="atl-campo__dica">${esc(dica)}</p>`;
+        if (!box) return;
+        const exige = !!CFG.exigirPorteRaca;
+        const idades = IDADES.map((i) => `<button type="button" class="atl-pilula atl-pilula--idade${S.idade === i.id ? ' is-ativo' : ''}" aria-pressed="${S.idade === i.id}" data-atl-idade-op="${i.id}">
+            <span class="atl-pilula__t">${i.id}</span><span class="atl-pilula__n">${i.nota}</span></button>`).join('');
+        const portes = PORTES.map((p) => `<button type="button" class="atl-pilula atl-pilula--porte${S.porte === p.id ? ' is-ativo' : ''}" aria-pressed="${S.porte === p.id}" data-atl-porte-op="${esc(p.id)}">
+            <span class="atl-pilula__sil">${silhueta(p.nivel)}</span>
+            <span class="atl-pilula__txt"><span class="atl-pilula__t">${p.nome}</span><span class="atl-pilula__n">${p.faixa}</span></span></button>`).join('');
+        const racas = racasPopulares().map((r) => `<button type="button" class="atl-pilula atl-pilula--raca${!S.racaOutra && S.raca === r ? ' is-ativo' : ''}" aria-pressed="${!S.racaOutra && S.raca === r}" data-atl-raca-op="${esc(r)}">${esc(r)}</button>`).join('');
+        box.innerHTML = `
+          <p class="atl-pergunta">1 · Filhote ou adulto?</p>
+          <div class="atl-idades" role="group" aria-label="Filhote ou adulto">${idades}</div>
+          <div class="atl-cartoes">
+            ${cartao('porte', '2 · Porte', exige ? 'obrigatório' : 'escolha', `<div class="atl-portes" role="group" aria-label="Porte do pet">${portes}</div>`)}
+            ${cartao('peso', '3 · Peso', 'opcional', `
+              <p class="atl-cartao__dica">Você sabe o peso do seu pet? Assim escolhemos o tamanho perfeito.</p>
+              <div class="atl-peso"><input type="text" inputmode="decimal" maxlength="5" placeholder="—" value="${esc(S.peso)}" aria-label="Peso do pet em quilos" data-atl-peso><span>kg</span></div>`)}
+            ${cartao('raca', 'Raça', exige ? 'obrigatório' : 'opcional', `
+              <div class="atl-racas-pilulas" role="group" aria-label="Raça do pet">${racas}
+                <button type="button" class="atl-pilula atl-pilula--raca atl-pilula--outra${S.racaOutra ? ' is-ativo' : ''}" aria-pressed="${!!S.racaOutra}" data-atl-raca-outra>Outra</button>
+              </div>
+              ${S.racaOutra ? `<div class="atl-campo atl-campo--raca-livre">
+                <input type="text" class="atl-campo__input" list="atl-racas-lista" autocomplete="off" placeholder=" " maxlength="60" value="${esc(S.raca)}" id="atl-raca-livre" data-atl-raca-livre>
+                <label for="atl-raca-livre" class="atl-campo__rotulo">Escreva a raça do seu pet</label>
+                <datalist id="atl-racas-lista"></datalist>
+              </div>` : ''}`)}
+          </div>`;
+        preencherListaRacas();
         const extras = camposExtras();
         $('[data-atl-campos-extra]').innerHTML = extras.map((c, i) => `
           <div class="atl-campo">
@@ -1216,14 +1314,46 @@
                 : `<input type="${c.tipo === 'phone' ? 'tel' : 'text'}" id="atl-extra-${i}" class="atl-campo__input" placeholder=" " ${c.limite ? `maxlength="${esc(c.limite)}"` : ''} value="${esc(S.extras[c.nome] || '')}" data-atl-extra="${esc(c.nome)}">`}
             <label for="atl-extra-${i}" class="atl-campo__rotulo">${esc(c.titulo || c.nome)}${c.obrigatorio ? ' *' : ''}</label>
           </div>`).join('');
+        renderRecomendacao();
+    }
+
+    function renderRecomendacao(rec) {
+        const box = $('[data-atl-recomendacao]');
+        if (!box) return;
+        const r = rec === undefined ? tamanhoRecomendado() : rec;
+        if (!r) { box.hidden = true; return; }
+        const md = medidaDe(r.tamanho);
+        const filhote = S.idade === 'Filhote';
+        const perfil = [filhote ? 'filhote' : 'adulto', r.porte ? `porte ${r.porte.nome}` : null, S.peso ? `${S.peso} kg` : null].filter(Boolean).join(' · ');
+        box.hidden = false;
+        box.innerHTML = `
+          <p class="atl-reco__rotulo">Nossa recomendação</p>
+          <p class="atl-reco__tam">Tamanho ${esc(r.tamanho)}</p>
+          ${md ? `<p>Para pescoço de ${esc(md)}.</p>` : ''}
+          <p class="atl-reco__nota">Para um pet ${esc(perfil)}.${filhote ? ' Como ele ainda vai crescer, indicamos um tamanho acima do peso atual.' : ''}</p>`;
+    }
+
+    // Respondeu algo: recalcula o tamanho, a recomendação e o que depende dele.
+    function recalcularTamanho() {
+        const rec = tamanhoRecomendado();
+        if (rec && S.tamanho !== rec.tamanho) { S.tamanho = rec.tamanho; S.tamanhoManual = false; }
+        renderTamanhos();
+        renderRecomendacao(rec);
+        atualizarPalco();
+        atualizarTudo();
+        if (S.pTipo && S.pTipo !== 'nenhum') atualizarPingente();
+        salvar();
     }
 
     function renderTamanhos() {
         const box = $('[data-atl-tamanhos]');
+        const rec = tamanhoRecomendado();
         box.innerHTML = M.tamanhos.map((t) => {
             const preco = M.precoTam.get(t);
             const md = medidaDe(t);
-            return `<button type="button" class="atl-tam${S.tamanho === t ? ' is-ativo' : ''}" aria-pressed="${S.tamanho === t}" data-tam="${esc(t)}">
+            const indicado = rec && rec.tamanho === t;
+            return `<button type="button" class="atl-tam${S.tamanho === t ? ' is-ativo' : ''}${indicado ? ' is-indicado' : ''}" aria-pressed="${S.tamanho === t}" data-tam="${esc(t)}">
+                ${indicado ? '<span class="atl-tam__selo">indicado</span>' : ''}
                 <span class="atl-tam__nome">${esc(t)}</span>
                 ${md ? `<span class="atl-tam__medida">${esc(md.replace(' a ', '–'))}</span>` : ''}
                 ${preco != null ? `<span class="atl-tam__preco">${dinheiro(preco)}</span>` : ''}
@@ -1242,13 +1372,66 @@
 
     root.addEventListener('input', (e) => {
         const el = e.target;
-        if (el.matches('[data-atl-pet]')) {
-            S.pet = el.value;
+        if (el.matches('[data-atl-peso]')) {
+            // Só números, com vírgula ou ponto (2,5 kg existe): até 5 caracteres.
+            el.value = el.value.replace(/[^\d.,]/g, '').slice(0, 5);
+            S.peso = el.value;
+            atualizarResumoCartoes();
+            recalcularTamanho();
+        } else if (el.matches('[data-atl-raca-livre]')) {
+            S.raca = limpo(el.value);
+            atualizarResumoCartoes();
             salvar();
         } else if (el.matches('[data-atl-extra]')) {
             S.extras[el.dataset.atlExtra] = el.value;
             salvar();
             atualizarTudo();
+        }
+    });
+
+    root.addEventListener('click', (e) => {
+        const cab = e.target.closest('[data-atl-cartao]');
+        if (cab) {
+            const k = cab.dataset.atlCartao;
+            UI.abertos[k] = !UI.abertos[k];
+            renderPetInfo();
+            return;
+        }
+        const idade = e.target.closest('[data-atl-idade-op]');
+        if (idade) {
+            S.idade = idade.dataset.atlIdadeOp;
+            renderPetInfo();
+            recalcularTamanho();
+            return;
+        }
+        const porte = e.target.closest('[data-atl-porte-op]');
+        if (porte) {
+            S.porte = porte.dataset.atlPorteOp;
+            UI.abertos.porte = false;
+            if (!S.raca) UI.abertos.raca = true;
+            renderPetInfo();
+            recalcularTamanho();
+            publicar('porte', { porte: S.porte });
+            return;
+        }
+        const raca = e.target.closest('[data-atl-raca-op]');
+        if (raca) {
+            const r = raca.dataset.atlRacaOp;
+            const ativo = !S.racaOutra && S.raca === r;
+            S.raca = ativo ? '' : r;
+            S.racaOutra = false;
+            UI.abertos.raca = ativo;
+            renderPetInfo();
+            salvar();
+            return;
+        }
+        if (e.target.closest('[data-atl-raca-outra]')) {
+            S.racaOutra = true;
+            S.raca = '';
+            renderPetInfo();
+            salvar();
+            setTimeout(() => { const i = $('[data-atl-raca-livre]'); if (i) i.focus(); }, 0);
+            return;
         }
     });
 
@@ -1650,7 +1833,13 @@
     // ═══════════════════════════ navegação ═══════════════════════════
 
     function textoPet() {
-        return String(S.pet || '').replace(/\s+/g, ' ').trim();
+        const porte = porteAtual();
+        return [
+            S.raca,
+            S.idade,
+            porte ? `porte ${porte.nome} (${porte.faixa})` : '',
+            S.peso ? `${S.peso} kg` : '',
+        ].map((x) => String(x || '').replace(/\s+/g, ' ').trim()).filter(Boolean).join(', ');
     }
 
     /** Devolve null se a etapa está completa, ou { msg, el } do que falta. */
@@ -1664,6 +1853,11 @@
                 if (!S.metal) return { msg: 'Escolha o banho do metal.', el: $('[data-atl-metais]') };
                 return null;
             case E.tamanho: {
+                // Opcional por padrão (a seção pode exigir). O tamanho escolhido direto sempre vale.
+                if (CFG.exigirPorteRaca) {
+                    if (!S.porte) return { msg: 'Escolha o porte do seu pet.', el: $('[data-atl-pet-info]') };
+                    if (!String(S.raca || '').trim()) return { msg: 'Conte a raça do seu pet.', el: $('[data-atl-pet-info]') };
+                }
                 if (!S.tamanho) return { msg: 'Escolha o tamanho.', el: $('[data-atl-tamanhos]') };
                 for (const c of camposExtras()) {
                     if (c.obrigatorio && !String(S.extras[c.nome] || '').trim()) return { msg: `Preencha: ${c.titulo || c.nome}.`, el: $(`[data-atl-extra="${CSS.escape(c.nome)}"]`) };
@@ -1754,7 +1948,7 @@
         if (n === E.tamanho) {
             renderPetInfo();
             renderTamanhos();
-            if (!TM) carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); } });
+            if (!TM) carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); renderRecomendacao(); preencherListaRacas(); } });
         }
         if (n === E.pingente) {
             const pronto = carregarPingentes().then(() => {
@@ -2230,7 +2424,7 @@
             return;
         }
         esqueleto.hidden = true;
-        carregarTM().then(() => { if (S.passo === E.tamanho) renderTamanhos(); atualizarTudo(); });
+        carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); renderRecomendacao(); preencherListaRacas(); } atualizarTudo(); });
 
         restaurar();
         atualizarNomes();
@@ -2267,7 +2461,7 @@
         guarda.apagar();
         Object.assign(S, {
             passo: 0, maxPasso: 0, couro: null, cor: null, metal: null, tamanho: null, tamanhoManual: false,
-            pet: '', extras: {}, pTipo: null, pFormato: null,
+            idade: '', porte: '', peso: '', raca: '', racaOutra: false, extras: {}, pTipo: null, pFormato: null,
             pFrente: '', pTutor: '', pTel: '',
         });
         $('[data-atl-restaurado]').hidden = true;

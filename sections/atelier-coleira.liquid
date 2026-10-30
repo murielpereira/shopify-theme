@@ -287,6 +287,8 @@
         "sepia": {{ 'couro-sepia.jpg' | asset_url | json }}
       },
       "nomeCurto": {{ palavra | json }},
+      "exigirPorteRaca": {{ section.settings.exigir_porte_raca | json }},
+      "racasPopulares": {{ section.settings.racas_populares | split: ',' | json }},
       "maisVendidas": {{ mais_vendidas_lista | json }},
       "waltz": {{ section.settings.waltz_base | default: 'https://waltz.up.railway.app' | json }},
       "pixPct": {{ pix_pct | json }},
@@ -653,10 +655,13 @@
 
         <section class="atl-painel" data-atl-painel="2" hidden aria-labelledby="atl-p3-t">
           <h3 class="atl-painel__titulo" id="atl-p3-t" tabindex="-1">O tamanho certo</h3>
-          <p class="atl-painel__sub">Escolha pela medida do pescoço. Na dúvida, abra a tabela de medidas.</p>
+          <p class="atl-painel__sub">Três perguntas rápidas e o tamanho sai calculado. Você pode ajustar depois, se quiser.</p>
+          <div class="atl-pet-info" data-atl-pet-info></div>
+          <div class="atl-reco" data-atl-recomendacao hidden aria-live="polite"></div>
+          <h4 class="atl-painel__subtitulo">Ou escolha o tamanho direto</h4>
           {%- comment -%}
             Tabela de medidas = widget do Waltz (ele insere o botão aqui dentro por
-            [data-wm-mount]). O botão do vídeo é nosso e abre a aba "Como Medir" do widget.
+            [data-wm-mount]). O botão "Como medir" é nosso e abre só o vídeo.
           {%- endcomment -%}
           <div class="atl-medidas" data-wm-mount>
             <button type="button" class="atl-medidas__video" data-atl-medidas-video hidden>
@@ -666,10 +671,8 @@
               Como medir
             </button>
           </div>
-          <h4 class="atl-painel__subtitulo">Tamanho</h4>
           <div class="atl-tamanhos" role="group" aria-label="Tamanho" data-atl-tamanhos></div>
           <p class="atl-nota" data-atl-tamanho-nota hidden></p>
-          <div class="atl-pet-info" data-atl-pet-info></div>
           <div class="atl-campos-extra" data-atl-campos-extra></div>
         </section>
 
@@ -985,6 +988,8 @@
       "info": "Curtos. O ícone segue a posição: 1 garantia, 2 troca, 3 cores, 4 metal, 5 feito à mão, 6 pingente.",
       "default": "6 meses de garantia\nTroca facilitada\n15 cores de couro legítimo\n4 cores de metal\nFeita à mão, para seu pet\nPingente opcional"
     },
+    { "type": "checkbox", "id": "exigir_porte_raca", "label": "Exigir porte e raça para avançar (etapa Tamanho)", "info": "Ligado: a cliente precisa escolher o porte e a raça (o peso continua opcional). Desligado: pode pular e escolher o tamanho direto.", "default": true },
+    { "type": "textarea", "id": "racas_populares", "label": "Raças em destaque (separadas por vírgula)", "info": "Aparecem como botões na pergunta de raça; \"Outra\" abre um campo para escrever. Vazio = as 15 mais citadas nos pedidos.", "default": "Chihuahua, Dachshund, Vira-lata (SRD), Spitz Alemão, Shih Tzu, Cavalier, Golden Retriever, Yorkshire, Cocker, Maltês, Bulldog Francês, Pinscher, Border Collie, Poodle, Pastor Alemão" },
     {
       "type": "text",
       "id": "mais_vendidas",
