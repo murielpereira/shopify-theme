@@ -1197,9 +1197,11 @@
     const camposExtras = () => (CFG.campos || []).filter((c) => c.tag !== 'customizacao_raca').sort((a, b) => (parseInt(a.ordem, 10) || 0) - (parseInt(b.ordem, 10) || 0));
 
     // ── Acerte o tamanho (formato do app atena-pet-fit, 30/10/2026) ──
-    // Três perguntas curtas (filhote ou adulto, porte, peso opcional) + a raça, uma
-    // recomendação e, logo abaixo, a escolha direta do tamanho. Porte e peso dão o
-    // tamanho; filhote sobe um tamanho (ele ainda vai crescer). A raça entra no pedido
+    // Perguntas curtas (filhote ou adulto, porte, peso opcional, raça), uma recomendação
+    // e, logo abaixo, a escolha do tamanho. Só a RAÇA recomenda tamanho, com a mesma regra da
+    // aba "Qual tamanho comprar?" da tabela de medidas do Waltz (variações por fase e faixa de
+    // peso). Porte e peso não recomendam sozinhos: o porte vai só para a equipe conferir, e o
+    // peso refina as raças cujo tamanho varia com ele (30/10/2026). A raça entra no pedido
     // junto com o resto, no campo "customizacao_raca" do Waltz. Nada trava o avanço,
     // a não ser que a seção peça (exigir_porte_raca): o tamanho continua escolhível direto.
     const PORTES = [
@@ -1209,8 +1211,6 @@
         { id: 'Médio', nome: 'Médio', peso: 16, faixa: '11 a 22 kg', nivel: 4 },
         { id: 'Grande', nome: 'Grande', peso: 29, faixa: '24 a 35 kg', nivel: 5 },
     ];
-    // Até quantos kg cada tamanho serve (adulto). Ordem = do menor para o maior.
-    const LIMITES_KG = [['XPP', 2], ['PP', 3.9], ['P', 10.5], ['M', 23], ['G', Infinity]];
     const IDADES = [{ id: 'Filhote', nota: 'ainda vai crescer' }, { id: 'Adulto', nota: 'tamanho definitivo' }];
     // As 15 raças mais citadas nos pedidos reais de coleira (3.392 observações, jul–out/2026,
     // lidas do texto livre do campo de raça): Chihuahua 22%, Dachshund 10%, SRD 9%, Spitz 8%…
@@ -1225,21 +1225,61 @@
         const v = parseFloat(String(S.peso).replace(',', '.'));
         return isFinite(v) && v > 0 ? v : 0;
     };
-    // Tamanho pelo peso digitado (ou o do porte), com filhote um acima. Só entre os
-    // tamanhos que o produto tem; se o calculado não existir, o disponível mais perto.
+    // Nome que a cliente vê/escreve → nome na tabela de medidas do Waltz (TM.racas).
+    const ALIAS_RACA = {
+        dachshund: 'Dachshund (Salsicha)', salsicha: 'Dachshund (Salsicha)', cavalier: 'Cavalier King Charles Spaniel',
+        yorkshire: 'Yorkshire Terrier', cocker: 'Cocker Spaniel', pinscher: 'Pinscher Miniatura',
+        lulu: 'Lulu da Pomerânia', srd: 'Vira-lata (SRD)', viralata: 'Vira-lata (SRD)',
+    };
+    function racaDoCatalogo(nome) {
+        if (!TM || !TM.racas || !nome) return null;
+        const n = compacto(nome);
+        if (!n) return null;
+        const alvo = ALIAS_RACA[n] ? compacto(ALIAS_RACA[n]) : n;
+        return TM.racas.find((r) => compacto(r.nome_raca) === alvo) || null;
+    }
+    // Mesma regra do widget-medidas.js (encontrarVariacao): a variação da fase cuja faixa de
+    // peso contém o peso; sem peso, a variação sem faixa; se só há faixas e falta o peso,
+    // { precisaPeso: true } (um chute na primeira faixa seria errado: Spitz, Salsicha, SRD).
+    function encontrarVariacao(variacoes, fase, peso) {
+        const daFase = variacoes.filter((v) => String(v.fase || '').trim() === fase && v.tamanho_coleira);
+        if (!daFase.length) return null;
+        const temPeso = peso != null && !isNaN(peso);
+        if (temPeso) {
+            const porPeso = daFase.find((v) => {
+                const mn = v.peso_min != null ? parseFloat(v.peso_min) : null;
+                const mx = v.peso_max != null ? parseFloat(v.peso_max) : null;
+                if (mn != null && mx != null) return peso >= mn && peso <= mx;
+                if (mn != null) return peso >= mn;
+                if (mx != null) return peso <= mx;
+                return false;
+            });
+            if (porPeso) return porPeso;
+        }
+        const generica = daFase.find((v) => v.peso_min == null && v.peso_max == null);
+        if (generica) return generica;
+        if (daFase.length === 1) return daFase[0];
+        return temPeso ? null : { precisaPeso: true };
+    }
+    // Recomendação pela RAÇA. Devolve null (sem raça, raça fora da tabela ou sem dados), ou
+    // { raca, fase, tamanho, obs } / { raca, fase, precisaPeso } / { raca, fase, semIndicacao }.
     function tamanhoRecomendado() {
         if (!M) return null;
-        const porte = porteAtual();
-        const kg = pesoNum() || (porte ? porte.peso : 0);
-        if (!kg) return null;
-        let i = LIMITES_KG.findIndex(([, ate]) => kg <= ate);
-        if (i < 0) i = LIMITES_KG.length - 1;
-        if (S.idade === 'Filhote') i = Math.min(i + 1, LIMITES_KG.length - 1);
-        const idx = (cod) => LIMITES_KG.findIndex(([c]) => c === cod);
-        const disp = M.tamanhos.filter((x) => idx(x) >= 0);
-        if (!disp.length) return null;
-        const tam = disp.slice().sort((a, b) => Math.abs(idx(a) - i) - Math.abs(idx(b) - i) || idx(a) - idx(b))[0];
-        return { tamanho: tam, kg, porte };
+        const raca = racaDoCatalogo(S.raca);
+        if (!raca) return null;
+        const vars = (raca.variacoes || []).filter((v) => v.tamanho_coleira);
+        if (!vars.length) return null;
+        const fases = [...new Set(vars.map((v) => String(v.fase || '').trim()).filter(Boolean))];
+        if (!fases.length) return null;
+        const quer = S.idade === 'Filhote' ? 'filhote' : 'adulto';
+        const fase = fases.find((f) => norm(f) === quer) || fases.find((f) => norm(f) === 'adulto') || fases[0];
+        const base = { raca: raca.nome_raca, fase, caiuNoAdulto: quer === 'filhote' && norm(fase) !== 'filhote' };
+        const v = encontrarVariacao(vars, fase, pesoNum() || null);
+        if (!v) return Object.assign(base, { semIndicacao: true });
+        if (v.precisaPeso) return Object.assign(base, { precisaPeso: true });
+        const tam = String(v.tamanho_coleira).split(/[\s/,]+|\bou\b/).map((s) => s.trim()).find((s) => M.tamanhos.includes(s));
+        if (!tam) return Object.assign(base, { semIndicacao: true });
+        return Object.assign(base, { tamanho: tam, obs: v.observacao || '' });
     }
     const silhueta = (nivel) => {
         const h = 11 + nivel * 3;
@@ -1293,7 +1333,7 @@
           <div class="atl-cartoes">
             ${cartao('porte', '2 · Porte', exige ? 'obrigatório' : 'escolha', `<div class="atl-portes" role="group" aria-label="Porte do pet">${portes}</div>`)}
             ${cartao('peso', '3 · Peso', 'opcional', `
-              <p class="atl-cartao__dica">Você sabe o peso do seu pet? Assim escolhemos o tamanho perfeito.</p>
+              <p class="atl-cartao__dica">Você sabe o peso do seu pet? Para algumas raças, é ele que define o tamanho.</p>
               <div class="atl-peso"><input type="text" inputmode="decimal" maxlength="5" placeholder="—" value="${esc(S.peso)}" aria-label="Peso do pet em quilos" data-atl-peso><span>kg</span></div>`)}
             ${cartao('raca', 'Raça', exige ? 'obrigatório' : 'opcional', `
               <div class="atl-racas-pilulas" role="group" aria-label="Raça do pet">${racas}
@@ -1322,21 +1362,29 @@
         if (!box) return;
         const r = rec === undefined ? tamanhoRecomendado() : rec;
         if (!r) { box.hidden = true; return; }
-        const md = medidaDe(r.tamanho);
-        const filhote = S.idade === 'Filhote';
-        const perfil = [filhote ? 'filhote' : 'adulto', r.porte ? `porte ${r.porte.nome}` : null, S.peso ? `${S.peso} kg` : null].filter(Boolean).join(' · ');
         box.hidden = false;
+        const faseTxt = norm(r.fase) === 'filhote' ? 'filhote' : 'adulto';
+        const rotulo = '<p class="atl-reco__rotulo">Nossa recomendação</p>';
+        if (r.precisaPeso) {
+            box.innerHTML = `${rotulo}<p>O tamanho de ${esc(r.raca)} varia com o peso. Informe o peso do seu pet no cartão "3 · Peso", acima.</p>`;
+            return;
+        }
+        if (r.semIndicacao) {
+            box.innerHTML = `${rotulo}<p>Não temos uma indicação de tamanho para ${esc(r.raca)} ${faseTxt}${S.peso ? ' com esse peso' : ''}. Use a tabela de medidas ou escolha o tamanho abaixo.</p>`;
+            return;
+        }
+        const md = medidaDe(r.tamanho);
         box.innerHTML = `
-          <p class="atl-reco__rotulo">Nossa recomendação</p>
+          ${rotulo}
           <p class="atl-reco__tam">Tamanho ${esc(r.tamanho)}</p>
           ${md ? `<p>Para pescoço de ${esc(md)}.</p>` : ''}
-          <p class="atl-reco__nota">Para um pet ${esc(perfil)}.${filhote ? ' Como ele ainda vai crescer, indicamos um tamanho acima do peso atual.' : ''}</p>`;
+          <p class="atl-reco__nota">Para ${esc(r.raca)} ${faseTxt}.${r.obs ? ' ' + esc(r.obs) : ''}${r.caiuNoAdulto ? ' Não temos indicação específica para filhote dessa raça; este é o tamanho de um adulto.' : ''}</p>`;
     }
 
     // Respondeu algo: recalcula o tamanho, a recomendação e o que depende dele.
     function recalcularTamanho() {
         const rec = tamanhoRecomendado();
-        if (rec && S.tamanho !== rec.tamanho) { S.tamanho = rec.tamanho; S.tamanhoManual = false; }
+        if (rec && rec.tamanho && S.tamanho !== rec.tamanho) { S.tamanho = rec.tamanho; S.tamanhoManual = false; }
         renderTamanhos();
         renderRecomendacao(rec);
         atualizarPalco();
@@ -1381,7 +1429,7 @@
         } else if (el.matches('[data-atl-raca-livre]')) {
             S.raca = limpo(el.value);
             atualizarResumoCartoes();
-            salvar();
+            recalcularTamanho();
         } else if (el.matches('[data-atl-extra]')) {
             S.extras[el.dataset.atlExtra] = el.value;
             salvar();
@@ -1422,14 +1470,15 @@
             S.racaOutra = false;
             UI.abertos.raca = ativo;
             renderPetInfo();
-            salvar();
+            recalcularTamanho();
+            publicar('raca', { raca: S.raca });
             return;
         }
         if (e.target.closest('[data-atl-raca-outra]')) {
             S.racaOutra = true;
             S.raca = '';
             renderPetInfo();
-            salvar();
+            recalcularTamanho();
             setTimeout(() => { const i = $('[data-atl-raca-livre]'); if (i) i.focus(); }, 0);
             return;
         }
@@ -1948,7 +1997,7 @@
         if (n === E.tamanho) {
             renderPetInfo();
             renderTamanhos();
-            if (!TM) carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); renderRecomendacao(); preencherListaRacas(); } });
+            if (!TM) carregarTM().then(() => { if (S.passo === E.tamanho) { recalcularTamanho(); preencherListaRacas(); } });
         }
         if (n === E.pingente) {
             const pronto = carregarPingentes().then(() => {
@@ -2424,7 +2473,7 @@
             return;
         }
         esqueleto.hidden = true;
-        carregarTM().then(() => { if (S.passo === E.tamanho) { renderTamanhos(); renderRecomendacao(); preencherListaRacas(); } atualizarTudo(); });
+        carregarTM().then(() => { if (S.passo === E.tamanho) { recalcularTamanho(); preencherListaRacas(); } atualizarTudo(); });
 
         restaurar();
         atualizarNomes();
