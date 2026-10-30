@@ -640,7 +640,7 @@
 
 .atl-studio {
   position: relative;
-  padding: 2rem var(--atl-margem) 0;
+  padding: 1rem var(--atl-margem) 0;
   background: var(--atl-papel);
   scroll-margin-top: var(--atl-topo);
 }
@@ -3066,7 +3066,7 @@ html.atl-travado body {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.25rem 1.25rem;
-  margin: 0.5rem 0 0.25rem;
+  margin: 1rem 0 0.25rem;
 }
 
 .atl-medidas>button {
@@ -3267,7 +3267,7 @@ html.atl-travado body {
 .atl-clientes {
   max-width: var(--atl-largura);
   margin: 0 auto;
-  padding: 0.5rem var(--atl-margem) 1.75rem;
+  padding: 1rem var(--atl-margem);
 }
 
 .atl-clientes[hidden] {

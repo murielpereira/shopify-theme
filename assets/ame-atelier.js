@@ -1214,7 +1214,7 @@
     const IDADES = [{ id: 'Filhote', nota: 'ainda vai crescer' }, { id: 'Adulto', nota: 'tamanho definitivo' }];
     // As 15 raças mais citadas nos pedidos reais de coleira (3.392 observações, jul–out/2026,
     // lidas do texto livre do campo de raça): Chihuahua 22%, Dachshund 10%, SRD 9%, Spitz 8%…
-    const RACAS_PADRAO = ['Chihuahua', 'Dachshund', 'Vira-lata (SRD)', 'Spitz Alemão', 'Shih Tzu', 'Cavalier', 'Golden Retriever', 'Yorkshire', 'Cocker', 'Maltês', 'Bulldog Francês', 'Pinscher', 'Border Collie', 'Poodle', 'Pastor Alemão'];
+    const RACAS_PADRAO = ['Chihuahua', 'Dachshund', 'Vira-lata (SRD)', 'Spitz Alemão', 'Shih Tzu', 'Cavalier', 'Golden Retriever', 'Yorkshire', 'Cocker', 'Maltês', 'Bulldog Francês', 'Pinscher', 'Border Collie', 'Poodle', 'Gato'];
     const racasPopulares = () => {
         const l = (CFG.racasPopulares || []).map((r) => String(r).trim()).filter(Boolean);
         return l.length ? l : RACAS_PADRAO;
@@ -1229,7 +1229,7 @@
     const ALIAS_RACA = {
         dachshund: 'Dachshund (Salsicha)', salsicha: 'Dachshund (Salsicha)', cavalier: 'Cavalier King Charles Spaniel',
         yorkshire: 'Yorkshire Terrier', cocker: 'Cocker Spaniel', pinscher: 'Pinscher Miniatura',
-        lulu: 'Lulu da Pomerânia', srd: 'Vira-lata (SRD)', viralata: 'Vira-lata (SRD)',
+        lulu: 'Lulu da Pomerânia', srd: 'Vira-lata (SRD)', viralata: 'Vira-lata (SRD)', gato: 'Gato SRD',
     };
     function racaDoCatalogo(nome) {
         if (!TM || !TM.racas || !nome) return null;

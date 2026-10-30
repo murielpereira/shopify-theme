@@ -1,0 +1,168 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "product",
+      "settings": {
+        "show_related": true,
+        "gallery_sticky_mobile": false,
+        "selection_info_position": "over",
+        "videos_enabled": true,
+        "videos_position": "below-title",
+        "videos_format": "stories",
+        "videos_tamanho": 70,
+        "videos_espacamento": 12,
+        "videos_mostrar_titulo": false,
+        "videos_border_type": "degrade",
+        "videos_espessura": 2,
+        "videos_cor": "#fd1d1d",
+        "videos_cor_fim": "#fcb045",
+        "videos_cor_3": "#833ab4",
+        "videos_angulo": 135,
+        "videos_autoplay": true,
+        "passos_ativo": true
+      }
+    },
+    "product_accordions_87ARfi": {
+      "type": "product-accordions",
+      "blocks": {
+        "faq_K6PcTr": {
+          "type": "faq",
+          "name": "faq_comprimento_guia",
+          "settings": {
+            "question": "Posso escolher o comprimento da guia?",
+            "answer": "<p>Sim. As guias estão disponíveis em<strong>1,2 metros</strong>ou<strong>1,5 metros</strong>.<br/><br/>• 1,2 m: ideal para passeios urbanos e maior controle<br/>• 1,5 m: mais liberdade para caminhadas tranquilas</p>",
+            "tags_filter": "faq_comprimento_guia"
+          }
+        },
+        "faq_fWkw6E": {
+          "type": "faq",
+          "name": "faq_largura_guia",
+          "settings": {
+            "question": "Qual a largura ideal da guia para meu pet?",
+            "answer": "<p>A largura da guia deve acompanhar o porte e a força do pet:<br/><br/><strong>XPP / XPP+</strong>– 12 mm<br/><strong>PP / P</strong>– 15 mm<br/><strong>M / G</strong>– 20 mm<br/><br/>Se tiver dúvida, nossa equipe analisa cada pedido antes da produção.</p>",
+            "tags_filter": "faq_largura_guia"
+          }
+        },
+        "faq_6X8rqa": {
+          "type": "faq",
+          "name": "faq_guia_resistente",
+          "settings": {
+            "question": "A guia é resistente para o dia a dia?",
+            "answer": "<p>Sim. As guias Âme são feitas para acompanhar a rotina real: passeios diários, viagens e momentos especiais. Utilizamos<strong>costuras reforçadas, bordas pintadas à mão</strong>e<strong>mosquetão com trava de segurança</strong>.</p>",
+            "tags_filter": "faq_guia_resistente"
+          }
+        },
+        "faq_fBQQrG": {
+          "type": "faq",
+          "name": "faq_couro",
+          "settings": {
+            "question": "É couro legítimo mesmo?",
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
+            "tags_filter": "faq_couro"
+          }
+        },
+        "faq_8NKDiL": {
+          "type": "faq",
+          "name": "faq_troca",
+          "settings": {
+            "question": "Se eu comprar o tamanho errado, consigo trocar?",
+            "answer": "<p><strong>Sim, pode trocar! </strong>No formulário de compra, pedimos informações como raça, peso e idade do seu pet. Com esses dados, conseguimos validar se o tamanho escolhido está correto. Mas se ainda assim o tamanho não servir, fazemos a troca. <strong>Importante: </strong>peças feitas sob medida (que o cliente passa a medida) ou personalizadas o frete fica por conta do cliente.<br/></p>",
+            "tags_filter": "faq_troca"
+          }
+        },
+        "faq_ApaVh3": {
+          "type": "faq",
+          "name": "faq_dados_pingente",
+          "settings": {
+            "question": "Quais dados vêm gravados no pingente?",
+            "answer": "<p>O pingente personalizado vem com: <strong>Nome do pet na frente </strong>e <strong>atrás: nome do tutor + 1  telefone ou 2 telefones para contato</strong>. Tudo gravado com tecnologia de alta precisão para garantir durabilidade e legibilidade.</p>",
+            "tags_filter": "faq_dados_pingente"
+          }
+        },
+        "faq_GiLmeF": {
+          "type": "faq",
+          "name": "faq_como_medir",
+          "settings": {
+            "question": "Como sei o tamanho certo para meu pet?",
+            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima.<strong>Ainda com dúvida? </strong>Chama a gente no <a href=\"https://wa.me/5548996723567\" target=\"_blank\">WhatsApp </a>que te ajudamos na hora! 💚</p>",
+            "tags_filter": "faq_como_medir"
+          }
+        },
+        "faq_7MGQ9j": {
+          "type": "faq",
+          "name": "faq_garantia",
+          "settings": {
+            "question": "Quanto tempo de garantia?",
+            "answer": "<p>Nossos produtos tem <strong>6 meses de garantia </strong>contra defeitos de fabricação (costuras, metais, gravação). Isso porque temos total confiança na qualidade do nosso produto. Se houver qualquer problema, trocamos sem custo!<br/><br/></p>",
+            "tags_filter": "faq_garantia"
+          }
+        }
+      },
+      "block_order": [
+        "faq_K6PcTr",
+        "faq_fWkw6E",
+        "faq_6X8rqa",
+        "faq_fBQQrG",
+        "faq_8NKDiL",
+        "faq_ApaVh3",
+        "faq_GiLmeF",
+        "faq_7MGQ9j"
+      ],
+      "name": "Detalhes do Produto",
+      "settings": {
+        "show_description": true,
+        "description_title": "Descrição",
+        "pet_gallery_eyebrow": "Da nossa comunidade",
+        "pet_gallery_title": "Pets que amam essa peça",
+        "show_after_purchase": true,
+        "after_purchase_title": "O que acontece depois da compra",
+        "step_1_emoji": "🔍",
+        "step_1_title": "Analisamos as informações do seu pet",
+        "step_1_tags_filter": "",
+        "step_2_emoji": "✂️",
+        "step_2_title": "Produzimos a peça especialmente para ele",
+        "step_2_tags_filter": "",
+        "step_3_emoji": "🪡",
+        "step_3_title": "Finalizamos com cuidado manual",
+        "step_3_tags_filter": "",
+        "step_4_emoji": "📦",
+        "step_4_title": "Enviamos com todo o carinho",
+        "step_4_tags_filter": "",
+        "step_5_emoji": "",
+        "step_5_title": "",
+        "step_5_tags_filter": "",
+        "step_6_emoji": "",
+        "step_6_title": "",
+        "step_6_tags_filter": "",
+        "step_7_emoji": "",
+        "step_7_title": "",
+        "step_7_tags_filter": "",
+        "step_8_emoji": "",
+        "step_8_title": "",
+        "step_8_tags_filter": "",
+        "show_faq": true,
+        "faq_title": "Perguntas Frequentes"
+      }
+    },
+    "product_reviews_konfidency": {
+      "type": "product-reviews",
+      "settings": {
+        "title": "Avaliações"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "product_accordions_87ARfi",
+    "product_reviews_konfidency"
+  ]
+}

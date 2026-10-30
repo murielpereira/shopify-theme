@@ -1177,9 +1177,9 @@
       {
         "type": "textarea",
         "id": "pingente_optin_message",
-        "label": "Mensagem de incentivo (acima do Sim/Não)",
-        "info": "Use {min} e {max} para inserir o preço mais barato e mais caro dos pingentes automaticamente.",
-        "default": "Inclua um pingente personalizado a partir de {min}."
+        "label": "Pergunta do pingente (acima do Sim/Não)",
+        "info": "Use {min} e {max} para inserir o preço mais barato e mais caro dos pingentes automaticamente. Até o preço carregar, a pergunta aparece sem a parte \"a partir de {min}\".",
+        "default": "Deseja adicionar um pingente personalizado a partir de {min}?"
       },
       {
         "type": "header",

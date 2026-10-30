@@ -28,13 +28,19 @@
     🎯 Why: Native filters execute at the C/Rust level, avoiding Liquid loop parsing and scoping overhead.
     📊 Impact: Reduces template compilation overhead and improves rendering time for product pages with customizations.
   {%- endcomment -%}
+  {%- comment -%}
+    Pergunta do modo opcional. {min}/{max} viram o menor/maior preço dos pingentes assim que o JS
+    os conhece; até lá (ou se a consulta falhar) a página mostra a pergunta SEM o preço.
+  {%- endcomment -%}
+  {%- assign pingente_pergunta = settings.pingente_optin_message | default: 'Deseja adicionar um pingente personalizado a partir de {min}?' -%}
+  {%- assign pingente_pergunta_sem_preco = pingente_pergunta | replace: ' a partir de {min}', '' | replace: '{min}', '' | replace: '{max}', '' -%}
   {%- assign pingente_couro_handles = settings.pingente_couro_products | map: 'handle' | join: ',' -%}
   {%- assign pingente_metal_couro_handles = settings.pingente_metal_couro_products | map: 'handle' | join: ',' -%}
   <section
     class="ame-pingente"
     data-pingente
     data-coleira-title="{{ product.title | escape }}"
-    data-optin-template="{{ settings.pingente_optin_message | default: '' | escape }}"
+    data-optin-template="{{ pingente_pergunta | escape }}"
     data-metal-handle="{{ pingente_metal_handle | strip }}"
     data-couro-handles="{{ pingente_couro_handles | strip }}"
     data-metal-couro-handles="{{ pingente_metal_couro_handles | strip }}"
@@ -43,10 +49,12 @@
     data-strip-terms="{{ settings.pingente_strip_terms | default: '' | escape }}"
     data-obrigatorio="{% if pingente_obrigatorio %}true{% else %}false{% endif %}"
   >
-    <header class="ame-pingente__header">
-      <p class="ame-pingente__eyebrow">Personalização</p>
-      <h2 class="ame-pingente__title">Pingente de identificação</h2>
-    </header>
+    {%- if pingente_obrigatorio -%}
+      <header class="ame-pingente__header">
+        <p class="ame-pingente__eyebrow">Personalização</p>
+        <h2 class="ame-pingente__title">Pingente de identificação</h2>
+      </header>
+    {%- endif -%}
 
     <!-- Passo 1: Sim / Não (modo opcional) OU botão "Customizar" (modo obrigatório) -->
     <div class="ame-pingente__step" data-pingente-step="1">
@@ -60,13 +68,8 @@
           <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         </button>
       {%- else -%}
-        {%- if settings.pingente_optin_message != blank -%}
-          <p class="ame-pingente__optin-msg" data-pingente-optin-msg>
-            {{- settings.pingente_optin_message -}}
-          </p>
-        {%- endif -%}
-        <p class="ame-pingente__step-label">
-          Deseja adicionar um pingente personalizado? <span class="ame-pingente__req" aria-hidden="true">*</span>
+        <p class="ame-pingente__step-label ame-pingente__step-label--pergunta">
+          <span data-pingente-optin-texto>{{ pingente_pergunta_sem_preco | strip | escape }}</span> <span class="ame-pingente__req" aria-hidden="true">*</span>
         </p>
         <div class="ame-pingente__opt-row" data-pingente-opt-row>
           <label class="ame-pingente__opt">
@@ -83,6 +86,12 @@
 
     <!-- Passo 2: Tipo -->
     <div class="ame-pingente__step" data-pingente-step="2" hidden>
+      {%- unless pingente_obrigatorio -%}
+        <header class="ame-pingente__header">
+          <p class="ame-pingente__eyebrow">Personalização</p>
+          <h2 class="ame-pingente__title">Pingente de identificação</h2>
+        </header>
+      {%- endunless -%}
       <p class="ame-pingente__step-label">Tipo do pingente</p>
       <div class="ame-pingente__tipo-grid">
         <label class="ame-pingente__tipo-card" data-pingente-tipo-card="metal">
@@ -314,6 +323,16 @@
       color: var(--color-on-surface-variant, #4f4442);
       margin: 0 0 0.75rem;
       font-weight: bold;
+    }
+
+    /* Pergunta única do modo opcional: frase normal, não rótulo em caixa-alta */
+    .ame-pingente__step-label--pergunta {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.35;
+      text-transform: none;
+      margin: 0 0 0.625rem;
     }
 
     /* Passo 1 — Sim / Não */
@@ -930,7 +949,7 @@
       /* ── Calcula range de preço dos pingentes e injeta na mensagem de opt-in ── */
       async function loadPriceRange() {
         const tpl = root.dataset.optinTemplate || '';
-        const msgEl = root.querySelector('[data-pingente-optin-msg]');
+        const msgEl = root.querySelector('[data-pingente-optin-texto]');
         if (!msgEl || !tpl) return;
         if (!tpl.includes('{min}') && !tpl.includes('{max}')) return;
 

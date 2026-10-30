@@ -541,13 +541,23 @@
           {%- if waltz_brilho -%}
             <span class="ame-chip ame-chip--lancamento">{{ waltz_texto | escape }}</span>
           {%- else -%}
-            <span class="ame-chip" style="background: {{ waltz_fundo | escape }}; color: {{ waltz_cor | escape }}; border-color: transparent;">{{ waltz_texto | escape }}</span>
+            <span
+              class="ame-chip"
+              style="background: {{ waltz_fundo | escape }}; color: {{ waltz_cor | escape }}; border-color: transparent;"
+            >
+              {{- waltz_texto | escape -}}
+            </span>
           {%- endif -%}
         {%- endif -%}
         {%- if waltz_empilha_n > 0 -%}
           {%- for wb in waltz_lista -%}
             {%- if wb.empilha and product.tags contains wb.tag -%}
-              <span class="ame-chip" style="background: {{ wb.fundo | escape }}; color: {{ wb.cor | escape }}; border-color: transparent;">{{ wb.texto | escape }}</span>
+              <span
+                class="ame-chip"
+                style="background: {{ wb.fundo | escape }}; color: {{ wb.cor | escape }}; border-color: transparent;"
+              >
+                {{- wb.texto | escape -}}
+              </span>
             {%- endif -%}
           {%- endfor -%}
         {%- endif -%}
@@ -786,14 +796,20 @@
           window.__amePingenteTotalBound = true;
 
           function fmtBRL(cents) {
-            return 'R$ ' + (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return (
+              'R$ ' + (cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            );
           }
 
           function render(cents) {
             const box = document.querySelector('[data-pingente-total]');
             if (!box) return;
             const pingente = Number(cents) || 0;
-            if (pingente <= 0) { box.hidden = true; box.innerHTML = ''; return; }
+            if (pingente <= 0) {
+              box.hidden = true;
+              box.innerHTML = '';
+              return;
+            }
             const coleiraCard = parseInt(box.dataset.coleiraCard, 10) || 0;
             const pixPct = parseInt(box.dataset.pixPct, 10) || 0;
             const totalCard = coleiraCard + pingente;
@@ -801,8 +817,12 @@
             const totalPix = totalCard - Math.floor((totalCard * pixPct) / 100);
             box.innerHTML =
               '<span class="pdp__pingente-total__label">Coleira + pingente</span>' +
-              '<span class="pdp__pingente-total__value">' + fmtBRL(totalPix) + ' <small>no Pix</small></span>' +
-              '<span class="pdp__pingente-total__card">ou ' + fmtBRL(totalCard) + ' no cartão</span>';
+              '<span class="pdp__pingente-total__value">' +
+              fmtBRL(totalPix) +
+              ' <small>no Pix</small></span>' +
+              '<span class="pdp__pingente-total__card">ou ' +
+              fmtBRL(totalCard) +
+              ' no cartão</span>';
             box.hidden = false;
           }
 
@@ -814,8 +834,8 @@
           // Variante da coleira mudou → o bloco de preço foi recriado (novos
           // data-coleira-*). Re-soma com o preço atual do pingente.
           document.addEventListener('pdp:variant-changed', function () {
-            const cents = (window.amePingente && window.amePingente.getPriceCents)
-              ? window.amePingente.getPriceCents() : 0;
+            const cents =
+              window.amePingente && window.amePingente.getPriceCents ? window.amePingente.getPriceCents() : 0;
             render(cents);
           });
         })();
@@ -864,7 +884,11 @@
     {%- endif -%}
 
     <!-- ── Formulário de produto ── -->
-    {%- form 'product', product, id: 'pdp-form', novalidate: true -%}
+    {%- if section.settings.passos_ativo and is_kit != true -%}
+      {{ 'ame-pdp-passos.css' | asset_url | stylesheet_tag }}
+      <script src="{{ 'ame-pdp-passos.js' | asset_url }}" defer></script>
+    {%- endif -%}
+    {%- form 'product', product, id: 'pdp-form', novalidate: true, data-passos: section.settings.passos_ativo -%}
       {%- liquid
         # ID "efetivo" — preferimos a variante completa selecionada (cv); se ela
         # ainda não existe (opções parciais), usamos a partial_variant pra que
@@ -924,159 +948,159 @@
             submit usa a variante única via #pdp-variant-id / data-effective-id.
           {%- endcomment -%}
           {%- unless product.has_only_default_variant -%}
-          {%- for option in product.options_with_values -%}
-            {%- liquid
-              assign is_color = false
-              if option.name == 'Color' or option.name == 'Cor' or option.name == 'Acabamento'
-                assign is_color = true
-              endif
-              assign is_metal_color = false
-              if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
-                assign is_metal_color = true
-              endif
-              # Artigo "o/a" pra montar "Selecione a Cor" / "Selecione o Tamanho".
-              # Decidido pela PRIMEIRA palavra do nome (cobre compostos tipo
-              # "Cor do Metal" → "cor" → feminino). Default feminino ("a")
-              # porque a maioria das opções na loja é feminina (Cor, Cor do
-              # Metal, Estampa). Masculinos comuns ficam na lista abaixo.
-              assign first_word = option.name | split: ' ' | first | downcase
-              assign artigo = 'a'
-              assign masculinos = 'tamanho,formato,comprimento,modelo,material,tipo,aroma,sabor,acabamento'
-              assign masc_arr = masculinos | split: ','
-              if masc_arr contains first_word
-                assign artigo = 'o'
-              endif
-            -%}
+            {%- for option in product.options_with_values -%}
+              {%- liquid
+                assign is_color = false
+                if option.name == 'Color' or option.name == 'Cor' or option.name == 'Acabamento'
+                  assign is_color = true
+                endif
+                assign is_metal_color = false
+                if settings.show_metal_color_swatches and option.name == 'Cor do Metal' or settings.show_metal_color_swatches and option.name == 'Metal'
+                  assign is_metal_color = true
+                endif
+                # Artigo "o/a" pra montar "Selecione a Cor" / "Selecione o Tamanho".
+                # Decidido pela PRIMEIRA palavra do nome (cobre compostos tipo
+                # "Cor do Metal" → "cor" → feminino). Default feminino ("a")
+                # porque a maioria das opções na loja é feminina (Cor, Cor do
+                # Metal, Estampa). Masculinos comuns ficam na lista abaixo.
+                assign first_word = option.name | split: ' ' | first | downcase
+                assign artigo = 'a'
+                assign masculinos = 'tamanho,formato,comprimento,modelo,material,tipo,aroma,sabor,acabamento'
+                assign masc_arr = masculinos | split: ','
+                if masc_arr contains first_word
+                  assign artigo = 'o'
+                endif
+              -%}
 
-            <div
-              class="pdp__option"
-              data-option-group-index="{{ forloop.index0 }}"
-              data-option-name="{{ option.name | escape }}"
-            >
-              <div class="pdp__option-header">
-                <span class="pdp__option-label"
-                  >Selecione {{ artigo }}
-                  {{ option.name -}}
-                  :
-                </span>
-                <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
-                  {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
-                </span>
-              </div>
+              <div
+                class="pdp__option"
+                data-option-group-index="{{ forloop.index0 }}"
+                data-option-name="{{ option.name | escape }}"
+              >
+                <div class="pdp__option-header">
+                  <span class="pdp__option-label"
+                    >Selecione {{ artigo }}
+                    {{ option.name -}}
+                    :
+                  </span>
+                  <span class="pdp__option-value" id="pdp-opt-val-{{ forloop.index }}">
+                    {%- if has_variant -%}{{ option.selected_value }}{%- endif -%}
+                  </span>
+                </div>
 
-              {%- if is_color -%}
-                <!-- Grade de swatches por imagem (6 colunas no mobile) -->
-                {%- comment -%}
-                  Produtos com tag `swatch_solido` (peças finas onde a foto não
-                  mostra a cor com clareza) usam o snippet de swatch sólido em
-                  vez da foto da variante. Cores definidas em
-                  settings.swatch_solido_cores.
-                {%- endcomment -%}
-                {%- assign use_swatch_solido = false -%}
-                {%- if product.tags contains 'swatch_solido' -%}
-                  {%- assign use_swatch_solido = true -%}
-                {%- endif -%}
-                <div
-                  class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}"
-                  data-option-index="{{ forloop.index0 }}"
-                >
-                  {%- for option_value in option.values -%}
-                    {%- liquid
-                      assign sw_variant = option_value.variant
-                      assign sw_img = ''
-                      assign sw_media_id = ''
-                      if sw_variant.featured_media != blank
-                        assign sw_img = sw_variant.featured_media.preview_image | image_url: width: 120
-                        assign sw_media_id = sw_variant.featured_media.id
-                      elsif sw_variant.featured_image != blank
-                        assign sw_img = sw_variant.featured_image | image_url: width: 120
-                        assign sw_media_id = sw_variant.featured_image.id
-                      endif
-                    -%}
-                    <button
-                      type="button"
-                      class="pdp__swatch{% if has_variant and option_value.selected %} pdp__swatch--active{% endif %}{% unless option_value.available %} pdp__swatch--disabled{% endunless %}"
-                      data-value="{{ option_value | escape }}"
-                      data-option-value-id="{{ option_value.id }}"
-                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                      {% if sw_media_id != '' %}
-                        data-media-id="{{ sw_media_id }}"
-                      {% endif %}
-                      {% unless option_value.available %}
-                        aria-disabled="true"
-                      {% endunless %}
-                    >
-                      {%- if use_swatch_solido -%}
-                        {%- render 'swatch-solido', value: option_value -%}
-                      {%- elsif sw_img != '' -%}
-                        <img
-                          src="{{ sw_img }}"
-                          alt="{{ option_value | escape }}"
-                          class="pdp__swatch-img"
-                          loading="lazy"
-                          width="120"
-                          height="120"
-                        >
-                      {%- else -%}
+                {%- if is_color -%}
+                  <!-- Grade de swatches por imagem (6 colunas no mobile) -->
+                  {%- comment -%}
+                    Produtos com tag `swatch_solido` (peças finas onde a foto não
+                    mostra a cor com clareza) usam o snippet de swatch sólido em
+                    vez da foto da variante. Cores definidas em
+                    settings.swatch_solido_cores.
+                  {%- endcomment -%}
+                  {%- assign use_swatch_solido = false -%}
+                  {%- if product.tags contains 'swatch_solido' -%}
+                    {%- assign use_swatch_solido = true -%}
+                  {%- endif -%}
+                  <div
+                    class="pdp__swatches{% if use_swatch_solido %} pdp__swatches--solido{% endif %}"
+                    data-option-index="{{ forloop.index0 }}"
+                  >
+                    {%- for option_value in option.values -%}
+                      {%- liquid
+                        assign sw_variant = option_value.variant
+                        assign sw_img = ''
+                        assign sw_media_id = ''
+                        if sw_variant.featured_media != blank
+                          assign sw_img = sw_variant.featured_media.preview_image | image_url: width: 120
+                          assign sw_media_id = sw_variant.featured_media.id
+                        elsif sw_variant.featured_image != blank
+                          assign sw_img = sw_variant.featured_image | image_url: width: 120
+                          assign sw_media_id = sw_variant.featured_image.id
+                        endif
+                      -%}
+                      <button
+                        type="button"
+                        class="pdp__swatch{% if has_variant and option_value.selected %} pdp__swatch--active{% endif %}{% unless option_value.available %} pdp__swatch--disabled{% endunless %}"
+                        data-value="{{ option_value | escape }}"
+                        data-option-value-id="{{ option_value.id }}"
+                        aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                        {% if sw_media_id != '' %}
+                          data-media-id="{{ sw_media_id }}"
+                        {% endif %}
+                        {% unless option_value.available %}
+                          aria-disabled="true"
+                        {% endunless %}
+                      >
+                        {%- if use_swatch_solido -%}
+                          {%- render 'swatch-solido', value: option_value -%}
+                        {%- elsif sw_img != '' -%}
+                          <img
+                            src="{{ sw_img }}"
+                            alt="{{ option_value | escape }}"
+                            class="pdp__swatch-img"
+                            loading="lazy"
+                            width="120"
+                            height="120"
+                          >
+                        {%- else -%}
+                          <span
+                            class="pdp__swatch-color"
+                            style="background:var(--swatch-{{ option_value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
+                          ></span>
+                        {%- endif -%}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                {%- elsif is_metal_color -%}
+                  <!-- Botões com swatch de cor do metal -->
+                  <div class="pdp__sizes pdp__sizes--metal" data-option-index="{{ forloop.index0 }}">
+                    {%- for option_value in option.values -%}
+                      {%- assign metal_slug = option_value | downcase | replace: ' ', '-' -%}
+                      <button
+                        type="button"
+                        class="pdp__size-btn pdp__size-btn--metal{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
+                        data-value="{{ option_value | escape }}"
+                        data-option-value-id="{{ option_value.id }}"
+                        aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                        {% unless option_value.available %}
+                          aria-disabled="true"
+                        {% endunless %}
+                      >
                         <span
-                          class="pdp__swatch-color"
-                          style="background:var(--swatch-{{ option_value | downcase | replace: ' ', '-' }},var(--color-surface-container,#f8ece0));"
+                          class="pdp__metal-dot"
+                          aria-hidden="true"
+                          style="background:var(--metal-{{ metal_slug }}, var(--color-surface-container,#f8ece0));"
                         ></span>
-                      {%- endif -%}
-                    </button>
-                  {%- endfor -%}
-                </div>
-              {%- elsif is_metal_color -%}
-                <!-- Botões com swatch de cor do metal -->
-                <div class="pdp__sizes pdp__sizes--metal" data-option-index="{{ forloop.index0 }}">
-                  {%- for option_value in option.values -%}
-                    {%- assign metal_slug = option_value | downcase | replace: ' ', '-' -%}
-                    <button
-                      type="button"
-                      class="pdp__size-btn pdp__size-btn--metal{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
-                      data-value="{{ option_value | escape }}"
-                      data-option-value-id="{{ option_value.id }}"
-                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                      {% unless option_value.available %}
-                        aria-disabled="true"
-                      {% endunless %}
-                    >
-                      <span
-                        class="pdp__metal-dot"
-                        aria-hidden="true"
-                        style="background:var(--metal-{{ metal_slug }}, var(--color-surface-container,#f8ece0));"
-                      ></span>
-                      {{ option_value }}
-                    </button>
-                  {%- endfor -%}
-                </div>
-              {%- else -%}
-                <!-- Botões de tamanho -->
-                <div class="pdp__sizes" data-option-index="{{ forloop.index0 }}">
-                  {%- for option_value in option.values -%}
-                    <button
-                      type="button"
-                      class="pdp__size-btn{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
-                      data-value="{{ option_value | escape }}"
-                      data-option-value-id="{{ option_value.id }}"
-                      aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
-                      aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
-                      {% unless option_value.available %}
-                        aria-disabled="true"
-                      {% endunless %}
-                    >
-                      {{ option_value }}
-                    </button>
-                  {%- endfor -%}
-                </div>
-              {%- endif -%}
-            </div>
-          {%- endfor -%}
+                        {{ option_value }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                {%- else -%}
+                  <!-- Botões de tamanho -->
+                  <div class="pdp__sizes" data-option-index="{{ forloop.index0 }}">
+                    {%- for option_value in option.values -%}
+                      <button
+                        type="button"
+                        class="pdp__size-btn{% if has_variant and option_value.selected %} pdp__size-btn--active{% endif %}{% unless option_value.available %} pdp__size-btn--disabled{% endunless %}"
+                        data-value="{{ option_value | escape }}"
+                        data-option-value-id="{{ option_value.id }}"
+                        aria-label="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        title="{{ option_value | escape }}{% unless option_value.available %} (Esgotado){% endunless %}"
+                        aria-pressed="{% if has_variant and option_value.selected %}true{% else %}false{% endif %}"
+                        {% unless option_value.available %}
+                          aria-disabled="true"
+                        {% endunless %}
+                      >
+                        {{ option_value }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
           {%- endunless -%}
         </div>
       {%- endif -%}
@@ -1411,41 +1435,41 @@
               <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">arrow_forward</span>
             </a>
           {%- else -%}
-          {%- liquid
-            # Desabilita o botão em dois cenários:
-            # 1. Produto inteiro esgotado (product.available == false → todas as variantes sem estoque)
-            # 2. Cliente escolheu uma variante específica e ela está esgotada
-            # Sem nada selecionado mas produto disponível, deixa habilitado pra mostrar
-            # o erro de validação no clique (força o cliente a escolher variante).
-            assign cta_sold_out = false
-            unless product.available
-              assign cta_sold_out = true
-            endunless
-            if has_variant and cv.available == false
-              assign cta_sold_out = true
-            endif
-          -%}
-          <button
-            type="submit"
-            class="ame-cta pdp__add-btn{% if cta_sold_out %} pdp__add-btn--sold-out{% endif %}"
-            id="pdp-add-btn"
-            {% if product.tags contains 'efeito_borboletas_svg' %}
-              data-fly-effect="butterflies-svg"
-            {% elsif product.tags contains 'efeito_borboletas' %}
-              data-fly-effect="butterflies"
-            {% endif %}
-            {% if cta_sold_out %}
-              disabled
-              aria-disabled="true"
-            {% endif %}
-          >
-            {%- if cta_sold_out -%}
-              Produto esgotado
-            {%- else -%}
-              Adicionar ao Carrinho
-              <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
-            {%- endif -%}
-          </button>
+            {%- liquid
+              # Desabilita o botão em dois cenários:
+              # 1. Produto inteiro esgotado (product.available == false → todas as variantes sem estoque)
+              # 2. Cliente escolheu uma variante específica e ela está esgotada
+              # Sem nada selecionado mas produto disponível, deixa habilitado pra mostrar
+              # o erro de validação no clique (força o cliente a escolher variante).
+              assign cta_sold_out = false
+              unless product.available
+                assign cta_sold_out = true
+              endunless
+              if has_variant and cv.available == false
+                assign cta_sold_out = true
+              endif
+            -%}
+            <button
+              type="submit"
+              class="ame-cta pdp__add-btn{% if cta_sold_out %} pdp__add-btn--sold-out{% endif %}"
+              id="pdp-add-btn"
+              {% if product.tags contains 'efeito_borboletas_svg' %}
+                data-fly-effect="butterflies-svg"
+              {% elsif product.tags contains 'efeito_borboletas' %}
+                data-fly-effect="butterflies"
+              {% endif %}
+              {% if cta_sold_out %}
+                disabled
+                aria-disabled="true"
+              {% endif %}
+            >
+              {%- if cta_sold_out -%}
+                Produto esgotado
+              {%- else -%}
+                Adicionar ao Carrinho
+                <span class="material-symbols-outlined" style="font-size:1rem;" aria-hidden="true">shopping_bag</span>
+              {%- endif -%}
+            </button>
           {%- endif -%}
         </div>
 
@@ -3494,7 +3518,7 @@
 
   @media (max-width: 768px) {
     .pdp-accordions {
-      padding: 0 var(--page-margin, 20px) 3rem;
+      padding: 0 var(--page-margin, 20px) 1.5rem;
     }
   }
 
@@ -4109,6 +4133,17 @@
 {
   "name": "Produto",
   "settings": [
+    {
+      "type": "header",
+      "content": "Escolha de opções"
+    },
+    {
+      "type": "checkbox",
+      "id": "passos_ativo",
+      "label": "Opções em passo a passo",
+      "info": "Mostra Tamanho, Cor, Detalhes e Resumo em etapas, como no kit. Só vale para produtos com 2 ou mais opções; kits têm o próprio passo a passo.",
+      "default": false
+    },
     {
       "type": "checkbox",
       "id": "show_related",
