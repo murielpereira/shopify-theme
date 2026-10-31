@@ -1,26 +1,181 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "collection-black-november",
       "blocks": {
-        "aba_coleiras": { "type": "aba", "settings": { "colecao": "coleiras-black", "titulo": "Coleiras", "selo": "20% OFF", "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão." } },
-        "aba_kits": { "type": "aba", "settings": { "colecao": "kits", "titulo": "Kits", "selo": "15% OFF", "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis." } },
-        "aba_mais_vendidos": { "type": "aba", "settings": { "colecao": "mais-vendidos", "titulo": "Mais vendidos", "selo": "Favoritos da Black", "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha." } },
-        "b1": { "type": "beneficio", "settings": { "titulo": "Garantia de 6 meses", "texto": "Em todos os acessórios de couro." } },
-        "b2": { "type": "beneficio", "settings": { "titulo": "Couro legítimo", "texto": "Material nobre que envelhece bonito." } },
-        "b3": { "type": "beneficio", "settings": { "titulo": "Feito à mão", "texto": "Cada peça é produzida com carinho, no Brasil." } },
-        "b4": { "type": "beneficio", "settings": { "titulo": "Todo o Brasil", "texto": "Frete grátis acima de R$ 190 no Sul e Sudeste e R$ 390 nas demais regiões." } },
-        "b5": { "type": "beneficio", "settings": { "titulo": "Até 6x sem juros", "texto": "Parcele a sua compra no cartão." } },
-        "b6": { "type": "beneficio", "settings": { "titulo": "Cashback de 10%", "texto": "Volta em saldo para usar na loja." } },
-        "q1": { "type": "pergunta", "settings": { "pergunta": "Até quando valem as ofertas da Black November?", "resposta": "As ofertas ficam no ar até 30 de novembro e enquanto durar o estoque de cada modelo. Depois dessa data, os preços voltam ao normal." } },
-        "q2": { "type": "pergunta", "settings": { "pergunta": "Como funciona o brinde do Colar de Natal?", "resposta": "Compras acima de R$ 390 durante a Black November levam o Colar de Natal. O brinde é adicionado ao seu pedido sem custo." } },
-        "q3": { "type": "pergunta", "settings": { "pergunta": "Qual é o frete e o prazo de entrega?", "resposta": "Entregamos para todo o Brasil. O frete é grátis para Sul e Sudeste a partir de R$ 190 e para as demais regiões a partir de R$ 390." } },
-        "q4": { "type": "pergunta", "settings": { "pergunta": "E se o tamanho não servir no meu pet?", "resposta": "Você tem troca de tamanho grátis. Além disso, todos os acessórios têm garantia de 6 meses." } },
-        "q5": { "type": "pergunta", "settings": { "pergunta": "As peças são personalizadas?", "resposta": "Sim. As coleiras são feitas à mão em couro legítimo e podem ser personalizadas com o nome do seu pet." } }
+        "aba_coleiras": {
+          "type": "aba",
+          "settings": {
+            "colecao": "coleiras-black",
+            "titulo": "Coleiras",
+            "selo": "20% OFF",
+            "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão."
+          }
+        },
+        "aba_kits": {
+          "type": "aba",
+          "settings": {
+            "colecao": "kits",
+            "titulo": "Kits",
+            "selo": "15% OFF",
+            "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis."
+          }
+        },
+        "aba_mais_vendidos": {
+          "type": "aba",
+          "settings": {
+            "colecao": "mais-vendidos",
+            "titulo": "Mais vendidos",
+            "selo": "Favoritos da Black",
+            "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha."
+          }
+        },
+        "b1": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Garantia de 6 meses",
+            "texto": "Em todos os acessórios de couro."
+          }
+        },
+        "b2": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Couro legítimo",
+            "texto": "Material nobre que envelhece bonito."
+          }
+        },
+        "b3": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Feito à mão",
+            "texto": "Cada peça é produzida com carinho, no Brasil."
+          }
+        },
+        "b4": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Todo o Brasil",
+            "texto": "Frete grátis acima de R$ 190 no Sul e Sudeste e R$ 390 nas demais regiões."
+          }
+        },
+        "b5": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Até 6x sem juros",
+            "texto": "Parcele a sua compra no cartão."
+          }
+        },
+        "b6": {
+          "type": "beneficio",
+          "settings": {
+            "titulo": "Cashback de 10%",
+            "texto": "Volta em saldo para usar na loja."
+          }
+        },
+        "q1": {
+          "type": "pergunta",
+          "settings": {
+            "pergunta": "Até quando valem as ofertas da Black November?",
+            "resposta": "As ofertas ficam no ar até 30 de novembro e enquanto durar o estoque de cada modelo. Depois dessa data, os preços voltam ao normal."
+          }
+        },
+        "q2": {
+          "type": "pergunta",
+          "settings": {
+            "pergunta": "Como funciona o brinde do Colar de Natal?",
+            "resposta": "Compras acima de R$ 390 durante a Black November levam o Colar de Natal. O brinde é adicionado ao seu pedido sem custo."
+          }
+        },
+        "q3": {
+          "type": "pergunta",
+          "settings": {
+            "pergunta": "Qual é o frete e o prazo de entrega?",
+            "resposta": "Entregamos para todo o Brasil. O frete é grátis para Sul e Sudeste a partir de R$ 190 e para as demais regiões a partir de R$ 390."
+          }
+        },
+        "q4": {
+          "type": "pergunta",
+          "settings": {
+            "pergunta": "E se o tamanho não servir no meu pet?",
+            "resposta": "Você tem troca de tamanho grátis. Além disso, todos os acessórios têm garantia de 6 meses."
+          }
+        },
+        "q5": {
+          "type": "pergunta",
+          "settings": {
+            "pergunta": "As peças são personalizadas?",
+            "resposta": "Sim. As coleiras são feitas à mão em couro legítimo e podem ser personalizadas com o nome do seu pet."
+          }
+        }
       },
-      "block_order": ["aba_coleiras", "aba_kits", "aba_mais_vendidos", "b1", "b2", "b3", "b4", "b5", "b6", "q1", "q2", "q3", "q4", "q5"],
-      "settings": {}
+      "block_order": [
+        "aba_coleiras",
+        "aba_kits",
+        "aba_mais_vendidos",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5"
+      ],
+      "settings": {
+        "colecao_base": "",
+        "so_da_promocao": false,
+        "tag_gato": "gato",
+        "por_pagina": 12,
+        "texto_vazio": "As ofertas desta categoria entram aqui assim que a Black November começar.",
+        "fim_data": "2026-11-30T23:59:59-03:00",
+        "faixa": "Até 50% OFF na Black\nColeiras 20% OFF\nKits 15% OFF\nColar de Natal de brinde acima de R$ 390\nFeito à mão em couro legítimo",
+        "hero_alt": "Cachorro usando coleira de couro legítimo feita à mão",
+        "hero_selo": "Black November · até 30/11",
+        "titulo_1": "Black",
+        "titulo_2": "November",
+        "hero_texto": "Até 50% OFF em itens selecionados com o Colar de Natal de brinde nas compras acima de R$ 390.",
+        "ofertas_titulo": "Escolha a categoria e veja os preços da Black",
+        "titulo_todos": "Black November",
+        "selo_todos": "Todos os descontos",
+        "sub_todos": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão.",
+        "brinde_show": true,
+        "brinde_titulo": "O Colar de Natal é por nossa conta",
+        "brinde_texto": "Um mimo natalino para o seu pet: compras acima de R$ 390 durante a Black November levam o Colar de Natal junto ao pedido.",
+        "passo_1_titulo": "Escolha seus modelos",
+        "passo_1_texto": "Coleiras, peitorais, guias ou kits — todos com o desconto da Black November.",
+        "passo_2_titulo": "Some R$ 390 em compras",
+        "passo_2_texto": "Vale o valor total dos produtos do seu pedido na loja.",
+        "passo_3_titulo": "Leve o Colar de Natal",
+        "passo_3_texto": "O brinde é adicionado ao seu pedido sem custo, até 30 de novembro.",
+        "natal_show": true,
+        "natal_data": "2026-11-11T00:00:00-03:00",
+        "natal_data_label": "Lançamento em 11 de novembro",
+        "natal_lista": "natal-2026",
+        "natal_aviso_botao": "Avise-me quando lançar",
+        "waltz_url": "https://waltz.up.railway.app",
+        "natal_url": "",
+        "natal_image": "shopify://shop_images/ame-bf-colar-natal.jpg",
+        "natal_selo": "Lançamentos de Natal",
+        "natal_titulo": "A coleção de Natal da Âme está chegando",
+        "natal_texto": "Novidades em couro legítimo com clima natalino, reveladas durante a Black November. .",
+        "beneficios_titulo": "Acessórios que acompanham a vida do seu pet",
+        "faq_titulo": "Tudo que você precisa saber antes de comprar"
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
