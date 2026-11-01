@@ -3585,3 +3585,22 @@ html.atl-travado body {
 .atl-reco .atl-reco__nota {
   margin-top: 0.4rem;
 }
+/* Promoção no preço do topo: "De:" riscado e selo de desconto, como na página de produto. */
+.atl-preco__antigo {
+  font-size: 0.75rem;
+  color: var(--atl-tinta-2);
+  opacity: 0.85;
+}
+
+.atl-preco__selo {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  vertical-align: 0.05em;
+  color: var(--color-accent-green, #2f6b3a);
+  background: color-mix(in srgb, var(--color-accent-green, #2f6b3a) 16%, transparent);
+}

@@ -426,14 +426,38 @@
             assign preco_min = product.price_min
             assign pix_desc_min = preco_min | times: pix_pct | divided_by: 100
             assign pix_min = preco_min | minus: pix_desc_min
+
+            comment
+              Promoção: o "De:" riscado e o selo "−X% OFF" (igual à página de produto). O Waltz
+              muda o preço E o compare_at das variantes, então o "de" é o compare_at da variante
+              mais barata (a do "a partir de"). Sem promoção, compare_at vazio e nada aparece.
+            endcomment
+            assign compare_min = 0
+            for v_pr in product.variants
+              if v_pr.price == preco_min and v_pr.compare_at_price > compare_min
+                assign compare_min = v_pr.compare_at_price
+              endif
+            endfor
+            assign tem_compare = false
+            assign desconto_pct = 0
+            if compare_min > preco_min
+              assign tem_compare = true
+              assign desconto_pct = compare_min | minus: preco_min | times: 100 | divided_by: compare_min
+            endif
           -%}
           <div class="atl-preco">
             <p class="atl-preco__de">A partir de</p>
+            {%- if tem_compare %}
+              <p class="atl-preco__antigo"><s>De: {{ compare_min | money }}</s></p>
+            {%- endif %}
             {%- if settings.show_pix != false %}
               <p class="atl-preco__pix">
                 <strong>{{ pix_min | money }}</strong> <span>no Pix</span>
               </p>
-              <p class="atl-preco__cartao">ou {{ preco_min | money }} no cartão</p>
+              <p class="atl-preco__cartao">
+                ou {{ preco_min | money }} no cartão
+                {%- if tem_compare and desconto_pct > 0 %} <span class="atl-preco__selo">−{{ desconto_pct }}% OFF</span>{% endif -%}
+              </p>
             {%- else %}
               <p class="atl-preco__pix">
                 <strong>{{ preco_min | money }}</strong> <span>no cartão</span>
