@@ -275,11 +275,30 @@
 
   <section class="bn-hero">
     <div class="bn-hero__media">
-      {%- if hero_img != blank -%}
-        {{ hero_img | image_url: width: 1600 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '800, 1200, 1600', sizes: '100vw', alt: section.settings.hero_alt }}
-      {%- else -%}
-        <img src="{{ 'black-november-hero.jpg' | asset_url }}" alt="{{ section.settings.hero_alt | escape }}" width="1536" height="2752" fetchpriority="high">
+      {%- comment -%} Imagem própria para mobile/tablet (< 1024px, mesmo ponto em que o layout do hero muda); sem ela, usa a do desktop. {%- endcomment -%}
+      {%- assign hero_img_mobile = section.settings.hero_image_mobile -%}
+      {%- if hero_img_mobile != blank -%}
+        <style>
+          @media (max-width: 1023px) {
+            .bn-hero__media img { object-position: {{ hero_img_mobile.presentation.focal_point | default: '50% 50%' }} !important; }
+          }
+        </style>
       {%- endif -%}
+      <picture>
+        {%- if hero_img_mobile != blank -%}
+          <source media="(max-width: 1023px)" sizes="100vw" width="{{ hero_img_mobile.width }}" height="{{ hero_img_mobile.height }}" srcset="
+            {%- for w in (1..2) -%}
+              {%- assign largura = w | times: 400 | plus: 200 -%}
+              {%- if largura <= hero_img_mobile.width -%}{{ hero_img_mobile | image_url: width: largura }} {{ largura }}w, {% endif -%}
+            {%- endfor -%}
+            {{ hero_img_mobile | image_url: width: 1400 }} 1400w">
+        {%- endif -%}
+        {%- if hero_img != blank -%}
+          {{ hero_img | image_url: width: 1600 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '800, 1200, 1600', sizes: '100vw', alt: section.settings.hero_alt }}
+        {%- else -%}
+          <img src="{{ 'black-november-hero.jpg' | asset_url }}" alt="{{ section.settings.hero_alt | escape }}" width="1536" height="2752" fetchpriority="high">
+        {%- endif -%}
+      </picture>
     </div>
     <div class="bn-wrap bn-hero__in">
       <div class="bn-hero__copy">
@@ -800,7 +819,8 @@
     { "type": "textarea", "id": "faixa", "label": "Faixa que corre (uma frase por linha)", "default": "Até 50% OFF na Black\nColeiras 20% OFF\nKits 15% OFF\nColar de Natal de brinde acima de R$ 390\nFeito à mão em couro legítimo" },
 
     { "type": "header", "content": "Hero" },
-    { "type": "image_picker", "id": "hero_image", "label": "Imagem (vazio = foto padrão do tema)" },
+    { "type": "image_picker", "id": "hero_image", "label": "Imagem — desktop (vazio = foto padrão do tema)" },
+    { "type": "image_picker", "id": "hero_image_mobile", "label": "Imagem — mobile (opcional)", "info": "Usada em telas menores que 1024px. Vazio = usa a imagem do desktop. Prefira uma foto mais baixa (ex.: 4:5) com o pet perto do topo; o ponto focal da imagem é respeitado." },
     { "type": "text", "id": "hero_alt", "label": "Descrição da imagem", "default": "Cachorro usando coleira de couro legítimo feita à mão" },
     { "type": "text", "id": "hero_selo", "label": "Selo", "default": "Black November · até 30/11" },
     { "type": "text", "id": "titulo_1", "label": "Título — linha 1", "default": "Black" },
