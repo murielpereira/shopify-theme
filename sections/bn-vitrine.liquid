@@ -1,121 +1,71 @@
 {%- comment -%}
-  Âme · Black November · Vitrine de produtos
-  O selo de % OFF é calculado sozinho a partir do "preço comparativo" de cada produto.
+  Âme · Black November · Vitrine de produtos (Home)
+  Usa o MESMO componente da coleção Black November (snippets/bn-ofertas.liquid): abas por coleção,
+  filtro Cães/Gatos, filtro por % de desconto, ordenação e cartões com a nota das avaliações.
+  As cores vêm da seção "BN · Cores" (bn-cores). O selo de % OFF sai do preço comparativo.
 {%- endcomment -%}
 {%- liquid
-  assign colecao = section.settings.colecao
-  assign limite = section.settings.limite
-  if colecao != blank
-    assign restantes = colecao.products_count | minus: limite
-  else
-    assign restantes = 0
-  endif
+  assign abas = section.blocks | where: 'type', 'aba'
+  assign base_handle = section.settings.colecao.handle | default: 'black-november'
 -%}
-<section class="bn bn-section bn-vitrine">
-  <div class="bn-wrap">
-    <header class="bn-vitrine__head">
-      <h2 class="bn-title bn-h2">{{ section.settings.titulo | default: colecao.title }}</h2>
-      {%- if section.settings.texto != blank -%}<div class="bn-lead">{{ section.settings.texto }}</div>{%- endif -%}
-      {%- if section.settings.mostrar_total and colecao != blank -%}
-        <p class="bn-vitrine__count">{{ colecao.products_count }} modelos</p>
-      {%- endif -%}
-    </header>
-
-    <ul class="bn-vitrine__grid" role="list">
-      {%- if colecao != blank -%}
-        {%- for product in colecao.products limit: limite -%}
-          {%- liquid
-            assign desconto = 0
-            if product.compare_at_price > product.price
-              assign diferenca = product.compare_at_price | minus: product.price
-              assign desconto = diferenca | times: 100.0 | divided_by: product.compare_at_price | round
-            endif
-          -%}
-          <li class="bn-card">
-            <a class="bn-card__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
-              {%- if product.featured_media -%}
-                {{ product.featured_media | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 25vw, 50vw', widths: '360, 540, 720, 900', alt: product.featured_media.alt | default: product.title | escape }}
-              {%- endif -%}
-              {%- if desconto > 0 -%}<span class="bn-pill bn-card__badge">{{ desconto | append: '% OFF' }}</span>{%- endif -%}
-            </a>
-            <div class="bn-card__info">
-              {%- if product.type != blank -%}<p class="bn-card__type">{{ product.type }}</p>{%- endif -%}
-              <h3 class="bn-card__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
-              <div class="bn-card__price">
-                <span class="bn-card__now">{% if product.price_varies %}a partir de {% endif %}{{ product.price | money }}</span>
-                {%- if product.compare_at_price > product.price -%}<s>{{ product.compare_at_price | money }}</s>{%- endif -%}
-              </div>
-              {%- if product.compare_at_price > product.price -%}
-                <p class="bn-card__save">Você economiza {{ product.compare_at_price | minus: product.price | money }}</p>
-              {%- endif -%}
-              {%- if section.settings.cashback_pct > 0 -%}
-                <p class="bn-card__cashback">Cashback de {{ product.price | times: section.settings.cashback_pct | divided_by: 100 | money }}</p>
-              {%- endif -%}
-              <a class="bn-btn bn-card__cta" href="{{ product.url }}">{{ section.settings.botao_card }}</a>
-            </div>
-          </li>
-        {%- endfor -%}
-      {%- else -%}
-        {%- for i in (1..4) -%}
-          <li class="bn-card">
-            <div class="bn-card__media">{{ 'product-' | append: i | placeholder_svg_tag }}</div>
-            <div class="bn-card__info">
-              <p class="bn-card__type">Escolha uma coleção</p>
-              <h3 class="bn-card__title">Nome do produto</h3>
-              <div class="bn-card__price"><span class="bn-card__now">R$ 84,00</span><s>R$ 105,00</s></div>
-            </div>
-          </li>
-        {%- endfor -%}
-      {%- endif -%}
-    </ul>
-
-    {%- if section.settings.mostrar_ver_mais and colecao != blank and restantes > 0 -%}
-      <div class="bn-vitrine__more">
-        <a class="bn-btn bn-btn--ghost" href="{{ colecao.url }}">Ver mais {{ restantes }} {% if restantes == 1 %}modelo{% else %}modelos{% endif %}</a>
-      </div>
-    {%- endif -%}
-  </div>
-</section>
-
-<style>
-  .bn-vitrine .bn-vitrine__head { padding-bottom: 28px; margin-bottom: 32px; border-bottom: 1px solid var(--bn-line); }
-  .bn-vitrine .bn-vitrine__count { margin: 18px 0 0; font: 500 11px/1 var(--bn-sans); letter-spacing: .24em; text-transform: uppercase; color: var(--bn-accent); }
-  .bn-vitrine .bn-vitrine__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-  @media (min-width: 990px) { .bn-vitrine .bn-vitrine__grid { grid-template-columns: repeat({{ section.settings.colunas }}, minmax(0, 1fr)); gap: 16px; } }
-  .bn-vitrine .bn-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--bn-line); border-radius: 22px; background: var(--bn-bg); }
-  .bn-vitrine .bn-card__media { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; background: #efe9e2; }
-  .bn-vitrine .bn-card__media img, .bn-vitrine .bn-card__media svg { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-  .bn-vitrine .bn-card:hover .bn-card__media img { transform: scale(1.03); }
-  .bn-vitrine .bn-card__badge { position: absolute; top: 12px; left: 12px; }
-  .bn-vitrine .bn-card__info { display: flex; flex: 1; flex-direction: column; padding: 16px 14px 14px; }
-  .bn-vitrine .bn-card__type { margin: 0 0 8px; font: 500 9px/1 var(--bn-sans); letter-spacing: .22em; text-transform: uppercase; color: var(--bn-muted); }
-  .bn-vitrine .bn-card__title { margin: 0; font: 400 clamp(22px, 2.2vw, 28px)/1.1 var(--bn-serif); color: var(--bn-text); }
-  .bn-vitrine .bn-card__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 12px 0 0; }
-  .bn-vitrine .bn-card__now { font: 700 clamp(17px, 1.7vw, 20px)/1.1 var(--bn-sans); color: var(--bn-accent); }
-  .bn-vitrine .bn-card__price s { font-size: 13px; color: var(--bn-muted); }
-  .bn-vitrine .bn-card__save { margin: 6px 0 0; font: 500 10px/1.4 var(--bn-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--bn-muted); }
-  .bn-vitrine .bn-card__cashback { align-self: flex-start; margin: 10px 0 0; padding: 6px 11px; border-radius: 999px; background: color-mix(in srgb, var(--bn-accent) 14%, transparent); color: var(--bn-accent); font: 700 10px/1.2 var(--bn-sans); letter-spacing: .12em; text-transform: uppercase; }
-  .bn-vitrine .bn-card__cta { width: 100%; min-height: 40px; margin-top: auto; padding: 0 12px; font-size: 11px; }
-  .bn-vitrine .bn-card__cashback + .bn-card__cta, .bn-vitrine .bn-card__save + .bn-card__cta, .bn-vitrine .bn-card__price + .bn-card__cta { margin-top: 16px; }
-  .bn-vitrine .bn-vitrine__more { display: flex; justify-content: center; margin-top: 36px; }
-  @media (max-width: 749px) { .bn-vitrine .bn-card__info { padding: 12px 10px 10px; } .bn-vitrine .bn-card__cta { letter-spacing: .12em; } .bn-vitrine .bn-card__save, .bn-vitrine .bn-card__cashback { font-size: 9px; letter-spacing: .06em; } }
-</style>
+<div class="bn" data-bn-vitrine>
+  {%- render 'bn-ofertas',
+    abas: abas,
+    base_handle: base_handle,
+    titulo_todos: section.settings.titulo_todos,
+    selo_todos: section.settings.selo_todos,
+    sub_todos: section.settings.sub_todos,
+    eyebrow: section.settings.eyebrow,
+    titulo: section.settings.titulo,
+    so_da_promocao: false,
+    so_desconto: section.settings.so_com_desconto,
+    tag_gato: section.settings.tag_gato,
+    por_pagina: section.settings.por_pagina,
+    texto_vazio: section.settings.texto_vazio,
+    anchor: 'ofertas-home',
+    largura: '1180px',
+    p_bg: 'var(--bn-bg)',
+    p_fg: 'var(--bn-text)',
+    p_card: 'var(--bn-surface)',
+    p_border: 'color-mix(in srgb, var(--bn-text) 14%, transparent)',
+    p_accent: 'var(--bn-accent)',
+    p_on_accent: 'var(--bn-on-accent)',
+    p_serif: 'var(--bn-serif)',
+    p_sans: 'var(--bn-sans)'
+  -%}
+</div>
 
 {% schema %}
 {
   "name": "BN · Vitrine de produtos",
   "tag": "div",
   "settings": [
-    { "type": "collection", "id": "colecao", "label": "Coleção" },
-    { "type": "text", "id": "titulo", "label": "Título (vazio = nome da coleção)", "default": "Black November" },
-    { "type": "richtext", "id": "texto", "label": "Texto", "default": "<p>Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão.</p>" },
-    { "type": "range", "id": "limite", "label": "Quantos produtos mostrar", "min": 2, "max": 24, "step": 1, "default": 8 },
-    { "type": "range", "id": "colunas", "label": "Colunas no computador", "min": 2, "max": 4, "step": 1, "default": 4 },
-    { "type": "text", "id": "botao_card", "label": "Botão do produto", "default": "Comprar" },
-    { "type": "range", "id": "cashback_pct", "label": "Cashback mostrado nos cards (0 = esconder)", "min": 0, "max": 30, "step": 1, "unit": "%", "default": 10 },
-    { "type": "checkbox", "id": "mostrar_total", "label": "Mostrar quantidade de modelos", "default": true },
-    { "type": "checkbox", "id": "mostrar_ver_mais", "label": "Mostrar botão \"Ver mais modelos\"", "default": true },
-    { "type": "paragraph", "content": "O selo de % OFF aparece sozinho quando o produto tem preço comparativo maior que o preço de venda." }
+    { "type": "header", "content": "Quais produtos aparecem" },
+    { "type": "collection", "id": "colecao", "label": "Coleção base da promoção", "info": "Vazio = black-november (a automática pela tag black_november, mantida pelo Waltz)." },
+    { "type": "checkbox", "id": "so_com_desconto", "label": "Esconder produtos sem desconto", "info": "Ligado: só aparece o que tem preço riscado na loja, ou seja, o que o Waltz já colocou em promoção.", "default": true },
+    { "type": "range", "id": "por_pagina", "label": "Produtos por \"Ver mais\"", "min": 4, "max": 40, "step": 4, "default": 8 },
+    { "type": "text", "id": "tag_gato", "label": "Tag de produto para gato (além de \"gato\" no título)", "default": "gato" },
+    { "type": "textarea", "id": "texto_vazio", "label": "Texto quando não há produtos", "default": "As ofertas desta categoria entram aqui assim que a Black November começar." },
+
+    { "type": "header", "content": "Títulos" },
+    { "type": "text", "id": "eyebrow", "label": "Sobretítulo", "default": "Ofertas da Black" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Escolha a categoria e veja os preços da Black" },
+    { "type": "text", "id": "titulo_todos", "label": "Primeira aba — nome", "default": "Black November" },
+    { "type": "text", "id": "selo_todos", "label": "Primeira aba — selo", "default": "Todos os descontos" },
+    { "type": "text", "id": "sub_todos", "label": "Primeira aba — descrição", "default": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão." }
+  ],
+  "blocks": [
+    {
+      "type": "aba",
+      "name": "Aba de ofertas",
+      "limit": 6,
+      "settings": [
+        { "type": "collection", "id": "colecao", "label": "Coleção" },
+        { "type": "text", "id": "titulo", "label": "Nome da aba", "default": "Coleiras" },
+        { "type": "text", "id": "selo", "label": "Selo", "default": "20% OFF" },
+        { "type": "textarea", "id": "subtitulo", "label": "Descrição" }
+      ]
+    }
   ],
   "presets": [{ "name": "BN · Vitrine de produtos" }]
 }

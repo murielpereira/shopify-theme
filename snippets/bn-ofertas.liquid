@@ -1,0 +1,435 @@
+{%- comment -%}
+  Âme · Black November · Ofertas (abas por coleção + filtros + cartões)
+  UMA fonte para a coleção Black November e para a Home: o mesmo código desenha as abas,
+  o filtro Cães/Gatos, o filtro por % de desconto, a ordenação e o cartão (com a nota das
+  avaliações). Quem muda o visual muda nos dois lugares.
+
+  Parâmetros (todos de texto, menos `abas`):
+    abas           blocos do tipo "aba" (settings: colecao, titulo, selo, subtitulo)
+    base_handle    coleção base da promoção (a automática pela tag black_november)
+    titulo_todos, selo_todos, sub_todos   a primeira aba ("todas as ofertas")
+    eyebrow, titulo                       cabeçalho da seção
+    so_da_promocao, so_desconto           regras de quais produtos entram
+    tag_gato, por_pagina, texto_vazio
+    anchor         id da âncora (padrão "ofertas"); largura (padrão 1400px)
+    p_bg p_fg p_card p_border p_accent p_on_accent p_serif p_sans   paleta (valores CSS)
+
+  Produtos e preços vêm de /collections/<handle>/products.json no navegador. % de desconto =
+  maior desconto entre as variantes (compare_at_price x price).
+{%- endcomment -%}
+{%- liquid
+  assign bx_raiz = routes.root_url
+  if bx_raiz != '/'
+    assign bx_raiz = bx_raiz | append: '/'
+  endif
+  assign bx_id = anchor | default: 'ofertas'
+  assign bx_largura = largura | default: '1400px'
+  assign bx_por = por_pagina | default: 12
+-%}
+<style>
+  .bx {
+    --bx-bg: {{ p_bg }};
+    --bx-fg: {{ p_fg }};
+    --bx-card: {{ p_card }};
+    --bx-border: {{ p_border }};
+    --bx-lime: {{ p_accent }};
+    --bx-on-lime: {{ p_on_accent }};
+    --bx-display: {{ p_serif }};
+    --bx-body: {{ p_sans }};
+    --bx-muted: color-mix(in srgb, var(--bx-fg) 68%, transparent);
+    --bx-faint: color-mix(in srgb, var(--bx-fg) 55%, transparent);
+
+    position: relative; background: var(--bx-bg); color: var(--bx-fg); color-scheme: dark;
+    font-family: var(--bx-body); -webkit-font-smoothing: antialiased;
+    padding: 4.5rem 0; scroll-margin-top: 6rem; overflow: hidden;
+  }
+  @media (min-width: 768px) { .bx { padding: 6rem 0; } }
+  .bx *, .bx *::before, .bx *::after { box-sizing: border-box; }
+  .bx ::selection { background: var(--bx-lime); color: var(--bx-on-lime); }
+  :where(.bx) a { color: inherit; text-decoration: none; }
+  :where(.bx) :is(h1, h2, h3, p, ul, figure) { margin: 0; padding: 0; }
+  :where(.bx) button, :where(.bx) select { font: inherit; color: inherit; }
+  :where(.bx) button { cursor: pointer; background: none; border: 0; padding: 0; }
+  .bx [hidden] { display: none !important; }
+  .bx :focus-visible { outline: 2px solid var(--bx-lime); outline-offset: 3px; }
+  .bx img { display: block; max-width: none; }
+
+  .bx-wrap { max-width: {{ bx_largura }}; margin: 0 auto; padding: 0 1.25rem; }
+  @media (min-width: 640px) { .bx-wrap { padding: 0 2rem; } }
+  @media (min-width: 1280px) { .bx-wrap { padding: 0 4rem; } }
+  .bx-eyebrow { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .38em; color: var(--bx-lime); }
+  .bx-h2 { margin-top: 1rem; font-family: var(--bx-display); font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 400; line-height: 1.02; letter-spacing: -.01em; color: var(--bx-fg); max-width: none; }
+  .bx-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; background: var(--bx-lime); color: var(--bx-on-lime); padding: 1rem 1.75rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; transition: transform .3s; }
+  .bx-btn:hover { transform: translateY(-2px); }
+  .bx-btn--line { background: none; color: var(--bx-lime); border: 1px solid color-mix(in srgb, var(--bx-lime) 60%, transparent); }
+  .bx-btn--line:hover { background: var(--bx-lime); color: var(--bx-on-lime); }
+
+  /* Ofertas */
+  .bx-offers { background: var(--bx-bg); }
+  .bx-offers__top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.25rem; }
+  .bx-tabs { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+  @media (min-width: 900px) { .bx-tabs { grid-template-columns: repeat(4, 1fr); gap: 1rem; } }
+  .bx-tab { display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--bx-border); border-radius: 22px; background: var(--bx-card); padding: .9rem 1rem 1rem; text-align: left; transition: transform .3s, border-color .3s, background .3s; }
+  .bx-tab:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--bx-lime) 50%, transparent); }
+  .bx-tab[aria-pressed="true"] { border-color: var(--bx-lime); background: var(--bx-lime); color: var(--bx-on-lime); box-shadow: 0 16px 40px -18px color-mix(in srgb, var(--bx-lime) 55%, transparent); }
+  .bx-tab__n { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--bx-fg) 8%, transparent); font-size: 9px; letter-spacing: .1em; color: var(--bx-faint); }
+  .bx-tab[aria-pressed="true"] .bx-tab__n { background: color-mix(in srgb, var(--bx-on-lime) 12%, transparent); color: color-mix(in srgb, var(--bx-on-lime) 75%, transparent); }
+  .bx-tab__t { margin-top: .6rem; font-family: var(--bx-display); font-size: 1.6rem; line-height: 1; }
+  @media (min-width: 900px) { .bx-tab__t { font-size: 1.9rem; } }
+  .bx-tab__s { margin-top: .75rem; display: inline-block; border-radius: 999px; background: var(--bx-lime); color: var(--bx-on-lime); padding: .25rem .65rem; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; }
+  .bx-tab[aria-pressed="true"] .bx-tab__s { background: var(--bx-on-lime); color: var(--bx-lime); }
+
+  .bx-bar { margin-top: 2.5rem; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--bx-border); padding-bottom: 1.25rem; }
+  .bx-bar h3 { font-family: var(--bx-display); font-size: clamp(1.9rem, 4vw, 2.6rem); font-weight: 400; line-height: 1; }
+  .bx-bar p { margin-top: .5rem; max-width: 32rem; font-size: 14px; line-height: 1.55; color: var(--bx-muted); }
+  .bx-count { font-size: 10px; text-transform: uppercase; letter-spacing: .22em; color: var(--bx-lime); white-space: nowrap; }
+
+  .bx-tools { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+  .bx-filter { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .bx-filter__label, .bx-sort__label { font-size: 10px; text-transform: uppercase; letter-spacing: .22em; color: var(--bx-faint); }
+  .bx-pct { border: 1px solid var(--bx-border); border-radius: 999px; padding: .5rem .9rem; font-size: 11px; font-weight: 500; letter-spacing: .08em; color: var(--bx-muted); transition: border-color .25s, background .25s, color .25s; }
+  .bx-pct small { margin-left: .3rem; font-size: 10px; opacity: .7; }
+  .bx-pct:hover { border-color: color-mix(in srgb, var(--bx-lime) 60%, transparent); color: var(--bx-fg); }
+  .bx-pct[aria-pressed="true"] { border-color: var(--bx-lime); background: var(--bx-lime); color: var(--bx-on-lime); }
+  .bx-sort { display: flex; align-items: center; gap: .65rem; }
+  .bx-select { appearance: none; -webkit-appearance: none; border: 1px solid var(--bx-border); border-radius: 999px; background: var(--bx-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%23999' stroke-width='1.6'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E") no-repeat right .95rem center; padding: .6rem 2.2rem .6rem 1rem; font-size: 12px; color: var(--bx-fg); }
+  .bx-select option { background: var(--bx-card); color: var(--bx-fg); }
+
+  .bx-species { margin-top: 1.25rem; display: inline-flex; max-width: 100%; border: 1px solid var(--bx-border); border-radius: 999px; background: var(--bx-card); padding: .3rem; }
+  .bx-species button { border-radius: 999px; padding: .65rem 1.2rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .16em; color: var(--bx-muted); transition: background .25s, color .25s; }
+  .bx-species button small { margin-left: .3rem; font-size: 10px; opacity: .7; }
+  .bx-species button[aria-pressed="true"] { background: var(--bx-lime); color: var(--bx-on-lime); }
+  .bx-grid { margin-top: 1.75rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  @media (min-width: 768px) { .bx-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
+  @media (min-width: 1100px) { .bx-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; } }
+  .bx-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--bx-border); border-radius: 20px; background: var(--bx-bg); transition: border-color .3s; animation: bx-in .5s both; animation-delay: var(--bx-delay, 0s); }
+  .bx-card:hover { border-color: color-mix(in srgb, var(--bx-lime) 55%, transparent); }
+  @keyframes bx-in { from { opacity: 0; transform: translateY(14px); } }
+  @media (prefers-reduced-motion: reduce) { .bx-card { animation: none; } }
+  .bx-card__img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: var(--bx-card); }
+  .bx-card__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .7s, opacity .4s; }
+  .bx-card:hover .bx-card__img img { transform: scale(1.05); }
+  .bx-card__img img + img { opacity: 0; }
+  .bx-card:hover .bx-card__img img + img { opacity: 1; }
+  .bx-card__off { position: absolute; left: .6rem; top: .6rem; z-index: 1; border-radius: 999px; background: var(--bx-lime); color: var(--bx-on-lime); padding: .25rem .6rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+  .bx-card__soldout { position: absolute; left: .6rem; bottom: .6rem; z-index: 1; border-radius: 999px; background: rgba(0,0,0,.7); color: #fff; padding: .25rem .6rem; font-size: 9px; text-transform: uppercase; letter-spacing: .14em; }
+  .bx-card__body { display: flex; flex: 1; flex-direction: column; padding: .8rem; }
+  @media (min-width: 768px) { .bx-card__body { padding: 1rem; } }
+  .bx-card__type { font-size: 9px; text-transform: uppercase; letter-spacing: .22em; color: var(--bx-faint); }
+  .bx-card__name { margin-top: .4rem; font-family: var(--bx-display); font-size: 1.3rem; line-height: 1.05; }
+  @media (min-width: 768px) { .bx-card__name { font-size: 1.55rem; } }
+  .bx-card__price { margin: .65rem 0 .9rem; font-size: 13px; color: var(--bx-muted); }
+  .bx-card__price s { margin-right: .4rem; font-size: 11px; opacity: .6; }
+  .bx-card__price b { font-weight: 600; color: var(--bx-fg); }
+  .bx-card__price small { display: block; margin-bottom: .15rem; font-size: 10px; letter-spacing: .06em; opacity: .6; }
+  .bx-card__cta { margin-top: auto; border-radius: 999px; background: var(--bx-lime); color: var(--bx-on-lime); padding: .75rem 0; text-align: center; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .2em; transition: background .3s, color .3s; }
+  .bx-card:hover .bx-card__cta { background: var(--bx-bg); color: var(--bx-lime); box-shadow: inset 0 0 0 1px var(--bx-lime); }
+  .bx-skel { aspect-ratio: 4 / 5.6; border-radius: 20px; background: var(--bx-card); animation: bx-pulse 1.4s ease-in-out infinite; }
+  @keyframes bx-pulse { 50% { opacity: .5; } }
+  .bx-empty { padding: 4rem 0; text-align: center; font-size: 15px; line-height: 1.6; color: var(--bx-muted); }
+  .bx-empty a { color: var(--bx-lime); text-decoration: underline; }
+  .bx-more { margin-top: 2rem; display: flex; justify-content: center; }
+
+  .bx-card__rating { position: absolute; right: .6rem; top: .6rem; z-index: 1; display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; background: rgba(0,0,0,.62); color: #fff; padding: .25rem .55rem; font-size: 11px; font-weight: 600; line-height: 1; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .bx-card__rating svg { width: 12px; height: 12px; fill: #f5b301; flex: none; }
+</style>
+
+<section id="{{ bx_id }}" class="bx" data-bx>
+  <div class="bx-wrap">
+    <div class="bx-offers__top">
+      <div>
+        <span class="bx-eyebrow">{{ eyebrow | default: 'Ofertas da Black' }}</span>
+        <h2 class="bx-h2">{{ titulo }}</h2>
+      </div>
+      <a class="bx-btn bx-btn--line" href="{{ routes.all_products_collection_url }}">Ver a loja completa</a>
+    </div>
+
+    <div class="bx-tabs" data-bx-tabs>
+      <button type="button" class="bx-tab" data-bx-tab="0" aria-pressed="true">
+        <span class="bx-tab__n">01</span>
+        <span class="bx-tab__t">{{ titulo_todos }}</span>
+        <span class="bx-tab__s">{{ selo_todos }}</span>
+      </button>
+      {%- assign idx = 0 -%}
+      {%- for aba in abas -%}
+        {%- if aba.settings.colecao != blank -%}
+          {%- assign idx = idx | plus: 1 -%}
+          <button type="button" class="bx-tab" data-bx-tab="{{ idx }}" aria-pressed="false" {{ aba.shopify_attributes }}>
+            <span class="bx-tab__n">0{{ idx | plus: 1 }}</span>
+            <span class="bx-tab__t">{{ aba.settings.titulo }}</span>
+            <span class="bx-tab__s">{{ aba.settings.selo }}</span>
+          </button>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <div class="bx-bar">
+      <div>
+        <h3 data-bx-title></h3>
+        <p data-bx-sub></p>
+      </div>
+      <span class="bx-count" data-bx-count hidden></span>
+    </div>
+
+    <div class="bx-species" data-bx-species role="group" aria-label="Filtrar por espécie" hidden>
+      <button type="button" data-bx-esp="" aria-pressed="true">Todos</button>
+      <button type="button" data-bx-esp="cao" aria-pressed="false">Para cães</button>
+      <button type="button" data-bx-esp="gato" aria-pressed="false">Para gatos</button>
+    </div>
+
+    <div class="bx-tools" data-bx-tools hidden>
+      <div class="bx-filter" data-bx-filter role="group" aria-label="Filtrar por desconto"></div>
+      <label class="bx-sort">
+        <span class="bx-sort__label">Ordenar</span>
+        <select class="bx-select" data-bx-sort>
+          <option value="rel">Em destaque</option>
+          <option value="off">Maior desconto</option>
+          <option value="menor">Menor preço</option>
+          <option value="maior">Maior preço</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="bx-grid" data-bx-grid aria-live="polite">
+      {%- for i in (1..4) -%}<div class="bx-skel"></div>{%- endfor -%}
+    </div>
+    <div class="bx-empty" data-bx-empty hidden></div>
+    <div class="bx-more" data-bx-more hidden>
+      <button type="button" class="bx-btn bx-btn--line" data-bx-more-btn>Ver mais</button>
+    </div>
+    <noscript><p class="bx-empty"><a href="{{ routes.collections_url }}/{{ base_handle }}">Ver todas as ofertas da Black November</a></p></noscript>
+  </div>
+</section>
+
+<script type="application/json" data-bx-config>
+  {
+    "root": {{ bx_raiz | json }},
+    "base": {{ base_handle | json }},
+    "soPromo": {{ so_da_promocao | default: false | json }},
+    "soDesconto": {{ so_desconto | default: true | json }},
+    "tagGato": {{ tag_gato | default: 'gato' | strip | downcase | json }},
+    "porPagina": {{ bx_por | json }},
+    "abas": [
+      { "handle": {{ base_handle | json }}, "titulo": {{ titulo_todos | json }}, "sub": {{ sub_todos | json }} }
+      {%- for aba in abas -%}
+        {%- if aba.settings.colecao != blank -%}
+          , { "handle": {{ aba.settings.colecao.handle | json }}, "titulo": {{ aba.settings.titulo | json }}, "sub": {{ aba.settings.subtitulo | json }} }
+        {%- endif -%}
+      {%- endfor -%}
+    ],
+    "vazio": {{ texto_vazio | json }}
+  }
+</script>
+
+<script>
+  (function () {
+    var cfgEl = document.currentScript.previousElementSibling;
+    var root = cfgEl && cfgEl.previousElementSibling;
+    if (!root || !root.hasAttribute('data-bx')) return;
+    var cfg = JSON.parse(cfgEl.textContent);
+    var $ = function (s, r) { return (r || root).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || root).querySelectorAll(s)); };
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    /* ---------- Ofertas ---------- */
+    var grid = $('[data-bx-grid]'), emptyEl = $('[data-bx-empty]'), moreBox = $('[data-bx-more]'), moreBtn = $('[data-bx-more-btn]');
+    var tools = $('[data-bx-tools]'), filterBox = $('[data-bx-filter]'), sortSel = $('[data-bx-sort]');
+    var countEl = $('[data-bx-count]'), titleEl = $('[data-bx-title]'), subEl = $('[data-bx-sub]');
+    var tabBtns = $$('[data-bx-tab]');
+    var speciesBox = $('[data-bx-species]');
+    var cache = {};       // handle -> Promise<produtos[]>
+    var state = { tab: 0, esp: '', pct: 0, sort: 'rel', shown: cfg.porPagina, list: [] };
+
+    function url(handle, page) {
+      return cfg.root + 'collections/' + encodeURIComponent(handle) + '/products.json?limit=250&page=' + page;
+    }
+    function fetchAll(handle) {
+      if (cache[handle]) return cache[handle];
+      cache[handle] = (function next(page, acc) {
+        return fetch(url(handle, page), { headers: { Accept: 'application/json' } })
+          .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(function (j) {
+            var all = acc.concat(j.products || []);
+            return (j.products || []).length === 250 && page < 8 ? next(page + 1, all) : all;
+          });
+      })(1, []).catch(function (e) { delete cache[handle]; throw e; });
+      return cache[handle];
+    }
+
+    // % = maior desconto entre as variantes; preço mostrado = o da variante que dá esse desconto.
+    function norm(p, i) {
+      var best = null, min = Infinity, avail = false;
+      (p.variants || []).forEach(function (v) {
+        var pr = parseFloat(v.price), cp = v.compare_at_price ? parseFloat(v.compare_at_price) : 0;
+        if (v.available) avail = true;
+        if (pr < min) min = pr;
+        if (cp > pr) {
+          var pct = (1 - pr / cp) * 100;
+          if (!best || pct > best.pct || (pct === best.pct && pr < best.pr)) best = { pct: pct, pr: pr, cp: cp };
+        }
+      });
+      var img = p.images && p.images.length ? p.images : (p.image ? [p.image] : []);
+      var tags = (p.tags || []).map(function (t) { return String(t).toLowerCase(); });
+      var gato = /gato/i.test(p.title) || (cfg.tagGato && tags.indexOf(cfg.tagGato) !== -1);
+      return {
+        gato: gato,
+        id: p.id, i: i, handle: p.handle, title: p.title, type: p.product_type || '',
+        pct: best ? Math.round(best.pct) : 0,
+        por: best ? best.pr : (isFinite(min) ? min : 0), de: best ? best.cp : 0,
+        avail: avail, imgs: img.slice(0, 2).map(function (m) { return m.src; })
+      };
+    }
+    function sized(src, w) { return src.replace(/(\.[a-z]+)(\?|$)/i, '_' + w + 'x$1$2'); }
+
+    function load(tab) {
+      var aba = cfg.abas[tab];
+      return Promise.all([fetchAll(cfg.base), tab ? fetchAll(aba.handle) : null]).then(function (r) {
+        var base = r[0].map(norm), byId = {};
+        base.forEach(function (p) { byId[p.id] = p; });
+        // Produto sem desconto na loja (preço riscado ausente) não é da promoção: fica de fora.
+        var keep = function (p) { return !cfg.soDesconto || p.pct > 0; };
+        if (!tab) return base.filter(keep);
+        // Ordem da própria aba (ex.: mais vendidos); só o que também está na promoção.
+        var out = [];
+        r[1].forEach(function (p, i) {
+          var item = byId[p.id] || (cfg.soPromo ? null : norm(p, i));
+          if (item && keep(item)) out.push(Object.assign({}, item, { i: i }));
+        });
+        return out;
+      });
+    }
+
+    function bySpecies() {
+      return state.list.filter(function (p) { return !state.esp || (state.esp === 'gato') === p.gato; });
+    }
+    function visibleList() {
+      var l = bySpecies().filter(function (p) { return !state.pct || p.pct === state.pct; });
+      var by = {
+        rel: function (a, b) { return a.i - b.i; },
+        off: function (a, b) { return b.pct - a.pct || a.i - b.i; },
+        menor: function (a, b) { return a.por - b.por; },
+        maior: function (a, b) { return b.por - a.por; },
+        az: function (a, b) { return a.title.localeCompare(b.title, 'pt-BR'); }
+      }[state.sort];
+      // Esgotado vai sempre para o fim, qualquer que seja a ordem.
+      return l.sort(function (a, b) { return (b.avail - a.avail) || by(a, b); });
+    }
+
+    function el(tag, cls, text) {
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function card(p, n) {
+      var a = el('a', 'bx-card'); a.href = cfg.root + 'products/' + p.handle;
+      a.style.setProperty('--bx-delay', Math.min(n, 8) * 0.05 + 's');
+      var im = el('div', 'bx-card__img');
+      p.imgs.forEach(function (src, k) {
+        var i = el('img'); i.src = sized(src, 600); i.alt = k ? '' : p.title; i.loading = n < 4 ? 'eager' : 'lazy'; i.width = 600; i.height = 750;
+        i.srcset = sized(src, 400) + ' 400w, ' + sized(src, 600) + ' 600w, ' + sized(src, 900) + ' 900w';
+        i.sizes = '(min-width: 1100px) 22vw, (min-width: 768px) 30vw, 46vw';
+        im.appendChild(i);
+      });
+      if (p.pct) im.appendChild(el('span', 'bx-card__off', p.pct + '% OFF'));
+      if (!p.avail) im.appendChild(el('span', 'bx-card__soldout', 'Esgotado'));
+      // Nota das avaliações: o ame-konfidency-card-rating.js (theme.liquid) acha [data-konfidency-rating]
+      // pelo id do produto e preenche; sem avaliação o selo fica escondido.
+      var rt = el('span', 'bx-card__rating');
+      rt.setAttribute('role', 'img'); rt.setAttribute('aria-label', 'Avaliação');
+      rt.setAttribute('data-konfidency-rating', String(p.id)); rt.hidden = true;
+      rt.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span data-konfidency-rating-value></span>';
+      im.appendChild(rt);
+      a.appendChild(im);
+      var b = el('div', 'bx-card__body');
+      if (p.type) b.appendChild(el('p', 'bx-card__type', p.type));
+      b.appendChild(el('p', 'bx-card__name', p.title));
+      var pr = el('p', 'bx-card__price');
+      if (p.de) pr.appendChild(el('s', '', BRL.format(p.de)));
+      pr.appendChild(el('b', '', BRL.format(p.por)));
+      b.appendChild(pr);
+      b.appendChild(el('span', 'bx-card__cta', p.avail ? 'Comprar' : 'Ver produto'));
+      a.appendChild(b);
+      return a;
+    }
+
+    function renderChips() {
+      var counts = {};
+      bySpecies().forEach(function (p) { if (p.pct) counts[p.pct] = (counts[p.pct] || 0) + 1; });
+      var vals = Object.keys(counts).map(Number).sort(function (a, b) { return b - a; });
+      if (state.pct && !counts[state.pct]) state.pct = 0;
+      filterBox.textContent = '';
+      var nGato = state.list.filter(function (p) { return p.gato; }).length, nCao = state.list.length - nGato;
+      // Só oferece a separação quando a aba tem cães E gatos.
+      speciesBox.hidden = !(nGato && nCao);
+      if (speciesBox.hidden) state.esp = '';
+      $$('[data-bx-esp]', speciesBox).forEach(function (b) {
+        var v = b.getAttribute('data-bx-esp');
+        b.setAttribute('aria-pressed', String(state.esp === v));
+        var n = v === 'gato' ? nGato : v === 'cao' ? nCao : state.list.length;
+        b.querySelector('small') && b.querySelector('small').remove();
+        b.appendChild(el('small', '', '(' + n + ')'));
+      });
+      tools.hidden = !bySpecies().length;
+      if (vals.length > 0) {
+        filterBox.appendChild(el('span', 'bx-filter__label', 'Desconto'));
+        [0].concat(vals).forEach(function (v) {
+          var b = el('button', 'bx-pct', v ? v + '% OFF' : 'Todos');
+          b.type = 'button'; b.setAttribute('aria-pressed', String(state.pct === v));
+          if (v) b.appendChild(el('small', '', '(' + counts[v] + ')'));
+          b.addEventListener('click', function () { state.pct = v; state.shown = cfg.porPagina; renderChips(); renderGrid(); });
+          filterBox.appendChild(b);
+        });
+      }
+    }
+
+    function renderGrid(append) {
+      var list = visibleList();
+      if (!append) grid.textContent = '';
+      var from = append ? grid.children.length : 0;
+      var frag = document.createDocumentFragment();
+      list.slice(from, state.shown).forEach(function (p, k) { frag.appendChild(card(p, append ? k : from + k)); });
+      grid.appendChild(frag);
+      emptyEl.hidden = list.length > 0;
+      if (!list.length) emptyEl.textContent = cfg.vazio;
+      countEl.hidden = !list.length;
+      countEl.textContent = list.length + (list.length === 1 ? ' modelo' : ' modelos');
+      var rest = list.length - state.shown;
+      moreBox.hidden = rest <= 0;
+      if (rest > 0) moreBtn.textContent = 'Ver mais ' + Math.min(cfg.porPagina, rest) + ' modelos';
+    }
+
+    function setTab(tab, scroll) {
+      state.tab = tab; state.pct = 0; state.esp = ''; state.shown = cfg.porPagina; state.list = [];
+      tabBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-bx-tab') === tab)); });
+      titleEl.textContent = cfg.abas[tab].titulo; subEl.textContent = cfg.abas[tab].sub || '';
+      grid.textContent = ''; emptyEl.hidden = true; moreBox.hidden = true; countEl.hidden = true; tools.hidden = true; speciesBox.hidden = true;
+      for (var i = 0; i < 4; i++) grid.appendChild(el('div', 'bx-skel'));
+      if (scroll) root.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      var mine = tab;
+      load(tab).then(function (list) {
+        if (mine !== state.tab) return;
+        state.list = list; renderChips(); renderGrid();
+      }).catch(function () {
+        if (mine !== state.tab) return;
+        grid.textContent = ''; emptyEl.hidden = false; emptyEl.textContent = '';
+        emptyEl.appendChild(document.createTextNode('Não consegui carregar as ofertas agora. '));
+        var a = el('a', '', 'Ver a coleção direto na loja'); a.href = cfg.root + 'collections/' + cfg.base; emptyEl.appendChild(a);
+      });
+    }
+
+    tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTab(+b.getAttribute('data-bx-tab'), false); }); });
+    $$('[data-bx-go]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); setTab(+a.getAttribute('data-bx-go'), true); });
+    });
+    $$('[data-bx-esp]').forEach(function (b) {
+      b.addEventListener('click', function () { state.esp = b.getAttribute('data-bx-esp'); state.pct = 0; state.shown = cfg.porPagina; renderChips(); renderGrid(); });
+    });
+    sortSel.addEventListener('change', function () { state.sort = sortSel.value; state.shown = cfg.porPagina; renderGrid(); });
+    moreBtn.addEventListener('click', function () { state.shown += cfg.porPagina; renderGrid(true); });
+    setTab(0, false);
+  })();
+</script>

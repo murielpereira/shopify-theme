@@ -103,16 +103,18 @@
     },
     "bn_vitrine": {
       "type": "bn-vitrine",
+      "blocks": {
+        "aba_coleiras": { "type": "aba", "settings": { "colecao": "coleiras-black", "titulo": "Coleiras", "selo": "20% OFF", "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão." } },
+        "aba_kits": { "type": "aba", "settings": { "colecao": "kits", "titulo": "Kits", "selo": "15% OFF", "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis." } },
+        "aba_mais_vendidos": { "type": "aba", "settings": { "colecao": "mais-vendidos", "titulo": "Mais vendidos", "selo": "Favoritos da Black", "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha." } }
+      },
+      "block_order": ["aba_coleiras", "aba_kits", "aba_mais_vendidos"],
       "settings": {
         "colecao": "black-november",
-        "titulo": "Black November",
-        "texto": "<p>Itens selecionados com desconto da Black November🔥</p>",
-        "limite": 4,
-        "colunas": 4,
-        "botao_card": "Comprar",
-        "cashback_pct": 10,
-        "mostrar_total": false,
-        "mostrar_ver_mais": true
+        "so_com_desconto": true,
+        "por_pagina": 8,
+        "tag_gato": "gato",
+        "titulo": "Escolha a categoria e veja os preços da Black"
       }
     },
     "bn_categorias": {
@@ -210,16 +212,10 @@
     "bn_vitrine_ymf3gk": {
       "type": "bn-vitrine",
       "name": "BN · Vitrine de produtos",
+      "disabled": true,
       "settings": {
         "colecao": "coleiras-black",
-        "titulo": "Black November",
-        "texto": "<p>Coleiras com <strong>20%OFF</strong></p>",
-        "limite": 4,
-        "colunas": 4,
-        "botao_card": "Comprar",
-        "cashback_pct": 10,
-        "mostrar_total": true,
-        "mostrar_ver_mais": true
+        "titulo": "Black November"
       }
     },
     "bn_natal": {
@@ -241,9 +237,9 @@
       "settings": {
         "selo": "Lançamentos de Natal",
         "titulo": "A coleção de Natal da Âme está chegando",
-        "texto": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November no dia <strong>11/11</strong></p>",
-        "lancamento": "2026-11-11T00:00:00-03:00",
-        "legenda": "",
+        "texto": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November no dia <strong>11/11 às 19h</strong></p>",
+        "lancamento": "2026-11-11T19:00:00-03:00",
+        "legenda": "Lançamento em 11 de novembro, às 19h",
         "botao": "",
         "botao_link": "",
         "botao_lancado": "Ver a coleção de Natal",
