@@ -31,7 +31,8 @@
     return Array.prototype.slice.call(form.querySelectorAll('#pdp-options-wrap .pdp__option'));
   }
   function detalhes() {
-    return Array.prototype.slice.call(form.querySelectorAll('.ame-pingente, .pdp__custom-field'));
+    // campo de raça substituído pelo bloco "O tamanho certo" (ame-pdp-tamanho.js) não é mais pedido aqui
+    return Array.prototype.slice.call(form.querySelectorAll('.ame-pingente, .pdp__custom-field')).filter(function (el) { return !el.classList.contains('is-tam-oculto'); });
   }
   function resumo() {
     return Array.prototype.slice.call(form.querySelectorAll('.pdp__qty, .pdp-bundle, .pdp__ctas'));
@@ -140,7 +141,11 @@
   }
 
   function passoCompleto(p) {
-    if (p.tipo === 'opcao') return !!valorEscolhido(p.grupo);
+    if (p.tipo === 'opcao') {
+      if (!valorEscolhido(p.grupo)) return false;
+      if (window.amePdpTamanho && /tamanho/i.test(p.rotulo)) return window.amePdpTamanho.pronto();
+      return true;
+    }
     if (p.tipo === 'detalhes') return pingenteOk() && camposObrigatoriosOk(p.els);
     return true;
   }
@@ -199,7 +204,7 @@
   }
 
   function avisar(p) {
-    var msg = p.tipo === 'opcao' ? 'Escolha ' + p.rotulo.toLowerCase() + ' para continuar.'
+    var msg = (p.tipo === 'opcao' && window.amePdpTamanho && /tamanho/i.test(p.rotulo) && valorEscolhido(p.grupo)) ? window.amePdpTamanho.aviso : p.tipo === 'opcao' ? 'Escolha ' + p.rotulo.toLowerCase() + ' para continuar.'
       : 'Responda os itens de ' + p.rotulo.toLowerCase() + ' para continuar.';
     live.textContent = msg;
     p.els.forEach(function (el) {
@@ -310,6 +315,7 @@
   }).observe(form, { childList: true });
 
   document.addEventListener('pdp:variant-changed', agendar);
+  document.addEventListener('pdp:tamanho-pronto', agendar);
   form.addEventListener('input', agendar);
   form.addEventListener('change', agendar);
   form.addEventListener('click', function (e) {

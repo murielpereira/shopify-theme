@@ -147,3 +147,5 @@ form[data-passos="true"]:not(.pdp-passos) .pdp__ctas {
 .pdp-tam__campo { margin: 0 0 0.5rem; }
 .pdp-tam__campo--peso { max-width: 10rem; }
 @media (max-width: 480px) { .pdp-tam__portes { grid-template-columns: repeat(3, 1fr); } }
+
+.pdp__custom-field.is-tam-oculto { display: none !important; }

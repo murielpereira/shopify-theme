@@ -141,7 +141,11 @@
     return c;
   }
   function preencherCampo() {
-    if (!S.raca && !S.porte && !S.peso && !S.idade) return;
+    if (!S.raca && !S.porte && !S.peso && !S.idade) {
+      var antigo = campoRaca();
+      if (antigo && autoPreenchido) { antigo.value = ''; antigo.dispatchEvent(new Event('input', { bubbles: true })); }
+      return;
+    }
     var c = campoDoPedido();
     // só escreve por cima do que ESTE bloco escreveu (nunca do que a cliente digitou)
     if (c.value && !autoPreenchido) return;
@@ -235,6 +239,21 @@
     render();
   }
 
+  // O bloco já pergunta raça, idade e peso: o campo de texto do produto some (ele é preenchido
+  // por aqui) e a raça passa a ser exigida no passo Tamanho quando o campo era obrigatório.
+  function substituirCampoDeRaca() {
+    var c = campoRaca();
+    if (!c) return;
+    var caixa = c.closest('.pdp__custom-field');
+    if (caixa) caixa.classList.add('is-tam-oculto');
+    var obrigatorio = c.hasAttribute('data-cf-required');
+    window.amePdpTamanho = {
+      pronto: function () { return !obrigatorio || !!String(S.raca || '').trim(); },
+      aviso: 'Informe a raça do pet para continuar.'
+    };
+    document.dispatchEvent(new CustomEvent('pdp:tamanho-pronto'));
+  }
+
   function iniciar() {
     if (!grupoTamanho()) return;
     var pid = (window.WaltzShopify && window.WaltzShopify.productId) || '';
@@ -246,6 +265,7 @@
         var t = r && r.tabela;
         if (!t || !(t.racas || []).length) return;
         TM = { racas: t.racas || [] };
+        substituirCampoDeRaca();
         montar();
       })
       .catch(function () { /* sem tabela: a escolha direta de tamanho segue como está */ });
