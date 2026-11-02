@@ -42,6 +42,7 @@
         "b1": {
           "type": "beneficio",
           "settings": {
+            "icone": "garantia",
             "titulo": "Garantia de 6 meses",
             "texto": "Em todos os acessórios de couro."
           }
@@ -49,6 +50,7 @@
         "b2": {
           "type": "beneficio",
           "settings": {
+            "icone": "couro",
             "titulo": "Couro legítimo",
             "texto": "Material nobre que envelhece bonito."
           }
@@ -56,6 +58,7 @@
         "b3": {
           "type": "beneficio",
           "settings": {
+            "icone": "mao",
             "titulo": "Feito à mão",
             "texto": "Cada peça é produzida com carinho, no Brasil."
           }
@@ -63,6 +66,7 @@
         "b4": {
           "type": "beneficio",
           "settings": {
+            "icone": "frete",
             "titulo": "Todo o Brasil",
             "texto": "Frete grátis acima de R$ 190 no Sul e Sudeste e R$ 390 nas demais regiões."
           }
@@ -70,6 +74,7 @@
         "b5": {
           "type": "beneficio",
           "settings": {
+            "icone": "parcelas",
             "titulo": "Até 6x sem juros",
             "texto": "Parcele a sua compra no cartão."
           }
@@ -77,6 +82,7 @@
         "b6": {
           "type": "beneficio",
           "settings": {
+            "icone": "cashback",
             "titulo": "Cashback de 10%",
             "texto": "Volta em saldo para usar na loja."
           }

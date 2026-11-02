@@ -25,7 +25,14 @@
     lulu: 'Lulu da Pomerânia', srd: 'Vira-lata (SRD)', viralata: 'Vira-lata (SRD)', gato: 'Gato SRD'
   };
 
-  var S = { idade: 'Adulto', raca: '', peso: '' };
+  var PORTES = [
+    { id: 'Micro', faixa: 'até 2 kg', nivel: 1 },
+    { id: 'Mini', faixa: '2,2 a 3,5 kg', nivel: 2 },
+    { id: 'Pequeno', faixa: '4 a 10 kg', nivel: 3 },
+    { id: 'Médio', faixa: '11 a 22 kg', nivel: 4 },
+    { id: 'Grande', faixa: '24 a 35 kg', nivel: 5 }
+  ];
+  var S = { idade: '', porte: '', raca: '', peso: '' };
   var TM = null;
   var bloco = null;
   var autoPreenchido = false;
@@ -115,18 +122,36 @@
   function textoParaEquipe() {
     var partes = [];
     if (S.raca) partes.push(S.raca);
-    if (S.raca || S.peso) partes.push(S.idade.toLowerCase());
+    if (S.idade) partes.push(S.idade.toLowerCase());
+    if (S.porte) partes.push('porte ' + S.porte.toLowerCase());
     if (S.peso) partes.push(String(S.peso).replace('.', ',') + ' kg');
     return partes.join(', ');
   }
-  function preencherCampo() {
+  // Produto sem o campo de raça: um campo oculto leva a mesma informação no pedido
+  function campoDoPedido() {
     var c = campoRaca();
-    if (!c || !S.raca) return;
+    if (c) return c;
+    c = form.querySelector('input[name="properties[Raça, idade e peso do pet]"]');
+    if (!c) {
+      c = document.createElement('input');
+      c.type = 'hidden';
+      c.name = 'properties[Raça, idade e peso do pet]';
+      form.appendChild(c);
+    }
+    return c;
+  }
+  function preencherCampo() {
+    if (!S.raca && !S.porte && !S.peso && !S.idade) return;
+    var c = campoDoPedido();
     // só escreve por cima do que ESTE bloco escreveu (nunca do que a cliente digitou)
     if (c.value && !autoPreenchido) return;
     c.value = textoParaEquipe();
     autoPreenchido = true;
     c.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  function silhueta(nivel) {
+    var h = 11 + nivel * 3;
+    return '<svg viewBox="0 0 40 28" height="' + h + '" width="' + (h * 1.43).toFixed(1) + '" fill="currentColor" aria-hidden="true" focusable="false"><rect x="7" y="10" width="20" height="10" rx="5"/><circle cx="26.5" cy="11.5" r="4.2"/><circle cx="31" cy="8" r="4.2"/><rect x="33.6" y="6.4" width="5" height="3.2" rx="1.6"/><path d="M28.8 5.2 31 1.2 33.4 5.6Z"/><path d="M7.6 13C4.6 12.4 2.7 9.4 2.3 5.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" fill="none"/><rect x="8.4" y="17.4" width="3.6" height="8.6" rx="1.8"/><rect x="13.8" y="18.4" width="3.6" height="7.6" rx="1.8"/><rect x="20.4" y="17.4" width="3.6" height="8.6" rx="1.8"/><rect x="25.2" y="18.4" width="3.6" height="7.6" rx="1.8"/></svg>';
   }
 
   function chip(valor, ativo, attr) {
@@ -152,15 +177,23 @@
       recHtml = '<p class="pdp-tam__reco-texto">Não achamos essa raça na tabela. Escolha o tamanho abaixo; nossa equipe confere antes de produzir.</p>';
     }
     var foco = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-tam-campo');
+    var idades = [['Filhote', 'ainda vai crescer'], ['Adulto', 'tamanho definitivo']];
     bloco.innerHTML =
-      '<h4 class="pdp-tam__titulo">Qual o tamanho do seu pet?</h4>' +
-      '<p class="pdp-tam__sub">Pela raça sugerimos o tamanho; nossa equipe confere tudo antes de produzir.</p>' +
-      '<div class="pdp-tam__linha" role="group" aria-label="Idade do pet">' + chip('Filhote', S.idade === 'Filhote', 'data-tam-idade') + chip('Adulto', S.idade === 'Adulto', 'data-tam-idade') + '</div>' +
+      '<h4 class="pdp-tam__titulo">O tamanho certo</h4>' +
+      '<p class="pdp-tam__sub">Conte sobre o seu pet: pela raça a gente sugere o tamanho, e a nossa equipe confere tudo antes de produzir.</p>' +
+      '<p class="pdp-tam__passo"><span>1</span> Filhote ou adulto?</p>' +
+      '<div class="pdp-tam__idades" role="group" aria-label="Idade do pet">' + idades.map(function (i) {
+        return '<button type="button" class="pdp-tam__idade' + (S.idade === i[0] ? ' is-ativo' : '') + '" data-tam-idade="' + i[0] + '" aria-pressed="' + (S.idade === i[0]) + '"><strong>' + i[0] + '</strong><small>' + i[1] + '</small></button>';
+      }).join('') + '</div>' +
+      '<p class="pdp-tam__passo"><span>2</span> Porte' + (S.porte ? ' <em>' + esc(S.porte) + '</em>' : '') + '</p>' +
+      '<div class="pdp-tam__portes" role="group" aria-label="Porte do pet">' + PORTES.map(function (p) {
+        return '<button type="button" class="pdp-tam__porte' + (S.porte === p.id ? ' is-ativo' : '') + '" data-tam-porte="' + p.id + '" aria-pressed="' + (S.porte === p.id) + '">' + silhueta(p.nivel) + '<strong>' + p.id + '</strong><small>' + p.faixa + '</small></button>';
+      }).join('') + '</div>' +
+      '<p class="pdp-tam__passo"><span>3</span> Peso <em>opcional</em></p>' +
+      '<label class="pdp-tam__campo pdp-tam__campo--peso"><input type="text" inputmode="decimal" autocomplete="off" value="' + esc(S.peso) + '" data-tam-campo="peso" placeholder="Ex.: 4,5 kg" aria-label="Peso do pet em kg"></label>' +
+      '<p class="pdp-tam__passo"><span>4</span> Raça</p>' +
       '<div class="pdp-tam__linha" role="group" aria-label="Raça mais comum">' + POPULARES.map(function (r) { return chip(r, norm(r) === norm(S.raca), 'data-tam-raca'); }).join('') + '</div>' +
-      '<div class="pdp-tam__campos">' +
-        '<label class="pdp-tam__campo"><span>Outra raça</span><input type="text" list="pdp-tam-racas" autocomplete="off" value="' + esc(S.raca) + '" data-tam-campo="raca" placeholder="Digite a raça"><datalist id="pdp-tam-racas">' + racasLista + '</datalist></label>' +
-        '<label class="pdp-tam__campo pdp-tam__campo--peso"><span>Peso (kg, opcional)</span><input type="text" inputmode="decimal" autocomplete="off" value="' + esc(S.peso) + '" data-tam-campo="peso" placeholder="Ex.: 4,5"></label>' +
-      '</div>' +
+      '<label class="pdp-tam__campo"><span>Outra raça</span><input type="text" list="pdp-tam-racas" autocomplete="off" value="' + esc(S.raca) + '" data-tam-campo="raca" placeholder="Digite a raça"><datalist id="pdp-tam-racas">' + racasLista + '</datalist></label>' +
       '<div class="pdp-tam__reco" aria-live="polite">' + recHtml + '</div>';
     if (foco) {
       var el = bloco.querySelector('[data-tam-campo="' + foco + '"]');
@@ -184,6 +217,8 @@
     bloco.addEventListener('click', function (e) {
       var i = e.target.closest('[data-tam-idade]');
       if (i) { S.idade = i.getAttribute('data-tam-idade'); preencherCampo(); render(); return; }
+      var p = e.target.closest('[data-tam-porte]');
+      if (p) { S.porte = p.getAttribute('data-tam-porte'); preencherCampo(); render(); return; }
       var r = e.target.closest('[data-tam-raca]');
       if (r) { S.raca = r.getAttribute('data-tam-raca'); preencherCampo(); render(); return; }
       var u = e.target.closest('[data-tam-usar]');
@@ -201,7 +236,7 @@
   }
 
   function iniciar() {
-    if (!campoRaca() || !grupoTamanho()) return;
+    if (!grupoTamanho()) return;
     var pid = (window.WaltzShopify && window.WaltzShopify.productId) || '';
     if (!pid) { var w = document.getElementById('pdp-wishlist'); pid = w ? w.getAttribute('data-product-id') : ''; }
     if (!pid) return;

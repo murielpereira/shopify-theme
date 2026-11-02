@@ -180,8 +180,8 @@
   .bn-benefits { display: grid; gap: 2rem; margin-top: 2.5rem; }
   @media (min-width: 640px) { .bn-benefits { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1000px) { .bn-benefits { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; } }
-  .bn-benefit { display: flex; gap: 1rem; }
-  .bn-benefit::before { content: ''; flex: none; width: 8px; height: 8px; margin-top: .5rem; border-radius: 50%; background: var(--bn-lime); }
+  .bn-benefit { display: grid; grid-template-columns: 22px 1fr; gap: .75rem; }
+  .bn-benefit__icon svg { display: block; width: 20px; height: 20px; margin-top: 1px; fill: none; stroke: var(--bn-lime); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .bn-benefit p:first-child { font-size: 15px; }
   .bn-benefit p + p { margin-top: .3rem; font-size: 13px; line-height: 1.6; color: var(--bn-muted); }
   .bn-faq { max-width: 52rem; margin-top: 2.5rem; border-top: 1px solid var(--bn-border); }
@@ -360,7 +360,10 @@
         <h2 class="bn-h2">{{ section.settings.beneficios_titulo }}</h2>
         <div class="bn-benefits">
           {%- for b in beneficios -%}
-            <div class="bn-benefit" {{ b.shopify_attributes }}><div><p>{{ b.settings.titulo }}</p><p>{{ b.settings.texto }}</p></div></div>
+            <div class="bn-benefit" {{ b.shopify_attributes }}>
+              <span class="bn-benefit__icon" aria-hidden="true">{%- render 'bn-icone', icone: b.settings.icone -%}</span>
+              <div><p>{{ b.settings.titulo }}</p><p>{{ b.settings.texto }}</p></div>
+            </div>
           {%- endfor -%}
         </div>
       </div>
@@ -554,6 +557,10 @@
       "name": "Benefício",
       "limit": 9,
       "settings": [
+        { "type": "select", "id": "icone", "label": "Ícone", "default": "garantia", "options": [
+          { "value": "garantia", "label": "Escudo (garantia)" }, { "value": "couro", "label": "Brilho (couro)" }, { "value": "mao", "label": "Coração (feito à mão)" },
+          { "value": "frete", "label": "Caminhão (frete)" }, { "value": "parcelas", "label": "Cartão (parcelas)" }, { "value": "cashback", "label": "Moedas (cashback)" }, { "value": "presente", "label": "Presente" }
+        ] },
         { "type": "text", "id": "titulo", "label": "Título", "default": "Couro legítimo" },
         { "type": "text", "id": "texto", "label": "Texto", "default": "Material nobre que envelhece bonito." }
       ]

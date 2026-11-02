@@ -117,59 +117,6 @@
         "titulo": "Escolha a categoria e veja os preços da Black"
       }
     },
-    "bn_categorias": {
-      "type": "bn-categorias",
-      "blocks": {
-        "cat_1": {
-          "type": "categoria",
-          "settings": {
-            "titulo": "Black November",
-            "selo": "Até 50%off",
-            "link": "shopify://collections/black-november",
-            "destaque": true
-          }
-        },
-        "cat_2": {
-          "type": "categoria",
-          "settings": {
-            "titulo": "Coleiras",
-            "selo": "20% OFF",
-            "link": "shopify://collections/coleiras-black",
-            "destaque": false
-          }
-        },
-        "cat_3": {
-          "type": "categoria",
-          "settings": {
-            "titulo": "Kits",
-            "selo": "15% OFF",
-            "link": "shopify://collections/kits",
-            "destaque": false
-          }
-        },
-        "cat_4": {
-          "type": "categoria",
-          "settings": {
-            "titulo": "Mais vendidos",
-            "selo": "Favoritos da Black",
-            "link": "shopify://collections/mais-vendidos",
-            "destaque": false
-          }
-        }
-      },
-      "block_order": [
-        "cat_1",
-        "cat_2",
-        "cat_3",
-        "cat_4"
-      ],
-      "settings": {
-        "sobretitulo": "Ofertas por categoria",
-        "titulo": "",
-        "botao": "",
-        "botao_link": ""
-      }
-    },
     "bn_brinde": {
       "type": "bn-brinde",
       "blocks": {
@@ -1104,7 +1051,6 @@
     "bn_cores",
     "bn_faixa",
     "bn_vitrine",
-    "bn_categorias",
     "bn_brinde",
     "bn_vitrine_ymf3gk",
     "bn_natal",
