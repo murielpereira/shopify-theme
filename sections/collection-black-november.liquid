@@ -116,6 +116,8 @@
   @media (min-width: 1024px) { .bn-hero::after { background: linear-gradient(to right, var(--bn-bg) 5%, color-mix(in srgb, var(--bn-bg) 70%, transparent) 45%, transparent); } }
   .bn-hero__in { width: 100%; padding-top: 7rem; padding-bottom: 3.5rem; }
   @media (min-width: 1024px) { .bn-hero__in { padding-bottom: 5rem; } }
+  /* Celular: a altura é a do conteúdo (o hero de 92vh deixava um vão enorme entre o header e o selo). */
+  @media (max-width: 1023px) { .bn-hero { min-height: 0; } .bn-hero__in { padding-top: 2.5rem; padding-bottom: 2.5rem; } }
   .bn-hero__copy { max-width: 36rem; }
   .bn-pill { display: inline-block; border-radius: 999px; background: var(--bn-lime); color: var(--bn-on-lime); padding: .4rem 1rem; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .24em; }
   .bn-hero__title { margin-top: 1rem; font-family: var(--bn-display); font-size: clamp(3.6rem, 11vw, 7rem); font-weight: 400; line-height: .86; letter-spacing: -.02em; }
