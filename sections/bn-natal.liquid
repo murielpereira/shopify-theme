@@ -1,0 +1,141 @@
+{%- comment -%}
+  Âme · Lançamentos de Natal · bloco em vermelho com contagem regressiva
+  A data do lançamento fica em "Data e hora do lançamento" (formato 2026-11-11T00:00:00-03:00).
+  Quando a contagem chega a zero, a contagem some e o botão troca para o de "já lançou".
+{%- endcomment -%}
+<section class="bn bn-section bn-natal">
+  <div class="bn-wrap bn-natal__layout{% if section.blocks.size > 0 %} has-media{% endif %}">
+    <div class="bn-natal__intro">
+      {%- if section.settings.selo != blank -%}<span class="bn-pill bn-natal__selo">{{ section.settings.selo }}</span>{%- endif -%}
+      <h2 class="bn-title bn-h2 bn-natal__title">{{ section.settings.titulo }}</h2>
+      {%- if section.settings.texto != blank -%}<div class="bn-lead bn-natal__text">{{ section.settings.texto }}</div>{%- endif -%}
+
+      {%- if section.settings.lancamento != blank -%}
+        <div class="bn-natal__cd" data-bn-countdown="{{ section.settings.lancamento | escape }}" role="timer" aria-label="Tempo até o lançamento">
+          <div class="bn-natal__box"><span data-d>00</span><small>Dias</small></div>
+          <div class="bn-natal__box"><span data-h>00</span><small>Horas</small></div>
+          <div class="bn-natal__box"><span data-m>00</span><small>Min</small></div>
+          <div class="bn-natal__box"><span data-s>00</span><small>Seg</small></div>
+        </div>
+      {%- endif -%}
+      {%- if section.settings.legenda != blank -%}<p class="bn-natal__legenda">{{ section.settings.legenda }}</p>{%- endif -%}
+
+      {%- if section.settings.botao != blank -%}
+        <a class="bn-natal__btn bn-natal__btn--antes" href="{{ section.settings.botao_link | default: '#' }}">{{ section.settings.botao }}</a>
+      {%- endif -%}
+      {%- if section.settings.botao_lancado != blank -%}
+        <a class="bn-natal__btn bn-natal__btn--depois" href="{{ section.settings.botao_lancado_link | default: routes.all_products_collection_url }}">{{ section.settings.botao_lancado }}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="bn-natal__grid" style="--bn-natal-cols: {{ section.blocks.size | at_most: 2 }};">
+        {%- for block in section.blocks -%}
+          <div class="bn-natal__card" {{ block.shopify_attributes }}>
+            <div class="bn-natal__media">
+              {%- if block.settings.imagem != blank -%}
+                {{ block.settings.imagem | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 40vw, 90vw', widths: '500, 800, 1000, 1200', alt: block.settings.imagem.alt | escape }}
+              {%- else -%}
+                {{ 'lifestyle-1' | placeholder_svg_tag }}
+              {%- endif -%}
+            </div>
+            {%- if block.settings.tag != blank or block.settings.texto != blank -%}
+              <div class="bn-natal__info">
+                {%- if block.settings.tag != blank -%}<span class="bn-pill">{{ block.settings.tag }}</span>{%- endif -%}
+                {%- if block.settings.texto != blank -%}<p>{{ block.settings.texto }}</p>{%- endif -%}
+              </div>
+            {%- endif -%}
+            {%- if block.settings.link != blank -%}<a class="bn-natal__link" href="{{ block.settings.link }}" aria-label="{{ block.settings.tag | default: section.settings.titulo | escape }}"></a>{%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<script>
+  (function () {
+    document.querySelectorAll('[data-bn-countdown]').forEach(function (el) {
+      if (el.dataset.bnReady) return;
+      el.dataset.bnReady = '1';
+      var alvo = Date.parse(el.getAttribute('data-bn-countdown'));
+      var secao = el.closest('.bn-natal');
+      if (isNaN(alvo)) { el.hidden = true; return; }
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      var campo = function (k) { return el.querySelector('[data-' + k + ']'); };
+      var timer;
+      function tick() {
+        var s = Math.max(0, Math.floor((alvo - Date.now()) / 1000));
+        campo('d').textContent = pad(Math.floor(s / 86400));
+        campo('h').textContent = pad(Math.floor((s % 86400) / 3600));
+        campo('m').textContent = pad(Math.floor((s % 3600) / 60));
+        campo('s').textContent = pad(s % 60);
+        if (s === 0) { clearInterval(timer); if (secao) secao.classList.add('is-live'); }
+      }
+      tick();
+      timer = setInterval(tick, 1000);
+    });
+  })();
+</script>
+
+<style>
+  .bn-natal { position: relative; overflow: hidden; background:
+    radial-gradient(circle at 8% 12%, color-mix(in srgb, #fff 9%, transparent), transparent 32%),
+    radial-gradient(circle at 92% 88%, color-mix(in srgb, #000 22%, transparent), transparent 40%),
+    var(--bn-natal); }
+  .bn-natal .bn-natal__layout { display: grid; gap: 40px; }
+  @media (min-width: 990px) { .bn-natal .bn-natal__layout.has-media { grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; } }
+  .bn-natal .bn-natal__selo { background: var(--bn-natal-2); color: #fff; }
+  .bn-natal .bn-natal__title { margin-top: 18px; color: #fff; }
+  .bn-natal .bn-natal__text { color: color-mix(in srgb, #fff 78%, transparent); }
+  .bn-natal .bn-natal__cd { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 460px; margin-top: 32px; }
+  .bn-natal .bn-natal__box { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 6px 14px; border: 1px solid color-mix(in srgb, #fff 16%, transparent); border-radius: 18px; background: color-mix(in srgb, #000 20%, transparent); color: #fff; }
+  .bn-natal .bn-natal__box span { font: 400 clamp(32px, 4vw, 44px)/1 var(--bn-serif); font-variant-numeric: oldstyle-nums; }
+  .bn-natal .bn-natal__box small { font: 500 10px/1 var(--bn-sans); letter-spacing: .2em; text-transform: uppercase; color: color-mix(in srgb, #fff 70%, transparent); }
+  .bn-natal .bn-natal__legenda { margin: 18px 0 0; font: 400 14px/1.4 var(--bn-sans); letter-spacing: .08em; color: color-mix(in srgb, #fff 75%, transparent); }
+  .bn-natal .bn-natal__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; margin-top: 28px; padding: 0 34px; border-radius: 999px; background: #fff; color: var(--bn-natal); font: 600 12px/1 var(--bn-sans); letter-spacing: .22em; text-transform: uppercase; transition: box-shadow .2s ease; }
+  .bn-natal .bn-natal__btn:hover { box-shadow: 0 12px 34px color-mix(in srgb, #000 30%, transparent); }
+  .bn-natal .bn-natal__btn--depois { display: none; }
+  .bn-natal.is-live .bn-natal__cd, .bn-natal.is-live .bn-natal__legenda, .bn-natal.is-live .bn-natal__btn--antes { display: none; }
+  .bn-natal.is-live .bn-natal__btn--depois { display: inline-flex; }
+  .bn-natal .bn-natal__grid { display: grid; grid-template-columns: repeat(var(--bn-natal-cols, 1), minmax(0, 1fr)); gap: 14px; }
+  .bn-natal .bn-natal__card { position: relative; display: flex; flex-direction: column; overflow: hidden; border: 1px solid color-mix(in srgb, #fff 14%, transparent); border-radius: 26px; background: color-mix(in srgb, var(--bn-natal-2) 55%, #000); color: #fff; }
+  .bn-natal .bn-natal__link { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .bn-natal .bn-natal__media { aspect-ratio: 4 / 5; overflow: hidden; background: #e9dfd6; }
+  .bn-natal .bn-natal__media img, .bn-natal .bn-natal__media svg { width: 100%; height: 100%; object-fit: cover; }
+  .bn-natal .bn-natal__info { flex: 1; padding: 16px; }
+  .bn-natal .bn-natal__info .bn-pill { background: var(--bn-natal); color: #fff; }
+  .bn-natal .bn-natal__info p { margin: 12px 0 0; font-size: 13px; line-height: 1.55; color: color-mix(in srgb, #fff 72%, transparent); }
+  @media (max-width: 749px) { .bn-natal .bn-natal__cd { gap: 8px; } .bn-natal .bn-natal__btn { width: 100%; max-width: 360px; padding: 0 20px; } }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Lançamentos de Natal",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "selo", "label": "Selo", "default": "Lançamentos de Natal" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "A coleção de Natal da Âme está chegando" },
+    { "type": "richtext", "id": "texto", "label": "Texto", "default": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November.</p>" },
+    { "type": "header", "content": "Contagem regressiva" },
+    { "type": "text", "id": "lancamento", "label": "Data e hora do lançamento", "default": "2026-11-11T00:00:00-03:00", "info": "Formato: ano-mês-diaThora:min:seg-03:00 (horário de Brasília). Deixe vazio para esconder a contagem." },
+    { "type": "text", "id": "legenda", "label": "Frase abaixo da contagem", "default": "Lançamento em 11 de novembro" },
+    { "type": "text", "id": "botao", "label": "Botão antes do lançamento", "default": "Avise-me quando lançar" },
+    { "type": "url", "id": "botao_link", "label": "Link do botão antes do lançamento" },
+    { "type": "text", "id": "botao_lancado", "label": "Botão depois do lançamento", "default": "Ver a coleção de Natal" },
+    { "type": "url", "id": "botao_lancado_link", "label": "Link do botão depois do lançamento" }
+  ],
+  "blocks": [
+    { "type": "card", "name": "Imagem", "limit": 4, "settings": [
+      { "type": "image_picker", "id": "imagem", "label": "Imagem" },
+      { "type": "text", "id": "tag", "label": "Etiqueta (opcional)" },
+      { "type": "text", "id": "texto", "label": "Texto (opcional)" },
+      { "type": "url", "id": "link", "label": "Link (opcional)" }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Lançamentos de Natal",
+    "blocks": [ { "type": "card" } ]
+  }]
+}
+{% endschema %}

@@ -1,0 +1,740 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "1777297182d3f231ef": {
+      "type": "_blocks",
+      "name": "Banner",
+      "settings": {}
+    },
+    "blocks_nxeC8j": {
+      "type": "_blocks",
+      "blocks": {
+        "ame_hero_carousel_Q96wfR": {
+          "type": "ame_hero_carousel",
+          "settings": {
+            "height_mobile": 620,
+            "height_desktop": 600,
+            "show_overlay": false,
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.3,
+            "autoplay": true,
+            "autoplay_interval": 10,
+            "heading_color": "#ffffff",
+            "heading_size_mobile": 32,
+            "heading_size_desktop": 48,
+            "text_color": "#ffffff",
+            "text_size_mobile": 17,
+            "text_size_desktop": 18,
+            "button_border_radius": 40,
+            "slide_1_image": "shopify://shop_images/pixweek_desktop.png",
+            "slide_1_image_mobile": "shopify://shop_images/pixweek_mobile.png",
+            "slide_1_heading": "",
+            "slide_1_text": "",
+            "slide_1_cta_label": "",
+            "slide_1_cta_url": "shopify://collections/mais-vendidos",
+            "slide_1_align": "flex-end flex-end",
+            "slide_1_start_at": "2026-10-11 00:00",
+            "slide_1_end_at": "2026-10-17 23:59",
+            "slide_2_image": "shopify://shop_images/cashdobrado_desktop.png",
+            "slide_2_image_mobile": "shopify://shop_images/cashback_mobile.png",
+            "slide_2_heading": "",
+            "slide_2_text": "",
+            "slide_2_cta_label": "",
+            "slide_2_cta_url": "shopify://collections/mais-vendidos",
+            "slide_2_align": "flex-start flex-end",
+            "slide_2_start_at": "2026-10-18 00:00",
+            "slide_2_end_at": "2026-10-24 23:59",
+            "slide_3_image": "shopify://shop_images/esquenta_black-2.png",
+            "slide_3_image_mobile": "shopify://shop_images/ESQUENTA_BLACK.png",
+            "slide_3_heading": "",
+            "slide_3_text": "",
+            "slide_3_cta_label": "",
+            "slide_3_cta_url": "shopify://collections/esquenta-black",
+            "slide_3_align": "center flex-end",
+            "slide_3_start_at": "2026-10-25 00:00",
+            "slide_3_end_at": "2026-10-31 23:59",
+            "slide_4_image": "shopify://shop_images/Atena_desk.png",
+            "slide_4_image_mobile": "shopify://shop_images/CACHORRO_MOB_cf962d73-4657-4d5e-a6c9-0d485d642456.png",
+            "slide_4_heading": "",
+            "slide_4_text": "",
+            "slide_4_cta_label": "",
+            "slide_4_cta_url": "shopify://products/coleira-de-couro-atena",
+            "slide_4_align": "flex-start flex-end",
+            "slide_4_start_at": "2026-09-01 00:00",
+            "slide_4_end_at": "2026-09-30 23:59",
+            "slide_5_image": "shopify://shop_images/frete_fixo_desktop.png",
+            "slide_5_image_mobile": "shopify://shop_images/frete_fixo_mobile.png",
+            "slide_5_heading": "",
+            "slide_5_text": "",
+            "slide_5_cta_label": "",
+            "slide_5_cta_url": "shopify://collections/mais-vendidos",
+            "slide_5_align": "flex-start flex-end",
+            "slide_5_start_at": "2026-10-01 00:00",
+            "slide_5_end_at": "2026-10-10 23:59"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ame_hero_carousel_Q96wfR"
+      ],
+      "name": "Hero Carrossel",
+      "settings": {}
+    },
+    "hero": {
+      "type": "home-hero",
+      "disabled": true,
+      "settings": {
+        "video": "shopify://files/videos/BANNER SITE BRISAS DESKTOP.MOV",
+        "video_mobile": "shopify://files/videos/BANNER SITE COLECAO BRISAS MOBILE.MOV",
+        "video_url": "",
+        "eyebrow": "",
+        "title": "<h4><br/></h4>",
+        "subtitle": "",
+        "cta_primary_label": "",
+        "cta_primary_url": "/collections/all",
+        "cta_secondary_url": ""
+      }
+    },
+    "home_ad_bar_6pF6UL": {
+      "type": "home-ad-bar",
+      "blocks": {
+        "item_3z9Bdp": {
+          "type": "item",
+          "settings": {
+            "icon": "warranty",
+            "label": "Garantia",
+            "sublabel": "de 6 meses",
+            "link": ""
+          }
+        },
+        "item_9w9dy4": {
+          "type": "item",
+          "settings": {
+            "icon": "leather",
+            "label": "Couro",
+            "sublabel": "Legítimo",
+            "link": ""
+          }
+        },
+        "item_CCbwJB": {
+          "type": "item",
+          "settings": {
+            "icon": "handmade",
+            "label": "Feito a mão",
+            "sublabel": "com carinho",
+            "link": ""
+          }
+        },
+        "item_8pRPxa": {
+          "type": "item",
+          "settings": {
+            "icon": "shipping",
+            "label": "Entrega",
+            "sublabel": "para todo o Brasil",
+            "link": ""
+          }
+        },
+        "item_wrgHLD": {
+          "type": "item",
+          "settings": {
+            "icon": "installments",
+            "label": "Parcelamento",
+            "sublabel": "até 6x sem juros",
+            "link": ""
+          }
+        },
+        "item_h8Xb4Y": {
+          "type": "item",
+          "settings": {
+            "icon": "whatsapp",
+            "label": "Dúvidas?",
+            "sublabel": "Fale com a gente",
+            "link": "https://wa.me/5548996723567"
+          }
+        }
+      },
+      "block_order": [
+        "item_3z9Bdp",
+        "item_9w9dy4",
+        "item_CCbwJB",
+        "item_8pRPxa",
+        "item_wrgHLD",
+        "item_h8Xb4Y"
+      ],
+      "name": "Barra de Diferenciais",
+      "settings": {}
+    },
+    "home_video_stories_MErTLy": {
+      "type": "home-video-stories",
+      "blocks": {
+        "video_h73FKm": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/como medir a coleira pro seu pet.MOV",
+            "title": "Como medir a Coleira",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_cJVXcQ": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/formatos e tipos de pingentes.MOV",
+            "title": "Tipos de Pingentes",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_8VLgQf": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/como usar o cashback.MOV",
+            "title": "Como usar se Cashback",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_WFczj7": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/garantia.MOV",
+            "title": "Garantia",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_7rAmLE": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/a ame é especialista em coleira.mov",
+            "title": "Somos especialistas",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_nkxYgz": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/seu pedido é unico.mov",
+            "title": "Seu pedido é único",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_DHbMjJ": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Nosso processo.mp4",
+            "title": "Nosso processo",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_9NCbzb": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Nossa Essência.mov",
+            "title": "Nossa Essência",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_h73FKm",
+        "video_cJVXcQ",
+        "video_8VLgQf",
+        "video_WFczj7",
+        "video_7rAmLE",
+        "video_nkxYgz",
+        "video_DHbMjJ",
+        "video_9NCbzb"
+      ],
+      "name": "Vídeos (stories)",
+      "settings": {
+        "eyebrow": "",
+        "title": "",
+        "subtitle": "",
+        "format": "stories",
+        "tamanho": 90,
+        "espacamento": 12,
+        "mostrar_titulo": true,
+        "border_type": "solida",
+        "espessura": 3,
+        "cor": "#5a4742",
+        "cor_fim": "#735e59",
+        "cor_3": "#dcc1ba",
+        "angulo": 135,
+        "autoplay": true,
+        "show_cta": true,
+        "cta_default": "Ver mais"
+      }
+    },
+    "1777459086429d607a": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_24bb258_tYxfVi": {
+          "type": "ai_gen_block_24bb258",
+          "disabled": true,
+          "settings": {
+            "title": "Mais vendidos para gatos",
+            "subtitle": "",
+            "collection": "gatos",
+            "layout": "carousel",
+            "products_per_row": 4,
+            "products_per_row_mobile": "2",
+            "initial_rows": 2,
+            "grid_gap": 24,
+            "desktop_width_percent": 100,
+            "button_text": "",
+            "button_bg_color": "#00ff2b",
+            "button_hover_bg_color": "#ff0004",
+            "button_border_radius": 4,
+            "title_size": 32,
+            "subtitle_size": 16
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_24bb258_BeAhLQ": {
+          "type": "ai_gen_block_24bb258",
+          "settings": {
+            "title": "Destaques",
+            "subtitle": "",
+            "collection": "mais-vendidos",
+            "layout": "carousel",
+            "products_per_row": 4,
+            "products_per_row_mobile": "2",
+            "initial_rows": 2,
+            "grid_gap": 24,
+            "desktop_width_percent": 100,
+            "button_text": "",
+            "button_bg_color": "#00ff2b",
+            "button_hover_bg_color": "#ff0004",
+            "button_border_radius": 4,
+            "title_size": 32,
+            "subtitle_size": 16
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_24bb258_tYxfVi",
+        "ai_gen_block_24bb258_BeAhLQ"
+      ],
+      "name": "Grid",
+      "settings": {}
+    },
+    "1777314298a0e78e83": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_c7fcd1c_dawdVd": {
+          "type": "ai_gen_block_c7fcd1c",
+          "settings": {
+            "section_title": "",
+            "category_1": "esquenta-black",
+            "category_1_imagem": "shopify://shop_images/ESQUENTA_BLACK-3.png",
+            "category_1_inicio": "",
+            "category_1_fim": "",
+            "category_2": "coleiras",
+            "category_2_inicio": "",
+            "category_2_fim": "",
+            "category_3": "gatos",
+            "category_3_inicio": "",
+            "category_3_fim": "",
+            "category_4": "acessorios",
+            "category_4_inicio": "",
+            "category_4_fim": "",
+            "category_5": "",
+            "category_5_inicio": "",
+            "category_5_fim": "",
+            "category_6": "",
+            "category_6_inicio": "",
+            "category_6_fim": "",
+            "category_7": "",
+            "category_7_inicio": "",
+            "category_7_fim": "",
+            "category_8": "",
+            "category_8_inicio": "",
+            "category_8_fim": "",
+            "desktop_width_percent": 100,
+            "section_padding": 40,
+            "grid_gap": 16,
+            "title_alignment": "center",
+            "title_size": 28,
+            "title_spacing": 24,
+            "card_border_radius": 8,
+            "card_padding": 16,
+            "category_name_size": 16
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_24bb258_H4VrpD": {
+          "type": "ai_gen_block_24bb258",
+          "name": "Grade de produtos",
+          "settings": {
+            "title": "Lançamentos",
+            "subtitle": "Descubra nossa seleção especial",
+            "collection": "lancamentos",
+            "layout": "carousel",
+            "products_per_row": 4,
+            "products_per_row_mobile": "2",
+            "initial_rows": 2,
+            "grid_gap": 24,
+            "desktop_width_percent": 100,
+            "button_text": "Ver mais produtos",
+            "button_border_radius": 4,
+            "title_size": 32,
+            "subtitle_size": 16
+          },
+          "blocks": {}
+        },
+        "ame_hero_carousel_V7JKNJ": {
+          "type": "ame_hero_carousel",
+          "name": "Hero Carrossel",
+          "settings": {
+            "height_mobile": 400,
+            "height_desktop": 600,
+            "show_overlay": true,
+            "overlay_color": "#000000",
+            "overlay_opacity": 0.3,
+            "autoplay": true,
+            "autoplay_interval": 6,
+            "heading_color": "#ffffff",
+            "heading_size_mobile": 32,
+            "heading_size_desktop": 48,
+            "text_color": "#ffffff",
+            "text_size_mobile": 16,
+            "text_size_desktop": 18,
+            "button_border_radius": 4,
+            "slide_1_heading": "Para quem ama de verdade",
+            "slide_1_text": "<p>Coleiras, pingentes e bolsas artesanais que contam a história do seu pet.</p>",
+            "slide_1_cta_label": "Explorar coleção",
+            "slide_1_cta_url": "",
+            "slide_1_align": "flex-start flex-end",
+            "slide_1_start_at": "",
+            "slide_1_end_at": "",
+            "slide_2_heading": "",
+            "slide_2_text": "",
+            "slide_2_cta_label": "",
+            "slide_2_cta_url": "",
+            "slide_2_align": "flex-start flex-end",
+            "slide_2_start_at": "",
+            "slide_2_end_at": "",
+            "slide_3_heading": "",
+            "slide_3_text": "",
+            "slide_3_cta_label": "",
+            "slide_3_cta_url": "",
+            "slide_3_align": "flex-start flex-end",
+            "slide_3_start_at": "",
+            "slide_3_end_at": "",
+            "slide_4_heading": "",
+            "slide_4_text": "",
+            "slide_4_cta_label": "",
+            "slide_4_cta_url": "",
+            "slide_4_align": "flex-start flex-end",
+            "slide_4_start_at": "",
+            "slide_4_end_at": "",
+            "slide_5_heading": "",
+            "slide_5_text": "",
+            "slide_5_cta_label": "",
+            "slide_5_cta_url": "",
+            "slide_5_align": "flex-start flex-end",
+            "slide_5_start_at": "",
+            "slide_5_end_at": ""
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c7fcd1c_dawdVd",
+        "ai_gen_block_24bb258_H4VrpD",
+        "ame_hero_carousel_V7JKNJ"
+      ],
+      "name": "Banners de Categoria",
+      "settings": {}
+    },
+    "home_video_stories_pNn8UU": {
+      "type": "home-video-stories",
+      "blocks": {
+        "video_7UE3BG": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/IMG_2865.MP4",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_yLHBdR": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/@gabnrielanovaies.mp4",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_cThyDQ": {
+          "type": "video",
+          "settings": {
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_3D9d99": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/Recebidos Âme.MOV",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_aeJjDk": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/grwm pet cliente.MOV",
+            "title": "",
+            "cta_label": "",
+            "cta_url": ""
+          }
+        },
+        "video_RyeDgM": {
+          "type": "video",
+          "settings": {
+            "video": "shopify://files/videos/avaliacoes.mp4",
+            "title": "O que os clientes falam",
+            "cta_label": "O que os clientes falam",
+            "cta_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_7UE3BG",
+        "video_yLHBdR",
+        "video_cThyDQ",
+        "video_3D9d99",
+        "video_aeJjDk",
+        "video_RyeDgM"
+      ],
+      "name": "Vídeos (destaques)",
+      "settings": {
+        "eyebrow": "",
+        "title": "O que nosso clientes falam",
+        "subtitle": "",
+        "format": "spotlight",
+        "tamanho": 70,
+        "espacamento": 12,
+        "mostrar_titulo": false,
+        "border_type": "solida",
+        "espessura": 2,
+        "cor": "#5a4742",
+        "cor_fim": "#735e59",
+        "cor_3": "#dcc1ba",
+        "angulo": 135,
+        "autoplay": true,
+        "show_cta": false,
+        "cta_default": ""
+      }
+    },
+    "blocks_JHzQFE": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_c7fcd1c_Ppi8XG": {
+          "type": "ai_gen_block_c7fcd1c",
+          "settings": {
+            "section_title": "Os queridinhos",
+            "category_1": "pingente-de-identificacao",
+            "category_1_inicio": "",
+            "category_1_fim": "",
+            "category_2": "coleiras",
+            "category_2_inicio": "",
+            "category_2_fim": "",
+            "category_3": "mantas-almofadas",
+            "category_3_inicio": "",
+            "category_3_fim": "",
+            "category_4": "capas-para-rastreadores",
+            "category_4_inicio": "",
+            "category_4_fim": "",
+            "category_5": "",
+            "category_5_inicio": "",
+            "category_5_fim": "",
+            "category_6": "",
+            "category_6_inicio": "",
+            "category_6_fim": "",
+            "category_7": "",
+            "category_7_inicio": "",
+            "category_7_fim": "",
+            "category_8": "",
+            "category_8_inicio": "",
+            "category_8_fim": "",
+            "desktop_width_percent": 100,
+            "section_padding": 40,
+            "grid_gap": 16,
+            "title_alignment": "center",
+            "title_size": 28,
+            "title_spacing": 24,
+            "card_border_radius": 8,
+            "card_padding": 16,
+            "category_name_size": 16
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_c7fcd1c_Ppi8XG"
+      ],
+      "name": "Grade de categorias",
+      "settings": {}
+    },
+    "lookbook": {
+      "type": "home-lookbook",
+      "blocks": {
+        "img-1": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/IMG_7385.heic",
+            "caption": ""
+          }
+        },
+        "img-2": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/IMG_7349.heic",
+            "caption": ""
+          }
+        },
+        "img-3": {
+          "type": "image",
+          "settings": {
+            "image": "shopify://shop_images/IMG_7300.heic",
+            "caption": ""
+          }
+        }
+      },
+      "block_order": [
+        "img-1",
+        "img-2",
+        "img-3"
+      ],
+      "settings": {
+        "eyebrow": "Criamos acessórios em couro legítimo para quem acredita que os pets fazem parte da família.",
+        "title": "Produção Artesanal"
+      }
+    },
+    "brand-story": {
+      "type": "home-brand-story",
+      "blocks": {
+        "stat-1": {
+          "type": "stat",
+          "settings": {
+            "value": "6+",
+            "label": "Anos de Experiência"
+          }
+        },
+        "stat-2": {
+          "type": "stat",
+          "settings": {
+            "value": "Envios",
+            "label": "para todo o mundo"
+          }
+        }
+      },
+      "block_order": [
+        "stat-1",
+        "stat-2"
+      ],
+      "settings": {
+        "eyebrow": "Conheça um pouco da nossa história",
+        "title": "<p>Quem Somos</p>",
+        "body": "<p>A Âme nasceu em 2020, não de um plano de negócios, mas de uma busca por algo que simplesmente não existia.</p><p>Quando a Wendy, minha primeira filha pet, entrou na minha vida, procurei acessórios que refletissem o amor e o cuidado que eu sentia por ela. Encontrei muitas opções, mas nenhuma representava o que eu acreditava: peças elegantes, atemporais, confortáveis e feitas para valorizar a beleza natural dos pets.</p><p>Em um pequeno espaço improvisado, comecei a desenhar e produzir, à mão, as primeiras coleiras em couro legítimo. Desde o primeiro dia, cada detalhe foi pensado para unir design, qualidade e durabilidade, sem abrir mão da delicadeza do trabalho artesanal.</p><p>Com o tempo, o que começou como um sonho pessoal conquistou outras famílias. Minha família também passou a fazer parte dessa história: meu marido, meus sogros e uma equipe de artesãos transformaram esse sonho em um verdadeiro ateliê, onde cada peça continua sendo produzida manualmente.</p><p>Hoje, além da Wendy, a Aurora também inspira nossa caminhada diária. Elas nos lembram do motivo pelo qual fazemos tudo isso: criar acessórios que acompanhem momentos especiais e fortaleçam o vínculo entre pessoas e seus melhores amigos. </p><p>Foi então que decidi criar aquilo que eu mesma gostaria de encontrar.                   Mais do que coleiras, peitorais ou guias, criamos peças que fazem parte das memórias construídas ao lado de quem amamos.</p><p>Porque acreditamos que o amor merece ser visto nos detalhes.</p><p><strong>Seja bem-vinda à Âme. Onde o design encontra o afeto.</strong></p>",
+        "image": "shopify://shop_images/Captura_de_Tela_2026-07-02_as_07.59.09.png",
+        "floating_eyebrow": "",
+        "floating_label": "",
+        "floating_sublabel": ""
+      }
+    },
+    "1777459790c63ec612": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_0a852b5_jyFKMF": {
+          "type": "ai_gen_block_0a852b5",
+          "disabled": true,
+          "settings": {
+            "feature_image": "shopify://shop_images/atena_-_cavalier_1.png",
+            "feature_category": "Novidades",
+            "feature_title": "Descubra a nova coleção de acessórios para pets",
+            "feature_excerpt": "Conheça os produtos que vão deixar seu pet ainda mais estiloso e confortável nesta temporada.",
+            "feature_link": "",
+            "card_1_image": "shopify://shop_images/dapper-dog-gentleman-with-bowtie-posing-on-black-background.jpg",
+            "card_1_category": "Dicas",
+            "card_1_title": "Como escolher a coleira ideal para seu pet",
+            "card_1_link": "",
+            "card_2_image": "shopify://shop_images/animals-pet-supplies-natural-2.jpg",
+            "card_2_category": "Tendências",
+            "card_2_title": "Cores e estampas em alta para pets",
+            "card_2_link": "",
+            "card_3_image": "shopify://shop_images/real-dog-stuffed-dog.jpg",
+            "card_3_category": "Cuidados",
+            "card_3_title": "Manutenção e limpeza de acessórios",
+            "card_3_link": "",
+            "desktop_width_percent": 100,
+            "feature_text_color": "#ffffff",
+            "section_padding": 60,
+            "grid_gap": 20,
+            "border_radius": 8,
+            "content_padding": 40,
+            "feature_title_size": 42,
+            "category_size": 12,
+            "excerpt_size": 16,
+            "card_title_size": 16,
+            "card_category_size": 11
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_0a852b5_jyFKMF"
+      ],
+      "settings": {}
+    },
+    "newsletter": {
+      "type": "home-newsletter",
+      "settings": {
+        "eyebrow": "Âme Vip",
+        "title": "Acesso Antecipado às Novidades",
+        "button_label": "Entrar"
+      }
+    },
+    "depoimentos_konfidency": {
+      "type": "home-depoimentos",
+      "settings": {}
+    }
+  },
+  "order": [
+    "1777297182d3f231ef",
+    "blocks_nxeC8j",
+    "hero",
+    "home_ad_bar_6pF6UL",
+    "home_video_stories_MErTLy",
+    "1777459086429d607a",
+    "1777314298a0e78e83",
+    "home_video_stories_pNn8UU",
+    "blocks_JHzQFE",
+    "lookbook",
+    "brand-story",
+    "1777459790c63ec612",
+    "newsletter",
+    "depoimentos_konfidency"
+  ]
+}

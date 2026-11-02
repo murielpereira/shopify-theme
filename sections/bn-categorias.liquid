@@ -1,0 +1,66 @@
+{%- comment -%} Âme · Black November · Ofertas por categoria {%- endcomment -%}
+<section class="bn bn-section bn-cats">
+  <div class="bn-wrap">
+    <div class="bn-cats__head">
+      <div>
+        {%- if section.settings.sobretitulo != blank -%}<p class="bn-eyebrow">{{ section.settings.sobretitulo }}</p>{%- endif -%}
+        <h2 class="bn-title bn-h2">{{ section.settings.titulo }}</h2>
+      </div>
+      {%- if section.settings.botao != blank -%}
+        <a class="bn-btn bn-btn--ghost" href="{{ section.settings.botao_link | default: routes.all_products_collection_url }}">{{ section.settings.botao }}</a>
+      {%- endif -%}
+    </div>
+    <div class="bn-cats__grid">
+      {%- for block in section.blocks -%}
+        <a class="bn-cat{% if block.settings.destaque %} is-hl{% endif %}" href="{{ block.settings.link | default: routes.all_products_collection_url }}" {{ block.shopify_attributes }}>
+          <span class="bn-cat__n">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+          <span class="bn-cat__name">{{ block.settings.titulo }}</span>
+          {%- if block.settings.selo != blank -%}<span class="bn-pill">{{ block.settings.selo }}</span>{%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .bn-cats .bn-cats__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 32px; margin-bottom: 36px; }
+  .bn-cats .bn-cats__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  @media (min-width: 990px) { .bn-cats .bn-cats__grid { grid-template-columns: repeat({{ section.blocks.size | at_least: 1 | at_most: 4 }}, minmax(0, 1fr)); } }
+  .bn-cats .bn-cat { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-height: 140px; padding: 18px; border: 1px solid var(--bn-line); border-radius: 24px; background: var(--bn-surface); transition: border-color .2s ease; }
+  .bn-cats .bn-cat:hover { border-color: color-mix(in srgb, var(--bn-accent) 55%, transparent); }
+  .bn-cats .bn-cat__n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: color-mix(in srgb, var(--bn-text) 10%, transparent); font: 500 9px/1 var(--bn-sans); color: var(--bn-muted); }
+  .bn-cats .bn-cat__name { margin-top: auto; font: 400 clamp(26px, 2.6vw, 32px)/1 var(--bn-serif); }
+  .bn-cats .bn-cat.is-hl { border-color: var(--bn-accent); background: var(--bn-accent); color: var(--bn-on-accent); box-shadow: 0 0 40px color-mix(in srgb, var(--bn-accent) 30%, transparent); }
+  .bn-cats .bn-cat.is-hl .bn-cat__n { background: color-mix(in srgb, var(--bn-on-accent) 12%, transparent); color: var(--bn-on-accent); }
+  .bn-cats .bn-cat.is-hl .bn-pill { background: var(--bn-on-accent); color: var(--bn-text); }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Categorias",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "sobretitulo", "label": "Sobretítulo", "default": "Ofertas por categoria" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Escolha a categoria e veja os preços da Black" },
+    { "type": "text", "id": "botao", "label": "Botão", "default": "Ver a loja completa" },
+    { "type": "url", "id": "botao_link", "label": "Link do botão" }
+  ],
+  "blocks": [
+    { "type": "categoria", "name": "Categoria", "limit": 8, "settings": [
+      { "type": "text", "id": "titulo", "label": "Nome", "default": "Coleiras" },
+      { "type": "text", "id": "selo", "label": "Selo", "default": "20% OFF" },
+      { "type": "url", "id": "link", "label": "Link" },
+      { "type": "checkbox", "id": "destaque", "label": "Destacar com a cor de destaque", "default": false }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Categorias",
+    "blocks": [
+      { "type": "categoria", "settings": { "titulo": "Black November", "selo": "Todos os descontos", "destaque": true } },
+      { "type": "categoria", "settings": { "titulo": "Coleiras", "selo": "20% OFF" } },
+      { "type": "categoria", "settings": { "titulo": "Kits", "selo": "15% OFF" } },
+      { "type": "categoria", "settings": { "titulo": "Mais vendidos", "selo": "Favoritos da Black" } }
+    ]
+  }]
+}
+{% endschema %}

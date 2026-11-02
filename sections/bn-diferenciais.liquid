@@ -1,0 +1,71 @@
+{%- comment -%} Âme · Black November · Por que comprar na Âme {%- endcomment -%}
+<section class="bn bn-section bn-dif">
+  <div class="bn-wrap">
+    {%- if section.settings.sobretitulo != blank -%}<p class="bn-eyebrow">{{ section.settings.sobretitulo }}</p>{%- endif -%}
+    <h2 class="bn-title bn-h2">{{ section.settings.titulo }}</h2>
+    <ul class="bn-dif__grid" role="list">
+      {%- for block in section.blocks -%}
+        <li {{ block.shopify_attributes }}>
+          <span class="bn-dif__icon" aria-hidden="true">
+            {%- case block.settings.icone -%}
+              {%- when 'garantia' -%}<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+              {%- when 'couro' -%}<svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/></svg>
+              {%- when 'mao' -%}<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+              {%- when 'frete' -%}<svg viewBox="0 0 24 24"><path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg>
+              {%- when 'parcelas' -%}<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg>
+              {%- when 'cashback' -%}<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="5"/><path d="M14.5 9.5A5 5 0 1 1 9.5 14.5"/><path d="M9 7v4"/></svg>
+              {%- when 'presente' -%}<svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/></svg>
+              {%- else -%}<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>
+            {%- endcase -%}
+          </span>
+          <div>
+            <h3>{{ block.settings.titulo }}</h3>
+            {%- if block.settings.texto != blank -%}<p>{{ block.settings.texto }}</p>{%- endif -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .bn-dif .bn-dif__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; margin: 40px 0 0; padding: 0; list-style: none; }
+  @media (min-width: 990px) { .bn-dif .bn-dif__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 40px; } }
+  .bn-dif li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; }
+  .bn-dif .bn-dif__icon svg { width: 20px; height: 20px; fill: none; stroke: var(--bn-accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .bn-dif h3 { margin: 0 0 6px; font: 500 15px/1.35 var(--bn-sans); color: var(--bn-text); }
+  .bn-dif p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--bn-muted); }
+  @media (max-width: 749px) { .bn-dif .bn-dif__grid { grid-template-columns: 1fr; } }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Diferenciais",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "sobretitulo", "label": "Sobretítulo", "default": "Por que comprar na Âme" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Acessórios que acompanham a vida do seu pet" }
+  ],
+  "blocks": [
+    { "type": "item", "name": "Diferencial", "limit": 9, "settings": [
+      { "type": "select", "id": "icone", "label": "Ícone", "default": "garantia", "options": [
+        { "value": "garantia", "label": "Escudo (garantia)" }, { "value": "couro", "label": "Brilho (couro)" }, { "value": "mao", "label": "Coração (feito à mão)" },
+        { "value": "frete", "label": "Caminhão (frete)" }, { "value": "parcelas", "label": "Cartão (parcelas)" }, { "value": "cashback", "label": "Moedas (cashback)" }, { "value": "presente", "label": "Presente" }
+      ] },
+      { "type": "text", "id": "titulo", "label": "Título", "default": "Garantia de 6 meses" },
+      { "type": "text", "id": "texto", "label": "Texto" }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Diferenciais",
+    "blocks": [
+      { "type": "item", "settings": { "icone": "garantia", "titulo": "Garantia de 6 meses", "texto": "Em todos os acessórios de couro." } },
+      { "type": "item", "settings": { "icone": "couro", "titulo": "Couro legítimo", "texto": "Material nobre que envelhece bonito." } },
+      { "type": "item", "settings": { "icone": "mao", "titulo": "Feito à mão", "texto": "Cada peça é produzida com carinho, no Brasil." } },
+      { "type": "item", "settings": { "icone": "frete", "titulo": "Todo o Brasil", "texto": "Frete grátis acima de R$ 190 no Sul e Sudeste e R$ 390 nas demais regiões." } },
+      { "type": "item", "settings": { "icone": "parcelas", "titulo": "Até 6x sem juros", "texto": "Parcele a sua compra no cartão." } },
+      { "type": "item", "settings": { "icone": "cashback", "titulo": "Cashback de 10%", "texto": "Volta em saldo para usar na loja." } }
+    ]
+  }]
+}
+{% endschema %}

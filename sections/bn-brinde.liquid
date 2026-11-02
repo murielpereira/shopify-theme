@@ -1,0 +1,76 @@
+{%- comment -%} Âme · Black November · Brinde (Colar de Natal) com passo a passo {%- endcomment -%}
+<section class="bn bn-section bn-brinde">
+  <div class="bn-wrap bn-brinde__grid">
+    <div class="bn-brinde__media">
+      {%- if section.settings.imagem != blank -%}
+        {{ section.settings.imagem | image_url: width: 1400 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 50vw, 100vw', widths: '600, 900, 1200, 1400', alt: section.settings.imagem.alt | escape }}
+      {%- else -%}
+        {{ 'image' | placeholder_svg_tag }}
+      {%- endif -%}
+    </div>
+    <div class="bn-brinde__body">
+      {%- if section.settings.sobretitulo != blank -%}<p class="bn-eyebrow">{{ section.settings.sobretitulo }}</p>{%- endif -%}
+      <h2 class="bn-title bn-h2">{{ section.settings.titulo }}</h2>
+      {%- if section.settings.texto != blank -%}<div class="bn-lead">{{ section.settings.texto }}</div>{%- endif -%}
+      {%- if section.blocks.size > 0 -%}
+        <ol class="bn-brinde__steps" role="list">
+          {%- for block in section.blocks -%}
+            <li {{ block.shopify_attributes }}>
+              <span class="bn-brinde__n">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+              <div>
+                <h3>{{ block.settings.titulo }}</h3>
+                {%- if block.settings.texto != blank -%}<p>{{ block.settings.texto }}</p>{%- endif -%}
+              </div>
+            </li>
+          {%- endfor -%}
+        </ol>
+      {%- endif -%}
+      {%- if section.settings.botao != blank -%}
+        <a class="bn-btn" href="{{ section.settings.botao_link | default: routes.all_products_collection_url }}">{{ section.settings.botao }}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .bn-brinde { background: var(--bn-surface); }
+  .bn-brinde .bn-brinde__grid { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 990px) { .bn-brinde .bn-brinde__grid { grid-template-columns: 1fr 1fr; gap: 72px; } }
+  .bn-brinde .bn-brinde__media { overflow: hidden; border: 1px solid color-mix(in srgb, var(--bn-accent) 30%, transparent); }
+  .bn-brinde .bn-brinde__media img, .bn-brinde .bn-brinde__media svg { width: 100%; height: auto; }
+  .bn-brinde .bn-brinde__steps { margin: 32px 0 36px; padding: 0; list-style: none; }
+  .bn-brinde .bn-brinde__steps li { display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 20px 0; border-top: 1px solid var(--bn-line); }
+  .bn-brinde .bn-brinde__steps li:last-child { border-bottom: 1px solid var(--bn-line); }
+  .bn-brinde .bn-brinde__n { font: 400 20px/1.2 var(--bn-serif); font-variant-numeric: oldstyle-nums; color: var(--bn-accent); }
+  .bn-brinde .bn-brinde__steps h3 { margin: 0 0 6px; font: 500 15px/1.4 var(--bn-sans); color: var(--bn-text); }
+  .bn-brinde .bn-brinde__steps p { margin: 0; font-size: 13px; line-height: 1.55; color: var(--bn-muted); }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Brinde",
+  "tag": "div",
+  "settings": [
+    { "type": "image_picker", "id": "imagem", "label": "Imagem do brinde" },
+    { "type": "text", "id": "sobretitulo", "label": "Sobretítulo", "default": "Brinde exclusivo" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "O Colar de Natal é por nossa conta" },
+    { "type": "richtext", "id": "texto", "label": "Texto", "default": "<p>Um mimo natalino para o seu pet: compras acima de R$ 390 durante a Black November levam o Colar de Natal junto ao pedido.</p>" },
+    { "type": "text", "id": "botao", "label": "Botão", "default": "Comprar e garantir o brinde" },
+    { "type": "url", "id": "botao_link", "label": "Link do botão" }
+  ],
+  "blocks": [
+    { "type": "passo", "name": "Passo", "limit": 5, "settings": [
+      { "type": "text", "id": "titulo", "label": "Título", "default": "Escolha seus modelos" },
+      { "type": "text", "id": "texto", "label": "Texto" }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Brinde",
+    "blocks": [
+      { "type": "passo", "settings": { "titulo": "Escolha seus modelos", "texto": "Coleiras, peitorais, guias ou kits, todos com o desconto da Black November." } },
+      { "type": "passo", "settings": { "titulo": "Some R$ 390 em compras", "texto": "Vale o valor total dos produtos do seu pedido na loja." } },
+      { "type": "passo", "settings": { "titulo": "Leve o Colar de Natal", "texto": "O brinde é adicionado ao seu pedido sem custo, até 30 de novembro." } }
+    ]
+  }]
+}
+{% endschema %}

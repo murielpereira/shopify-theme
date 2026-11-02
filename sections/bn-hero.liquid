@@ -1,0 +1,121 @@
+{%- comment -%}
+  Âme · Black November · Hero / Banner
+  Aceita uma imagem para computador e outra para celular.
+  Se o banner já tiver texto na arte, desmarque "Mostrar textos e botões" para exibir só a imagem.
+{%- endcomment -%}
+{%- liquid
+  assign img_d = section.settings.imagem | default: section.settings.imagem_mobile
+  assign img_m = section.settings.imagem_mobile | default: img_d
+  assign so_banner = true
+  if section.settings.mostrar_conteudo
+    assign so_banner = false
+  endif
+-%}
+<section class="bn bn-hero{% if so_banner %} bn-hero--banner{% endif %}" style="--bn-hero-h: {{ section.settings.altura }}svh;">
+  {%- if so_banner and section.settings.link_banner != blank -%}
+    <a class="bn-hero__link" href="{{ section.settings.link_banner }}" aria-label="{{ section.settings.titulo_1 | append: ' ' | append: section.settings.titulo_2 | strip | escape }}"></a>
+  {%- endif -%}
+  <div class="bn-hero__media">
+    {%- if img_d != blank -%}
+      <picture>
+        <source media="(max-width: 749px)" srcset="{{ img_m | image_url: width: 600 }} 600w, {{ img_m | image_url: width: 900 }} 900w, {{ img_m | image_url: width: 1200 }} 1200w" sizes="100vw" width="{{ img_m.width }}" height="{{ img_m.height }}">
+        {{ img_d | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '1000, 1500, 2000, 2400', alt: img_d.alt | escape }}
+      </picture>
+    {%- else -%}
+      {{ 'lifestyle-2' | placeholder_svg_tag: 'bn-hero__ph' }}
+    {%- endif -%}
+  </div>
+  {%- unless so_banner -%}
+    <div class="bn-hero__shade" aria-hidden="true"></div>
+    <div class="bn-wrap bn-hero__content">
+      {%- if section.settings.selo != blank -%}
+        <span class="bn-pill">{{ section.settings.selo }}</span>
+      {%- endif -%}
+      <h1 class="bn-title bn-hero__title">
+        {{- section.settings.titulo_1 -}}
+        {%- if section.settings.titulo_2 != blank -%}<span>{{ section.settings.titulo_2 }}</span>{%- endif -%}
+      </h1>
+      {%- if section.settings.texto != blank -%}
+        <div class="bn-lead bn-hero__text">{{ section.settings.texto }}</div>
+      {%- endif -%}
+      {%- if section.blocks.size > 0 -%}
+        {%- if section.settings.rotulo_atalhos != blank -%}
+          <p class="bn-hero__label">{{ section.settings.rotulo_atalhos }}</p>
+        {%- endif -%}
+        <div class="bn-hero__chips">
+          {%- for block in section.blocks -%}
+            <a class="bn-hero__chip" href="{{ block.settings.link | default: routes.all_products_collection_url }}" {{ block.shopify_attributes }}>
+              {{- block.settings.titulo -}}
+              {%- if block.settings.detalhe != blank -%}<small>{{ block.settings.detalhe }}</small>{%- endif -%}
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endunless -%}
+</section>
+
+<style>
+  .bn-hero { position: relative; display: flex; align-items: flex-end; min-height: var(--bn-hero-h, 92svh); overflow: hidden; isolation: isolate; }
+  .bn-hero .bn-hero__media { position: absolute; inset: 0; z-index: -2; background: #000; }
+  .bn-hero .bn-hero__media picture { display: block; width: 100%; height: 100%; }
+  .bn-hero .bn-hero__media img, .bn-hero .bn-hero__ph { width: 100%; height: 100%; object-fit: cover; object-position: {{ section.settings.foco }}; }
+  .bn-hero .bn-hero__ph { fill: #2a2a2a; background: #111; }
+  .bn-hero .bn-hero__shade { position: absolute; inset: 0; z-index: -1;
+    background:
+      linear-gradient(to top, var(--bn-bg) 0%, color-mix(in srgb, var(--bn-bg) 70%, transparent) 30%, transparent 62%),
+      radial-gradient(ellipse at 50% 40%, transparent 35%, color-mix(in srgb, var(--bn-bg) 60%, transparent) 100%); }
+  .bn-hero .bn-hero__content { padding-top: 120px; padding-bottom: clamp(40px, 7vw, 80px); }
+  .bn-hero .bn-hero__title { margin-top: 18px; font-size: clamp(48px, 8vw, 104px); line-height: .95; }
+  .bn-hero .bn-hero__title span { display: block; color: var(--bn-accent); }
+  .bn-hero .bn-hero__text { max-width: 46ch; color: color-mix(in srgb, var(--bn-text) 82%, transparent); }
+  .bn-hero .bn-hero__label { margin: 28px 0 12px; font: 500 10px/1.4 var(--bn-sans); letter-spacing: .26em; text-transform: uppercase; color: var(--bn-muted); }
+  .bn-hero .bn-hero__chips { display: flex; flex-wrap: wrap; gap: 10px; max-width: 560px; }
+  .bn-hero .bn-hero__chip { display: inline-flex; align-items: baseline; gap: 8px; padding: 11px 16px; border: 1px solid color-mix(in srgb, var(--bn-text) 22%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--bn-bg) 45%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font: 600 11px/1 var(--bn-sans); letter-spacing: .14em; text-transform: uppercase; transition: border-color .2s ease; }
+  .bn-hero .bn-hero__chip small { font-size: 9px; font-weight: 500; color: var(--bn-accent); }
+  .bn-hero .bn-hero__chip:hover { border-color: var(--bn-accent); }
+  .bn-hero.bn-hero--banner { display: block; min-height: 0; }
+  .bn-hero.bn-hero--banner .bn-hero__media { position: relative; inset: auto; z-index: 0; }
+  .bn-hero.bn-hero--banner .bn-hero__media img { height: auto; object-fit: initial; }
+  .bn-hero .bn-hero__link { position: absolute; inset: 0; z-index: 2; }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Hero",
+  "tag": "div",
+  "settings": [
+    { "type": "header", "content": "Imagens" },
+    { "type": "image_picker", "id": "imagem", "label": "Imagem · computador", "info": "Sugestão: horizontal, 2400 x 1350 px." },
+    { "type": "image_picker", "id": "imagem_mobile", "label": "Imagem · celular", "info": "Sugestão: vertical, 1080 x 1350 px ou 1080 x 1920 px. Sem imagem aqui, o celular usa a do computador." },
+    { "type": "select", "id": "foco", "label": "Ponto de foco da imagem", "default": "center", "options": [
+      { "value": "center", "label": "Centro" }, { "value": "top", "label": "Topo" }, { "value": "bottom", "label": "Base" }, { "value": "left", "label": "Esquerda" }, { "value": "right", "label": "Direita" }
+    ] },
+    { "type": "range", "id": "altura", "label": "Altura (% da tela)", "min": 60, "max": 100, "step": 2, "unit": "%", "default": 92 },
+    { "type": "checkbox", "id": "mostrar_conteudo", "label": "Mostrar textos e botões sobre a imagem", "default": true, "info": "Desmarque se a arte do banner já tiver o texto. A imagem aparece inteira, sem cortes." },
+    { "type": "url", "id": "link_banner", "label": "Link do banner (quando os textos estão escondidos)" },
+    { "type": "header", "content": "Textos" },
+    { "type": "text", "id": "selo", "label": "Selo", "default": "Black November · até 30/11" },
+    { "type": "text", "id": "titulo_1", "label": "Título · linha 1", "default": "Black" },
+    { "type": "text", "id": "titulo_2", "label": "Título · linha 2 (cor de destaque)", "default": "November" },
+    { "type": "richtext", "id": "texto", "label": "Texto", "default": "<p>Até 50% OFF em acessórios de couro legítimo feitos à mão. Coleiras com 20% OFF, kits com 15% OFF e o <strong>Colar de Natal de brinde</strong> nas compras acima de R$ 390.</p>" },
+    { "type": "text", "id": "rotulo_atalhos", "label": "Rótulo dos atalhos", "default": "Compre por categoria" }
+  ],
+  "blocks": [
+    { "type": "atalho", "name": "Atalho", "limit": 6, "settings": [
+      { "type": "text", "id": "titulo", "label": "Nome", "default": "Coleiras" },
+      { "type": "text", "id": "detalhe", "label": "Detalhe", "default": "20% OFF" },
+      { "type": "url", "id": "link", "label": "Link" }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Hero",
+    "blocks": [
+      { "type": "atalho", "settings": { "titulo": "Black November", "detalhe": "Todos os descontos" } },
+      { "type": "atalho", "settings": { "titulo": "Coleiras", "detalhe": "20% OFF" } },
+      { "type": "atalho", "settings": { "titulo": "Kits", "detalhe": "15% OFF" } },
+      { "type": "atalho", "settings": { "titulo": "Mais vendidos", "detalhe": "Favoritos da Black" } }
+    ]
+  }]
+}
+{% endschema %}

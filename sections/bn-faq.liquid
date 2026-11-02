@@ -1,0 +1,57 @@
+{%- comment -%} Âme · Black November · Perguntas frequentes {%- endcomment -%}
+<section class="bn bn-section bn-faq">
+  <div class="bn-wrap bn-faq__wrap">
+    <div>
+      {%- if section.settings.sobretitulo != blank -%}<p class="bn-eyebrow">{{ section.settings.sobretitulo }}</p>{%- endif -%}
+      <h2 class="bn-title bn-h2">{{ section.settings.titulo }}</h2>
+    </div>
+    <div class="bn-faq__list">
+      {%- for block in section.blocks -%}
+        <details {{ block.shopify_attributes }}{% if forloop.first and section.settings.abrir_primeira %} open{% endif %}>
+          <summary>{{ block.settings.pergunta }}<span aria-hidden="true"></span></summary>
+          <div class="bn-faq__a">{{ block.settings.resposta }}</div>
+        </details>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .bn-faq .bn-faq__wrap { display: grid; gap: 36px; }
+  @media (min-width: 990px) { .bn-faq .bn-faq__wrap { grid-template-columns: 5fr 7fr; gap: 72px; align-items: start; } }
+  .bn-faq details { border-top: 1px solid var(--bn-line); }
+  .bn-faq details:last-child { border-bottom: 1px solid var(--bn-line); }
+  .bn-faq summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; cursor: pointer; list-style: none; font: 400 clamp(20px, 2vw, 24px)/1.25 var(--bn-serif); color: var(--bn-text); }
+  .bn-faq summary::-webkit-details-marker { display: none; }
+  .bn-faq summary span { flex-shrink: 0; width: 9px; height: 9px; margin-right: 4px; border-right: 1.5px solid var(--bn-muted); border-bottom: 1.5px solid var(--bn-muted); transform: rotate(45deg) translateY(-3px); transition: transform .25s ease; }
+  .bn-faq details[open] summary span { transform: rotate(-135deg) translateY(-2px); border-color: var(--bn-accent); }
+  .bn-faq .bn-faq__a { padding: 0 32px 22px 0; font-size: 15px; line-height: 1.65; color: var(--bn-muted); }
+  .bn-faq .bn-faq__a p { margin: 0 0 .7em; }
+  .bn-faq .bn-faq__a a { color: var(--bn-accent); text-decoration: underline; }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Perguntas frequentes",
+  "tag": "div",
+  "settings": [
+    { "type": "text", "id": "sobretitulo", "label": "Sobretítulo", "default": "Dúvidas frequentes" },
+    { "type": "text", "id": "titulo", "label": "Título", "default": "Tudo que você precisa saber antes de comprar" },
+    { "type": "checkbox", "id": "abrir_primeira", "label": "Deixar a primeira pergunta aberta", "default": false }
+  ],
+  "blocks": [
+    { "type": "pergunta", "name": "Pergunta", "settings": [
+      { "type": "text", "id": "pergunta", "label": "Pergunta", "default": "Até quando valem as ofertas da Black November?" },
+      { "type": "richtext", "id": "resposta", "label": "Resposta", "default": "<p>As ofertas valem até 30 de novembro ou enquanto durarem os estoques.</p>" }
+    ] }
+  ],
+  "presets": [{
+    "name": "BN · Perguntas frequentes",
+    "blocks": [
+      { "type": "pergunta", "settings": { "pergunta": "Até quando valem as ofertas da Black November?", "resposta": "<p>As ofertas valem até 30 de novembro ou enquanto durarem os estoques.</p>" } },
+      { "type": "pergunta", "settings": { "pergunta": "Como funciona o brinde do Colar de Natal?", "resposta": "<p>Nas compras acima de R$ 390 durante a Black November, o Colar de Natal é adicionado ao seu pedido sem custo.</p>" } },
+      { "type": "pergunta", "settings": { "pergunta": "Qual é o frete e o prazo de entrega?", "resposta": "<p>Frete grátis acima de R$ 190 no Sul e Sudeste e acima de R$ 390 nas demais regiões. O prazo aparece no carrinho, depois que você informa o CEP.</p>" } }
+    ]
+  }]
+}
+{% endschema %}

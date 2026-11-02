@@ -96,7 +96,10 @@
 
   function montarPassos() {
     var passos = grupos().map(function (g) {
-      return { tipo: 'opcao', rotulo: nomeDoGrupo(g).trim(), els: [g], grupo: g };
+      var nome = nomeDoGrupo(g).trim();
+      // blocos extras do passo (ex.: "Acerte o tamanho", ame-pdp-tamanho.js) marcam data-passo-extra="<opção em minúsculas>"
+      var extras = Array.prototype.slice.call(form.querySelectorAll('[data-passo-extra="' + nome.toLowerCase() + '"]'));
+      return { tipo: 'opcao', rotulo: nome, els: [g].concat(extras), grupo: g };
     });
     var det = detalhes();
     if (det.length) passos.push({ tipo: 'detalhes', rotulo: 'Detalhes', els: det });

@@ -1,0 +1,49 @@
+{%- comment -%} Âme · Black November · Faixa de ofertas rolando {%- endcomment -%}
+<div class="bn bn-faixa" style="--bn-speed: {{ section.settings.velocidade }}s;" role="marquee" aria-label="{{ section.blocks | map: 'settings' | map: 'texto' | join: ', ' | escape }}">
+  <div class="bn-faixa__track" aria-hidden="true">
+    {%- for i in (1..2) -%}
+      <div class="bn-faixa__group">
+        {%- for j in (1..2) -%}
+          {%- for block in section.blocks -%}
+            <span>{{ block.settings.texto }}</span><i></i>
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .bn-faixa { overflow: hidden; background: var(--bn-accent); color: var(--bn-on-accent); }
+  .bn-faixa .bn-faixa__track { display: flex; width: max-content; animation: bn-faixa var(--bn-speed, 40s) linear infinite; }
+  .bn-faixa:hover .bn-faixa__track { animation-play-state: paused; }
+  .bn-faixa .bn-faixa__group { display: flex; align-items: center; flex-shrink: 0; }
+  .bn-faixa span { padding: 14px 0; font: 600 11px/1 var(--bn-sans); letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+  .bn-faixa i { width: 5px; height: 5px; margin: 0 28px; border-radius: 50%; background: currentColor; opacity: .45; }
+  @keyframes bn-faixa { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .bn-faixa .bn-faixa__track { animation: none; } }
+</style>
+
+{% schema %}
+{
+  "name": "BN · Faixa de ofertas",
+  "tag": "div",
+  "settings": [
+    { "type": "range", "id": "velocidade", "label": "Tempo de uma volta", "min": 15, "max": 90, "step": 5, "unit": "s", "default": 40 }
+  ],
+  "blocks": [
+    { "type": "item", "name": "Mensagem", "settings": [ { "type": "text", "id": "texto", "label": "Texto", "default": "Frete grátis" } ] }
+  ],
+  "presets": [{
+    "name": "BN · Faixa de ofertas",
+    "blocks": [
+      { "type": "item", "settings": { "texto": "Kits 15% OFF" } },
+      { "type": "item", "settings": { "texto": "Até 50% OFF na Black" } },
+      { "type": "item", "settings": { "texto": "Colar de Natal de brinde acima de R$ 390" } },
+      { "type": "item", "settings": { "texto": "Frete grátis" } },
+      { "type": "item", "settings": { "texto": "Feito à mão em couro legítimo" } },
+      { "type": "item", "settings": { "texto": "Coleiras 20% OFF" } }
+    ]
+  }]
+}
+{% endschema %}

@@ -897,6 +897,7 @@
     {%- if usar_passos -%}
       {{ 'ame-pdp-passos.css' | asset_url | stylesheet_tag }}
       <script src="{{ 'ame-pdp-passos.js' | asset_url }}" defer></script>
+      <script src="{{ 'ame-pdp-tamanho.js' | asset_url }}" defer></script>
     {%- endif -%}
     {%- form 'product', product, id: 'pdp-form', novalidate: true, data-passos: usar_passos -%}
       {%- liquid
