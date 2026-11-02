@@ -101,10 +101,10 @@
   endif
 
   # Passo a passo das opções (assets/ame-pdp-passos.js): liga pela opção da seção
-  # (template product.passos) OU automaticamente nos produtos que oferecem pingente
-  # (coleiras, peitorais…) — são os de mais escolhas. Kit tem o próprio passo a passo.
+  # (template product.passos) OU automaticamente nos produtos que oferecem pingente ou
+  # pedem a raça do pet (coleiras, peitorais, guias…) — são os de mais escolhas. Kit tem o próprio passo a passo.
   assign usar_passos = false
-  if section.settings.passos_ativo or pdp_oferece_pingente
+  if section.settings.passos_ativo or pdp_oferece_pingente or product.tags contains 'customizacao_raca'
     if is_kit == false and product.options.size > 1
       assign usar_passos = true
     endif
