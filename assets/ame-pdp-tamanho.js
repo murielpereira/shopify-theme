@@ -183,7 +183,7 @@
     var foco = document.activeElement && document.activeElement.getAttribute && document.activeElement.getAttribute('data-tam-campo');
     var idades = [['Filhote', 'ainda vai crescer'], ['Adulto', 'tamanho definitivo']];
     bloco.innerHTML =
-      '<h4 class="pdp-tam__titulo">O tamanho certo</h4>' +
+      '<h3 class="pdp-tam__titulo">O tamanho certo</h3>' +
       '<p class="pdp-tam__sub">Conte sobre o seu pet: pela raça a gente sugere o tamanho, e a nossa equipe confere tudo antes de produzir.</p>' +
       '<p class="pdp-tam__passo"><span>1</span> Filhote ou adulto?</p>' +
       '<div class="pdp-tam__idades" role="group" aria-label="Idade do pet">' + idades.map(function (i) {

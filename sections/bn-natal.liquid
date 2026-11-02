@@ -49,7 +49,7 @@
           <div class="bn-natal__card" {{ block.shopify_attributes }}>
             <div class="bn-natal__media">
               {%- if block.settings.imagem != blank -%}
-                {{ block.settings.imagem | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 40vw, 90vw', widths: '500, 800, 1000, 1200', alt: block.settings.imagem.alt | escape }}
+                {{ block.settings.imagem | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 40vw, 90vw', widths: '500, 800, 1000, 1200', alt: block.settings.imagem.alt | default: block.settings.texto | default: block.settings.tag | default: section.settings.titulo | default: 'Coleção de Natal Âme' | escape }}
               {%- else -%}
                 {{ 'lifestyle-1' | placeholder_svg_tag }}
               {%- endif -%}
@@ -134,7 +134,7 @@
   .bn-natal .bn-natal__cd { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; max-width: 460px; margin-top: 32px; }
   .bn-natal .bn-natal__box { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 6px 14px; border: 1px solid color-mix(in srgb, #fff 16%, transparent); border-radius: 18px; background: color-mix(in srgb, #000 20%, transparent); color: #fff; }
   .bn-natal .bn-natal__box span { font: 400 clamp(32px, 4vw, 44px)/1 var(--bn-serif); font-variant-numeric: oldstyle-nums; }
-  .bn-natal .bn-natal__box small { font: 500 10px/1 var(--bn-sans); letter-spacing: .2em; text-transform: uppercase; color: color-mix(in srgb, #fff 70%, transparent); }
+  .bn-natal .bn-natal__box small { font: 500 10px/1 var(--bn-sans); letter-spacing: .2em; text-transform: uppercase; color: color-mix(in srgb, #fff 82%, transparent); }
   .bn-natal .bn-natal__legenda { margin: 18px 0 0; font: 400 14px/1.4 var(--bn-sans); letter-spacing: .08em; color: color-mix(in srgb, #fff 75%, transparent); }
   .bn-natal .bn-natal__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; margin-top: 28px; padding: 0 34px; border-radius: 999px; background: #fff; color: var(--bn-natal); font: 600 12px/1 var(--bn-sans); letter-spacing: .22em; text-transform: uppercase; transition: box-shadow .2s ease; }
   .bn-natal .bn-natal__btn:hover { box-shadow: 0 12px 34px color-mix(in srgb, #000 30%, transparent); }

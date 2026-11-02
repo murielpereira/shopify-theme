@@ -6,6 +6,8 @@
 {%- liquid
   assign img_d = section.settings.imagem | default: section.settings.imagem_mobile
   assign img_m = section.settings.imagem_mobile | default: img_d
+  assign hero_titulo = section.settings.titulo_1 | append: ' ' | append: section.settings.titulo_2 | strip
+  assign hero_alt = img_d.alt | default: hero_titulo | default: 'Black November Âme'
   assign so_banner = true
   if section.settings.mostrar_conteudo
     assign so_banner = false
@@ -19,7 +21,7 @@
     {%- if img_d != blank -%}
       <picture>
         <source media="(max-width: 749px)" srcset="{{ img_m | image_url: width: 600 }} 600w, {{ img_m | image_url: width: 900 }} 900w, {{ img_m | image_url: width: 1200 }} 1200w" sizes="100vw" width="{{ img_m.width }}" height="{{ img_m.height }}">
-        {{ img_d | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '1000, 1500, 2000, 2400', alt: img_d.alt | escape }}
+        {{ img_d | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '1000, 1500, 2000, 2400', alt: hero_alt | escape }}
       </picture>
     {%- else -%}
       {{ 'lifestyle-2' | placeholder_svg_tag: 'bn-hero__ph' }}
