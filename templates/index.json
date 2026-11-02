@@ -104,17 +104,50 @@
     "bn_vitrine": {
       "type": "bn-vitrine",
       "blocks": {
-        "aba_coleiras": { "type": "aba", "settings": { "colecao": "coleiras-black", "titulo": "Coleiras", "selo": "20% OFF", "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão." } },
-        "aba_kits": { "type": "aba", "settings": { "colecao": "kits", "titulo": "Kits", "selo": "15% OFF", "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis." } },
-        "aba_mais_vendidos": { "type": "aba", "settings": { "colecao": "mais-vendidos", "titulo": "Mais vendidos", "selo": "Favoritos da Black", "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha." } }
+        "aba_coleiras": {
+          "type": "aba",
+          "settings": {
+            "colecao": "coleiras-black",
+            "titulo": "Coleiras",
+            "selo": "20% OFF",
+            "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão."
+          }
+        },
+        "aba_kits": {
+          "type": "aba",
+          "settings": {
+            "colecao": "kits",
+            "titulo": "Kits",
+            "selo": "15% OFF",
+            "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis."
+          }
+        },
+        "aba_mais_vendidos": {
+          "type": "aba",
+          "settings": {
+            "colecao": "mais-vendidos",
+            "titulo": "Mais vendidos",
+            "selo": "Favoritos da Black",
+            "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha."
+          }
+        }
       },
-      "block_order": ["aba_coleiras", "aba_kits", "aba_mais_vendidos"],
+      "block_order": [
+        "aba_coleiras",
+        "aba_kits",
+        "aba_mais_vendidos"
+      ],
       "settings": {
         "colecao": "black-november",
         "so_com_desconto": true,
         "por_pagina": 8,
         "tag_gato": "gato",
-        "titulo": "Escolha a categoria e veja os preços da Black"
+        "texto_vazio": "As ofertas desta categoria entram aqui assim que a Black November começar.",
+        "eyebrow": "Ofertas da Black",
+        "titulo": "Escolha a categoria e veja os preços da Black",
+        "titulo_todos": "Black November",
+        "selo_todos": "Todos os descontos",
+        "sub_todos": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão."
       }
     },
     "bn_brinde": {
@@ -158,11 +191,19 @@
     },
     "bn_vitrine_ymf3gk": {
       "type": "bn-vitrine",
-      "name": "BN · Vitrine de produtos",
       "disabled": true,
+      "name": "BN · Vitrine de produtos",
       "settings": {
         "colecao": "coleiras-black",
-        "titulo": "Black November"
+        "so_com_desconto": true,
+        "por_pagina": 8,
+        "tag_gato": "gato",
+        "texto_vazio": "As ofertas desta categoria entram aqui assim que a Black November começar.",
+        "eyebrow": "Ofertas da Black",
+        "titulo": "Black November",
+        "titulo_todos": "Black November",
+        "selo_todos": "Todos os descontos",
+        "sub_todos": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão."
       }
     },
     "bn_natal": {
@@ -187,9 +228,6 @@
         "texto": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November no dia <strong>11/11 às 19h</strong></p>",
         "lancamento": "2026-11-11T19:00:00-03:00",
         "legenda": "Lançamento em 11 de novembro, às 19h",
-        "lista": "natal-2026",
-        "botao_aviso": "Avise-me quando lançar",
-        "waltz_url": "https://waltz.up.railway.app",
         "botao": "",
         "botao_link": "",
         "botao_lancado": "Ver a coleção de Natal",
@@ -946,7 +984,6 @@
         "img-2",
         "img-3"
       ],
-      "disabled": true,
       "settings": {
         "eyebrow": "Criamos acessórios em couro legítimo para quem acredita que os pets fazem parte da família.",
         "title": "Produção Artesanal"
@@ -1036,7 +1073,6 @@
     },
     "newsletter": {
       "type": "home-newsletter",
-      "disabled": true,
       "settings": {
         "eyebrow": "Âme Vip",
         "title": "Acesso Antecipado às Novidades",
@@ -1045,7 +1081,6 @@
     },
     "depoimentos_konfidency": {
       "type": "home-depoimentos",
-      "disabled": true,
       "settings": {}
     }
   },
