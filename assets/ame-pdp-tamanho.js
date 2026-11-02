@@ -43,12 +43,12 @@
   function compacto(s) { return norm(s).replace(/[^a-z0-9]/g, ''); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
+  // O campo da raça é achado pela TAG do campo personalizado (data-cf-tag), não pelo nome da
+  // propriedade (que pode ser outro, ex.: "Observações") nem pelo rótulo.
   function campoRaca() {
-    var todos = form.querySelectorAll('.pdp__custom-field textarea, .pdp__custom-field input[type="text"]');
-    for (var i = 0; i < todos.length; i++) {
-      if (/ra[cç]a/i.test(todos[i].name || '')) return todos[i];
-    }
-    return null;
+    var caixa = form.querySelector('.pdp__custom-field[data-cf-tag="customizacao_raca"]');
+    if (!caixa) return null;
+    return caixa.querySelector('textarea, input[type="text"], input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"])');
   }
   function grupoTamanho() {
     var gs = form.querySelectorAll('#pdp-options-wrap .pdp__option');
