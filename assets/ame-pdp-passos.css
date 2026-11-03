@@ -98,7 +98,9 @@
 @keyframes pdp-passos-revelar { to { max-height: none; opacity: 1; overflow: visible; margin: revert; } }
 form[data-passos="true"]:not(.pdp-passos)::before { content: ""; display: block; height: 3.25rem; margin: 0 0 1rem; }
 form[data-passos="true"]:not(.pdp-passos)::after { content: ""; display: block; height: 3rem; margin: 1rem 0 0; }
-form[data-passos="true"]:not(.pdp-passos) #pdp-options-wrap .pdp__option:not(:first-child),
+/* o 1º passo é a 1ª opção que não é Tamanho (Tamanho vai por último) */
+form[data-passos="true"]:not(.pdp-passos) #pdp-options-wrap .pdp__option[data-option-name="Tamanho"]:not(:only-child),
+form[data-passos="true"]:not(.pdp-passos) #pdp-options-wrap .pdp__option:not([data-option-name="Tamanho"]) ~ .pdp__option:not([data-option-name="Tamanho"]),
 form[data-passos="true"]:not(.pdp-passos) .ame-pingente,
 form[data-passos="true"]:not(.pdp-passos) .pdp__custom-field,
 form[data-passos="true"]:not(.pdp-passos) .pdp__qty,

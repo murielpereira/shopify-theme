@@ -3062,6 +3062,15 @@
   }
 
   /* ── Opções ── */
+  /* Ordem de exibição: Tamanho por último (Cor, Cor do Metal, Tamanho). Só visual — a ordem
+     das opções na Shopify (option1, option2…) NÃO muda; o Waltz, o Tiny e o catálogo leem por ela. */
+  #pdp-options-wrap:has(> .pdp__option) {
+    display: flex;
+    flex-direction: column;
+  }
+  #pdp-options-wrap > .pdp__option[data-option-name="Tamanho"] {
+    order: 1;
+  }
   .pdp__option {
     margin-bottom: 1rem;
   }

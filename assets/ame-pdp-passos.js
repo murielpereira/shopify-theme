@@ -28,7 +28,10 @@
   var renderAgendado = false;
 
   function grupos() {
-    return Array.prototype.slice.call(form.querySelectorAll('#pdp-options-wrap .pdp__option'));
+    // mesma ordem da tela: Tamanho por último (ver CSS da seção do produto)
+    var todos = Array.prototype.slice.call(form.querySelectorAll('#pdp-options-wrap .pdp__option'));
+    var ehTamanho = function (g) { return /^tamanho$/i.test((g.getAttribute('data-option-name') || '').trim()); };
+    return todos.filter(function (g) { return !ehTamanho(g); }).concat(todos.filter(ehTamanho));
   }
   function detalhes() {
     // campo de raça substituído pelo bloco "O tamanho certo" (ame-pdp-tamanho.js) não é mais pedido aqui
