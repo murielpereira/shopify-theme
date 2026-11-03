@@ -103,51 +103,69 @@
     },
     "bn_vitrine": {
       "type": "bn-vitrine",
+      "settings": {
+        "colecao": "black-november",
+        "titulo": "Black November",
+        "texto": "<p>Itens selecionados com desconto da Black November🔥</p>",
+        "limite": 4,
+        "colunas": 4,
+        "botao_card": "Comprar",
+        "cashback_pct": 10,
+        "mostrar_total": false,
+        "mostrar_ver_mais": true
+      }
+    },
+    "bn_categorias": {
+      "type": "bn-categorias",
       "blocks": {
-        "aba_coleiras": {
-          "type": "aba",
+        "cat_1": {
+          "type": "categoria",
           "settings": {
-            "colecao": "coleiras-black",
+            "titulo": "Black November",
+            "selo": "Até 50%off",
+            "link": "shopify://collections/black-november",
+            "destaque": true
+          }
+        },
+        "cat_2": {
+          "type": "categoria",
+          "settings": {
             "titulo": "Coleiras",
             "selo": "20% OFF",
-            "subtitulo": "Coleiras em couro legítimo com o nome do seu pet gravado à mão."
+            "link": "shopify://collections/coleiras-black",
+            "destaque": false
           }
         },
-        "aba_kits": {
-          "type": "aba",
+        "cat_3": {
+          "type": "categoria",
           "settings": {
-            "colecao": "kits",
             "titulo": "Kits",
             "selo": "15% OFF",
-            "subtitulo": "Kit peitoral + guia em couro, com troca de tamanho grátis."
+            "link": "shopify://collections/kits",
+            "destaque": false
           }
         },
-        "aba_mais_vendidos": {
-          "type": "aba",
+        "cat_4": {
+          "type": "categoria",
           "settings": {
-            "colecao": "mais-vendidos",
             "titulo": "Mais vendidos",
             "selo": "Favoritos da Black",
-            "subtitulo": "Os modelos que mais saem na loja, com o desconto da campanha."
+            "link": "shopify://collections/mais-vendidos",
+            "destaque": false
           }
         }
       },
       "block_order": [
-        "aba_coleiras",
-        "aba_kits",
-        "aba_mais_vendidos"
+        "cat_1",
+        "cat_2",
+        "cat_3",
+        "cat_4"
       ],
       "settings": {
-        "colecao": "black-november",
-        "so_com_desconto": true,
-        "por_pagina": 8,
-        "tag_gato": "gato",
-        "texto_vazio": "As ofertas desta categoria entram aqui assim que a Black November começar.",
-        "eyebrow": "Ofertas da Black",
-        "titulo": "Escolha a categoria e veja os preços da Black",
-        "titulo_todos": "Black November",
-        "selo_todos": "Todos os descontos",
-        "sub_todos": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão."
+        "sobretitulo": "Ofertas por categoria",
+        "titulo": "",
+        "botao": "",
+        "botao_link": ""
       }
     },
     "bn_brinde": {
@@ -191,19 +209,17 @@
     },
     "bn_vitrine_ymf3gk": {
       "type": "bn-vitrine",
-      "disabled": true,
       "name": "BN · Vitrine de produtos",
       "settings": {
         "colecao": "coleiras-black",
-        "so_com_desconto": true,
-        "por_pagina": 8,
-        "tag_gato": "gato",
-        "texto_vazio": "As ofertas desta categoria entram aqui assim que a Black November começar.",
-        "eyebrow": "Ofertas da Black",
         "titulo": "Black November",
-        "titulo_todos": "Black November",
-        "selo_todos": "Todos os descontos",
-        "sub_todos": "Todos os produtos da loja com desconto da Black November, em couro legítimo feito à mão."
+        "texto": "<p>Coleiras com <strong>20%OFF</strong></p>",
+        "limite": 4,
+        "colunas": 4,
+        "botao_card": "Comprar",
+        "cashback_pct": 10,
+        "mostrar_total": true,
+        "mostrar_ver_mais": true
       }
     },
     "bn_natal": {
@@ -225,16 +241,13 @@
       "settings": {
         "selo": "Lançamentos de Natal",
         "titulo": "A coleção de Natal da Âme está chegando",
-        "texto": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November no dia <strong>11/11 às 19h</strong></p>",
-        "lancamento": "2026-11-11T19:00:00-03:00",
-        "legenda": "Lançamento em 11 de novembro, às 19h",
-        "lista": "natal-2026",
-        "botao_aviso": "Avise-me quando lançar",
-        "waltz_url": "https://waltz.up.railway.app",
+        "texto": "<p>Novidades em couro legítimo com clima natalino, reveladas durante a Black November no dia <strong>11/11</strong></p>",
+        "lancamento": "2026-11-11T00:00:00-03:00",
+        "legenda": "",
         "botao": "",
         "botao_link": "",
         "botao_lancado": "Ver a coleção de Natal",
-        "botao_lancado_link": "shopify://collections/natal"
+        "botao_lancado_link": ""
       }
     },
     "bn_diferenciais": {
@@ -987,6 +1000,7 @@
         "img-2",
         "img-3"
       ],
+      "disabled": true,
       "settings": {
         "eyebrow": "Criamos acessórios em couro legítimo para quem acredita que os pets fazem parte da família.",
         "title": "Produção Artesanal"
@@ -1076,6 +1090,7 @@
     },
     "newsletter": {
       "type": "home-newsletter",
+      "disabled": true,
       "settings": {
         "eyebrow": "Âme Vip",
         "title": "Acesso Antecipado às Novidades",
@@ -1084,6 +1099,7 @@
     },
     "depoimentos_konfidency": {
       "type": "home-depoimentos",
+      "disabled": true,
       "settings": {}
     }
   },
@@ -1092,6 +1108,7 @@
     "bn_cores",
     "bn_faixa",
     "bn_vitrine",
+    "bn_categorias",
     "bn_brinde",
     "bn_vitrine_ymf3gk",
     "bn_natal",
