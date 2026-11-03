@@ -192,6 +192,30 @@
         {{ collection.products_count }}
         {% if collection.products_count == 1 %}peça{% else %}peças{% endif %}
       </p>
+      {%- comment -%} Botões Cachorro / Gato: aparecem quando a coleção tem produtos com as tags "cachorro" e "gato" {%- endcomment -%}
+      {%- liquid
+        assign pet_handle = collection.handle | downcase
+        assign pet_mostra = false
+        if current_tags contains 'cachorro' or current_tags contains 'gato' or collection.all_tags contains 'cachorro' and collection.all_tags contains 'gato'
+          assign pet_mostra = true
+        endif
+        if pet_handle contains 'cachorro' or pet_handle contains 'gato'
+          assign pet_mostra = false
+        endif
+        assign pet_atual = ''
+        if current_tags contains 'cachorro'
+          assign pet_atual = 'cachorro'
+        elsif current_tags contains 'gato'
+          assign pet_atual = 'gato'
+        endif
+      -%}
+      {%- if pet_mostra -%}
+        <nav class="ame-pet-filter" aria-label="Filtrar por pet">
+          <a class="ame-pet-btn{% if pet_atual == 'cachorro' or pet_atual == '' %} ame-pet-btn--cheio{% endif %}" href="{{ collection.url }}/cachorro"{% if pet_atual == 'cachorro' %} aria-current="page"{% endif %}>Ver para cachorro <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="ame-pet-btn{% if pet_atual == 'gato' %} ame-pet-btn--cheio{% endif %}" href="{{ collection.url }}/gato"{% if pet_atual == 'gato' %} aria-current="page"{% endif %}>Ver para gato{% if pet_atual == 'gato' %} <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>{% endif %}</a>
+          {%- if pet_atual != '' -%}<a class="ame-pet-limpar" href="{{ collection.url }}">Ver tudo</a>{%- endif -%}
+        </nav>
+      {%- endif -%}
     </div>
 
     {%- assign pagination_mode = section.settings.pagination_mode | default: 'paginate' -%}
@@ -863,7 +887,7 @@
   }
 
   /* .ame-label-sm vive global no critical.css */
-{% endstylesheet %}
+  /* Espaço menor entre o banner da coleção e a linha "Ordenar / X peças" */  .ame-col-banner + .ame-col-header { padding-top: 24px; }  .ame-col-banner + .ame-col-header .ame-col-header__inner:not(:has(.ame-col-header__title, .ame-col-header__desc)) { margin-bottom: 0; }  .ame-col-banner + .ame-col-header:not(:has(.ame-col-header__title, .ame-col-header__desc)) { padding-top: 0; }  .ame-col-banner ~ .ame-col-layout { padding-top: 32px; }  @media (max-width: 749px) { .ame-col-banner ~ .ame-col-layout { padding-top: 24px; } }  /* Botões Cachorro / Gato ao lado da contagem de peças */  .ame-col-bar:has(.ame-pet-filter) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; }  .ame-pet-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }  .ame-pet-btn { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; padding: 0 26px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 999px; background: transparent; color: #fff; font-weight: 700; font-size: 12px; line-height: 1; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; transition: background-color .2s ease, border-color .2s ease, color .2s ease; }  .ame-pet-btn:hover { border-color: #C8FF3D; }  .ame-pet-btn--cheio { border-color: #C8FF3D; background: #C8FF3D; color: #0a0a0a; }  .ame-pet-btn svg { flex-shrink: 0; }  .ame-pet-limpar { color: rgba(255, 255, 255, .7); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px; }  @media (max-width: 749px) { .ame-pet-filter { flex-direction: column; align-items: stretch; width: 100%; } .ame-pet-btn { min-height: 52px; } .ame-pet-limpar { align-self: center; padding: 6px 0; } }{% endstylesheet %}
 
 {% schema %}
 {
