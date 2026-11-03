@@ -107,8 +107,15 @@
       endfor
     endfor
   endif
+  # Sem combinação da lista neste produto (ex.: Kylie): usa a primeira variação
+  # disponível como foto, cor e metal iniciais, para a foto trocar desde a 1ª cor.
   if hero_primeira == null
-    assign hero_primeira = product.featured_image
+    assign v_ini = product.selected_or_first_available_variant
+    assign hero_primeira = v_ini.featured_image | default: product.featured_image
+    if i_cor >= 0 and i_metal >= 0
+      assign hero_primeira_cor = v_ini.options[i_cor]
+      assign hero_primeiro_metal = v_ini.options[i_metal]
+    endif
   endif
 
   # Campos personalizados ativos para este produto (mesma regra da página normal).
