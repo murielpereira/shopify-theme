@@ -10,63 +10,108 @@
 {
   "sections": {
     "main": {
-      "type": "product",
-      "settings": {
-        "show_related": true,
-        "gallery_sticky_mobile": false,
-        "selection_info_position": "over",
-        "videos_enabled": true,
-        "videos_position": "below-title",
-        "videos_format": "stories",
-        "videos_tamanho": 70,
-        "videos_espacamento": 12,
-        "videos_mostrar_titulo": false,
-        "videos_border_type": "degrade",
-        "videos_espessura": 2,
-        "videos_cor": "#fd1d1d",
-        "videos_cor_fim": "#fcb045",
-        "videos_cor_3": "#833ab4",
-        "videos_angulo": 135,
-        "videos_autoplay": true
-      }
+      "type": "atelier-coleira",
+      "blocks": {
+        "beneficio_1": {
+          "type": "beneficio",
+          "settings": {
+            "icone": "couro",
+            "titulo": "Couro bovino legítimo",
+            "texto": "Certificado, macio no pescoço e com uma pátina que fica mais bonita com o uso."
+          }
+        },
+        "beneficio_2": {
+          "type": "beneficio",
+          "settings": {
+            "icone": "mao",
+            "titulo": "Feita depois do seu pedido",
+            "texto": "Nada sai de estoque. Cada coleira é cortada, costurada e personalizada para um pet só."
+          }
+        },
+        "beneficio_3": {
+          "type": "beneficio",
+          "settings": {
+            "icone": "gravacao",
+            "titulo": "Gravação frente e verso",
+            "texto": "Nome do pet na frente. Nome do tutor e telefone atrás, gravados para durar."
+          }
+        },
+        "beneficio_4": {
+          "type": "beneficio",
+          "settings": {
+            "icone": "regua",
+            "titulo": "Tamanho conferido",
+            "texto": "Com raça, idade e peso, a equipe confere o tamanho antes de produzir. Se ainda assim não servir, fazemos a troca."
+          }
+        },
+        "beneficio_5": {
+          "type": "beneficio",
+          "settings": {
+            "icone": "garantia",
+            "titulo": "6 meses de garantia",
+            "texto": "Contra defeitos de fabricação: costura, metal e gravação."
+          }
+        },
+        "etapa_1": {
+          "type": "etapa",
+          "settings": {
+            "titulo": "Cortar",
+            "texto": "O couro é cortado no tamanho que você escolheu."
+          }
+        },
+        "etapa_2": {
+          "type": "etapa",
+          "settings": {
+            "titulo": "Dublar",
+            "texto": "Duas camadas de couro são unidas para dar corpo e maciez à tira."
+          }
+        },
+        "etapa_3": {
+          "type": "etapa",
+          "settings": {
+            "titulo": "Costurar",
+            "texto": "As partes são costuradas e a fivela e a argola, fixadas."
+          }
+        },
+        "etapa_4": {
+          "type": "etapa",
+          "settings": {
+            "titulo": "Personalizar",
+            "texto": "O nome do seu pet é gravado no pingente."
+          }
+        },
+        "etapa_5": {
+          "type": "etapa",
+          "settings": {
+            "titulo": "Finalizar",
+            "texto": "Acabamento das bordas e conferência de cada detalhe antes do envio."
+          }
+        }
+      },
+      "block_order": [
+        "beneficio_1",
+        "beneficio_2",
+        "beneficio_3",
+        "beneficio_4",
+        "beneficio_5",
+        "etapa_1",
+        "etapa_2",
+        "etapa_3",
+        "etapa_4",
+        "etapa_5"
+      ],
+      "settings": { "hero_titulo": "Única como", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n2 cores de metal\nFeita à mão, com flores de metal e strass\nPingente opcional", "hero_combos": "Azul Bebê com Off White e pedras Light Sapphire / Ouro\nChiclete com Rosa Bebê e pedras Vintage Rose / Ouro\nCamel com Nude e pedras Light Peach / Ouro\nLilás Candy com Rosa Bebê e pedras Violet / Prata" }
     },
-    "product_accordions_87ARfi": {
+    "faq": {
       "type": "product-accordions",
       "blocks": {
-        "faq_K6PcTr": {
+        "faq_GiLmeF": {
           "type": "faq",
-          "name": "faq_comprimento_guia",
+          "name": "faq_como_medir",
           "settings": {
-            "question": "Posso escolher o comprimento da guia?",
-            "answer": "<p>Sim. As guias estão disponíveis em<strong>1,2 metros</strong>ou<strong>1,5 metros</strong>.<br/><br/>• 1,2 m: ideal para passeios urbanos e maior controle<br/>• 1,5 m: mais liberdade para caminhadas tranquilas</p>",
-            "tags_filter": "faq_comprimento_guia"
-          }
-        },
-        "faq_fWkw6E": {
-          "type": "faq",
-          "name": "faq_largura_guia",
-          "settings": {
-            "question": "Qual a largura ideal da guia para meu pet?",
-            "answer": "<p>A largura da guia deve acompanhar o porte e a força do pet:<br/><br/><strong>XPP / XPP+</strong>– 12 mm<br/><strong>PP / P</strong>– 15 mm<br/><strong>M / G</strong>– 20 mm<br/><br/>Se tiver dúvida, nossa equipe analisa cada pedido antes da produção.</p>",
-            "tags_filter": "faq_largura_guia"
-          }
-        },
-        "faq_6X8rqa": {
-          "type": "faq",
-          "name": "faq_guia_resistente",
-          "settings": {
-            "question": "A guia é resistente para o dia a dia?",
-            "answer": "<p>Sim. As guias Âme são feitas para acompanhar a rotina real: passeios diários, viagens e momentos especiais. Utilizamos<strong>costuras reforçadas, bordas pintadas à mão</strong>e<strong>mosquetão com trava de segurança</strong>.</p>",
-            "tags_filter": "faq_guia_resistente"
-          }
-        },
-        "faq_fBQQrG": {
-          "type": "faq",
-          "name": "faq_couro",
-          "settings": {
-            "question": "É couro legítimo mesmo?",
-            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
-            "tags_filter": "faq_couro"
+            "question": "Como sei o tamanho certo para meu pet?",
+            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima.<strong>Ainda com dúvida? </strong>Chama a gente no <a href=\"https://wa.me/5548996723567\" target=\"_blank\">WhatsApp </a>que te ajudamos na hora! 💚</p>",
+            "tags_filter": "faq_como_medir"
           }
         },
         "faq_8NKDiL": {
@@ -87,13 +132,13 @@
             "tags_filter": "faq_dados_pingente"
           }
         },
-        "faq_GiLmeF": {
+        "faq_fBQQrG": {
           "type": "faq",
-          "name": "faq_como_medir",
+          "name": "faq_couro",
           "settings": {
-            "question": "Como sei o tamanho certo para meu pet?",
-            "answer": "<p>Pegue uma <strong>fita métrica e meça o pescoço do seu pet bem justinho</strong>, como se fosse a coleira. Compare a medida com nossa tabela de tamanhos acima.<strong>Ainda com dúvida? </strong>Chama a gente no <a href=\"https://wa.me/5548996723567\" target=\"_blank\">WhatsApp </a>que te ajudamos na hora! 💚</p>",
-            "tags_filter": "faq_como_medir"
+            "question": "É couro legítimo mesmo?",
+            "answer": "<p>Sim! Trabalhamos exclusivamente com couro bovino legítimo, com certificação de qualidade.</p>",
+            "tags_filter": "faq_couro"
           }
         },
         "faq_7MGQ9j": {
@@ -107,22 +152,18 @@
         }
       },
       "block_order": [
-        "faq_K6PcTr",
-        "faq_fWkw6E",
-        "faq_6X8rqa",
-        "faq_fBQQrG",
+        "faq_GiLmeF",
         "faq_8NKDiL",
         "faq_ApaVh3",
-        "faq_GiLmeF",
+        "faq_fBQQrG",
         "faq_7MGQ9j"
       ],
-      "name": "Detalhes do Produto",
       "settings": {
-        "show_description": true,
+        "show_description": false,
         "description_title": "Descrição",
         "pet_gallery_eyebrow": "Da nossa comunidade",
         "pet_gallery_title": "Pets que amam essa peça",
-        "show_after_purchase": true,
+        "show_after_purchase": false,
         "after_purchase_title": "O que acontece depois da compra",
         "step_1_emoji": "🔍",
         "step_1_title": "Analisamos as informações do seu pet",
@@ -149,10 +190,11 @@
         "step_8_title": "",
         "step_8_tags_filter": "",
         "show_faq": true,
-        "faq_title": "Perguntas Frequentes"
+        "faq_title": "Perguntas frequentes",
+        "faq_fora_da_descricao": true
       }
     },
-    "product_reviews_konfidency": {
+    "avaliacoes": {
       "type": "product-reviews",
       "settings": {
         "title": "Avaliações"
@@ -161,7 +203,7 @@
   },
   "order": [
     "main",
-    "product_accordions_87ARfi",
-    "product_reviews_konfidency"
+    "faq",
+    "avaliacoes"
   ]
 }
