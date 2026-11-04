@@ -100,7 +100,7 @@
         "etapa_4",
         "etapa_5"
       ],
-      "settings": { "hero_titulo": "Um elo eterno com", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n2 cores de metal\nFeita à mão, com corrente de elos em metal\nPingente opcional", "hero_combos": "Camel com Nude / Ouro\nRosa Seco com Rosa Bebê / Ouro\nAzul Bebê com Off White / Prata\nPreto com Branco / Prata" }
+      "settings": { "zoom_metal": "0.5, 0.55, 2", "pingente_posicao": "50, 64", "hero_titulo": "Um elo eterno com", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n2 cores de metal\nFeita à mão, com corrente de elos em metal\nPingente opcional", "hero_combos": "Camel com Nude / Ouro\nRosa Seco com Rosa Bebê / Ouro\nAzul Bebê com Off White / Prata\nPreto com Branco / Prata" }
     },
     "faq": {
       "type": "product-accordions",
