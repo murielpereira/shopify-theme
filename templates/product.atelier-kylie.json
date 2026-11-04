@@ -100,7 +100,7 @@
         "etapa_4",
         "etapa_5"
       ],
-      "settings": { "hero_titulo": "Única como", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n2 cores de metal\nFeita à mão, com flores de metal e strass\nPingente opcional", "hero_combos": "Azul Bebê com Off White e pedras Light Sapphire / Ouro\nChiclete com Rosa Bebê e pedras Vintage Rose / Ouro\nCamel com Nude e pedras Light Peach / Ouro\nLilás Candy com Rosa Bebê e pedras Violet / Prata" }
+      "settings": { "zoom_metal": "0.66, 0.49, 2", "hero_titulo": "Única como", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n2 cores de metal\nFeita à mão, com flores de metal e strass\nPingente opcional", "hero_combos": "Azul Bebê com Off White e pedras Light Sapphire / Ouro\nChiclete com Rosa Bebê e pedras Vintage Rose / Ouro\nCamel com Nude e pedras Light Peach / Ouro\nLilás Candy com Rosa Bebê e pedras Violet / Prata" }
     },
     "faq": {
       "type": "product-accordions",
