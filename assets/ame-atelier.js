@@ -259,7 +259,7 @@
     };
     const estiloPingente = (metal) => {
         const k = chaveMetal(metal);
-        return Object.assign({}, METAL_ESTILO[k], CFG.metalForte ? {} : (METAL_PINGENTE[k] || {})); // metalForte: dourado mais intenso, ligado no modelo da coleira (ex.: Julie)
+        return Object.assign({}, METAL_ESTILO[k], CFG.metalForte ? {} : (METAL_PINGENTE[k] || {}), (k === 'ouro' && CFG.ouroPingente) || {}); // metalForte / ouroPingente: dourado do pingente definido no modelo da coleira (ex.: Julie)
     };
     const chaveMetal = (m) => {
         const n = compacto(m);
