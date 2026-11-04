@@ -100,7 +100,7 @@
         "etapa_4",
         "etapa_5"
       ],
-      "settings": { "hero_titulo": "Um brilho que combina com", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n4 cores de metal\nFeita à mão, com detalhes em strass\nPingente opcional", "hero_combos": "Lilás Candy com Rosa Bebê e pedras Violet / Rose\nAzul Bebê com Off White e pedras Light Sapphire / Prata\nCafé com Off White e pedras Crystal / Ouro\nCamel com Nude e pedras Light Peach / Grafite" }
+      "settings": { "zoom_metal": "0.45, 0.51, 2.2", "hero_titulo": "Um brilho que combina com", "hero_titulo_destaque": "o seu pet.", "hero_destaques": "6 meses de garantia\nTroca facilitada\n17 combinações de cores\n4 cores de metal\nFeita à mão, com detalhes em strass\nPingente opcional", "hero_combos": "Lilás Candy com Rosa Bebê e pedras Violet / Rose\nAzul Bebê com Off White e pedras Light Sapphire / Prata\nCafé com Off White e pedras Crystal / Ouro\nCamel com Nude e pedras Light Peach / Grafite" }
     },
     "faq": {
       "type": "product-accordions",
