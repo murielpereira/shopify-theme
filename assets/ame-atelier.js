@@ -593,7 +593,7 @@
         // coleira ficou um pouco mais baixa e mais larga). Zoom 2,0 (era 2,3).
         fivela: { x: 0.177, y: 0.5, s: 2.0 },
         argola: { x: 0.68, y: 0.5, s: 2.1 },
-    };
+    }; if (CFG.pontoMetal && CFG.pontoMetal.x) PONTOS.fivela = CFG.pontoMetal; // zoom da etapa Metal definido no modelo de cada coleira
 
     function larguraFoto() {
         const w = palco.getBoundingClientRect().width || 400;
