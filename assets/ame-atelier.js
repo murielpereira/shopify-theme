@@ -594,6 +594,10 @@
         fivela: { x: 0.177, y: 0.5, s: 2.0 },
         argola: { x: 0.68, y: 0.5, s: 2.1 },
     }; if (CFG.pontoMetal && CFG.pontoMetal.x) PONTOS.fivela = CFG.pontoMetal; // zoom da etapa Metal definido no modelo de cada coleira
+    // Idem para o Resumo (pingente pendurado) e para o fundo da etapa Pingente: o padrão é o da Atena,
+    // e uma foto com outro enquadramento (ex.: a Julie, coleira de perto) ajusta no modelo, sem mexer no código.
+    if (CFG.pontoResumo && CFG.pontoResumo.x != null) PONTOS.resumo = CFG.pontoResumo;
+    if (CFG.pontoPingente && CFG.pontoPingente.x != null) PONTOS.argola = CFG.pontoPingente;
 
     function larguraFoto() {
         const w = palco.getBoundingClientRect().width || 400;
