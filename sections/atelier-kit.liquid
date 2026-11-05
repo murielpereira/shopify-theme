@@ -1,0 +1,272 @@
+{%- comment -%}
+  Âme · Ateliê do Kit (peitoral + guia lado a lado)
+  Mesmo fluxo do ateliê da coleira, sem pingente: Cores -> Metal -> Tamanho -> Resumo.
+  Os dados das peças e as variações do kit vêm do Waltz (/api/public/kit/<handle>),
+  o mesmo endpoint do ame-kit.js. O carrinho recebe UMA linha (variação do kit),
+  com as mesmas propriedades ocultas do ame-kit.js (_from_kit, _preco_cheio,
+  _foto_kit, _pecas_kit), para o carrinho e a folha de impressão seguirem iguais.
+{%- endcomment -%}
+{%- liquid
+  assign pix_pct = shop.metafields.waltz.vitrine.value.pix_pct | default: settings.pix_discount | default: 5
+  assign nome_kit = product.title | split: '|' | last | strip
+  assign palavra = section.settings.hero_palavra | default: nome_kit
+  assign destaques = section.settings.hero_destaques | newline_to_br | split: '<br />'
+-%}
+<section class="akt" data-akt>
+  <script type="application/json" data-akt-config>
+    {
+      "handle": {{ product.handle | json }},
+      "nome": {{ nome_kit | json }},
+      "waltz": "https://waltz.up.railway.app",
+      "pixPct": {{ pix_pct | json }},
+      "parcelas": {{ section.settings.parcelas | default: 6 | json }},
+      "corInicial": {{ section.settings.cor_inicial | json }},
+      "metalInicial": {{ section.settings.metal_inicial | json }},
+      "texturas": {
+        "allure": {{ 'couro-allure.jpg' | asset_url | json }},
+        "azulbebe": {{ 'couro-azulbb.jpg' | asset_url | json }},
+        "borgonha": {{ 'couro-borgonha.jpg' | asset_url | json }},
+        "branco": {{ 'couro-branco.jpg' | asset_url | json }},
+        "cafe": {{ 'couro-cafe.jpg' | asset_url | json }},
+        "camel": {{ 'couro-camel.jpg' | asset_url | json }},
+        "chiclete": {{ 'couro-chiclete.jpg' | asset_url | json }},
+        "lilascandy": {{ 'couro-lilascandy.jpg' | asset_url | json }},
+        "marinho": {{ 'couro-marinho.jpg' | asset_url | json }},
+        "militar": {{ 'couro-militar.jpg' | asset_url | json }},
+        "nude": {{ 'couro-nude.jpg' | asset_url | json }},
+        "offwhite": {{ 'couro-off.jpg' | asset_url | json }},
+        "preto": {{ 'couro-preto.jpg' | asset_url | json }},
+        "rosabebe": {{ 'couro-rosabb.jpg' | asset_url | json }},
+        "rosaseco": {{ 'couro-rosaseco.jpg' | asset_url | json }},
+        "sepia": {{ 'couro-sepia.jpg' | asset_url | json }}
+      }
+    }
+  </script>
+
+  {%- comment -%} ===================== TOPO ===================== {%- endcomment -%}
+  <div class="akt-hero">
+    <div class="akt-hero__palco" aria-hidden="true">
+      <span class="akt-hero__palavra">{{ palavra }}</span>
+      <div class="akt-hero__pecas">
+        <img class="akt-hero__img" data-akt-hero-img="0" alt="" loading="eager">
+        <img class="akt-hero__img" data-akt-hero-img="1" alt="" loading="eager">
+      </div>
+    </div>
+    <div class="akt-hero__texto">
+      <p class="akt-eyebrow">{{ section.settings.eyebrow | default: 'Kit peitoral e guia · Couro legítimo' }}</p>
+      <h1 class="akt-hero__titulo">
+        {{ section.settings.hero_titulo }}
+        <em>{{ section.settings.hero_titulo_destaque }}</em>
+      </h1>
+      {%- if destaques.size > 0 and section.settings.hero_destaques != blank -%}
+        <ul class="akt-hero__destaques">
+          {%- for d in destaques -%}
+            {%- assign d = d | strip -%}
+            {%- if d != blank -%}<li>{{ d }}</li>{%- endif -%}
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      <a class="akt-btn akt-btn--cheio akt-hero__cta" href="#akt-montar">{{ section.settings.cta | default: 'Montar o meu kit' }}
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <div class="akt-hero__preco" data-akt-hero-preco>
+        <span class="akt-rot">A partir de</span>
+        <span class="akt-carregando">carregando…</span>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} ===================== MONTAGEM ===================== {%- endcomment -%}
+  <div class="akt-montar" id="akt-montar">
+    <ol class="akt-passos" data-akt-passos>
+      <li><button type="button" data-akt-ir="cores"><span>1</span>Cores</button></li>
+      <li><button type="button" data-akt-ir="metal"><span>2</span>Metal</button></li>
+      <li><button type="button" data-akt-ir="tamanho"><span>3</span>Tamanho</button></li>
+      <li><button type="button" data-akt-ir="resumo"><span>4</span>Resumo</button></li>
+    </ol>
+
+    <div class="akt-grade">
+      <div class="akt-palco" data-akt-palco>
+        <figure class="akt-peca" data-akt-peca="0">
+          <div class="akt-peca__foto"><img data-akt-foto="0" alt=""></div>
+          <figcaption data-akt-legenda="0"></figcaption>
+        </figure>
+        <figure class="akt-peca" data-akt-peca="1">
+          <div class="akt-peca__foto"><img data-akt-foto="1" alt=""></div>
+          <figcaption data-akt-legenda="1"></figcaption>
+        </figure>
+        <p class="akt-palco__escolha" data-akt-escolha></p>
+      </div>
+
+      <div class="akt-painel">
+        <div class="akt-etapa" data-akt-etapa="cores">
+          <h2 class="akt-etapa__titulo">Escolha o couro</h2>
+          <p class="akt-etapa__sub">Couro bovino legítimo. O peitoral e a guia saem na mesma cor.</p>
+          <div class="akt-cores" data-akt-cores></div>
+          <div class="akt-detalhe" data-akt-detalhe-bloco hidden>
+            <p class="akt-rot">Detalhe da guia</p>
+            <div class="akt-chips" data-akt-detalhes></div>
+          </div>
+        </div>
+
+        <div class="akt-etapa" data-akt-etapa="metal" hidden>
+          <h2 class="akt-etapa__titulo">Escolha o banho do metal</h2>
+          <p class="akt-etapa__sub">Fivelas, argolas e mosquetão no mesmo acabamento, nas duas peças.</p>
+          <div class="akt-metais" data-akt-metais></div>
+        </div>
+
+        <div class="akt-etapa" data-akt-etapa="tamanho" hidden>
+          <h2 class="akt-etapa__titulo">Escolha o tamanho</h2>
+          <p class="akt-etapa__sub">O tamanho do peitoral define a largura da guia, para as duas peças combinarem.</p>
+          {%- if section.settings.guia_medidas_url != blank -%}
+            <a class="akt-link" href="{{ section.settings.guia_medidas_url }}" target="_blank" rel="noopener">Guia de medidas</a>
+          {%- endif -%}
+          <div class="akt-tamanhos" data-akt-tamanhos></div>
+        </div>
+
+        <div class="akt-etapa" data-akt-etapa="resumo" hidden>
+          <h2 class="akt-etapa__titulo" data-akt-resumo-titulo>O seu kit</h2>
+          <div class="akt-ficha" data-akt-ficha></div>
+          <div class="akt-total" data-akt-total></div>
+          {%- if section.settings.producao_texto != blank -%}
+            <p class="akt-producao">{{ section.settings.producao_texto }}</p>
+          {%- endif -%}
+          <p class="akt-erro" data-akt-erro hidden></p>
+        </div>
+
+        <div class="akt-barra">
+          <div class="akt-barra__preco" data-akt-barra-preco></div>
+          <div class="akt-barra__botoes">
+            <button type="button" class="akt-btn akt-btn--icone" data-akt-voltar aria-label="Voltar" hidden>
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <button type="button" class="akt-btn akt-btn--cheio" data-akt-avancar disabled>Escolher o metal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .akt { --akt-bg: #0b0b0b; --akt-card: #151515; --akt-linha: #2a2a2a; --akt-texto: #f3efe9; --akt-suave: #a39c93; --akt-acento: #c8ff3d; --akt-ouro: #d9b45a; color: var(--akt-texto); }
+  .akt * { box-sizing: border-box; }
+  .akt-rot { display: block; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--akt-suave); }
+  .akt-eyebrow { margin: 0 0 14px; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--akt-acento); }
+  .akt-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border: 1px solid var(--akt-linha); border-radius: 999px; background: transparent; color: var(--akt-texto); font: inherit; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
+  .akt-btn--cheio { border-color: var(--akt-acento); background: var(--akt-acento); color: #0a0a0a; }
+  .akt-btn--cheio:hover:not(:disabled) { transform: translateY(-1px); }
+  .akt-btn:disabled { opacity: .45; cursor: not-allowed; }
+  .akt-btn--icone { width: 52px; padding: 0; }
+  .akt-carregando { color: var(--akt-suave); font-size: 14px; }
+
+  /* topo */
+  .akt-hero { display: grid; gap: 28px; max-width: 1200px; margin: 0 auto; padding: clamp(24px, 4vw, 56px) 20px; align-items: center; }
+  @media (min-width: 990px) { .akt-hero { grid-template-columns: 1.1fr 1fr; gap: 48px; } }
+  .akt-hero__palco { position: relative; overflow: hidden; border-radius: 24px; background: #efe9e2; aspect-ratio: 4 / 3; }
+  .akt-hero__palavra { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading-family, Georgia, serif); font-size: clamp(80px, 16vw, 200px); line-height: 1; color: rgba(0,0,0,.05); pointer-events: none; }
+  .akt-hero__pecas { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; }
+  .akt-hero__img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s ease; }
+  .akt-hero__img.is-on { opacity: 1; }
+  .akt-hero__titulo { margin: 0 0 18px; font-family: var(--font-heading-family, Georgia, serif); font-weight: 400; font-size: clamp(36px, 5vw, 58px); line-height: 1.05; }
+  .akt-hero__titulo em { font-style: normal; color: var(--akt-ouro); }
+  .akt-hero__destaques { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; margin: 0 0 24px; padding: 0; list-style: none; font-size: 14px; color: var(--akt-suave); }
+  .akt-hero__destaques li::before { content: "✓"; margin-right: 8px; color: var(--akt-acento); }
+  .akt-hero__cta { width: 100%; max-width: 420px; }
+  .akt-hero__preco { margin-top: 18px; }
+  .akt-preco-grande { font-size: 30px; font-weight: 700; }
+  .akt-preco-riscado { color: var(--akt-suave); text-decoration: line-through; font-size: 14px; margin-right: 8px; }
+  .akt-preco-pix { color: var(--akt-acento); font-weight: 600; }
+  .akt-preco-linha { font-size: 13px; color: var(--akt-suave); }
+
+  /* montagem */
+  .akt-montar { max-width: 1200px; margin: 0 auto; padding: 24px 20px 64px; scroll-margin-top: 90px; }
+  .akt-passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 24px; padding: 0; list-style: none; }
+  .akt-passos button { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; padding: 0; border: 0; background: none; color: var(--akt-suave); font: inherit; font-size: 13px; cursor: pointer; }
+  .akt-passos button:disabled { cursor: default; }
+  .akt-passos span { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--akt-linha); border-radius: 50%; font-size: 12px; font-weight: 700; }
+  .akt-passos .is-feito span { border-color: var(--akt-acento); background: var(--akt-acento); color: #0a0a0a; }
+  .akt-passos .is-atual { color: var(--akt-texto); }
+  .akt-passos .is-atual span { border-color: var(--akt-ouro); box-shadow: 0 0 0 3px rgba(217,180,90,.25); color: var(--akt-texto); }
+  .akt-grade { display: grid; gap: 24px; }
+  @media (min-width: 990px) { .akt-grade { grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: start; } .akt-palco { position: sticky; top: 110px; } }
+  .akt-palco { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .akt-peca { margin: 0; }
+  .akt-peca__foto { position: relative; overflow: hidden; border-radius: 18px; background: #efe9e2; aspect-ratio: 1; }
+  .akt-peca__foto img { width: 100%; height: 100%; object-fit: cover; transition: opacity .35s ease, transform .5s ease; }
+  .akt-peca__foto img.is-trocando { opacity: .25; }
+  .akt-palco.is-zoom .akt-peca__foto img { transform: scale(1.35); }
+  .akt-peca figcaption { margin-top: 8px; font-size: 13px; color: var(--akt-suave); text-align: center; }
+  .akt-palco__escolha { grid-column: 1 / -1; margin: 4px 0 0; font-size: 13px; color: var(--akt-suave); text-align: center; min-height: 1.4em; }
+  .akt-painel { display: flex; flex-direction: column; gap: 18px; }
+  .akt-etapa__titulo { margin: 0 0 6px; font-family: var(--font-heading-family, Georgia, serif); font-weight: 400; font-size: 28px; }
+  .akt-etapa__sub { margin: 0 0 18px; font-size: 14px; color: var(--akt-suave); }
+  .akt-cores { display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)); gap: 14px 10px; }
+  .akt-cor { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--akt-suave); font: inherit; font-size: 12px; cursor: pointer; }
+  .akt-cor i { width: 44px; height: 44px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .akt-cor[aria-pressed="true"] { color: var(--akt-texto); font-weight: 600; }
+  .akt-cor[aria-pressed="true"] i { outline: 2px solid var(--akt-ouro); outline-offset: 3px; }
+  .akt-detalhe { margin-top: 18px; }
+  .akt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .akt-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 8px; border: 1px solid var(--akt-linha); border-radius: 999px; background: transparent; color: var(--akt-texto); font: inherit; font-size: 13px; cursor: pointer; }
+  .akt-chip i { width: 24px; height: 24px; border-radius: 50%; background-size: cover; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+  .akt-chip[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-metais { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .akt-metal { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--akt-linha); border-radius: 16px; background: var(--akt-card); color: var(--akt-texto); font: inherit; text-align: left; cursor: pointer; }
+  .akt-metal i { flex: none; width: 34px; height: 34px; border-radius: 50%; }
+  .akt-metal b { display: block; font-size: 15px; }
+  .akt-metal small { color: var(--akt-suave); font-size: 12px; }
+  .akt-metal[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-metal--ouro i { background: linear-gradient(135deg, #fff4d6, #ecd08a 30%, #cfa24a 60%, #7d5a1f); }
+  .akt-metal--prata i { background: linear-gradient(135deg, #ffffff, #e8e8ea 30%, #9c9da2 65%, #6e6f74); }
+  .akt-metal--rose i { background: linear-gradient(135deg, #fff1eb, #f3c9b9 30%, #ba7a6b 65%, #8c5749); }
+  .akt-metal--grafite i { background: linear-gradient(135deg, #a3a3a6, #707074 30%, #2f2f32 65%, #1a1a1c); }
+  .akt-link { display: inline-block; margin-bottom: 14px; color: var(--akt-acento); font-size: 14px; text-underline-offset: 4px; }
+  .akt-tamanhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .akt-tam { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; border: 1px solid var(--akt-linha); border-radius: 16px; background: var(--akt-card); color: var(--akt-texto); font: inherit; cursor: pointer; }
+  .akt-tam b { font-size: 20px; }
+  .akt-tam small { color: var(--akt-suave); font-size: 12px; }
+  .akt-tam span { font-size: 13px; font-weight: 600; }
+  .akt-tam[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-tam:disabled { opacity: .35; cursor: not-allowed; }
+  .akt-ficha { border: 1px dashed var(--akt-linha); border-radius: 18px; padding: 6px 18px; background: var(--akt-card); }
+  .akt-ficha__linha { display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--akt-linha); }
+  .akt-ficha__linha:last-child { border-bottom: 0; }
+  .akt-ficha__linha dt { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--akt-suave); }
+  .akt-ficha__linha dd { margin: 0; font-size: 15px; }
+  .akt-ficha__linha small { display: block; color: var(--akt-suave); font-size: 12px; }
+  .akt-ficha__linha button { border: 0; background: none; color: var(--akt-acento); font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .akt-total { display: grid; gap: 4px; padding: 6px 2px; }
+  .akt-total__linha { display: flex; justify-content: space-between; font-size: 14px; color: var(--akt-suave); }
+  .akt-total__final { display: flex; justify-content: space-between; align-items: baseline; padding-top: 10px; border-top: 1px solid var(--akt-linha); font-size: 20px; font-weight: 700; }
+  .akt-producao { margin: 0; padding: 14px 16px; border-radius: 14px; background: var(--akt-card); font-size: 13px; color: var(--akt-suave); }
+  .akt-erro { margin: 0; color: #ff8a7a; font-size: 14px; }
+  .akt-barra { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 calc(14px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--akt-bg) 75%, transparent); }
+  .akt-barra__preco { font-size: 13px; color: var(--akt-suave); line-height: 1.35; }
+  .akt-barra__preco b { display: block; font-size: 18px; color: var(--akt-texto); }
+  .akt-barra__botoes { display: flex; gap: 8px; }
+  @media (max-width: 749px) { .akt-hero__destaques { grid-template-columns: 1fr; } .akt-passos button { font-size: 11px; } .akt-barra .akt-btn--cheio { padding: 0 18px; font-size: 14px; } }
+</style>
+
+<script src="{{ 'ame-atelier-kit.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Ateliê do kit",
+  "tag": "div",
+  "class": "section-atelier-kit",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Linha acima do título", "default": "Kit peitoral e guia · Couro legítimo" },
+    { "type": "text", "id": "hero_palavra", "label": "Palavra grande no fundo", "info": "Vazio = o que vem depois do | no título do produto (ex.: Lucky)" },
+    { "type": "text", "id": "hero_titulo", "label": "Título", "default": "Feito para passear" },
+    { "type": "text", "id": "hero_titulo_destaque", "label": "Título — parte em destaque", "default": "com o seu pet." },
+    { "type": "textarea", "id": "hero_destaques", "label": "Destaques (um por linha)", "default": "Peitoral e guia combinando\nCouro bovino legítimo\nFeito à mão, sob encomenda\n6 meses de garantia" },
+    { "type": "text", "id": "cta", "label": "Botão do topo", "default": "Montar o meu kit" },
+    { "type": "text", "id": "cor_inicial", "label": "Cor mostrada no início", "info": "Nome exato da cor do kit (ex.: Rosa Bebê). Vazio = primeira cor." },
+    { "type": "text", "id": "metal_inicial", "label": "Metal mostrado no início", "default": "Ouro" },
+    { "type": "number", "id": "parcelas", "label": "Parcelas sem juros", "default": 6 },
+    { "type": "url", "id": "guia_medidas_url", "label": "Link do guia de medidas" },
+    { "type": "textarea", "id": "producao_texto", "label": "Texto de produção (resumo)", "default": "Produção artesanal: de 3 a 5 dias úteis antes do envio, já contabilizados no prazo de entrega." }
+  ]
+}
+{% endschema %}
