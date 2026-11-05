@@ -116,12 +116,9 @@
         </div>
 
         <div class="akt-etapa" data-akt-etapa="tamanho" hidden>
-          <h2 class="akt-etapa__titulo">Escolha o tamanho</h2>
-          <p class="akt-etapa__sub">O tamanho do peitoral define a largura da guia, para as duas peças combinarem.</p>
-          {%- if section.settings.guia_medidas_url != blank -%}
-            <a class="akt-link" href="{{ section.settings.guia_medidas_url }}" target="_blank" rel="noopener">Guia de medidas</a>
-          {%- endif -%}
-          <div class="akt-tamanhos" data-akt-tamanhos></div>
+          <h2 class="akt-etapa__titulo">O tamanho certo</h2>
+          <p class="akt-etapa__sub">Conte sobre o seu pet: pelo porte ou pela raça a gente sugere o tamanho, e a nossa equipe confere tudo antes de produzir. O tamanho do peitoral define a largura da guia.</p>
+          <div data-akt-tamanhos></div>
         </div>
 
         <div class="akt-etapa" data-akt-etapa="resumo" hidden>
@@ -151,6 +148,7 @@
 <style>
   .akt { --akt-bg: #0b0b0b; --akt-card: #151515; --akt-linha: #2a2a2a; --akt-texto: #f3efe9; --akt-suave: #a39c93; --akt-acento: #c8ff3d; --akt-ouro: #d9b45a; color: var(--akt-texto); }
   .akt * { box-sizing: border-box; }
+  .akt [hidden] { display: none !important; }
   .akt-rot { display: block; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--akt-suave); }
   .akt-eyebrow { margin: 0 0 14px; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--akt-acento); }
   .akt-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border: 1px solid var(--akt-linha); border-radius: 999px; background: transparent; color: var(--akt-texto); font: inherit; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
@@ -195,7 +193,6 @@
   .akt-peca__foto { position: relative; overflow: hidden; border-radius: 18px; background: #efe9e2; aspect-ratio: 1; }
   .akt-peca__foto img { width: 100%; height: 100%; object-fit: cover; transition: opacity .35s ease, transform .5s ease; }
   .akt-peca__foto img.is-trocando { opacity: .25; }
-  .akt-palco.is-zoom .akt-peca__foto img { transform: scale(1.35); }
   .akt-peca figcaption { margin-top: 8px; font-size: 13px; color: var(--akt-suave); text-align: center; }
   .akt-palco__escolha { grid-column: 1 / -1; margin: 4px 0 0; font-size: 13px; color: var(--akt-suave); text-align: center; min-height: 1.4em; }
   .akt-painel { display: flex; flex-direction: column; gap: 18px; }
@@ -221,14 +218,58 @@
   .akt-metal--prata i { background: linear-gradient(135deg, #ffffff, #e8e8ea 30%, #9c9da2 65%, #6e6f74); }
   .akt-metal--rose i { background: linear-gradient(135deg, #fff1eb, #f3c9b9 30%, #ba7a6b 65%, #8c5749); }
   .akt-metal--grafite i { background: linear-gradient(135deg, #a3a3a6, #707074 30%, #2f2f32 65%, #1a1a1c); }
-  .akt-link { display: inline-block; margin-bottom: 14px; color: var(--akt-acento); font-size: 14px; text-underline-offset: 4px; }
-  .akt-tamanhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-  .akt-tam { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px; border: 1px solid var(--akt-linha); border-radius: 16px; background: var(--akt-card); color: var(--akt-texto); font: inherit; cursor: pointer; }
-  .akt-tam b { font-size: 20px; }
-  .akt-tam small { color: var(--akt-suave); font-size: 12px; }
-  .akt-tam span { font-size: 13px; font-weight: 600; }
-  .akt-tam[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-suave { color: var(--akt-suave); font-weight: 400; }
+  .akt-q { margin: 0 0 12px; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--akt-acento); }
+  .akt-q--sep { margin-top: 26px; }
+  .akt-fases { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .akt-fase { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 10px; border: 1.5px solid transparent; border-radius: 999px; background: var(--akt-card); color: var(--akt-texto); font: inherit; cursor: pointer; }
+  .akt-fase b { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+  .akt-fase small { color: var(--akt-suave); font-size: 13px; }
+  .akt-fase[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-sanfona { margin-bottom: 12px; border-radius: 28px; background: var(--akt-card); }
+  .akt-sanfona summary { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 22px; list-style: none; cursor: pointer; }
+  .akt-sanfona summary::-webkit-details-marker { display: none; }
+  .akt-sanfona summary::after { content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .2s ease; }
+  .akt-sanfona[open] summary::after { transform: rotate(-135deg); }
+  .akt-sanfona summary .akt-q { margin: 0; }
+  .akt-sanfona summary b { font-size: 15px; }
+  .akt-portes { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 14px 16px; }
+  .akt-porte { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 6px 18px 6px 12px; border: 1.5px solid transparent; border-radius: 999px; background: #1d1d1d; color: var(--akt-texto); font: inherit; text-align: left; cursor: pointer; }
+  .akt-porte i { display: grid; place-items: center; width: 40px; color: #8a8580; }
+  .akt-porte i svg { width: calc(40px * var(--esc, 1)); height: auto; }
+  .akt-porte b { display: block; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .akt-porte small { color: var(--akt-suave); font-size: 12px; }
+  .akt-porte[aria-pressed="true"] { border-color: var(--akt-ouro); }
+  .akt-porte[aria-pressed="true"] i { color: var(--akt-ouro); }
+  .akt-campo { display: flex; align-items: center; gap: 10px; padding: 0 22px 16px; }
+  .akt-campo input { flex: 1; min-height: 46px; padding: 0 14px; border: 1px solid var(--akt-linha); border-radius: 12px; background: #1d1d1d; color: var(--akt-texto); font: inherit; font-size: 16px; }
+  .akt-campo span { color: var(--akt-suave); }
+  .akt-reco { margin-top: 18px; padding: 20px 22px; border-radius: 16px; background: linear-gradient(135deg, #2b2620, #3a342c); }
+  .akt-reco p { margin: 4px 0; font-size: 15px; }
+  .akt-reco__rot { font-size: 12px !important; letter-spacing: .2em; text-transform: uppercase; color: var(--akt-ouro); }
+  .akt-reco__tam { margin: 6px 0 10px !important; font-family: var(--font-heading-family, Georgia, serif); font-size: 32px !important; }
+  .akt-guia-botoes { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .akt-btn--claro { min-height: 44px; padding: 0 20px; border-color: #eeece8; background: #eeece8; color: #6b6f52; font-size: 15px; }
+  .akt-btn--contorno { min-height: 44px; padding: 0 20px; border-color: var(--akt-acento); color: var(--akt-acento); font-size: 15px; }
+  .akt-tamanhos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .akt-tam { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 8px 14px; border: 1.5px solid transparent; border-radius: 12px; background: var(--akt-card); color: var(--akt-texto); font: inherit; cursor: pointer; }
+  .akt-tam b { font-size: 24px; font-weight: 400; }
+  .akt-tam small { color: var(--akt-suave); font-size: 13px; }
+  .akt-tam span { font-size: 14px; font-weight: 700; }
+  .akt-tam em { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: var(--akt-ouro); color: #1a1a1a; font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
+  .akt-tam[aria-pressed="true"], .akt-tam.is-indicado[aria-pressed="true"] { border-color: var(--akt-ouro); }
   .akt-tam:disabled { opacity: .35; cursor: not-allowed; }
+  .akt-tam-info { margin: 14px 0 0; font-size: 14px; color: var(--akt-suave); }
+  .akt-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.6); }
+  .akt-modal__caixa { position: relative; width: min(640px, 100%); max-height: 85vh; overflow: auto; padding: 26px 22px; border-radius: 20px; background: #f6f3ee; color: #1a1714; }
+  .akt-modal__caixa h3 { margin: 0 0 10px; font-family: var(--font-heading-family, Georgia, serif); font-weight: 400; font-size: 24px; }
+  .akt-modal__caixa p { font-size: 14px; color: #5d5650; }
+  .akt-modal__fechar { position: absolute; top: 10px; right: 14px; border: 0; background: none; font-size: 28px; line-height: 1; color: #1a1714; cursor: pointer; }
+  .akt-modal__tabela { overflow-x: auto; }
+  .akt-modal table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .akt-modal th, .akt-modal td { padding: 10px 8px; border-bottom: 1px solid #e2dcd3; text-align: left; white-space: nowrap; }
+  .akt-modal th { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #8a8178; }
+  .akt-modal__dica { margin-top: 14px; }
   .akt-ficha { border: 1px dashed var(--akt-linha); border-radius: 18px; padding: 6px 18px; background: var(--akt-card); }
   .akt-ficha__linha { display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--akt-linha); }
   .akt-ficha__linha:last-child { border-bottom: 0; }
@@ -245,7 +286,7 @@
   .akt-barra__preco { font-size: 13px; color: var(--akt-suave); line-height: 1.35; }
   .akt-barra__preco b { display: block; font-size: 18px; color: var(--akt-texto); }
   .akt-barra__botoes { display: flex; gap: 8px; }
-  @media (max-width: 749px) { .akt-hero__destaques { grid-template-columns: 1fr; } .akt-passos button { font-size: 11px; } .akt-barra .akt-btn--cheio { padding: 0 18px; font-size: 14px; } }
+  @media (max-width: 749px) { .akt-portes { padding: 4px 8px 14px; } .akt-porte { flex: 1 1 calc(50% - 8px); } .akt-hero__destaques { grid-template-columns: 1fr; } .akt-passos button { font-size: 11px; } .akt-barra .akt-btn--cheio { padding: 0 18px; font-size: 14px; } }
 </style>
 
 <script src="{{ 'ame-atelier-kit.js' | asset_url }}" defer></script>
@@ -265,7 +306,6 @@
     { "type": "text", "id": "cor_inicial", "label": "Cor mostrada no início", "info": "Nome exato da cor do kit (ex.: Rosa Bebê). Vazio = primeira cor." },
     { "type": "text", "id": "metal_inicial", "label": "Metal mostrado no início", "default": "Ouro" },
     { "type": "number", "id": "parcelas", "label": "Parcelas sem juros", "default": 6 },
-    { "type": "url", "id": "guia_medidas_url", "label": "Link do guia de medidas" },
     { "type": "textarea", "id": "producao_texto", "label": "Texto de produção (resumo)", "default": "Produção artesanal: de 3 a 5 dias úteis antes do envio, já contabilizados no prazo de entrega." }
   ]
 }
