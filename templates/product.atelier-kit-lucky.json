@@ -1,0 +1,37 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "atelier-kit",
+      "settings": {
+        "eyebrow": "Kit Lucky · Peitoral e guia de couro",
+        "hero_titulo": "Do peitoral à guia,",
+        "hero_titulo_destaque": "tudo combina.",
+        "hero_destaques": "Peitoral Lucky + Guia Atena\n32 combinações de cores\n4 cores de metal\nCouro bovino legítimo\nFeito à mão, sob encomenda\n6 meses de garantia",
+        "cta": "Montar o meu kit",
+        "cor_inicial": "Rosa Bebê",
+        "metal_inicial": "Ouro",
+        "parcelas": 6,
+        "producao_texto": "Produção artesanal: de 3 a 5 dias úteis antes do envio, já contabilizados no prazo de entrega."
+      }
+    },
+    "avaliacoes": {
+      "type": "product-reviews",
+      "settings": {
+        "title": "Avaliações"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "avaliacoes"
+  ]
+}
