@@ -232,7 +232,7 @@
     const pelaRaca = () => {
       if (!raca || !raca.variacoes || !raca.variacoes.length) return null;
       const vs = raca.variacoes.filter((v) => !v.fase || v.fase === fase);
-      const lista = vs.length ? vs : raca.variacoes;
+      const lista = vs.length ? vs : raca.variacoes; if (peso == null && lista.filter((v) => v.peso_min != null || v.peso_max != null).length > 1 && !lista.some((v) => v.peso_min == null && v.peso_max == null)) return { precisaPeso: true };
       const porPeso = peso != null ? lista.find((v) => (v.peso_min == null || peso >= Number(v.peso_min)) && (v.peso_max == null || peso <= Number(v.peso_max)) && (v.peso_min != null || v.peso_max != null)) : null;
       const v = porPeso || lista[0];
       return v && v.tamanho_coleira ? { tam: v.tamanho_coleira, motivo: 'Para ' + raca.nome_raca + ' ' + fase.toLowerCase() + (porPeso ? ' de ' + String(peso).replace('.', ',') + ' kg' : '') + '.', porPeso: !!porPeso } : null;
@@ -248,7 +248,7 @@
       if (p && existe(p.tam)) return { tam: p.tam, motivo: 'Para porte ' + p.nome.toLowerCase() + ' (' + p.faixa + ').' };
     }
     const r = pelaRaca();
-    return r && existe(r.tam) ? r : null;
+    if (r && r.precisaPeso) return { precisaPeso: true, motivo: 'O tamanho de ' + raca.nome_raca + ' varia com o peso. Informe o peso do seu pet no item "3 · Peso", acima.' }; return r && existe(r.tam) ? r : null;
   }
   function portePorPeso(kg) {
     if (kg <= 2) return PORTES[0];
@@ -293,7 +293,7 @@
       PORTES.map((p) => '<button type="button" class="akt-porte" data-porte="' + p.id + '" aria-pressed="' + (S.porte === p.id) + '"><i style="--esc:' + p.esc + '">' + CAO + '</i><span><b>' + p.nome + '</b><small>' + p.faixa + '</small></span></button>').join('') + '</div></details>';
     h += '<details class="akt-sanfona"' + (S.peso ? ' open' : '') + '><summary><span class="akt-q">3 · Peso</span><span class="akt-suave">' + (S.peso ? esc(S.peso) + ' kg' : 'opcional') + '</span></summary><label class="akt-campo"><input type="text" inputmode="decimal" placeholder="Ex.: 8,5" value="' + esc(S.peso) + '" data-akt-peso><span>kg</span></label></details>';
     h += '<details class="akt-sanfona"' + (S.raca ? '' : '') + '><summary><span class="akt-q">Raça</span>' + (S.raca ? '<b>' + esc(S.raca) + '</b>' : '<span class="akt-suave">opcional</span>') + '</summary><label class="akt-campo"><input type="text" list="akt-racas" placeholder="Digite a raça" value="' + esc(S.raca) + '" data-akt-raca></label><datalist id="akt-racas">' + racas.map((r) => '<option value="' + esc(r.nome_raca) + '">').join('') + '</datalist></details>';
-    if (rec) {
+    if (rec && rec.precisaPeso) h += '<div class="akt-reco"><p class="akt-reco__rot">Nossa recomendação</p><p>' + esc(rec.motivo) + '</p></div>'; else if (rec) {
       const md = medidaDe(rec.tam);
       h += '<div class="akt-reco"><p class="akt-reco__rot">Nossa recomendação</p><p class="akt-reco__tam">Tamanho ' + esc(rec.tam) + '</p>' +
         (md && cm(md.torax_min, md.torax_max) ? '<p>Para tórax de ' + cm(md.torax_min, md.torax_max) + '.</p>' : '') + '<p>' + esc(rec.motivo) + '</p>' +
