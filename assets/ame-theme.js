@@ -555,11 +555,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const YAMPI_TIMEOUT_MS = 12000;
   let indoProCheckout = false;
 
+  /* Observação do pedido: salva em cart.note ao digitar (com atraso), ao sair do campo e antes
+     de ir para o checkout. O Waltz lê a note do pedido para a folha impressa. */
+  let notaTimer = null;
+  let notaPendente = null;
+  function salvarNota() {
+    const el = document.querySelector('[data-cart-note]');
+    if (!el) return Promise.resolve();
+    clearTimeout(notaTimer);
+    const valor = el.value.trim();
+    if (valor === (el.dataset.salvo || '')) return notaPendente || Promise.resolve();
+    notaPendente = fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ note: valor }),
+    })
+      .then((res) => { if (res.ok) el.dataset.salvo = valor; })
+      .catch(() => { /* a compra segue; a observação fica só no campo */ })
+      .finally(() => { notaPendente = null; });
+    return notaPendente;
+  }
+  document.addEventListener('input', (ev) => {
+    if (!ev.target.matches || !ev.target.matches('[data-cart-note]')) return;
+    clearTimeout(notaTimer);
+    notaTimer = setTimeout(salvarNota, 700);
+  });
+  document.addEventListener('focusout', (ev) => {
+    if (ev.target.matches && ev.target.matches('[data-cart-note]')) salvarNota();
+  });
+
   function irProCheckout(e) {
     e.preventDefault();
     if (indoProCheckout) return;
     indoProCheckout = true;
+    // espera a observação ser gravada (no máximo 2,5 s) para ela entrar no pedido
+    Promise.race([salvarNota(), new Promise((ok) => setTimeout(ok, 2500))]).then(seguirProCheckout);
+  }
 
+  function seguirProCheckout() {
     if (!YAMPI_ATIVO || typeof window.yampiClick !== 'function') {
       window.location.href = '/checkout';
       return;

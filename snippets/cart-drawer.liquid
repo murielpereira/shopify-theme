@@ -474,6 +474,26 @@
       <p class="ame-cart-totals__note">Frete calculado no checkout</p>
     </div>
 
+    {%- comment -%}
+      Observação do pedido (cart.note → order.note). A folha impressa do Waltz lê a note do
+      pedido na Shopify e mostra como "Nota da cliente". O JS (ame-theme.js) salva ao digitar
+      e antes de ir para o checkout. Não vai nos itens: é do pedido inteiro.
+    {%- endcomment -%}
+    <details class="ame-cart-note"{% if cart.note != blank %} open{% endif %}>
+      <summary class="ame-cart-note__resumo">Deixar uma observação sobre o pedido</summary>
+      <label class="ame-cart-note__rotulo" for="ame-cart-note">Observação (opcional)</label>
+      <textarea
+        id="ame-cart-note"
+        class="ame-cart-note__campo"
+        rows="3"
+        maxlength="300"
+        placeholder="Escreva aqui o que a nossa equipe precisa saber sobre o seu pedido"
+        data-cart-note
+        data-salvo="{{ cart.note | escape }}"
+      >{{ cart.note }}</textarea>
+      <p class="ame-cart-note__ajuda">A nossa equipe lê antes de separar o pedido.</p>
+    </details>
+
     <!-- CTA -->
     <a href="/checkout" class="ame-cta ame-cart-drawer__cta" data-cart-checkout>
       Finalizar compra
