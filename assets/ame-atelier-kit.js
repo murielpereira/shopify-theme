@@ -233,7 +233,7 @@
       if (!raca || !raca.variacoes || !raca.variacoes.length) return null;
       const vs = raca.variacoes.filter((v) => !v.fase || v.fase === fase);
       const lista = vs.length ? vs : raca.variacoes; if (peso == null && lista.filter((v) => v.peso_min != null || v.peso_max != null).length > 1 && !lista.some((v) => v.peso_min == null && v.peso_max == null)) return { precisaPeso: true };
-      const porPeso = peso != null ? lista.find((v) => (v.peso_min == null || peso >= Number(v.peso_min)) && (v.peso_max == null || peso <= Number(v.peso_max)) && (v.peso_min != null || v.peso_max != null)) : null;
+      const comFaixa = lista.filter((v) => v.peso_min != null || v.peso_max != null); const dist = (v) => { const a = v.peso_min == null ? -Infinity : Number(v.peso_min); const b = v.peso_max == null ? Infinity : Number(v.peso_max); return peso < a ? a - peso : (peso > b ? peso - b : 0); }; const porPeso = peso != null && comFaixa.length ? comFaixa.slice().sort((x, y) => dist(x) - dist(y))[0] : null;
       const v = porPeso || lista[0];
       return v && v.tamanho_coleira ? { tam: v.tamanho_coleira, motivo: 'Para ' + raca.nome_raca + ' ' + fase.toLowerCase() + (porPeso ? ' de ' + String(peso).replace('.', ',') + ' kg' : '') + '.', porPeso: !!porPeso } : null;
     };
