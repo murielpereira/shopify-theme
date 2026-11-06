@@ -1287,7 +1287,7 @@
         if (kg) {
             const raca = racaDoCatalogo(S.raca);
             const racaTemFaixa = !!(raca && (raca.variacoes || []).some((v) => v.peso_min != null || v.peso_max != null));
-            if (racaTemFaixa && pelaRaca && pelaRaca.tamanho) return pelaRaca;
+            const dentroDaFaixa = !!(pelaRaca && pelaRaca.tamanho && (raca.variacoes || []).some((v) => v.tamanho_coleira && norm(v.fase) === norm(pelaRaca.fase) && (v.peso_min != null || v.peso_max != null) && (v.peso_min == null || kg >= Number(v.peso_min)) && (v.peso_max == null || kg <= Number(v.peso_max)))); if (racaTemFaixa && dentroDaFaixa) return pelaRaca;
             const p = portePorPeso(kg);
             if (existe(TAM_PORTE[p])) return { raca: 'pet de ' + String(kg).replace('.', ',') + ' kg (porte ' + p.toLowerCase() + ')', fase, tamanho: TAM_PORTE[p], obs: '' };
         }
