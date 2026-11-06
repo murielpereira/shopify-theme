@@ -221,25 +221,41 @@
   const medidaDe = (tam) => (TM && TM.tabela && TM.tabela.medidas || []).find((m) => m.tamanho === tam) || null;
   function racasCao() { return (TM && TM.tabela && TM.tabela.racas || []).filter((r) => !r.especie || r.especie === 'cao'); }
   function recomendacao() {
+    // Porte e peso mandam no tamanho (regra da Bia, 06/11/2026):
+    // Micro = XPP, Mini = PP, Pequeno = P, Médio = M, Grande = G.
+    // Com peso: se a raça tem faixas de peso no Waltz, vale o Waltz para aquele peso;
+    // senão o peso define o porte. Sem porte nem peso, vale a raça.
     const fase = S.fase === 'filhote' ? 'Filhote' : 'Adulto';
     const peso = num(S.peso);
     const raca = racasCao().find((r) => r.nome_raca === S.raca);
-    if (raca && raca.variacoes && raca.variacoes.length) {
+    const existe = (t) => OP.tam.values.some((v) => v.display === t);
+    const pelaRaca = () => {
+      if (!raca || !raca.variacoes || !raca.variacoes.length) return null;
       const vs = raca.variacoes.filter((v) => !v.fase || v.fase === fase);
       const lista = vs.length ? vs : raca.variacoes;
-      const porPeso = peso != null ? lista.find((v) => (v.peso_min == null || peso >= Number(v.peso_min)) && (v.peso_max == null || peso <= Number(v.peso_max))) : null;
+      const porPeso = peso != null ? lista.find((v) => (v.peso_min == null || peso >= Number(v.peso_min)) && (v.peso_max == null || peso <= Number(v.peso_max)) && (v.peso_min != null || v.peso_max != null)) : null;
       const v = porPeso || lista[0];
-      if (v && v.tamanho_coleira) return { tam: v.tamanho_coleira, motivo: 'Para ' + raca.nome_raca + ' ' + fase.toLowerCase() + '.' };
-    }
+      return v && v.tamanho_coleira ? { tam: v.tamanho_coleira, motivo: 'Para ' + raca.nome_raca + ' ' + fase.toLowerCase() + (porPeso ? ' de ' + String(peso).replace('.', ',') + ' kg' : '') + '.', porPeso: !!porPeso } : null;
+    };
     if (peso != null) {
-      const p = PORTES.find((x) => peso > x.min && peso <= x.max) || PORTES[PORTES.length - 1];
-      return { tam: p.tam, motivo: 'Para ' + String(peso).replace('.', ',') + ' kg.' };
+      const r = pelaRaca();
+      if (r && r.porPeso && existe(r.tam)) return r;
+      const p = portePorPeso(peso);
+      if (existe(p.tam)) return { tam: p.tam, motivo: 'Para pet de ' + String(peso).replace('.', ',') + ' kg (porte ' + p.nome.toLowerCase() + ').' };
     }
     if (S.porte) {
       const p = PORTES.find((x) => x.id === S.porte);
-      return { tam: p.tam, motivo: 'Para porte ' + p.nome.toLowerCase() + ' (' + p.faixa + ').' };
+      if (p && existe(p.tam)) return { tam: p.tam, motivo: 'Para porte ' + p.nome.toLowerCase() + ' (' + p.faixa + ').' };
     }
-    return null;
+    const r = pelaRaca();
+    return r && existe(r.tam) ? r : null;
+  }
+  function portePorPeso(kg) {
+    if (kg <= 2) return PORTES[0];
+    if (kg < 4) return PORTES[1];
+    if (kg < 11) return PORTES[2];
+    if (kg < 24) return PORTES[3];
+    return PORTES[4];
   }
   function abrirGuia() {
     let m = root.querySelector('.akt-modal');
@@ -309,7 +325,7 @@
     if (ip) ip.addEventListener('change', () => {
       S.peso = ip.value.trim();
       const n = num(S.peso);
-      if (n != null) { const p = PORTES.find((x) => n > x.min && n <= x.max) || PORTES[PORTES.length - 1]; S.porte = p.id; }
+      if (n != null) S.porte = portePorPeso(n).id;
       renderTamanhos();
     });
     const ir = el.querySelector('[data-akt-raca]');
