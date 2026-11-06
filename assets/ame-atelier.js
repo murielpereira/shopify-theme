@@ -1267,7 +1267,37 @@
     }
     // Recomendação pela RAÇA. Devolve null (sem raça, raça fora da tabela ou sem dados), ou
     // { raca, fase, tamanho, obs } / { raca, fase, precisaPeso } / { raca, fase, semIndicacao }.
+    // Porte e peso mandam no tamanho (regra da Bia, 06/11/2026):
+    // Micro = XPP, Mini = PP, Pequeno = P, Médio = M, Grande = G.
+    // Com peso: se a raça tem faixas de peso no Waltz, vale o Waltz para aquele peso;
+    // senão o peso define o porte. Sem porte nem peso, vale a raça (tamanhoPelaRaca).
+    const TAM_PORTE = { 'Micro': 'XPP', 'Mini': 'PP', 'Pequeno': 'P', 'Médio': 'M', 'Grande': 'G' };
+    function portePorPeso(kg) {
+        if (kg <= 2) return 'Micro';
+        if (kg < 4) return 'Mini';
+        if (kg < 11) return 'Pequeno';
+        if (kg < 24) return 'Médio';
+        return 'Grande';
+    }
     function tamanhoRecomendado() {
+        const pelaRaca = tamanhoPelaRaca();
+        const kg = pesoNum();
+        const fase = S.idade === 'Filhote' ? 'filhote' : 'adulto';
+        const existe = (t) => !!(t && M && M.tamanhos.includes(t));
+        if (kg) {
+            const raca = racaDoCatalogo(S.raca);
+            const racaTemFaixa = !!(raca && (raca.variacoes || []).some((v) => v.peso_min != null || v.peso_max != null));
+            if (racaTemFaixa && pelaRaca && pelaRaca.tamanho) return pelaRaca;
+            const p = portePorPeso(kg);
+            if (existe(TAM_PORTE[p])) return { raca: 'pet de ' + String(kg).replace('.', ',') + ' kg (porte ' + p.toLowerCase() + ')', fase, tamanho: TAM_PORTE[p], obs: '' };
+        }
+        if (S.porte && existe(TAM_PORTE[S.porte])) {
+            const pp = PORTES.find((x) => x.id === S.porte);
+            return { raca: 'porte ' + String(S.porte).toLowerCase() + (pp ? ' (' + pp.faixa + ')' : ''), fase, tamanho: TAM_PORTE[S.porte], obs: '' };
+        }
+        return pelaRaca;
+    }
+    function tamanhoPelaRaca() {
         if (!M) return null;
         const raca = racaDoCatalogo(S.raca);
         if (!raca) return null;
