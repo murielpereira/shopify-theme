@@ -1287,7 +1287,7 @@
         if (kg) {
             const raca = racaDoCatalogo(S.raca);
             const racaTemFaixa = !!(raca && (raca.variacoes || []).some((v) => v.peso_min != null || v.peso_max != null));
-            const dentroDaFaixa = !!(pelaRaca && pelaRaca.tamanho && (raca.variacoes || []).some((v) => v.tamanho_coleira && norm(v.fase) === norm(pelaRaca.fase) && (v.peso_min != null || v.peso_max != null) && (v.peso_min == null || kg >= Number(v.peso_min)) && (v.peso_max == null || kg <= Number(v.peso_max)))); if (racaTemFaixa && dentroDaFaixa) return pelaRaca;
+            const faixas = ((raca && raca.variacoes) || []).filter((v) => v.tamanho_coleira && (v.peso_min != null || v.peso_max != null)); const daFase = faixas.filter((v) => norm(v.fase) === fase); const listaW = daFase.length ? daFase : faixas; const dist = (v) => { const a = v.peso_min == null ? -Infinity : Number(v.peso_min); const b = v.peso_max == null ? Infinity : Number(v.peso_max); return kg < a ? a - kg : (kg > b ? kg - b : 0); }; const maisPerto = listaW.slice().sort((x, y) => dist(x) - dist(y))[0]; const tamW = maisPerto ? String(maisPerto.tamanho_coleira).split(',').map((s) => s.trim()).find((s) => existe(s)) : null; if (racaTemFaixa && tamW) return { raca: raca.nome_raca, fase: maisPerto.fase || fase, tamanho: tamW, obs: maisPerto.observacao || '' };
             const p = portePorPeso(kg);
             if (existe(TAM_PORTE[p])) return { raca: 'pet de ' + String(kg).replace('.', ',') + ' kg (porte ' + p.toLowerCase() + ')', fase, tamanho: TAM_PORTE[p], obs: '' };
         }
