@@ -1,0 +1,33 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "natal": {
+      "type": "natal-colecao",
+      "blocks": {
+        "aba_kits": { "type": "aba", "settings": { "rotulo": "Kits e conjuntos", "palavras": "kit" } },
+        "aba_coleiras": { "type": "aba", "settings": { "rotulo": "Coleiras e guias", "palavras": "coleira, guia, peitoral, colar" } },
+        "aba_charms": { "type": "aba", "settings": { "rotulo": "Charms e laços", "palavras": "charm, laço, laco, skin" } },
+        "aba_tricos": { "type": "aba", "settings": { "rotulo": "Tricôs", "palavras": "tricot, tricô, trico" } },
+        "aval_1": { "type": "avaliacao", "settings": { "texto": "Linda. Confortável, estilosa, acabamento extraordinário", "nome": "Antonio G.", "produto": "Peitoral de couro para cachorro com flores | Prímula", "quando": "Há 18 horas" } },
+        "aval_2": { "type": "avaliacao", "settings": { "texto": "Perfeita!!! Vem numa embalagem linda, cheio de carinho, pensado em cada detalhe!", "nome": "Ingredi M.", "produto": "Coleira Stella", "link": "/products/coleira-de-couro-stella", "quando": "Há 18 horas" } },
+        "aval_3": { "type": "avaliacao", "settings": { "texto": "Lindíssimo!! Amamos! Parabéns pelo trabalho!!", "nome": "Vivian P.", "produto": "Pingente de metal com couro · Off White", "quando": "Há 2 dias" } }
+      },
+      "block_order": ["aba_kits", "aba_coleiras", "aba_charms", "aba_tricos", "aval_1", "aval_2", "aval_3"],
+      "settings": {
+        "destaque_produto": "kit-peitoral-e-guia-de-couro-para-cachorro-lucky-edicao-natal",
+        "banda_link": "/collections/acessorios",
+        "aval_link": "/pages/avaliacoes",
+        "final_link2": "/collections/all"
+      }
+    }
+  },
+  "order": ["natal"]
+}
