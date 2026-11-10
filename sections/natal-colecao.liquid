@@ -95,7 +95,8 @@
               elsif product.tags contains 'customizacao_sobmedida'
                 assign selo = section.settings.selo_sob_medida
               endif
-              assign busca = product.type | default: product.title | downcase
+              assign primeira_palavra = product.title | split: ' ' | first
+assign busca = product.type | default: primeira_palavra | downcase
               assign preco = product.price_min
               assign fator = 100 | minus: pix_pct | divided_by: 100.0
               assign pix = preco | times: fator | round
