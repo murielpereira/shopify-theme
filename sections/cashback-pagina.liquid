@@ -58,6 +58,16 @@
       Entre na sua conta para ver seu saldo.
       <a href="{{ routes.account_login_url }}">Fazer login</a>
     </p>
+  {%- else -%}
+    {%- comment -%}
+      Logada, a caixa em branco era um beco sem saída: se o painel não monta (a
+      rede caiu, o programa está fora do ar), a cliente não via NADA. Este aviso
+      só aparece depois de alguns segundos — com o painel chegando normalmente
+      ele nunca é visto, e some assim que o #wcb-root existe.
+    {%- endcomment -%}
+    <p class="ame-cashback-pagina__aviso ame-cashback-pagina__aviso--tardio" data-cashback-sem-painel>
+      Não conseguimos carregar o seu cashback agora. Tente de novo em instantes.
+    </p>
   {%- endunless -%}
 </section>
 
@@ -94,6 +104,14 @@
     font-size: 0.875rem;
     color: var(--color-on-surface-muted, #6f645d);
     margin: 1rem 0 0;
+  }
+  /* Nasce invisível e só aparece depois de 6 s: o painel normalmente monta antes. */
+  .ame-cashback-pagina__aviso--tardio {
+    opacity: 0;
+    animation: ame-cashback-aviso 0.3s ease 6s forwards;
+  }
+  @keyframes ame-cashback-aviso {
+    to { opacity: 1; }
   }
   .ame-cashback-pagina__aviso a {
     color: inherit;
