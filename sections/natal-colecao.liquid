@@ -1,0 +1,470 @@
+{%- comment -%}
+  Âme · Coleção Natal (página própria da coleção, estilo da landing Base44).
+  Usada só pelo modelo collection.natal. Topo, faixa, vitrine com abas,
+  destaque de um produto, faixa vermelha, avaliações e chamada final.
+{%- endcomment -%}
+{%- liquid
+  assign pix_pct = shop.metafields.waltz.vitrine.value.pix_pct | default: settings.pix_discount | default: 5
+  assign parcela_min = section.settings.parcela_minima | default: 40
+  assign max_parc = section.settings.max_parcelas | default: 6
+  assign cashback_pct = section.settings.cashback_pct | default: 10
+  assign img_topo = section.settings.topo_imagem
+  assign img_final = section.settings.final_imagem
+  assign destaque = section.settings.destaque_produto
+-%}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="nt" data-nt>
+
+  {%- comment -%} ============ TOPO ============ {%- endcomment -%}
+  <section class="nt-topo">
+    {%- if img_topo != blank -%}
+      {{ img_topo | image_url: width: 2400 | image_tag: class: 'nt-topo__img', loading: 'eager', sizes: '100vw', widths: '800, 1200, 1600, 2400', alt: '' }}
+    {%- elsif section.settings.topo_imagem_url != blank -%}
+      <img class="nt-topo__img" src="{{ section.settings.topo_imagem_url }}" alt="" loading="eager" width="2400" height="1300">
+    {%- endif -%}
+    <div class="nt-topo__veu"></div>
+    <div class="nt-topo__conteudo nt-larg">
+      <span class="nt-selo">{{ section.settings.topo_selo }}</span>
+      <h1 class="nt-topo__titulo">{{ section.settings.topo_titulo }} <em>{{ section.settings.topo_titulo_destaque }}</em></h1>
+      <p class="nt-topo__texto">{{ section.settings.topo_texto }}</p>
+    </div>
+    <a class="nt-btn nt-btn--creme nt-topo__btn" href="#nt-vitrine">{{ section.settings.topo_botao }} <span aria-hidden="true">→</span></a>
+  </section>
+
+  {%- comment -%} ============ FAIXA VERDE ============ {%- endcomment -%}
+  <div class="nt-faixa">
+    <div class="nt-larg nt-faixa__itens">
+      {%- assign itens_faixa = section.settings.faixa_itens | newline_to_br | split: '<br />' -%}
+      {%- for f in itens_faixa -%}{%- assign f = f | strip -%}{%- if f != blank -%}<span>{{ f }}</span>{%- endif -%}{%- endfor -%}
+    </div>
+  </div>
+
+  {%- comment -%} ============ VITRINE ============ {%- endcomment -%}
+  <section class="nt-vitrine" id="nt-vitrine">
+    <div class="nt-larg">
+      <div class="nt-vitrine__topo">
+        <div>
+          <p class="nt-olho">{{ section.settings.vitrine_olho }}</p>
+          <h2 class="nt-titulo">{{ section.settings.vitrine_titulo }} <em>{{ section.settings.vitrine_titulo_destaque }}</em></h2>
+        </div>
+        <p class="nt-vitrine__conta">{{ collection.products_count }} peças · {{ section.settings.vitrine_conta_texto }}</p>
+      </div>
+
+      <div class="nt-abas" role="tablist" aria-label="Filtrar peças">
+        <button type="button" class="nt-aba is-ativa" data-nt-aba="" role="tab" aria-selected="true">{{ section.settings.aba_todas }}</button>
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'aba' -%}
+            <button type="button" class="nt-aba" data-nt-aba="{{ block.settings.palavras | downcase | escape }}" role="tab" aria-selected="false" {{ block.shopify_attributes }}>{{ block.settings.rotulo }}</button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- paginate collection.products by 48 -%}
+        <div class="nt-grade">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign partes = product.title | split: '|'
+              assign antes = partes.first | strip
+              assign depois = ''
+              if partes.size > 1
+                assign depois = partes.last | strip
+              endif
+              assign base = antes | split: ' de ' | first | split: ' De ' | first | split: ' para ' | first | split: ' em ' | first | strip
+              assign nome = base
+              if depois != blank
+                assign dep_lc = depois | downcase
+                if dep_lc == 'natal' or dep_lc == 'edição natal' or dep_lc == 'edicao natal'
+                  assign nome = base | append: ' · Natal'
+                elsif dep_lc contains 'edição natal' or dep_lc contains 'edicao natal'
+                  assign extra = depois | remove: 'Edição Natal' | remove: 'edição natal' | remove: 'Edicao Natal' | strip
+                  assign nome = base | append: ' ' | append: extra | append: ' · Natal'
+                else
+                  assign nome = base | append: ' ' | append: depois
+                endif
+              endif
+              unless section.settings.nomes_curtos
+                assign nome = product.title
+              endunless
+              assign titulo_lc = product.title | downcase
+              assign selo = section.settings.selo_lancamento
+              if titulo_lc contains 'kit '
+                assign selo = section.settings.selo_kit
+              elsif product.tags contains 'customizacao_sobmedida'
+                assign selo = section.settings.selo_sob_medida
+              endif
+              assign busca = product.type | default: product.title | downcase
+              assign preco = product.price_min
+              assign fator = 100 | minus: pix_pct | divided_by: 100.0
+              assign pix = preco | times: fator | round
+              assign n = preco | divided_by: 100 | divided_by: parcela_min | floor
+              if n > max_parc
+                assign n = max_parc
+              endif
+              if n < 1
+                assign n = 1
+              endif
+              assign parcela = preco | divided_by: n
+            -%}
+            <a class="nt-card" href="{{ product.url }}" data-nt-busca="{{ busca | escape }}">
+              <div class="nt-card__foto">
+                {%- if product.featured_image -%}
+                  {{ product.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, (min-width: 600px) 50vw, 100vw', widths: '400, 600, 900', alt: product.title }}
+                {%- endif -%}
+                {%- if selo != blank -%}<span class="nt-card__selo">{{ selo }}</span>{%- endif -%}
+              </div>
+              <h3 class="nt-card__nome">{{ nome }}</h3>
+              <p class="nt-card__pix">{% if product.price_varies %}A partir de {% endif %}<b>{{ pix | money }}</b> no Pix</p>
+              <p class="nt-card__cartao">ou {{ preco | money }} no cartão · {{ n }}x de {{ parcela | money }} sem juros</p>
+            </a>
+          {%- endfor -%}
+        </div>
+        <p class="nt-vazio" data-nt-vazio hidden>Nenhuma peça nesta categoria por enquanto.</p>
+      {%- endpaginate -%}
+    </div>
+  </section>
+
+  {%- comment -%} ============ DESTAQUE ============ {%- endcomment -%}
+  {%- if destaque != blank -%}
+    {%- liquid
+      assign d_preco = destaque.price_min
+      assign d_fator = 100 | minus: pix_pct | divided_by: 100.0
+      assign d_pix = d_preco | times: d_fator | round
+      assign d_n = d_preco | divided_by: 100 | divided_by: parcela_min | floor
+      if d_n > max_parc
+        assign d_n = max_parc
+      endif
+      if d_n < 1
+        assign d_n = 1
+      endif
+      assign d_parc = d_preco | divided_by: d_n
+      assign d_cash = d_preco | times: cashback_pct | divided_by: 100
+      assign d_img = section.settings.destaque_imagem | default: destaque.featured_image
+    -%}
+    <section class="nt-destaque">
+      <div class="nt-larg nt-destaque__grade">
+        <div class="nt-destaque__foto">
+          {%- if d_img -%}{{ d_img | image_url: width: 1200 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 50vw, 100vw', alt: destaque.title }}{%- endif -%}
+          <span class="nt-destaque__selo"><small>{{ section.settings.destaque_selo_linha }}</small>{{ section.settings.destaque_selo_nome }}</span>
+        </div>
+        <div class="nt-destaque__texto">
+          <p class="nt-olho">{{ section.settings.destaque_olho }}</p>
+          <h2 class="nt-titulo nt-titulo--escuro">{{ section.settings.destaque_titulo | default: destaque.title }}</h2>
+          <p class="nt-destaque__desc">{{ section.settings.destaque_texto }}</p>
+          {%- assign vantagens = section.settings.destaque_vantagens | newline_to_br | split: '<br />' -%}
+          <ul class="nt-destaque__lista">
+            {%- for v in vantagens -%}{%- assign v = v | strip -%}{%- if v != blank -%}<li>{{ v }}</li>{%- endif -%}{%- endfor -%}
+          </ul>
+          <p class="nt-destaque__pix">{% if destaque.price_varies %}A partir de {% endif %}<b>{{ d_pix | money }}</b> no Pix</p>
+          <p class="nt-card__cartao">ou {{ d_preco | money }} no cartão · {{ d_n }}x de {{ d_parc | money }} sem juros</p>
+          {%- if cashback_pct > 0 -%}<p class="nt-destaque__cash">Ganhe até {{ d_cash | money }} de cashback</p>{%- endif -%}
+          <a class="nt-btn nt-btn--vermelho" href="{{ destaque.url }}">{{ section.settings.destaque_botao }} <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ FAIXA VERMELHA ============ {%- endcomment -%}
+  {%- if section.settings.banda_titulo != blank -%}
+    <section class="nt-banda">
+      <div class="nt-larg nt-banda__conteudo">
+        <div>
+          <p class="nt-olho nt-olho--claro">{{ section.settings.banda_olho }}</p>
+          <h2 class="nt-banda__titulo">{{ section.settings.banda_titulo }} <em>{{ section.settings.banda_titulo_destaque }}</em></h2>
+        </div>
+        {%- if section.settings.banda_link != blank -%}
+          <a class="nt-btn nt-btn--creme" href="{{ section.settings.banda_link }}">{{ section.settings.banda_botao }} <span aria-hidden="true">↗</span></a>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ AVALIAÇÕES ============ {%- endcomment -%}
+  {%- assign tem_aval = false -%}
+  {%- for block in section.blocks -%}{%- if block.type == 'avaliacao' -%}{%- assign tem_aval = true -%}{%- endif -%}{%- endfor -%}
+  {%- if tem_aval -%}
+    <section class="nt-aval">
+      <div class="nt-larg">
+        <p class="nt-olho">{{ section.settings.aval_olho }}</p>
+        <h2 class="nt-titulo">{{ section.settings.aval_titulo }} <em>{{ section.settings.aval_titulo_destaque }}</em></h2>
+        <p class="nt-aval__nota"><span class="nt-estrelas" aria-hidden="true">★★★★★</span> {{ section.settings.aval_nota }}</p>
+        <div class="nt-aval__grade">
+          {%- assign primeira = true -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'avaliacao' -%}
+              <article class="nt-aval__card{% if primeira %} nt-aval__card--grande{% endif %}" {{ block.shopify_attributes }}>
+                <div class="nt-aval__topo"><span class="nt-estrelas" aria-hidden="true">★★★★★</span>{%- unless primeira -%}<small>{{ block.settings.quando }}</small>{%- endunless -%}</div>
+                <p class="nt-aval__texto">“{{ block.settings.texto }}”</p>
+                <div class="nt-aval__rodape">
+                  <p class="nt-aval__nome">{{ block.settings.nome }}{%- if primeira -%} <small>· comprador verificado</small>{%- endif -%}</p>
+                  {%- if block.settings.produto != blank -%}
+                    {%- if block.settings.link != blank -%}<a class="nt-aval__produto" href="{{ block.settings.link }}">{{ block.settings.produto }} ↗</a>{%- else -%}<p class="nt-aval__produto">{{ block.settings.produto }}</p>{%- endif -%}
+                  {%- endif -%}
+                </div>
+              </article>
+              {%- assign primeira = false -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        {%- if section.settings.aval_link != blank -%}
+          <a class="nt-btn nt-btn--contorno" href="{{ section.settings.aval_link }}">{{ section.settings.aval_botao }} <span aria-hidden="true">↗</span></a>
+        {%- endif -%}
+      </div>
+    </section>
+  {%- endif -%}
+
+  {%- comment -%} ============ CHAMADA FINAL ============ {%- endcomment -%}
+  <section class="nt-final">
+    {%- if img_final != blank -%}
+      {{ img_final | image_url: width: 2000 | image_tag: class: 'nt-final__img', loading: 'lazy', sizes: '100vw', alt: '' }}
+    {%- elsif section.settings.final_imagem_url != blank -%}
+      <img class="nt-final__img" src="{{ section.settings.final_imagem_url }}" alt="" loading="lazy" width="2000" height="1100">
+    {%- endif -%}
+    <div class="nt-final__veu"></div>
+    <div class="nt-final__conteudo">
+      <p class="nt-olho nt-olho--dourado nt-olho--linhas">{{ section.settings.final_olho }}</p>
+      <h2 class="nt-final__titulo">{{ section.settings.final_titulo }}<br><em>{{ section.settings.final_titulo_destaque }}</em></h2>
+      <p class="nt-final__texto">{{ section.settings.final_texto }}</p>
+      <div class="nt-final__botoes">
+        <a class="nt-btn nt-btn--creme-quadrado" href="#nt-vitrine">{{ section.settings.final_botao }} <span aria-hidden="true">↗</span></a>
+        {%- if section.settings.final_link2 != blank -%}<a class="nt-btn nt-btn--contorno-claro" href="{{ section.settings.final_link2 }}">{{ section.settings.final_botao2 }}</a>{%- endif -%}
+      </div>
+      {%- if section.settings.final_rodape != blank -%}<p class="nt-final__rodape">{{ section.settings.final_rodape }}</p>{%- endif -%}
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var raiz = document.querySelector('[data-nt]');
+    if (!raiz) return;
+    var tirar = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+    var abas = raiz.querySelectorAll('[data-nt-aba]');
+    var cards = raiz.querySelectorAll('[data-nt-busca]');
+    var vazio = raiz.querySelector('[data-nt-vazio]');
+    abas.forEach(function (aba) {
+      aba.addEventListener('click', function () {
+        abas.forEach(function (a) { a.classList.toggle('is-ativa', a === aba); a.setAttribute('aria-selected', a === aba ? 'true' : 'false'); });
+        var palavras = tirar(aba.getAttribute('data-nt-aba')).split(',').map(function (p) { return p.trim(); }).filter(Boolean);
+        var visiveis = 0;
+        cards.forEach(function (c) {
+          var texto = tirar(c.getAttribute('data-nt-busca'));
+          var mostra = !palavras.length || palavras.some(function (p) { return texto.indexOf(p) !== -1; });
+          c.hidden = !mostra;
+          if (mostra) visiveis++;
+        });
+        if (vazio) vazio.hidden = visiveis > 0;
+      });
+    });
+  })();
+</script>
+
+<style>
+  .nt { --nt-creme: #F4E5C0; --nt-creme-claro: #FBF1DA; --nt-linha: #E8D6AA; --nt-vermelho: #8B0000; --nt-verde: #0A3D2E; --nt-verde-2: #0D4632; --nt-dourado: #B8873B; --nt-dourado-esc: #8A6A24; --nt-tinta: #1A1A1A;
+    position: relative; width: 100vw; max-width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw);
+    background: var(--nt-creme); color: var(--nt-tinta); font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+  .nt * { box-sizing: border-box; }
+  .nt [hidden] { display: none !important; }
+  .nt a { color: inherit; }
+  .nt-larg { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .nt-olho { margin: 0 0 12px; font-size: 11px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--nt-vermelho); }
+  .nt-olho--claro { color: rgba(251,241,218,.75); }
+  .nt-olho--dourado { color: var(--nt-dourado); }
+  .nt-olho--linhas { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .nt-olho--linhas::before, .nt-olho--linhas::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .7; }
+  .nt-titulo { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(34px, 4.4vw, 52px); line-height: 1.08; color: var(--nt-vermelho); }
+  .nt-titulo em, .nt-topo__titulo em, .nt-banda__titulo em, .nt-final__titulo em { font-style: italic; }
+  .nt-titulo--escuro { color: var(--nt-tinta); }
+  .nt-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 0 26px; border: 1px solid transparent; border-radius: 999px; font-family: Inter, sans-serif; font-size: 11px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase; text-decoration: none; transition: transform .2s ease, opacity .2s ease; }
+  .nt-btn:hover { transform: translateY(-1px); }
+  .nt-btn--creme { background: var(--nt-creme-claro); color: var(--nt-vermelho) !important; }
+  .nt-btn--vermelho { border-radius: 2px; background: var(--nt-vermelho); color: var(--nt-creme-claro) !important; }
+  .nt-btn--contorno { border-radius: 2px; border-color: var(--nt-verde); color: var(--nt-verde) !important; }
+  .nt-btn--creme-quadrado { border-radius: 2px; background: var(--nt-creme-claro); color: var(--nt-verde) !important; }
+  .nt-btn--contorno-claro { border-radius: 2px; border-color: rgba(251,241,218,.6); color: var(--nt-creme-claro) !important; }
+
+  /* topo */
+  .nt-topo { position: relative; display: flex; align-items: center; min-height: clamp(520px, 82vh, 860px); overflow: hidden; background: #d9cbb8; }
+  .nt-topo__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+  .nt-topo__veu { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(244,229,192,.55) 0%, rgba(244,229,192,.15) 45%, rgba(0,0,0,0) 70%); }
+  .nt-topo__conteudo { position: relative; z-index: 1; }
+  .nt-selo { display: inline-block; margin-bottom: 18px; padding: 6px 12px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+  .nt-topo__titulo { max-width: 560px; margin: 0 0 16px; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(40px, 5.4vw, 64px); line-height: 1.04; color: #fff; text-shadow: 0 1px 24px rgba(0,0,0,.18); }
+  .nt-topo__texto { max-width: 420px; margin: 0; font-size: 15px; color: var(--nt-vermelho); }
+  .nt-topo__btn { position: absolute; right: max(24px, calc((100vw - 1200px) / 2 + 24px)); bottom: 40px; z-index: 1; }
+
+  /* faixa */
+  .nt-faixa { background: var(--nt-verde-2); color: var(--nt-creme); }
+  .nt-faixa__itens { display: flex; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; overflow-x: auto; white-space: nowrap; }
+
+  /* vitrine */
+  .nt-vitrine { padding: clamp(56px, 7vw, 96px) 0; }
+  .nt-vitrine__topo { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 26px; }
+  .nt-vitrine__conta { margin: 0; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(26,26,26,.45); }
+  .nt-abas { display: flex; gap: 8px; margin-bottom: 40px; overflow-x: auto; padding-bottom: 4px; }
+  .nt-aba { flex: none; min-height: 34px; padding: 0 16px; border: 1px solid var(--nt-linha); border-radius: 0; background: transparent; color: rgba(26,26,26,.6); font: 500 10px/1 Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; cursor: pointer; }
+  .nt-aba.is-ativa { border-color: var(--nt-verde); background: var(--nt-verde); color: var(--nt-creme-claro); }
+  .nt-grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 28px; }
+  .nt-card { display: block; text-decoration: none; }
+  .nt-card__foto { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #efe3c9; }
+  .nt-card__foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .nt-card:hover .nt-card__foto img { transform: scale(1.04); }
+  .nt-card__selo { position: absolute; top: 10px; left: 10px; padding: 4px 9px; background: var(--nt-creme-claro); color: var(--nt-vermelho); font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+  .nt-card__nome { margin: 14px 0 6px; padding-top: 14px; border-top: 1px solid var(--nt-linha); font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 20px; line-height: 1.2; color: var(--nt-vermelho); }
+  .nt-card__pix { margin: 0; font-size: 14px; color: rgba(26,26,26,.7); }
+  .nt-card__pix b, .nt-destaque__pix b { color: var(--nt-verde); font-weight: 600; }
+  .nt-card__cartao { margin: 2px 0 0; font-size: 11.5px; color: rgba(26,26,26,.5); }
+  .nt-vazio { margin: 24px 0 0; color: rgba(26,26,26,.55); }
+
+  /* destaque */
+  .nt-destaque { padding: 0 0 clamp(56px, 7vw, 96px); }
+  .nt-destaque__grade { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .nt-destaque__foto { position: relative; }
+  .nt-destaque__foto img { width: 100%; aspect-ratio: 4 / 3.2; object-fit: cover; }
+  .nt-destaque__selo { position: absolute; right: 18px; bottom: -18px; display: flex; flex-direction: column; align-items: center; padding: 10px 22px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; line-height: 1.1; }
+  .nt-destaque__selo small { font-family: Inter, sans-serif; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; opacity: .8; }
+  .nt-destaque__desc { margin: 14px 0 16px; color: rgba(26,26,26,.7); }
+  .nt-destaque__lista { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin: 0 0 22px; padding: 0; list-style: none; font-size: 13px; color: rgba(26,26,26,.75); }
+  .nt-destaque__lista li::before { content: "✓"; margin-right: 8px; color: var(--nt-dourado); }
+  .nt-destaque__pix { margin: 0; font-size: 15px; color: rgba(26,26,26,.7); }
+  .nt-destaque__pix b { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 500; }
+  .nt-destaque__cash { margin: 4px 0 22px; font-size: 12px; color: var(--nt-vermelho); }
+
+  /* faixa vermelha */
+  .nt-banda { border-top: 2px solid var(--nt-dourado); border-bottom: 2px solid var(--nt-dourado); background: var(--nt-vermelho); color: var(--nt-creme-claro); }
+  .nt-banda__conteudo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding-top: 44px; padding-bottom: 44px; }
+  .nt-banda__titulo { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(28px, 3.4vw, 38px); }
+
+  /* avaliações */
+  .nt-aval { padding: clamp(56px, 7vw, 96px) 0; }
+  .nt-aval__nota { margin: 10px 0 30px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(26,26,26,.45); }
+  .nt-estrelas { color: var(--nt-dourado); letter-spacing: 2px; font-size: 13px; }
+  .nt-aval__grade { display: grid; grid-template-columns: 1.35fr 1fr; grid-auto-rows: auto; gap: 16px; margin-bottom: 26px; }
+  .nt-aval__card { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--nt-linha); background: rgba(251,241,218,.6); }
+  .nt-aval__card--grande { grid-row: span 2; padding: 34px; background: var(--nt-creme-claro); }
+  .nt-aval__topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .nt-aval__topo small { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: rgba(26,26,26,.45); }
+  .nt-aval__texto { margin: 0 0 14px; font-size: 14px; color: rgba(26,26,26,.75); }
+  .nt-aval__card--grande .nt-aval__texto { flex: 1; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; line-height: 1.3; color: var(--nt-verde); }
+  .nt-aval__rodape { padding-top: 14px; border-top: 1px solid var(--nt-linha); }
+  .nt-aval__card:not(.nt-aval__card--grande) .nt-aval__rodape { padding-top: 0; border-top: 0; }
+  .nt-aval__nome { margin: 0 0 4px; font-size: 13px; }
+  .nt-aval__nome small { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(26,26,26,.4); }
+  .nt-aval__produto { margin: 0; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--nt-vermelho) !important; text-decoration: none; }
+
+  /* final */
+  .nt-final { position: relative; overflow: hidden; padding: clamp(80px, 10vw, 120px) 24px; background: var(--nt-verde); color: var(--nt-creme-claro); text-align: center; }
+  .nt-final__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .nt-final__veu { position: absolute; inset: 0; background: rgba(10,61,46,.8); }
+  .nt-final__conteudo { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+  .nt-final__titulo { margin: 0 0 16px; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(38px, 5vw, 58px); line-height: 1.08; }
+  .nt-final__titulo em { color: #F3E3B4; }
+  .nt-final__texto { max-width: 440px; margin: 0 auto 30px; color: rgba(251,241,218,.75); }
+  .nt-final__botoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .nt-final__rodape { margin: 26px 0 0; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(251,241,218,.5); }
+
+  @media (max-width: 989px) {
+    .nt-grade { grid-template-columns: repeat(2, 1fr); gap: 30px 16px; }
+    .nt-destaque__grade { grid-template-columns: 1fr; gap: 36px; }
+    .nt-aval__grade { grid-template-columns: 1fr; }
+    .nt-aval__card--grande { grid-row: auto; }
+  }
+  @media (max-width: 599px) {
+    .nt-topo { align-items: flex-end; padding-bottom: 110px; }
+    .nt-topo__veu { background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.35) 100%); }
+    .nt-topo__texto { color: #fff; }
+    .nt-topo__btn { left: 24px; right: auto; bottom: 36px; }
+    .nt-card__nome { font-size: 17px; }
+    .nt-destaque__lista { grid-template-columns: 1fr; }
+    .nt-faixa__itens { gap: 28px; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Natal · página da coleção",
+  "tag": "div",
+  "class": "section-natal-colecao",
+  "settings": [
+    { "type": "header", "content": "Topo" },
+    { "type": "image_picker", "id": "topo_imagem", "label": "Foto do topo" },
+    { "type": "text", "id": "topo_imagem_url", "label": "Foto do topo (link, se não escolher acima)", "default": "https://media.base44.com/images/public/6af2fbaa63cc9236e158e790/ea2bc144b_hero-natal.jpg" },
+    { "type": "text", "id": "topo_selo", "label": "Selo", "default": "Lançamentos de Natal" },
+    { "type": "text", "id": "topo_titulo", "label": "Título", "default": "A coleção de Natal da Âme" },
+    { "type": "text", "id": "topo_titulo_destaque", "label": "Título — parte em itálico", "default": "chegou" },
+    { "type": "textarea", "id": "topo_texto", "label": "Texto", "default": "Novidades em couro legítimo com clima natalino: coleiras, peitorais, laços e charms com acabamento dourado feito à mão." },
+    { "type": "text", "id": "topo_botao", "label": "Botão", "default": "Explorar coleção" },
+    { "type": "textarea", "id": "faixa_itens", "label": "Faixa verde (um por linha)", "default": "Couro legítimo\nProdução artesanal\nAté 6x sem juros\n10% de cashback" },
+    { "type": "header", "content": "Vitrine" },
+    { "type": "text", "id": "vitrine_olho", "label": "Linha acima do título", "default": "A vitrine" },
+    { "type": "text", "id": "vitrine_titulo", "label": "Título", "default": "Peças da coleção" },
+    { "type": "text", "id": "vitrine_titulo_destaque", "label": "Título — parte em itálico", "default": "Natal" },
+    { "type": "text", "id": "vitrine_conta_texto", "label": "Texto ao lado da contagem", "default": "couro legítimo" },
+    { "type": "text", "id": "aba_todas", "label": "Primeira aba", "default": "Todas as peças" },
+    { "type": "checkbox", "id": "nomes_curtos", "label": "Nomes curtos nos cartões", "info": "Ex.: \"Coleira de couro para cachorro | Atena Edição Natal\" vira \"Coleira Atena · Natal\".", "default": true },
+    { "type": "text", "id": "selo_lancamento", "label": "Selo padrão", "default": "Lançamento" },
+    { "type": "text", "id": "selo_kit", "label": "Selo dos kits", "default": "O kit completo" },
+    { "type": "text", "id": "selo_sob_medida", "label": "Selo de sob medida (tag customizacao_sobmedida)", "default": "Sob medida" },
+    { "type": "number", "id": "parcela_minima", "label": "Parcela mínima (R$)", "default": 40 },
+    { "type": "number", "id": "max_parcelas", "label": "Máximo de parcelas sem juros", "default": 6 },
+    { "type": "header", "content": "Destaque" },
+    { "type": "product", "id": "destaque_produto", "label": "Produto em destaque" },
+    { "type": "image_picker", "id": "destaque_imagem", "label": "Foto (vazio = foto do produto)" },
+    { "type": "text", "id": "destaque_selo_linha", "label": "Selo — linha pequena", "default": "Edição Natal" },
+    { "type": "text", "id": "destaque_selo_nome", "label": "Selo — nome", "default": "Lucky" },
+    { "type": "text", "id": "destaque_olho", "label": "Linha acima do título", "default": "O destaque da coleção" },
+    { "type": "text", "id": "destaque_titulo", "label": "Título (vazio = nome do produto)", "default": "Kit Peitoral + Guia Lucky" },
+    { "type": "textarea", "id": "destaque_texto", "label": "Texto", "default": "Peitoral e guia feitos no mesmo couro, com acabamento dourado à mão. Um conjunto pensado para durar anos e aparecer bem em todas as fotos da ceia." },
+    { "type": "textarea", "id": "destaque_vantagens", "label": "Vantagens (uma por linha)", "default": "Peitoral + guia no mesmo couro legítimo\nFerragens e apliques em dourado\nAjuste preciso para o conforto do cão\nFeito à mão, sob medida" },
+    { "type": "number", "id": "cashback_pct", "label": "Cashback (%)", "default": 10 },
+    { "type": "text", "id": "destaque_botao", "label": "Botão", "default": "Garantir o kit" },
+    { "type": "header", "content": "Faixa vermelha" },
+    { "type": "text", "id": "banda_olho", "label": "Linha acima do título", "default": "Presentes de Natal" },
+    { "type": "text", "id": "banda_titulo", "label": "Título (vazio esconde a faixa)", "default": "Acessórios para o" },
+    { "type": "text", "id": "banda_titulo_destaque", "label": "Título — parte em itálico", "default": "Natal" },
+    { "type": "text", "id": "banda_botao", "label": "Botão", "default": "Acessórios para o Natal" },
+    { "type": "url", "id": "banda_link", "label": "Link do botão" },
+    { "type": "header", "content": "Avaliações" },
+    { "type": "text", "id": "aval_olho", "label": "Linha acima do título", "default": "Quem já comprou" },
+    { "type": "text", "id": "aval_titulo", "label": "Título", "default": "Avaliações de" },
+    { "type": "text", "id": "aval_titulo_destaque", "label": "Título — parte em itálico", "default": "clientes" },
+    { "type": "text", "id": "aval_nota", "label": "Nota e total", "default": "4.9 · 6.152 avaliações verificadas" },
+    { "type": "text", "id": "aval_botao", "label": "Botão", "default": "Ver todas as avaliações" },
+    { "type": "url", "id": "aval_link", "label": "Link do botão" },
+    { "type": "header", "content": "Chamada final" },
+    { "type": "image_picker", "id": "final_imagem", "label": "Foto de fundo" },
+    { "type": "text", "id": "final_imagem_url", "label": "Foto de fundo (link, se não escolher acima)", "default": "https://media.base44.com/images/public/6af2fbaa63cc9236e158e790/1e22bd281_generated_75f271eb.jpg" },
+    { "type": "text", "id": "final_olho", "label": "Linha acima do título", "default": "Enquanto durar o estoque" },
+    { "type": "text", "id": "final_titulo", "label": "Título", "default": "O presente que vira" },
+    { "type": "text", "id": "final_titulo_destaque", "label": "Título — parte em itálico", "default": "memória de família" },
+    { "type": "textarea", "id": "final_texto", "label": "Texto", "default": "Peças produzidas artesanalmente. Garanta o look de Natal do seu pet antes que a coleção esgote." },
+    { "type": "text", "id": "final_botao", "label": "Botão principal (leva à vitrine)", "default": "Comprar a coleção Natal" },
+    { "type": "text", "id": "final_botao2", "label": "Segundo botão", "default": "Ver toda a loja" },
+    { "type": "url", "id": "final_link2", "label": "Link do segundo botão" },
+    { "type": "text", "id": "final_rodape", "label": "Linha final", "default": "10% off na primeira compra com o cupom BEMVINDO · 6x sem juros" }
+  ],
+  "blocks": [
+    {
+      "type": "aba",
+      "name": "Aba da vitrine",
+      "settings": [
+        { "type": "text", "id": "rotulo", "label": "Nome da aba", "default": "Coleiras e guias" },
+        { "type": "text", "id": "palavras", "label": "Palavras (separadas por vírgula)", "info": "Mostra os produtos cujo tipo ou nome contém alguma dessas palavras.", "default": "coleira, guia" }
+      ]
+    },
+    {
+      "type": "avaliacao",
+      "name": "Avaliação",
+      "settings": [
+        { "type": "textarea", "id": "texto", "label": "Texto", "default": "Linda. Confortável, estilosa, acabamento extraordinário" },
+        { "type": "text", "id": "nome", "label": "Nome", "default": "Antonio G." },
+        { "type": "text", "id": "produto", "label": "Produto", "default": "Peitoral Prímula" },
+        { "type": "url", "id": "link", "label": "Link do produto" },
+        { "type": "text", "id": "quando", "label": "Quando (cartões menores)", "default": "Há 2 dias" }
+      ]
+    }
+  ]
+}
+{% endschema %}
