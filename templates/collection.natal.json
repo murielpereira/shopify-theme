@@ -9,25 +9,197 @@
  */
 {
   "sections": {
+    "bn_hero_MGKMrj": {
+      "type": "bn-hero",
+      "blocks": {
+        "atalho_MnbjWD": {
+          "type": "atalho",
+          "settings": {
+            "titulo": "Conhecer Coleção",
+            "detalhe": "Natal",
+            "link": "shopify://collections/natal"
+          }
+        },
+        "atalho_fkVLpK": {
+          "type": "atalho",
+          "settings": {
+            "titulo": "",
+            "detalhe": "",
+            "link": ""
+          }
+        },
+        "atalho_U8MFEA": {
+          "type": "atalho",
+          "settings": {
+            "titulo": "",
+            "detalhe": "",
+            "link": ""
+          }
+        },
+        "atalho_G4RbqK": {
+          "type": "atalho",
+          "settings": {
+            "titulo": "",
+            "detalhe": "",
+            "link": ""
+          }
+        },
+        "atalho_MydCpr": {
+          "type": "atalho",
+          "settings": {
+            "titulo": "",
+            "detalhe": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "atalho_MnbjWD",
+        "atalho_fkVLpK",
+        "atalho_U8MFEA",
+        "atalho_G4RbqK",
+        "atalho_MydCpr"
+      ],
+      "name": "BN · Hero",
+      "settings": {
+        "imagem": "shopify://shop_images/ba8d0712-ed5a-4e12-b561-ddbf716ccf41_00001.jpg",
+        "imagem_mobile": "shopify://shop_images/f8274fa6-8dc8-486f-8d68-ea7a19fe9d6c_00001_5f139980-3a5f-4dcc-9953-64a98c3783ec.jpg",
+        "foco": "bottom",
+        "altura": 60,
+        "mostrar_conteudo": true,
+        "link_banner": "",
+        "selo": "Lançamentos de Natal",
+        "titulo_1": "A coleção de Natal da Âme",
+        "titulo_2": "chegou",
+        "texto": "<p>Novidades em couro legítimo com clima natalino: coleiras, peitorais, laços e charms com acabamento dourado feito à mão.</p>",
+        "rotulo_atalhos": ""
+      }
+    },
     "natal": {
       "type": "natal-colecao",
       "blocks": {
-        "aba_kits": { "type": "aba", "settings": { "rotulo": "Kits e conjuntos", "palavras": "kit" } },
-        "aba_coleiras": { "type": "aba", "settings": { "rotulo": "Coleiras e guias", "palavras": "coleira, guia, peitoral, colar" } },
-        "aba_charms": { "type": "aba", "settings": { "rotulo": "Charms e laços", "palavras": "charm, laço, laco, skin" } },
-        "aba_tricos": { "type": "aba", "settings": { "rotulo": "Tricôs", "palavras": "tricot, tricô, trico" } },
-        "aval_1": { "type": "avaliacao", "settings": { "texto": "Linda. Confortável, estilosa, acabamento extraordinário", "nome": "Antonio G.", "produto": "Peitoral de couro para cachorro com flores | Prímula", "quando": "Há 18 horas" } },
-        "aval_2": { "type": "avaliacao", "settings": { "texto": "Perfeita!!! Vem numa embalagem linda, cheio de carinho, pensado em cada detalhe!", "nome": "Ingredi M.", "produto": "Coleira Stella", "link": "/products/coleira-de-couro-stella", "quando": "Há 18 horas" } },
-        "aval_3": { "type": "avaliacao", "settings": { "texto": "Lindíssimo!! Amamos! Parabéns pelo trabalho!!", "nome": "Vivian P.", "produto": "Pingente de metal com couro · Off White", "quando": "Há 2 dias" } }
+        "aba_kits": {
+          "type": "aba",
+          "settings": {
+            "rotulo": "Kits e conjuntos",
+            "palavras": "kit"
+          }
+        },
+        "aba_coleiras": {
+          "type": "aba",
+          "settings": {
+            "rotulo": "Coleiras e guias",
+            "palavras": "coleira, guia, peitoral, colar"
+          }
+        },
+        "aba_charms": {
+          "type": "aba",
+          "settings": {
+            "rotulo": "Charms e laços",
+            "palavras": "charm, laço, laco, skin"
+          }
+        },
+        "aba_tricos": {
+          "type": "aba",
+          "settings": {
+            "rotulo": "Tricôs",
+            "palavras": "tricot, tricô, trico"
+          }
+        },
+        "aval_1": {
+          "type": "avaliacao",
+          "settings": {
+            "texto": "Linda. Confortável, estilosa, acabamento extraordinário",
+            "nome": "Antonio G.",
+            "produto": "Peitoral de couro para cachorro com flores | Prímula",
+            "link": "",
+            "quando": "Há 18 horas"
+          }
+        },
+        "aval_2": {
+          "type": "avaliacao",
+          "settings": {
+            "texto": "Perfeita!!! Vem numa embalagem linda, cheio de carinho, pensado em cada detalhe!",
+            "nome": "Ingredi M.",
+            "produto": "Coleira Stella",
+            "link": "/products/coleira-de-couro-stella",
+            "quando": "Há 18 horas"
+          }
+        },
+        "aval_3": {
+          "type": "avaliacao",
+          "settings": {
+            "texto": "Lindíssimo!! Amamos! Parabéns pelo trabalho!!",
+            "nome": "Vivian P.",
+            "produto": "Pingente de metal com couro · Off White",
+            "link": "",
+            "quando": "Há 2 dias"
+          }
+        }
       },
-      "block_order": ["aba_kits", "aba_coleiras", "aba_charms", "aba_tricos", "aval_1", "aval_2", "aval_3"],
+      "block_order": [
+        "aba_kits",
+        "aba_coleiras",
+        "aba_charms",
+        "aba_tricos",
+        "aval_1",
+        "aval_2",
+        "aval_3"
+      ],
       "settings": {
+        "topo_imagem": "shopify://shop_images/f8274fa6-8dc8-486f-8d68-ea7a19fe9d6c_00001_5f139980-3a5f-4dcc-9953-64a98c3783ec.jpg",
+        "topo_imagem_url": "https://media.base44.com/images/public/6af2fbaa63cc9236e158e790/ea2bc144b_hero-natal.jpg",
+        "topo_selo": "Lançamentos de Natal",
+        "topo_titulo": "A coleção de Natal da Âme",
+        "topo_titulo_destaque": "chegou",
+        "topo_texto": "Novidades em couro legítimo com clima natalino: coleiras, peitorais, laços e charms com acabamento dourado feito à mão.",
+        "topo_botao": "Explorar coleção",
+        "faixa_itens": "Couro legítimo\nProdução artesanal\nAté 6x sem juros\n10% de cashback",
+        "vitrine_olho": "A vitrine",
+        "vitrine_titulo": "Peças da coleção",
+        "vitrine_titulo_destaque": "Natal",
+        "vitrine_conta_texto": "couro legítimo",
+        "aba_todas": "Todas as peças",
+        "nomes_curtos": true,
+        "selo_lancamento": "Lançamento",
+        "selo_kit": "O kit completo",
+        "selo_sob_medida": "Sob medida",
+        "parcela_minima": 40,
+        "max_parcelas": 6,
         "destaque_produto": "kit-peitoral-e-guia-de-couro-para-cachorro-lucky-edicao-natal",
+        "destaque_selo_linha": "Edição Natal",
+        "destaque_selo_nome": "Lucky",
+        "destaque_olho": "O destaque da coleção",
+        "destaque_titulo": "Kit Peitoral + Guia Lucky",
+        "destaque_texto": "Peitoral e guia feitos no mesmo couro, com acabamento dourado à mão. Um conjunto pensado para durar anos e aparecer bem em todas as fotos da ceia.",
+        "destaque_vantagens": "Peitoral + guia no mesmo couro legítimo\nFerragens e apliques em dourado\nAjuste preciso para o conforto do cão\nFeito à mão, sob medida",
+        "cashback_pct": 10,
+        "destaque_botao": "Garantir o kit",
+        "banda_olho": "Presentes de Natal",
+        "banda_titulo": "Acessórios para o",
+        "banda_titulo_destaque": "Natal",
+        "banda_botao": "Acessórios para o Natal",
         "banda_link": "/collections/acessorios",
+        "aval_olho": "Quem já comprou",
+        "aval_titulo": "Avaliações de",
+        "aval_titulo_destaque": "clientes",
+        "aval_nota": "4.9 · 6.152 avaliações verificadas",
+        "aval_botao": "Ver todas as avaliações",
         "aval_link": "/pages/avaliacoes",
-        "final_link2": "/collections/all"
+        "final_imagem_url": "https://media.base44.com/images/public/6af2fbaa63cc9236e158e790/1e22bd281_generated_75f271eb.jpg",
+        "final_olho": "Enquanto durar o estoque",
+        "final_titulo": "O presente que vira",
+        "final_titulo_destaque": "memória de família",
+        "final_texto": "Peças produzidas artesanalmente. Garanta o look de Natal do seu pet antes que a coleção esgote.",
+        "final_botao": "Comprar a coleção Natal",
+        "final_botao2": "Ver toda a loja",
+        "final_link2": "/collections/all",
+        "final_rodape": "10% off na primeira compra com o cupom BEMVINDO · 6x sem juros"
       }
     }
   },
-  "order": ["natal"]
+  "order": [
+    "bn_hero_MGKMrj",
+    "natal"
+  ]
 }
