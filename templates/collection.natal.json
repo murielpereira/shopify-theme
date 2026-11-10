@@ -113,7 +113,7 @@
         "banda_titulo": "Acessórios para o",
         "banda_titulo_destaque": "Natal",
         "banda_botao": "Acessórios para o Natal",
-        "banda_link": "/collections/acessorios",
+        "banda_link": "shopify://collections/natal",
         "aval_olho": "Quem já comprou",
         "aval_titulo": "Avaliações de",
         "aval_titulo_destaque": "clientes",
@@ -127,7 +127,7 @@
         "final_texto": "Peças produzidas artesanalmente. Garanta o look de Natal do seu pet antes que a coleção esgote.",
         "final_botao": "Comprar a coleção Natal",
         "final_botao2": "Ver toda a loja",
-        "final_link2": "/collections/all",
+        "final_link2": "shopify://collections/natal",
         "final_rodape": "10% off na primeira compra com o cupom BEMVINDO · 6x sem juros"
       }
     }
