@@ -137,6 +137,7 @@ assign busca = product.type | default: primeira_palavra | downcase
               <h3 class="nt-card__nome">{{ nome }}</h3>
               <p class="nt-card__pix">{% if product.price_varies %}A partir de {% endif %}<b>{{ pix | money }}</b> no Pix</p>
               <p class="nt-card__cartao">ou {{ preco | money }} no cartão · {{ n }}x de {{ parcela | money }} sem juros</p>
+{%- if section.settings.card_botao != blank -%}<span class="nt-card__btn">{{ section.settings.card_botao }}</span>{%- endif -%}
             </a>
           {%- endfor -%}
         </div>
@@ -335,6 +336,7 @@ assign busca = product.type | default: primeira_palavra | downcase
   .nt-card__pix { margin: 0; font-size: 14px; color: rgba(26,26,26,.7); }
   .nt-card__pix b, .nt-destaque__pix b { color: var(--nt-verde); font-weight: 600; }
   .nt-card__cartao { margin: 2px 0 0; font-size: 11.5px; color: rgba(26,26,26,.5); }
+.nt-card__btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; margin-top: 14px; border-radius: 2px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; transition: background .2s ease; } .nt-card:hover .nt-card__btn { background: #6E0000; }
   .nt-vazio { margin: 24px 0 0; color: rgba(26,26,26,.55); }
 
   /* destaque */
@@ -426,6 +428,7 @@ assign busca = product.type | default: primeira_palavra | downcase
     { "type": "text", "id": "selo_lancamento", "label": "Selo padrão", "default": "Lançamento" },
     { "type": "text", "id": "selo_kit", "label": "Selo dos kits", "default": "O kit completo" },
     { "type": "text", "id": "selo_sob_medida", "label": "Selo de sob medida (tag customizacao_sobmedida)", "default": "Sob medida" },
+{ "type": "text", "id": "card_botao", "label": "Botão dos cartões (vazio esconde)", "default": "Comprar" },
     { "type": "number", "id": "parcela_minima", "label": "Parcela mínima (R$)", "default": 40 },
     { "type": "number", "id": "max_parcelas", "label": "Máximo de parcelas sem juros", "default": 6 },
     { "type": "header", "content": "Destaque" },
