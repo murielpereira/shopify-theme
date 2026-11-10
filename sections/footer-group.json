@@ -13,6 +13,7 @@
   "sections": {
     "footer": {
       "type": "footer",
+      "disabled": true,
       "settings": {
         "logo": "shopify://shop_images/Logo_AME_Branco.png",
         "tagline": "Feito com amor.",

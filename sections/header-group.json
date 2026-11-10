@@ -13,6 +13,7 @@
   "sections": {
     "countdown-bar": {
       "type": "countdown-bar",
+      "disabled": true,
       "settings": {
         "enabled": true,
         "message": "Semana do Frete Amigo termina em",
@@ -54,6 +55,7 @@
         "announcement-2",
         "announcement-3"
       ],
+      "disabled": true,
       "settings": {
         "speed": 5,
         "bg_color": "#5a4742",
@@ -62,6 +64,7 @@
     },
     "header": {
       "type": "header",
+      "disabled": true,
       "settings": {
         "logo": "shopify://shop_images/logoamebranco.png",
         "logo_width": 140,

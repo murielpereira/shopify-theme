@@ -9,72 +9,6 @@
  */
 {
   "sections": {
-    "bn_hero_MGKMrj": {
-      "type": "bn-hero",
-      "blocks": {
-        "atalho_MnbjWD": {
-          "type": "atalho",
-          "settings": {
-            "titulo": "Conhecer Coleção",
-            "detalhe": "Natal",
-            "link": "shopify://collections/natal"
-          }
-        },
-        "atalho_fkVLpK": {
-          "type": "atalho",
-          "settings": {
-            "titulo": "",
-            "detalhe": "",
-            "link": ""
-          }
-        },
-        "atalho_U8MFEA": {
-          "type": "atalho",
-          "settings": {
-            "titulo": "",
-            "detalhe": "",
-            "link": ""
-          }
-        },
-        "atalho_G4RbqK": {
-          "type": "atalho",
-          "settings": {
-            "titulo": "",
-            "detalhe": "",
-            "link": ""
-          }
-        },
-        "atalho_MydCpr": {
-          "type": "atalho",
-          "settings": {
-            "titulo": "",
-            "detalhe": "",
-            "link": ""
-          }
-        }
-      },
-      "block_order": [
-        "atalho_MnbjWD",
-        "atalho_fkVLpK",
-        "atalho_U8MFEA",
-        "atalho_G4RbqK",
-        "atalho_MydCpr"
-      ],
-      "name": "BN · Hero",
-      "settings": {
-        "imagem": "shopify://shop_images/ba8d0712-ed5a-4e12-b561-ddbf716ccf41_00001.jpg",
-        "imagem_mobile": "shopify://shop_images/f8274fa6-8dc8-486f-8d68-ea7a19fe9d6c_00001_5f139980-3a5f-4dcc-9953-64a98c3783ec.jpg",
-        "foco": "bottom",
-        "altura": 60,
-        "mostrar_conteudo": true,
-        "link_banner": "",
-        "selo": "Lançamentos de Natal",
-        "titulo_1": "A coleção de Natal da Âme",
-        "titulo_2": "chegou",
-        "texto": "<p>Novidades em couro legítimo com clima natalino: coleiras, peitorais, laços e charms com acabamento dourado feito à mão.</p>",
-        "rotulo_atalhos": ""
-      }
-    },
     "natal": {
       "type": "natal-colecao",
       "blocks": {
@@ -199,7 +133,6 @@
     }
   },
   "order": [
-    "bn_hero_MGKMrj",
     "natal"
   ]
 }
