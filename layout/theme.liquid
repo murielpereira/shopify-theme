@@ -134,6 +134,8 @@
     </script>
 
     {{ content_for_header }}
+    {%- comment -%} Cashback: esconde só o botão flutuante do Waltz. A página Meu cashback (/pages/cashback), o item da conta e o carrinho continuam usando o cashback. {%- endcomment -%}
+    <style>body > #wcb-root { display: none !important; }</style>
     {%- comment -%} Tema de Natal: só na coleção Natal e nos produtos com a tag "natal" {%- endcomment -%}
     {%- liquid
       assign tema_natal = false
