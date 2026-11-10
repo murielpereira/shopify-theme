@@ -20,8 +20,26 @@
 
   {%- comment -%} ============ TOPO ============ {%- endcomment -%}
   <section class="nt-topo">
-    {%- if img_topo != blank -%}
-      {{ img_topo | image_url: width: 2400 | image_tag: class: 'nt-topo__img', loading: 'eager', sizes: '100vw', widths: '800, 1200, 1600, 2400', alt: '' }}
+    {%- liquid
+      assign img_topo_m = section.settings.topo_imagem_mobile
+      assign foco = '62% 50%'
+      if img_topo != blank
+        assign foco = img_topo.presentation.focal_point | default: '50% 50%'
+      endif
+      assign foco_m = foco
+      if img_topo_m != blank
+        assign foco_m = img_topo_m.presentation.focal_point | default: '50% 50%'
+      endif
+      assign estilo_foco = '--foco: ' | append: foco | append: '; --foco-m: ' | append: foco_m | append: ';'
+    -%}
+    {%- if img_topo != blank or img_topo_m != blank -%}
+      {%- assign img_d = img_topo | default: img_topo_m -%}
+      <picture>
+        {%- if img_topo_m != blank -%}
+          <source media="(max-width: 749px)" srcset="{{ img_topo_m | image_url: width: 750 }} 750w, {{ img_topo_m | image_url: width: 1100 }} 1100w, {{ img_topo_m | image_url: width: 1500 }} 1500w" sizes="100vw">
+        {%- endif -%}
+        {{ img_d | image_url: width: 2400 | image_tag: class: 'nt-topo__img', loading: 'eager', fetchpriority: 'high', sizes: '100vw', widths: '800, 1200, 1600, 2400', alt: '', style: estilo_foco }}
+      </picture>
     {%- elsif section.settings.topo_imagem_url != blank -%}
       <img class="nt-topo__img" src="{{ section.settings.topo_imagem_url }}" alt="" loading="eager" width="2400" height="1300">
     {%- endif -%}
@@ -288,7 +306,7 @@ assign busca = product.type | default: primeira_palavra | downcase
 
   /* topo */
   .nt-topo { position: relative; display: flex; align-items: center; min-height: clamp(520px, 82vh, 860px); overflow: hidden; background: #d9cbb8; }
-  .nt-topo__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+  .nt-topo__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--foco, 62% 50%); } @media (max-width: 749px) { .nt-topo__img { object-position: var(--foco-m, var(--foco, 50% 50%)); } }
   .nt-topo__veu { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(244,229,192,.55) 0%, rgba(244,229,192,.15) 45%, rgba(0,0,0,0) 70%); }
   .nt-topo__conteudo { position: relative; z-index: 1; }
   .nt-selo { display: inline-block; margin-bottom: 18px; padding: 6px 12px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
@@ -390,7 +408,7 @@ assign busca = product.type | default: primeira_palavra | downcase
   "class": "section-natal-colecao",
   "settings": [
     { "type": "header", "content": "Topo" },
-    { "type": "image_picker", "id": "topo_imagem", "label": "Foto do topo" },
+    { "type": "image_picker", "id": "topo_imagem", "label": "Foto do topo — computador", "info": "Depois de escolher, clique na foto e marque o ponto de foco (ex.: a cabeça do cachorro) para ele nunca ser cortado." }, { "type": "image_picker", "id": "topo_imagem_mobile", "label": "Foto do topo — celular", "info": "Vazio = usa a do computador. Também aceita ponto de foco." },
     { "type": "text", "id": "topo_imagem_url", "label": "Foto do topo (link, se não escolher acima)", "default": "https://media.base44.com/images/public/6af2fbaa63cc9236e158e790/ea2bc144b_hero-natal.jpg" },
     { "type": "text", "id": "topo_selo", "label": "Selo", "default": "Lançamentos de Natal" },
     { "type": "text", "id": "topo_titulo", "label": "Título", "default": "A coleção de Natal da Âme" },
