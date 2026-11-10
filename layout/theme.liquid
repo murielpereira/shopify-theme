@@ -134,6 +134,19 @@
     </script>
 
     {{ content_for_header }}
+    {%- comment -%} Tema de Natal: só na coleção Natal e nos produtos com a tag "natal" {%- endcomment -%}
+    {%- liquid
+      assign tema_natal = false
+      if template.name == 'product' and product.tags contains 'natal'
+        assign tema_natal = true
+      endif
+      if template.name == 'collection' and collection.handle == 'natal'
+        assign tema_natal = true
+      endif
+      if tema_natal
+        render 'tema-natal'
+      endif
+    -%}
   </head>
 
   <!-- Waltz -->
