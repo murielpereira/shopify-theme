@@ -71,6 +71,9 @@
     let _vitrineAberta = false;
     let _faixasVistas = null; // null = primeira avaliação, não avisa nada
     let _trocandoBrinde = false;
+    // Regras cujo auto match não achou tamanho e devolveu 'tamanho-manual': a
+    // escolha é do cliente e o checkout fica travado até o brinde entrar.
+    const _exigeEscolha = new Set();
 
     // ─── XHR helper ───
     function xhrJson(url, method, body) {
@@ -1215,6 +1218,11 @@
         const resp = await xhrJson(
             WALTZ_BASE + '/api/public/brindes/' + encodeURIComponent(regra.id) + '/automatch',
             'POST', { itens, variantes });
+        if (resp && !resp.variante_id && resp.motivo === 'tamanho-manual') {
+            _exigeEscolha.add(String(regra.id));
+        } else if (resp && resp.variante_id) {
+            _exigeEscolha.delete(String(regra.id));
+        }
         if (!resp || !resp.variante_id) return null;
         // cor e metal voltam junto e não aparecem em tela nenhuma: servem pra
         // descrever a decisão na property (vide descricaoAuto).
@@ -1303,6 +1311,30 @@
             _trocandoBrinde = false;
         }
     }
+
+    // ─── Trava do checkout até o cliente escolher o tamanho do brinde ───
+    // O clique é interceptado na captura, ANTES do handler do ame-theme.js (que
+    // manda para o checkout) — e stopImmediatePropagation impede que ele rode.
+    let _checkoutTravado = false;
+    function atualizarTravaCheckout(travar) {
+        _checkoutTravado = !!travar;
+        window.__ameBrindePendente = _checkoutTravado;
+        document.querySelectorAll('[data-cart-checkout]').forEach(el => {
+            el.classList.toggle('is-brinde-pendente', _checkoutTravado);
+            el.setAttribute('aria-disabled', _checkoutTravado ? 'true' : 'false');
+            el.style.opacity = _checkoutTravado ? '.5' : '';
+        });
+    }
+    document.addEventListener('click', (e) => {
+        if (!_checkoutTravado) return;
+        const alvo = e.target.closest && e.target.closest('[data-cart-checkout]');
+        if (!alvo) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        toast('🎁 Escolha o tamanho do seu brinde para continuar');
+        const card = document.querySelector('.ame-gift-selector, .ame-gift-vitrine');
+        if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, true);
 
     async function renderizarBarraBrinde(cart) {
         const drawer = document.querySelector('[data-cart-drawer]') || document.querySelector('#cart-drawer');
@@ -1611,6 +1643,11 @@
             //     cliente já tem brinde (é o "você liberou outro, quer trocar?").
             //     Depois disso ela colapsa e não insiste mais.
             registrarFaixasNovas(liberadas, mantido);
+
+            // Trava do checkout: brinde liberado, sem tamanho que o sistema
+            // pudesse escolher, e o cliente ainda não escolheu.
+            atualizarTravaCheckout(!mantido && liberadas.some(r =>
+                _exigeEscolha.has(String(r.id)) && !regraEsgotada(r)));
 
             // Vitrine: o que ele liberou, o que está no carrinho e o convite de
             // troca. Única UI de escolha — engloba o card de variação de antes.
