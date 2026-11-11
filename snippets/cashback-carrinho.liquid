@@ -1,0 +1,189 @@
+{%- comment -%}
+  Cashback no carrinho lateral: mostra o saldo do Waltz e deixa usar na compra
+  com um clique. O valor oferecido respeita as regras do programa (resgate
+  mínimo e compra mínima de N vezes o cupom). O cupom é gerado pelo Waltz
+  (mesmo resgate da página Meu cashback) e aplicado direto no carrinho.
+  Chamadas pelo App Proxy (/apps/waltz/cashback/...): a Shopify identifica a
+  cliente logada, sem token no navegador.
+{%- endcomment -%}
+<style>
+  .cbc { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--color-outline-variant, #4d4742); border-radius: 12px; background: var(--color-surface-container, #161616); color: var(--color-on-surface, #f5f1ec); font-size: 13px; line-height: 1.45; }
+  .cbc[hidden] { display: none !important; } .cbc [hidden] { display: none !important; }
+  .cbc__linha { display: flex; align-items: center; gap: 10px; }
+  .cbc__icone { flex: none; font-size: 18px; }
+  .cbc__texto { flex: 1; min-width: 0; }
+  .cbc__texto b { color: var(--color-primary, #c1ff72); }
+  .cbc__nota { display: block; margin-top: 2px; font-size: 11.5px; color: var(--color-on-surface-muted, #a9a199); }
+  .cbc__btn { flex: none; min-height: 34px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--color-primary, #c1ff72); color: var(--color-on-primary, #0f0f0f); font: 600 12px/1 inherit; cursor: pointer; white-space: nowrap; }
+  .cbc__btn--claro { background: transparent; color: var(--color-on-surface, #f5f1ec); border: 1px solid var(--color-outline-variant, #4d4742); }
+  .cbc__btn[disabled] { opacity: .6; cursor: wait; }
+  .cbc__acoes { display: flex; gap: 8px; margin-top: 10px; }
+  .cbc__acoes .cbc__btn { flex: 1; }
+  .cbc__ok { color: var(--color-success, #7ee2a1); font-weight: 600; }
+  .cbc__erro { margin-top: 8px; color: var(--color-error, #ff7b6b); font-size: 12px; }
+  .cbc a { color: inherit; text-decoration: underline; }
+</style>
+<script>
+  (function () {
+    var LOGADA = {% if customer %}true{% else %}false{% endif %};
+    var LOGIN = {{ routes.account_login_url | json }};
+    var PROXY = '/apps/waltz/cashback';
+    var CHAVE = 'ame_cb_cupom';
+    var cfg = null;
+    var ocupado = false;
+
+    var brl = function (v) {
+      return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+    var json = function (url, opts) {
+      return fetch(url, Object.assign({ credentials: 'same-origin', headers: { Accept: 'application/json' } }, opts || {}))
+        .then(function (r) { return r.json(); });
+    };
+
+    function caixa() {
+      var rodape = document.querySelector('.ame-cart-drawer__footer');
+      if (!rodape) return null;
+      var b = rodape.querySelector('[data-cb-carrinho]');
+      if (!b) {
+        b = document.createElement('div');
+        b.className = 'cbc';
+        b.setAttribute('data-cb-carrinho', '');
+        b.hidden = true;
+        var cta = rodape.querySelector('.ame-cart-drawer__cta');
+        rodape.insertBefore(b, cta || null);
+      }
+      return b;
+    }
+
+    async function render() {
+      var b = caixa();
+      if (!b || ocupado) return;
+      var cart;
+      try { cart = await json('/cart.js'); } catch (e) { b.hidden = true; return; }
+      if (!cart || !cart.item_count) { b.hidden = true; return; }
+
+      if (!LOGADA) {
+        b.innerHTML = '<div class="cbc__linha"><span class="cbc__icone" aria-hidden="true">💰</span><div class="cbc__texto">Tem cashback? <a href="' + LOGIN + '">Entre na sua conta</a> para usar nesta compra.</div></div>';
+        b.hidden = false;
+        return;
+      }
+
+      var saldoRes;
+      try {
+        if (!cfg) cfg = await json(PROXY + '/config/widget');
+        saldoRes = await json(PROXY + '/saldo?_=' + Date.now());
+      } catch (e) { b.hidden = true; return; }
+      if (!saldoRes || !saldoRes.sucesso) { b.hidden = true; return; }
+
+      var saldo = parseFloat(saldoRes.saldo) || 0;
+      var minimo = Number(cfg.minimo_resgate) || 0;
+      var prop = Number(cfg.proporcao_minima_cupom) || 1;
+      var sub = (cart.items_subtotal_price || 0) / 100;
+      var max = Math.floor(Math.min(saldo, sub / prop) * 100) / 100;
+
+      // Cupom de cashback já aplicado neste carrinho?
+      var usado = null;
+      try { usado = JSON.parse(sessionStorage.getItem(CHAVE) || 'null'); } catch (e) {}
+      var codigos = (cart.discount_codes || []).map(function (d) { return String(d.code || '').toUpperCase(); });
+      if (usado && codigos.indexOf(String(usado.codigo).toUpperCase()) !== -1) {
+        b.innerHTML = '<div class="cbc__linha"><span class="cbc__icone" aria-hidden="true">✅</span><div class="cbc__texto"><span class="cbc__ok">Cashback de ' + brl(usado.valor) + ' aplicado nesta compra.</span>' + (saldo > 0 ? '<span class="cbc__nota">Saldo restante: ' + brl(saldo) + '</span>' : '') + '</div></div>';
+        b.hidden = false;
+        return;
+      }
+
+      if (saldo < minimo || saldo <= 0) { b.hidden = true; return; }
+
+      if (max < minimo) {
+        var falta = Math.max(0, minimo * prop - sub);
+        b.innerHTML = '<div class="cbc__linha"><span class="cbc__icone" aria-hidden="true">💰</span><div class="cbc__texto">Você tem <b>' + brl(saldo) + '</b> de cashback.<span class="cbc__nota">Faltam ' + brl(falta) + ' em produtos para usar nesta compra.</span></div></div>';
+        b.hidden = false;
+        return;
+      }
+
+      b.innerHTML =
+        '<div class="cbc__linha"><span class="cbc__icone" aria-hidden="true">💰</span>' +
+          '<div class="cbc__texto">Você tem <b>' + brl(saldo) + '</b> de cashback.' +
+            '<span class="cbc__nota">Nesta compra dá para usar ' + brl(max) + '.</span></div>' +
+          '<button type="button" class="cbc__btn" data-cbc-usar>Usar ' + brl(max) + '</button>' +
+        '</div>' +
+        '<div class="cbc__acoes" data-cbc-confirma hidden>' +
+          '<button type="button" class="cbc__btn" data-cbc-sim>Sim, usar ' + brl(max) + '</button>' +
+          '<button type="button" class="cbc__btn cbc__btn--claro" data-cbc-nao>Agora não</button>' +
+        '</div>' +
+        '<div class="cbc__erro" data-cbc-erro hidden></div>';
+      b.hidden = false;
+
+      var conf = b.querySelector('[data-cbc-confirma]');
+      var usar = b.querySelector('[data-cbc-usar]');
+      var erro = b.querySelector('[data-cbc-erro]');
+      usar.addEventListener('click', function () { conf.hidden = false; usar.hidden = true; });
+      b.querySelector('[data-cbc-nao]').addEventListener('click', function () { conf.hidden = true; usar.hidden = false; });
+      b.querySelector('[data-cbc-sim]').addEventListener('click', function (ev) { aplicar(max, ev.currentTarget, erro); });
+    }
+
+    async function aplicar(valor, botao, erro) {
+      if (ocupado) return;
+      ocupado = true;
+      botao.disabled = true;
+      botao.textContent = 'Gerando seu cupom...';
+      erro.hidden = true;
+      try {
+        var res = await json(PROXY + '/resgatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ valor: valor })
+        });
+        if (!res || !res.sucesso) throw new Error((res && res.erro) || 'Não foi possível gerar o cupom.');
+        var codigo = res.codigo_cupom || (res.cupom && res.cupom.codigo) || '';
+        if (!codigo) throw new Error('O cupom não voltou do Waltz.');
+        sessionStorage.setItem(CHAVE, JSON.stringify({ codigo: codigo, valor: valor }));
+
+        // Aplica no carrinho; se a loja não aceitar por aqui, aplica pelo link de desconto.
+        var cart = await json('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ discount: codigo })
+        });
+        var aceitos = ((cart && cart.discount_codes) || []).filter(function (d) { return d.applicable !== false; }).map(function (d) { return String(d.code).toUpperCase(); });
+        if (aceitos.indexOf(String(codigo).toUpperCase()) === -1) {
+          await fetch('/discount/' + encodeURIComponent(codigo), { credentials: 'same-origin' });
+        }
+      } catch (e) {
+        erro.textContent = (e && e.message) || 'Não foi possível usar o cashback agora. Tente de novo.';
+        erro.hidden = false;
+        botao.disabled = false;
+        botao.textContent = 'Tentar de novo';
+        ocupado = false;
+        return;
+      }
+      ocupado = false;
+      if (window.AmeCart && typeof window.AmeCart.refresh === 'function') {
+        try { await window.AmeCart.refresh(); } catch (e) {}
+      }
+      render();
+    }
+
+    // Abre o carrinho → monta a faixa. Se o tema redesenhar o rodapé, monta de novo.
+    var espera = null;
+    var agenda = function () { clearTimeout(espera); espera = setTimeout(render, 250); };
+    var obs = new MutationObserver(function () {
+      var gaveta = document.querySelector('.ame-cart-drawer');
+      if (!gaveta || !gaveta.classList.contains('is-open')) return;
+      var rodape = gaveta.querySelector('.ame-cart-drawer__footer');
+      if (rodape && !rodape.querySelector('[data-cb-carrinho]')) agenda();
+    });
+    var iniciar = function () {
+      var gaveta = document.querySelector('.ame-cart-drawer');
+      if (!gaveta) return;
+      obs.observe(gaveta, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+      // Quantidade mudou dentro do carrinho → recalcula o máximo.
+      gaveta.addEventListener('click', function (e) {
+        if (e.target.closest('[data-cb-carrinho]')) return;
+        if (e.target.closest('button')) setTimeout(render, 900);
+      });
+      if (gaveta.classList.contains('is-open')) agenda();
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
+    else iniciar();
+  })();
+</script>
