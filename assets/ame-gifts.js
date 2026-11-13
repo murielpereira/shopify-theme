@@ -1371,6 +1371,15 @@
         await carregarProdutosRegra(alvo.regra);
         const esgotado = regraEsgotada(alvo.regra);
 
+        // Quantas ESCOLHAS de brinde existem de verdade: o texto fala em plural
+        // ("escolha qualquer um dos brindes") só quando há mais de uma. Com uma
+        // regra e um produto só, o plural promete uma escolha que não existe.
+        const regrasDoTopo = regras.filter(r => subtotal >= Number(r.gatilho_valor_minimo_cents));
+        await Promise.all(regrasDoTopo.map(r => carregarProdutosRegra(r)));
+        const opcoesTopo = regrasDoTopo.filter(r => !regraEsgotada(r)).reduce(
+            (n, r) => n + Math.max(1, (listaProdutosRegra(r) || []).length), 0);
+        const variosBrindes = tiers.length > 1 || (listaProdutosRegra(alvo.regra) || []).length > 1;
+
         // Já tem brinde no carrinho? Então a faixa de cima não é "ganhar um
         // brinde" — é MELHORAR o que ele já tem. Prometer "ganhe" pra quem já
         // ganhou sugere que sairiam dois, e só cabe um.
@@ -1409,10 +1418,12 @@
         let html;
         if (esgotado) {
             // Esgotado: sem contador/progresso — só o aviso (o card de resgate não é injetado).
-            html = `<p class="ame-cart-shipping-bar__text">🎁 Os brindes acabaram por enquanto 😢</p>`;
+            html = `<p class="ame-cart-shipping-bar__text">🎁 ${variosBrindes ? 'Os brindes acabaram' : 'O brinde acabou'} por enquanto 😢</p>`;
         } else if (!proximo) {
             const texto = temBrinde
-                ? `🎁 Você chegou ao <strong>topo</strong> — escolha <strong>qualquer</strong> um dos brindes 🎉`
+                ? (opcoesTopo > 1
+                    ? `🎁 Você chegou ao <strong>topo</strong> — escolha <strong>qualquer</strong> um dos brindes 🎉`
+                    : `🎁 Você chegou ao <strong>topo</strong> — seu brinde está garantido 🎉`)
                 : `🎁 Você ganhou <strong>${esc(labelBrinde(alvo.cents))}</strong>! 🎉`;
             html = `<p class="ame-cart-shipping-bar__text">${texto}</p>${trilha(100)}`;
         } else {
