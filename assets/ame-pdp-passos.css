@@ -151,3 +151,8 @@ form[data-passos="true"]:not(.pdp-passos) .pdp__ctas {
 @media (max-width: 480px) { .pdp-tam__portes { grid-template-columns: repeat(3, 1fr); } }
 
 .pdp__custom-field.is-tam-oculto { display: none !important; }
+
+/* Botão "Guia de Medidas" (widget do Waltz) fixo acima dos passos */
+.pdp-passos__medidas { margin: 0 0 1rem; }
+.pdp-passos__medidas[hidden] { display: none; }
+.pdp-tam__nota { margin: 0 0 0.5rem; font-size: 0.8125rem; color: var(--color-on-surface-variant, inherit); }

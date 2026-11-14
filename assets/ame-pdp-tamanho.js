@@ -26,11 +26,12 @@
   };
 
   var PORTES = [
-    { id: 'Micro', faixa: 'até 2 kg', nivel: 1 },
-    { id: 'Mini', faixa: '2,2 a 3,5 kg', nivel: 2 },
-    { id: 'Pequeno', faixa: '4 a 10 kg', nivel: 3 },
-    { id: 'Médio', faixa: '11 a 22 kg', nivel: 4 },
-    { id: 'Grande', faixa: '24 a 35 kg', nivel: 5 }
+    // peso = o ponto do meio da faixa, usado para sugerir o tamanho quando ela não informa o peso
+    { id: 'Micro', faixa: 'até 2 kg', peso: 2, nivel: 1 },
+    { id: 'Mini', faixa: '2,2 a 3,5 kg', peso: 2.9, nivel: 2 },
+    { id: 'Pequeno', faixa: '4 a 10 kg', peso: 7, nivel: 3 },
+    { id: 'Médio', faixa: '11 a 22 kg', peso: 16.5, nivel: 4 },
+    { id: 'Grande', faixa: '24 a 35 kg', peso: 29.5, nivel: 5 }
   ];
   var S = { idade: '', porte: '', raca: '', peso: '' };
   var TM = null;
@@ -69,6 +70,17 @@
   function pesoNum() {
     var v = parseFloat(String(S.peso).replace(',', '.'));
     return isFinite(v) && v > 0 ? v : 0;
+  }
+  function porteAtual() {
+    for (var i = 0; i < PORTES.length; i++) if (PORTES[i].id === S.porte) return PORTES[i];
+    return null;
+  }
+  // O peso digitado manda; sem ele, vale o peso da faixa do porte escolhido.
+  function pesoParaRecomendar() {
+    var p = pesoNum();
+    if (p) return { valor: p, viaPorte: false };
+    var porte = porteAtual();
+    return porte ? { valor: porte.peso, viaPorte: true, porte: porte } : { valor: 0, viaPorte: false };
   }
   function racaDoCatalogo(nome) {
     if (!TM || !TM.racas || !nome) return null;
@@ -109,8 +121,9 @@
     if (!fases.length) return null;
     var quer = S.idade === 'Filhote' ? 'filhote' : 'adulto';
     var fase = fases.filter(function (f) { return norm(f) === quer; })[0] || fases.filter(function (f) { return norm(f) === 'adulto'; })[0] || fases[0];
-    var base = { raca: raca.nome_raca };
-    var v = encontrarVariacao(vars, fase, pesoNum() || null);
+    var pe = pesoParaRecomendar();
+    var base = { raca: raca.nome_raca, viaPorte: pe.viaPorte, porte: pe.porte || null };
+    var v = encontrarVariacao(vars, fase, pe.valor || null);
     if (!v) return Object.assign(base, { semIndicacao: true });
     if (v.precisaPeso) return Object.assign(base, { precisaPeso: true });
     var lojas = tamanhosDaLoja();
@@ -171,6 +184,7 @@
       var btn = botoesTamanho().filter(function (b) { return valorDoBotao(b) === rec.tamanho; })[0];
       var ativo = btn && /--active/.test(btn.className);
       recHtml = '<p class="pdp-tam__reco-texto">Para ' + esc(rec.raca) + ', recomendamos o tamanho <strong>' + esc(rec.tamanho) + '</strong>.' + (rec.obs ? ' ' + esc(rec.obs) : '') + '</p>' +
+        (rec.viaPorte && rec.porte ? '<p class="pdp-tam__nota">Sem o peso, consideramos o porte ' + esc(rec.porte.id) + ' (' + esc(rec.porte.faixa) + '). Informe o peso para afinar.</p>' : '') +
         (ativo ? '<p class="pdp-tam__ok">Tamanho ' + esc(rec.tamanho) + ' escolhido.</p>' :
           '<button type="button" class="pdp-tam__usar" data-tam-usar="' + esc(rec.tamanho) + '">Usar o tamanho ' + esc(rec.tamanho) + '</button>');
     } else if (rec && rec.precisaPeso) {

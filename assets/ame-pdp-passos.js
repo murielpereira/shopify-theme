@@ -23,7 +23,7 @@
 
   var HIDE = 'is-passo-oculto';
   var atual = 0;
-  var nav, rodape, btnProx, btnVoltar, live, resumoEl;
+  var nav, rodape, btnProx, btnVoltar, live, resumoEl, medidasSlot;
   var ultimoTotal = -1;
   var renderAgendado = false;
 
@@ -186,6 +186,11 @@
     resumoEl.className = 'pdp-passos__resumo';
     var wrap = form.querySelector('#pdp-options-wrap');
     form.insertBefore(nav, wrap || form.firstChild);
+    // Slot fixo do botão da tabela de medidas (widget do Waltz): fica FORA dos passos e aparece em todos
+    medidasSlot = document.createElement('div');
+    medidasSlot.className = 'pdp-passos__medidas';
+    medidasSlot.hidden = true;
+    form.insertBefore(medidasSlot, nav.nextSibling);
     var qtd = form.querySelector('.pdp__qty');
     form.insertBefore(resumoEl, qtd || rodape);
     form.appendChild(rodape);
@@ -274,6 +279,7 @@
     });
 
     // rodapé
+    puxarBotaoMedidas();
     var ehResumo = passos[atual].tipo === 'resumo';
     if (ehResumo) preencherResumo(passos);
     rodape.hidden = false;
@@ -285,14 +291,27 @@
     btnProx.classList.toggle('is-aguardando', !passoCompleto(passos[atual]));
   }
 
+  // O botão do widget (#wm-btn-abrir) nasce dentro da opção Tamanho; aqui ele sobe para o slot fixo.
+  // O slot não é recriado pelo Section Rendering, então o widget não o reinjeta (ele checa o id).
+  function puxarBotaoMedidas() {
+    if (!medidasSlot) return;
+    var b = document.getElementById('wm-btn-abrir');
+    if (b && b.parentNode !== medidasSlot) medidasSlot.appendChild(b);
+    medidasSlot.hidden = !medidasSlot.querySelector('#wm-btn-abrir');
+  }
+
   function desligar() {
+    var bm = document.getElementById('wm-btn-abrir');
+    var opc = form.querySelector('#pdp-options-wrap .pdp__option');
+    if (bm && medidasSlot && medidasSlot.contains(bm) && opc) opc.insertBefore(bm, opc.firstChild);
+    if (medidasSlot) medidasSlot.remove();
     form.classList.remove('pdp-passos');
     Array.prototype.forEach.call(form.querySelectorAll('.' + HIDE), function (el) { el.classList.remove(HIDE); });
     if (nav) nav.remove();
     if (rodape) rodape.remove();
     if (live) live.remove();
     if (resumoEl) resumoEl.remove();
-    nav = rodape = resumoEl = null;
+    nav = rodape = resumoEl = medidasSlot = null;
   }
 
   function agendar() {
@@ -308,7 +327,7 @@
       if (m.type === 'childList' && (m.addedNodes.length || m.removedNodes.length)) {
         // ignora o que a própria UI insere/remove
         var meu = function (n) {
-          return n.nodeType === 1 && (n === nav || n === rodape || n === live || n === resumoEl ||
+          return n.nodeType === 1 && (n === nav || n === rodape || n === live || n === resumoEl || n === medidasSlot ||
             (n.classList && (n.classList.contains('pdp-passos__nav') || n.classList.contains('pdp-passos__rodape') || n.classList.contains('pdp-passos__live'))));
         };
         var soMeus = Array.prototype.every.call(m.addedNodes, meu) && Array.prototype.every.call(m.removedNodes, meu);
@@ -319,6 +338,9 @@
 
   document.addEventListener('pdp:variant-changed', agendar);
   document.addEventListener('pdp:tamanho-pronto', agendar);
+  // o widget de medidas chega depois (consulta ao Waltz): tenta puxar o botão quando ele aparece
+  document.addEventListener('wm:pronto', agendar);
+  [400, 1200, 2800, 6000].forEach(function (ms) { setTimeout(agendar, ms); });
   form.addEventListener('input', agendar);
   form.addEventListener('change', agendar);
   form.addEventListener('click', function (e) {
