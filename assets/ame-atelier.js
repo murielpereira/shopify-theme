@@ -1262,7 +1262,8 @@
         }
         const generica = daFase.find((v) => v.peso_min == null && v.peso_max == null);
         if (generica) return generica;
-        if (daFase.length === 1) return daFase[0];
+        // Com peso informado, faixa que NÃO o contém não vale (6 kg não cai na faixa de filhote 0–3,5 kg).
+        if (daFase.length === 1 && !temPeso) return daFase[0];
         return temPeso ? null : { precisaPeso: true };
     }
     // Recomendação pela RAÇA. Devolve null (sem raça, raça fora da tabela ou sem dados), ou
@@ -1287,7 +1288,7 @@
         if (kg) {
             const raca = racaDoCatalogo(S.raca);
             const racaTemFaixa = !!(raca && (raca.variacoes || []).some((v) => v.peso_min != null || v.peso_max != null));
-            const faixas = ((raca && raca.variacoes) || []).filter((v) => v.tamanho_coleira && (v.peso_min != null || v.peso_max != null)); const daFase = faixas.filter((v) => norm(v.fase) === fase); const listaW = daFase.length ? daFase : faixas; const dist = (v) => { const a = v.peso_min == null ? -Infinity : Number(v.peso_min); const b = v.peso_max == null ? Infinity : Number(v.peso_max); return kg < a ? a - kg : (kg > b ? kg - b : 0); }; const maisPerto = listaW.slice().sort((x, y) => dist(x) - dist(y))[0]; const tamW = maisPerto ? String(maisPerto.tamanho_coleira).split(',').map((s) => s.trim()).find((s) => existe(s)) : null; if (racaTemFaixa && tamW) return { raca: raca.nome_raca, fase: maisPerto.fase || fase, tamanho: tamW, obs: maisPerto.observacao || '' };
+            const faixas = ((raca && raca.variacoes) || []).filter((v) => v.tamanho_coleira && (v.peso_min != null || v.peso_max != null)); const daFase = faixas.filter((v) => norm(v.fase) === fase); const contem = (v) => { const a = v.peso_min == null ? -Infinity : Number(v.peso_min); const b = v.peso_max == null ? Infinity : Number(v.peso_max); return kg >= a && kg <= b; }; const contendo = faixas.filter(contem); const contendoDaFase = contendo.filter((v) => norm(v.fase) === fase); const listaW = contendo.length ? (contendoDaFase.length ? contendoDaFase : contendo) : (daFase.length ? daFase : faixas); const dist = (v) => { const a = v.peso_min == null ? -Infinity : Number(v.peso_min); const b = v.peso_max == null ? Infinity : Number(v.peso_max); return kg < a ? a - kg : (kg > b ? kg - b : 0); }; const maisPerto = listaW.slice().sort((x, y) => dist(x) - dist(y))[0]; const tamW = maisPerto ? String(maisPerto.tamanho_coleira).split(',').map((s) => s.trim()).find((s) => existe(s)) : null; if (racaTemFaixa && tamW) return { raca: raca.nome_raca, fase: maisPerto.fase || fase, tamanho: tamW, obs: maisPerto.observacao || '' };
             const p = portePorPeso(kg);
             if (existe(TAM_PORTE[p])) return { raca: 'pet de ' + String(kg).replace('.', ',') + ' kg (porte ' + p.toLowerCase() + ')', fase, tamanho: TAM_PORTE[p], obs: '' };
         }

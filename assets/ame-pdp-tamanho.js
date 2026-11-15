@@ -108,7 +108,9 @@
     }
     var generica = daFase.filter(function (v) { return v.peso_min == null && v.peso_max == null; })[0];
     if (generica) return generica;
-    if (daFase.length === 1) return daFase[0];
+    // Com peso informado, uma faixa que NÃO o contém não vale (6 kg não cai na faixa de filhote 0–3,5 kg).
+    // Sem peso e com uma única variação na fase, ela é a resposta.
+    if (daFase.length === 1 && !temPeso) return daFase[0];
     return temPeso ? null : { precisaPeso: true };
   }
   function recomendacao() {
@@ -123,9 +125,20 @@
     var fase = fases.filter(function (f) { return norm(f) === quer; })[0] || fases.filter(function (f) { return norm(f) === 'adulto'; })[0] || fases[0];
     var pe = pesoParaRecomendar();
     var base = { raca: raca.nome_raca, viaPorte: pe.viaPorte, porte: pe.porte || null };
-    var v = encontrarVariacao(vars, fase, pe.valor || null);
+    // Fase escolhida primeiro; se o peso não cabe em nenhuma faixa dela, olha as outras fases
+    // (um Shih Tzu de 6 kg marcado como filhote cai na faixa de adulto da tabela).
+    var ordem = [fase].concat(fases.filter(function (f) { return f !== fase; }));
+    var v = null;
+    var achouEm = fase;
+    for (var oi = 0; oi < ordem.length; oi++) {
+      var cand = encontrarVariacao(vars, ordem[oi], pe.valor || null);
+      if (cand && !cand.precisaPeso) { v = cand; achouEm = ordem[oi]; break; }
+      if (cand && cand.precisaPeso && oi === 0) { v = cand; break; }
+    }
     if (!v) return Object.assign(base, { semIndicacao: true });
     if (v.precisaPeso) return Object.assign(base, { precisaPeso: true });
+    base.trocouFase = achouEm !== fase;
+    base.faseUsada = achouEm;
     var lojas = tamanhosDaLoja();
     var tam = String(v.tamanho_coleira).split(/[\s/,]+|\bou\b/).map(function (s) { return s.trim(); }).filter(function (s) { return lojas.indexOf(s) >= 0; })[0];
     if (!tam) return Object.assign(base, { semIndicacao: true });
@@ -184,6 +197,7 @@
       var btn = botoesTamanho().filter(function (b) { return valorDoBotao(b) === rec.tamanho; })[0];
       var ativo = btn && /--active/.test(btn.className);
       recHtml = '<p class="pdp-tam__reco-texto">Para ' + esc(rec.raca) + ', recomendamos o tamanho <strong>' + esc(rec.tamanho) + '</strong>.' + (rec.obs ? ' ' + esc(rec.obs) : '') + '</p>' +
+        (rec.trocouFase ? '<p class="pdp-tam__nota">Pelo peso, usamos a faixa de ' + esc(String(rec.faseUsada).toLowerCase()) + ' da tabela.</p>' : '') +
         (rec.viaPorte && rec.porte ? '<p class="pdp-tam__nota">Sem o peso, consideramos o porte ' + esc(rec.porte.id) + ' (' + esc(rec.porte.faixa) + '). Informe o peso para afinar.</p>' : '') +
         (ativo ? '<p class="pdp-tam__ok">Tamanho ' + esc(rec.tamanho) + ' escolhido.</p>' :
           '<button type="button" class="pdp-tam__usar" data-tam-usar="' + esc(rec.tamanho) + '">Usar o tamanho ' + esc(rec.tamanho) + '</button>');
