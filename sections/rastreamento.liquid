@@ -6,9 +6,28 @@
                 service_name, delivery_prevision, trackings: [{ date, code:{name,tracking_type}, observation }] } }
 {% endcomment %}
 
+{%- comment -%}
+  Logos das transportadoras: os mesmos arquivos do rodapé (assets/transportadora-*), servidos
+  pelo próprio tema — sem depender de site de terceiro. O script (bloco javascript, sem Liquid)
+  lê este JSON do data-logos.
+{%- endcomment -%}
+{%- capture logos_json -%}{
+  "latam":"{{ 'transportadora-latam.svg' | asset_url }}",
+  "fedex":"{{ 'transportadora-fedex.png' | asset_url }}",
+  "ups":"{{ 'transportadora-ups.png' | asset_url }}",
+  "dhl":"{{ 'transportadora-dhl.png' | asset_url }}",
+  "gollog":"{{ 'transportadora-gollog.png' | asset_url }}",
+  "magalog":"{{ 'transportadora-magalog.jpg' | asset_url }}",
+  "azul":"{{ 'transportadora-azulexpress.webp' | asset_url }}",
+  "loggi":"{{ 'transportadora-loggi.png' | asset_url }}",
+  "correios":"{{ 'transportadora-correios.png' | asset_url }}",
+  "jadlog":"{{ 'transportadora-jadlog.png' | asset_url }}",
+  "jt":"{{ 'transportadora-jt.png' | asset_url }}"
+}{%- endcapture -%}
 <section
   class="ame-track"
   data-track-section
+  data-logos="{{ logos_json | strip_newlines | escape }}"
   data-api-url="{{ section.settings.api_url | escape }}"
   data-api-token="{{ section.settings.api_token | escape }}"
   data-whatsapp="{{ section.settings.whatsapp_url | escape }}"
@@ -847,6 +866,8 @@
     const apiToken = section.dataset.apiToken || '';
     const whatsapp = section.dataset.whatsapp || '';
     const bufferDias = Number(section.dataset.bufferDias);
+    let logosLocais = {};
+    try { logosLocais = JSON.parse(section.dataset.logos || '{}'); } catch (e) {}
 
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
@@ -879,14 +900,23 @@
     function carrierLogo(name) {
       if (!name) return '';
       const n = name.toLowerCase();
-      if (n.includes('loggi')) return 'https://logodownload.org/wp-content/uploads/2019/07/loggi-logo-0.png';
+      const L = logosLocais;
+      // Internacionais e parceiras com arquivo no tema (os mesmos do rodapé).
+      if (n.includes('latam') && L.latam) return L.latam;
+      if (/fed\s*ex/.test(n) && L.fedex) return L.fedex;
+      if (/\bups\b|united\s*parcel/.test(n) && L.ups) return L.ups;
+      if (/\bdhl\b/.test(n) && L.dhl) return L.dhl;
+      if (n.includes('gollog') && L.gollog) return L.gollog;
+      if (n.includes('magalog') && L.magalog) return L.magalog;
+      if (n.includes('azul') && L.azul) return L.azul;
+      if (n.includes('loggi')) return L.loggi || 'https://logodownload.org/wp-content/uploads/2019/07/loggi-logo-0.png';
       if (n.includes('correios') || n.includes('pac'))
-        return 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
-      if (n.includes('sedex')) return 'https://logodownload.org/wp-content/uploads/2017/03/sedex-logo-1.png';
+        return L.correios || 'https://logodownload.org/wp-content/uploads/2017/03/pac-correios-logo-1.png';
+      if (n.includes('sedex')) return L.correios || 'https://logodownload.org/wp-content/uploads/2017/03/sedex-logo-1.png';
       if (n.includes('total')) return 'https://logodownload.org/wp-content/uploads/2019/09/total-express-logo-0.png';
       if (n.includes('j&t') || n.includes('jt express'))
-        return 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
-      if (n.includes('jadlog')) return 'https://logodownload.org/wp-content/uploads/2019/02/jadlog-logo-0.png';
+        return L.jt || 'https://images.seeklogo.com/logo-png/33/1/jt-express-logo-png_seeklogo-336498.png';
+      if (n.includes('jadlog')) return L.jadlog || 'https://logodownload.org/wp-content/uploads/2019/02/jadlog-logo-0.png';
       return '';
     }
 
