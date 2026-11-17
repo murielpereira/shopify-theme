@@ -127,17 +127,20 @@ assign busca = product.type | default: primeira_palavra | downcase
               endif
               assign parcela = preco | divided_by: n
             -%}
-            <a class="nt-card" href="{{ product.url }}" data-nt-busca="{{ busca | escape }}">
+            {%- assign esgotado = false -%}
+            {%- unless product.available -%}{%- unless product.tags contains 'agrupamento_produto' -%}{%- assign esgotado = true -%}{%- endunless -%}{%- endunless -%}
+            <a class="nt-card{% if esgotado %} nt-card--esgotado{% endif %}" href="{{ product.url }}" data-nt-busca="{{ busca | escape }}">
               <div class="nt-card__foto">
                 {%- if product.featured_image -%}
                   {{ product.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 33vw, (min-width: 600px) 50vw, 100vw', widths: '400, 600, 900', alt: product.title }}
                 {%- endif -%}
                 {%- if selo != blank -%}<span class="nt-card__selo">{{ selo }}</span>{%- endif -%}
+                {%- if esgotado -%}<span class="nt-card__esgotado">Esgotado</span>{%- endif -%}
               </div>
               <h3 class="nt-card__nome">{{ nome }}</h3>
               <p class="nt-card__pix">{% if product.price_varies %}A partir de {% endif %}<b>{{ pix | money }}</b> no Pix</p>
               <p class="nt-card__cartao">ou {{ preco | money }} no cartão · {{ n }}x de {{ parcela | money }} sem juros</p>
-{%- if section.settings.card_botao != blank -%}<span class="nt-card__btn">{{ section.settings.card_botao }}</span>{%- endif -%}
+{%- if esgotado -%}<span class="nt-card__btn nt-card__btn--esgotado">Esgotado</span>{%- elsif section.settings.card_botao != blank -%}<span class="nt-card__btn">{{ section.settings.card_botao }}</span>{%- endif -%}
             </a>
           {%- endfor -%}
         </div>
@@ -331,12 +334,14 @@ assign busca = product.type | default: primeira_palavra | downcase
   .nt-card__foto { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #efe3c9; }
   .nt-card__foto img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
   .nt-card:hover .nt-card__foto img { transform: scale(1.04); }
+  .nt-card__esgotado { position: absolute; left: 10px; bottom: 10px; padding: 4px 9px; background: rgba(0,0,0,.72); color: #fff; font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
+  .nt-card--esgotado .nt-card__foto img { filter: grayscale(.6); opacity: .65; }
   .nt-card__selo { position: absolute; top: 10px; left: 10px; padding: 4px 9px; background: var(--nt-creme-claro); color: var(--nt-vermelho); font-size: 9px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
   .nt-card__nome { margin: 14px 0 6px; padding-top: 14px; border-top: 1px solid var(--nt-linha); font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: 20px; line-height: 1.2; color: var(--nt-vermelho); }
   .nt-card__pix { margin: 0; font-size: 14px; color: rgba(26,26,26,.7); }
   .nt-card__pix b, .nt-destaque__pix b { color: var(--nt-verde); font-weight: 600; }
   .nt-card__cartao { margin: 2px 0 0; font-size: 11.5px; color: rgba(26,26,26,.5); }
-.nt-card__btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; margin-top: 14px; border-radius: 2px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; transition: background .2s ease; } .nt-card:hover .nt-card__btn { background: #6E0000; }
+.nt-card__btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; margin-top: 14px; border-radius: 2px; background: var(--nt-vermelho); color: var(--nt-creme-claro); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; transition: background .2s ease; } .nt-card:hover .nt-card__btn { background: #6E0000; } .nt-card .nt-card__btn--esgotado, .nt-card:hover .nt-card__btn--esgotado { background: #8a8078; color: #fff; }
   .nt-vazio { margin: 24px 0 0; color: rgba(26,26,26,.55); }
 
   /* destaque */

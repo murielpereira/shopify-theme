@@ -26,17 +26,24 @@
         {%- for product in colecao.products limit: limite -%}
           {%- liquid
             assign desconto = 0
+            assign esgotado = false
+            unless product.available
+              unless product.tags contains 'agrupamento_produto'
+                assign esgotado = true
+              endunless
+            endunless
             if product.compare_at_price > product.price
               assign diferenca = product.compare_at_price | minus: product.price
               assign desconto = diferenca | times: 100.0 | divided_by: product.compare_at_price | round
             endif
           -%}
-          <li class="bn-card">
+          <li class="bn-card{% if esgotado %} bn-card--esgotado{% endif %}">
             <a class="bn-card__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
               {%- if product.featured_media -%}
                 {{ product.featured_media | image_url: width: 900 | image_tag: loading: 'lazy', sizes: '(min-width: 990px) 25vw, 50vw', widths: '360, 540, 720, 900', alt: product.featured_media.alt | default: product.title | escape }}
               {%- endif -%}
               {%- if desconto > 0 -%}<span class="bn-pill bn-card__badge">{{ desconto | append: '% OFF' }}</span>{%- endif -%}
+              {%- if esgotado -%}<span class="bn-card__esgotado-selo">Esgotado</span>{%- endif -%}
             </a>
             <div class="bn-card__info">
               {%- if product.type != blank -%}<p class="bn-card__type">{{ product.type }}</p>{%- endif -%}
@@ -51,7 +58,11 @@
               {%- if section.settings.cashback_pct > 0 -%}
                 <p class="bn-card__cashback">Cashback de {{ product.price | times: section.settings.cashback_pct | divided_by: 100 | money }}</p>
               {%- endif -%}
-              <a class="bn-btn bn-card__cta" href="{{ product.url }}">{{ section.settings.botao_card }}</a>
+              {%- if esgotado -%}
+                <a class="bn-btn bn-card__cta bn-card__cta--esgotado" href="{{ product.url }}" aria-label="Produto esgotado: {{ product.title | escape }}">Esgotado</a>
+              {%- else -%}
+                <a class="bn-btn bn-card__cta" href="{{ product.url }}">{{ section.settings.botao_card }}</a>
+              {%- endif -%}
             </div>
           </li>
         {%- endfor -%}
@@ -87,6 +98,9 @@
   .bn-vitrine .bn-card__media img, .bn-vitrine .bn-card__media svg { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
   .bn-vitrine .bn-card:hover .bn-card__media img { transform: scale(1.03); }
   .bn-vitrine .bn-card__badge { position: absolute; top: 12px; left: 12px; }
+  .bn-vitrine .bn-card__esgotado-selo { position: absolute; left: 12px; bottom: 12px; z-index: 1; padding: 5px 11px; border-radius: 999px; background: rgba(0,0,0,.72); color: #fff; font: 600 10px/1 var(--bn-sans); letter-spacing: .14em; text-transform: uppercase; }
+  .bn-vitrine .bn-card--esgotado .bn-card__media img { filter: grayscale(.6); opacity: .65; }
+  .bn-vitrine .bn-card .bn-card__cta--esgotado, .bn-vitrine .bn-card .bn-card__cta--esgotado:hover { background: var(--bn-line); color: var(--bn-muted); box-shadow: none; transform: none; }
   .bn-vitrine .bn-card__info { display: flex; flex: 1; flex-direction: column; padding: 16px 14px 14px; }
   .bn-vitrine .bn-card__type { margin: 0 0 8px; font: 500 9px/1 var(--bn-sans); letter-spacing: .22em; text-transform: uppercase; color: var(--bn-muted); }
   .bn-vitrine .bn-card__title { margin: 0; font: 400 clamp(22px, 2.2vw, 28px)/1.1 var(--bn-serif); color: var(--bn-text); }
