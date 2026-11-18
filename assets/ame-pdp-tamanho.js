@@ -37,6 +37,7 @@
   var TM = null;
   var bloco = null;
   var autoPreenchido = false;
+  var ultimoAuto = ''; // último tamanho aplicado sozinho (só reaplica quando a sugestão MUDA)
 
   function norm(s) {
     return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -196,11 +197,18 @@
     if (rec && rec.tamanho) {
       var btn = botoesTamanho().filter(function (b) { return valorDoBotao(b) === rec.tamanho; })[0];
       var ativo = btn && /--active/.test(btn.className);
+      // Aplica o tamanho sugerido sozinho. Só quando a sugestão muda: se ela escolher outro tamanho
+      // depois, a escolha dela vale (o botão "Voltar ao sugerido" fica à mão).
+      if (btn && !ativo && !btn.disabled && rec.tamanho !== ultimoAuto) {
+        ultimoAuto = rec.tamanho;
+        setTimeout(function () { aplicarTamanho(rec.tamanho); }, 0);
+      }
+      if (ativo) ultimoAuto = rec.tamanho;
       recHtml = '<p class="pdp-tam__reco-texto">Para ' + esc(rec.raca) + ', recomendamos o tamanho <strong>' + esc(rec.tamanho) + '</strong>.' + (rec.obs ? ' ' + esc(rec.obs) : '') + '</p>' +
         (rec.trocouFase ? '<p class="pdp-tam__nota">Pelo peso, usamos a faixa de ' + esc(String(rec.faseUsada).toLowerCase()) + ' da tabela.</p>' : '') +
         (rec.viaPorte && rec.porte ? '<p class="pdp-tam__nota">Sem o peso, consideramos o porte ' + esc(rec.porte.id) + ' (' + esc(rec.porte.faixa) + '). Informe o peso para afinar.</p>' : '') +
-        (ativo ? '<p class="pdp-tam__ok">Tamanho ' + esc(rec.tamanho) + ' escolhido.</p>' :
-          '<button type="button" class="pdp-tam__usar" data-tam-usar="' + esc(rec.tamanho) + '">Usar o tamanho ' + esc(rec.tamanho) + '</button>');
+        (ativo ? '<p class="pdp-tam__ok">Tamanho ' + esc(rec.tamanho) + ' escolhido para você. Pode trocar abaixo.</p>' :
+          '<button type="button" class="pdp-tam__usar" data-tam-usar="' + esc(rec.tamanho) + '">Voltar ao tamanho sugerido (' + esc(rec.tamanho) + ')</button>');
     } else if (rec && rec.precisaPeso) {
       recHtml = '<p class="pdp-tam__reco-texto">Para ' + esc(rec.raca) + ' o tamanho depende do peso. Informe o peso para sugerirmos.</p>';
     } else if (rec && rec.semIndicacao) {

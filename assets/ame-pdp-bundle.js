@@ -308,6 +308,8 @@
         //     Bebê"), enquanto coleira "Chiclete com Rosa Bebê" aceita
         //     "Chiclete", "Rosa Bebê" e "Chiclete com Rosa Bebê" (rejeita
         //     "Rosa Bebê com Off White").
+        //     Desde 18/11/2026 também vale a PRIMEIRA cor igual: a coleira "Chiclete" aceita
+        //     "Chiclete com Rosa Bebê" (o laço Fly é bicolor; o peitoral Lucky, de cor única).
         // Metal sem par no cross-sell (ex.: peitoral Rose, laço só com
         // Grafite/Ouro/Prata): oferece a variante Prata em vez de ocultar.
         function autoMatchVariant(product, targetByDim) {
@@ -362,7 +364,9 @@
                         ? (tList.every(t => cList.includes(t)) || cList.every(t => tList.includes(t)))
                         : isTamanho
                             ? tList.every(t => cList.includes(t))
-                            : cList.every(t => tList.includes(t));
+                            // Cor: cabe se estiver CONTIDA na cor da peça, ou se a PRIMEIRA cor for a mesma
+                            // (a primeira manda: o laço "Café com Off White" acompanha o peitoral "Café").
+                            : (cList.every(t => tList.includes(t)) || (cList.length > 0 && tList.length > 0 && cList[0] === tList[0]));
 
                     if (ok) {
                         score += 1;

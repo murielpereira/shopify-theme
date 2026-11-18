@@ -230,6 +230,7 @@
       if (!passoCompleto(passos[i])) { n = i; break; }
     }
     atual = n;
+    if (live) live.textContent = '';
     render();
     var topo = nav.getBoundingClientRect().top;
     if (topo < 0) nav.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -280,6 +281,8 @@
 
     // rodapé
     puxarBotaoMedidas();
+    // o aviso ("Informe a raça…") some assim que o passo estiver completo
+    if (live && passoCompleto(passos[atual])) live.textContent = '';
     var ehResumo = passos[atual].tipo === 'resumo';
     if (ehResumo) preencherResumo(passos);
     rodape.hidden = false;
