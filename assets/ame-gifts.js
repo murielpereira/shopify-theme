@@ -1231,6 +1231,7 @@
             cor: resp.cor || null,
             cor2: resp.cor2 || null,
             metal: resp.metal || null,
+            tamanho: resp.tamanho || null,
             motivo: resp.motivo || null,
         };
     }
@@ -1257,6 +1258,12 @@
         if (auto.motivo === 'cor2' && auto.cor2) {
             return `combinou com a 2ª cor ${auto.cor2} do pedido`;
         }
+        // Decidido pelo TAMANHO (a cor do brinde não casa): a property conta isso,
+        // senão o pedido dizia "sorteado" para uma escolha que não foi sorteio.
+        if (auto.motivo === 'tamanho' && auto.tamanho) {
+            return `combinou com o tamanho ${auto.tamanho} do pedido`;
+        }
+        if (auto.motivo === 'tamanho-padrao') return 'tamanho G padrão — sem tamanho do pedido no brinde';
         if (auto.cor && auto.cor2) {
             return `sorteado — ${auto.cor} e ${auto.cor2} do pedido não estavam disponíveis`;
         }
