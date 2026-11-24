@@ -30,6 +30,7 @@
     "header_sticky": true,
     "checkout_yampi_ativo": false,
     "pix_discount": 5,
+    "installments_no_interest": 10,
     "cashback_percent": 10,
     "pingente_metal_product": "pingente-de-metal",
     "pingente_couro_products": [
