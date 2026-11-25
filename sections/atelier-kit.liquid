@@ -12,6 +12,46 @@
   assign palavra = section.settings.hero_palavra | default: nome_kit
   assign destaques = section.settings.hero_destaques | newline_to_br | split: '<br />'
 -%}
+{%- comment -%}
+  Campos personalizados ativos (Waltz → Aplicativos → Campos personalizados;
+  metafield waltz.campos_personalizados). O JS escolhe os que valem para o kit pelas
+  TAGS das peças (ex.: comprimento_guia vem da guia) e mostra no passo Tamanho.
+{%- endcomment -%}
+{%- liquid
+  assign cfs_akt = shop.metafields.waltz.campos_personalizados.value
+  assign cf_akt_json = ''
+  for cf_w in cfs_akt
+    if cf_w.tag != blank
+      capture item_cf
+        echo '{"tag":'
+        echo cf_w.tag | json
+        echo ',"nome":'
+        echo cf_w.name | json
+        echo ',"titulo":'
+        echo cf_w.title | json
+        echo ',"tipo":'
+        echo cf_w.type | json
+        echo ',"opcoes":'
+        echo cf_w.options | default: '' | json
+        echo ',"ajuda":'
+        echo cf_w.helper | default: '' | json
+        echo ',"obrigatorio":'
+        if cf_w.required
+          echo 'true'
+        else
+          echo 'false'
+        endif
+        echo ',"ordem":'
+        echo cf_w.order | default: forloop.index | json
+        echo '}'
+      endcapture
+      if cf_akt_json != ''
+        assign cf_akt_json = cf_akt_json | append: ','
+      endif
+      assign cf_akt_json = cf_akt_json | append: item_cf
+    endif
+  endfor
+-%}
 <section class="akt" data-akt>
   <script type="application/json" data-akt-config>
     {
@@ -20,6 +60,7 @@
       "waltz": "https://waltz.up.railway.app",
       "pixPct": {{ pix_pct | json }},
       "parcelas": {{ section.settings.parcelas | default: 6 | json }},
+      "campos": [{{ cf_akt_json }}],
       "corInicial": {{ section.settings.cor_inicial | json }},
       "metalInicial": {{ section.settings.metal_inicial | json }},
       "texturas": {
@@ -119,6 +160,7 @@
           <h2 class="akt-etapa__titulo">O tamanho certo</h2>
           <p class="akt-etapa__sub">Conte sobre o seu pet: pelo porte ou pela raça a gente sugere o tamanho, e a nossa equipe confere tudo antes de produzir. O tamanho do peitoral define a largura da guia.</p>
           <div data-akt-tamanhos></div>
+          <div class="akt-extras" data-akt-extras></div>
         </div>
 
         <div class="akt-etapa" data-akt-etapa="resumo" hidden>
@@ -221,6 +263,15 @@
   .akt-suave { color: var(--akt-suave); font-weight: 400; }
   .akt-q { margin: 0 0 12px; font-size: 12px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--akt-acento); }
   .akt-q--sep { margin-top: 26px; }
+  .akt-extras { margin-top: 26px; }
+  .akt-extras__campo { margin: 0 0 18px; }
+  .akt-extras__campo .akt-q { margin-bottom: 10px; }
+  .akt-extras__ajuda { margin: 8px 0 0; font-size: 13px; color: var(--akt-suave); }
+  .akt-extras__erro { margin: 8px 0 0; font-size: 13px; color: #ff8a80; }
+  .akt-extras__opcoes { display: flex; flex-wrap: wrap; gap: 10px; }
+  .akt-extras__opcao { min-height: 46px; padding: 0 22px; border: 1px solid var(--akt-linha); border-radius: 999px; background: transparent; color: var(--akt-texto); font: inherit; font-size: 14px; cursor: pointer; }
+  .akt-extras__opcao[aria-pressed="true"] { border-color: var(--akt-acento); background: var(--akt-acento); color: #0a0a0a; }
+  .akt-extras__texto { width: 100%; min-height: 46px; padding: 12px 14px; border: 1px solid var(--akt-linha); border-radius: 12px; background: #1d1d1d; color: var(--akt-texto); font: inherit; font-size: 16px; }
   .akt-fases { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .akt-fase { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 64px; padding: 10px; border: 1.5px solid transparent; border-radius: 999px; background: var(--akt-card); color: var(--akt-texto); font: inherit; cursor: pointer; }
   .akt-fase b { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }

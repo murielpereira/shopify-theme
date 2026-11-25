@@ -19,7 +19,8 @@
   const PROXIMO = { cores: 'Escolher o metal', metal: 'Escolher o tamanho', tamanho: 'Ver o resumo', resumo: 'Adicionar ao carrinho' };
 
   const S = { passo: 'cores', base: null, cor: null, metal: null, tam: null, enviando: false, fase: null, porte: null, peso: '', raca: '' };
-  let K = null, OP = null, FOTOS = [], TM = null;
+  let K = null, OP = null, FOTOS = [], TM = null, CAMPOS = [];
+  S.campos = {};
 
   const semAcento = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const slug = (t) => semAcento(t).toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -330,7 +331,7 @@
     });
     const ir = el.querySelector('[data-akt-raca]');
     if (ir) ir.addEventListener('change', () => { S.raca = ir.value.trim(); renderTamanhos(); });
-    el.querySelectorAll('[data-tam]').forEach((b) => b.addEventListener('click', () => { S.tam = b.dataset.tam; renderTamanhos(); atualizar(); }));
+    el.querySelectorAll('[data-tam]').forEach((b) => b.addEventListener('click', () => { S.tam = b.dataset.tam; renderTamanhos(); renderExtras(); atualizar(); }));
     const bg = el.querySelector('[data-akt-guia]');
     if (bg) bg.addEventListener('click', abrirGuia);
   }
@@ -362,15 +363,54 @@
   function valido(passo) {
     if (passo === 'cores') return !!S.cor;
     if (passo === 'metal') return !!S.metal;
-    if (passo === 'tamanho') return !!(S.tam && bundle(S.tam, S.cor, S.metal));
+    if (passo === 'tamanho') return !!(S.tam && bundle(S.tam, S.cor, S.metal)) && camposFaltando().length === 0;
     return true;
+  }
+  /* ---------- campos personalizados das peças (ex.: comprimento da guia) ---------- */
+  // Vale o campo cuja TAG está em alguma peça do kit (a guia traz "comprimento_guia"). A raça já é
+  // perguntada pelo bloco "O tamanho certo": o campo de raça não entra aqui.
+  function camposDoKit() {
+    const tags = new Set();
+    (K.components || []).forEach((c) => (c.tags || []).forEach((t) => tags.add(t)));
+    return (CFG.campos || [])
+      .filter((c) => c.tag !== 'customizacao_raca' && tags.has(c.tag))
+      .sort((a, b) => (parseInt(a.ordem, 10) || 0) - (parseInt(b.ordem, 10) || 0));
+  }
+  const opcoesDe = (c) => String(c.opcoes || '').split(',').map((o) => o.trim()).filter(Boolean);
+  function camposFaltando() {
+    return CAMPOS.filter((c) => c.obrigatorio && !String(S.campos[c.nome] || '').trim());
+  }
+  function renderExtras(mostrarErro) {
+    const el = $('[data-akt-extras]');
+    if (!el) return;
+    if (!CAMPOS.length) { el.innerHTML = ''; return; }
+    const faltam = new Set(camposFaltando().map((c) => c.nome));
+    el.innerHTML = CAMPOS.map((c, i) => {
+      const op = opcoesDe(c);
+      const rot = '<p class="akt-q">' + esc(c.titulo || c.nome) + (c.obrigatorio ? ' *' : '') + '</p>';
+      const corpo = op.length
+        ? '<div class="akt-extras__opcoes" role="group" aria-label="' + esc(c.titulo || c.nome) + '">' +
+          op.map((o) => '<button type="button" class="akt-extras__opcao" data-extra="' + i + '" data-valor="' + esc(o) + '" aria-pressed="' + (S.campos[c.nome] === o) + '">' + esc(o) + '</button>').join('') + '</div>'
+        : '<input type="text" class="akt-extras__texto" data-extra-texto="' + i + '" value="' + esc(S.campos[c.nome] || '') + '" aria-label="' + esc(c.titulo || c.nome) + '">';
+      return '<div class="akt-extras__campo">' + rot + corpo +
+        (c.ajuda ? '<p class="akt-extras__ajuda">' + esc(c.ajuda) + '</p>' : '') +
+        ((mostrarErro || S.tam) && faltam.has(c.nome) ? '<p class="akt-extras__erro">Escolha uma opção para continuar.</p>' : '') + '</div>';
+    }).join('');
+    el.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', () => {
+      S.campos[CAMPOS[Number(b.dataset.extra)].nome] = b.dataset.valor;
+      renderExtras(); atualizar();
+    }));
+    el.querySelectorAll('[data-extra-texto]').forEach((inp) => inp.addEventListener('input', () => {
+      S.campos[CAMPOS[Number(inp.dataset.extraTexto)].nome] = inp.value;
+      atualizar();
+    }));
   }
   function irPara(passo) {
     const alvo = PASSOS.indexOf(passo);
     for (let i = 0; i < alvo; i++) if (!valido(PASSOS[i])) return irPara(PASSOS[i]);
     S.passo = passo;
     $$('[data-akt-etapa]').forEach((e) => { e.hidden = e.dataset.aktEtapa !== passo; });
-    if (passo === 'tamanho') renderTamanhos();
+    if (passo === 'tamanho') { renderTamanhos(); renderExtras(); }
     if (passo === 'resumo') renderResumo();
     atualizar();
     const topo = $('#akt-montar') || root;
@@ -413,6 +453,10 @@
       const semProto = (u) => String(u || '').replace(/^https?:\/\//, '').replace(/^\/\//, '').replace(/\?.*$/, '');
       const fotoKit = semProto((variantes[0] && variantes[0].featured_image) || K.components[0].featured_image || '');
       const props = { _from_kit: '1' };
+      // Campos do pedido (ex.: Comprimento da Guia) e o que a cliente contou do pet, para a folha e a equipe
+      CAMPOS.forEach((c) => { const v = String(S.campos[c.nome] || '').trim(); if (v) props[c.nome] = v; });
+      const pet = [S.raca, S.fase, S.porte ? 'porte ' + String(S.porte).toLowerCase() : '', S.peso ? String(S.peso).replace('.', ',') + ' kg' : ''].filter(Boolean).join(', ');
+      if (pet) { const cr = (CFG.campos || []).find((c) => c.tag === 'customizacao_raca'); props[(cr && cr.nome) || 'Observações'] = pet; }
       if (bv.cheio > bv.preco) props._preco_cheio = String(bv.cheio);
       if (fotoKit) props._foto_kit = fotoKit;
       props._pecas_kit = K.components.map((comp, i) => {
@@ -478,6 +522,7 @@
       return;
     }
     OP = montarOpcoes(K);
+    CAMPOS = camposDoKit();
     if (!OP.cor || !OP.metal || !OP.tam || !K.components || K.components.length < 2) {
       console.error('[ateliê kit] estrutura inesperada', OP);
       return;
