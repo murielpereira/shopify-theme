@@ -13,6 +13,9 @@
   "sections": {
     "countdown-bar": {
       "type": "countdown-bar",
+      "custom_css": [
+        ".ame-countdown__message, .ame-countdown__val {color: white;}"
+      ],
       "settings": {
         "enabled": true,
         "message": "Black November termina em",
