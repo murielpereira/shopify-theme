@@ -15,8 +15,8 @@
       "type": "countdown-bar",
       "settings": {
         "enabled": true,
-        "message": "Semana do Frete Amigo termina em",
-        "end_date": "2026-10-10",
+        "message": "Black November termina em",
+        "end_date": "2026-11-30",
         "end_time": "23:59:59",
         "link": ""
       }
